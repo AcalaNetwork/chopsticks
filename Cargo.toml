@@ -1,0 +1,7 @@
+[workspace]
+members = [
+	"executor",
+]
+exclude = [
+	"vendor",
+]
