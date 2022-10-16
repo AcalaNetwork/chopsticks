@@ -1,0 +1,21 @@
+module.exports = {
+  root: true,
+  parser: '@typescript-eslint/parser',
+  plugins: [
+    '@typescript-eslint',
+    'import',
+    'sort-imports-es6-autofix',
+  ],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
+    'plugin:import/recommended',
+    'plugin:import/typescript'
+  ],
+  rules: {
+    '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    'sort-imports-es6-autofix/sort-imports-es6': 'error'
+  },
+}
