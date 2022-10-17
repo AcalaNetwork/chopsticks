@@ -12,9 +12,8 @@ use smoldot::json_rpc::methods::HexString;
 #[serde(rename_all = "camelCase")]
 pub struct Task {
     pub wasm: HexString,
-    pub call: String,
-    pub params: HexString,
     pub block_hash: HexString,
+	pub calls: Vec<(String, HexString)>,
 }
 
 #[rpc(client)]

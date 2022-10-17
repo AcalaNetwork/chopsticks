@@ -20,17 +20,24 @@ const handlers: Handlers = {
   },
   exec_getTask: async (context) => {
     const wasmKey = stringToHex(':code')
-    const header = await context.api.rpc.chain.getHeader()
+    const header = await context.api.rpc.chain.getHeader(context.state.head)
     const head = header.hash.toHex()
     const parent = header.parentHash.toHex()
     const wasm = (await context.api.rpc.state.getStorage(wasmKey, parent)) as any
     const block = await context.api.rpc.chain.getBlock(head)
-    const params = block.block.toHex()
+
+    const calls = [['Core_initialize_block', header.toHex()]]
+
+    for (const extrinsic of block.block.extrinsics) {
+      calls.push(['BlockBuilder_apply_extrinsic', extrinsic.toHex()])
+    }
+
+    calls.push(['BlockBuilder_finalize_block', '0x'])
+
     return {
       wasm,
-      call: 'Core_execute_block',
-      params,
       blockHash: parent,
+      calls,
     }
   },
 }
