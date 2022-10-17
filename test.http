@@ -1,0 +1,8 @@
+# @keepStreaming
+WS ws://localhost:8000
+{
+  "id": 2,
+    "jsonrpc": "2.0",
+    "method": "runner_externalStorageGet",
+	"params": ["0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c", "0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da92debc46b867465ec4a43a2e9918467c8f065057e73a3ffceff273f4555a0ea3d731ec8ef4d79954473b4ffda046d836d"]
+}
