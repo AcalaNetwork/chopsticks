@@ -1,4 +1,4 @@
-import { WsProvider } from '@polkadot/rpc-provider'
+import { ApiPromise } from '@polkadot/api'
 import _ from 'lodash'
 
 import { defaultLogger } from '../logger'
@@ -8,25 +8,27 @@ const logger = defaultLogger.child({ name: 'state' })
 export default class State {
   // blockHash => key => value
   readonly #db: Record<string, Record<string, string | Promise<string>>> = {}
-  readonly #wsProvider: WsProvider
+  readonly #api: ApiPromise
 
-  constructor(wsProvider: WsProvider) {
-    this.#wsProvider = wsProvider
+  #head: string
+
+  constructor(api: ApiPromise, head: string) {
+    this.#api = api
+    this.#head = head
   }
 
   async get(blockHash: string, key: string): Promise<string | undefined> {
-    logger.trace('Getting %s for block %s', key, blockHash)
+    logger.trace({ key, blockHash }, 'get')
     const local = _.get(this.#db, [blockHash, key])
     if (local) {
       return local
     }
-    const remote = this.#wsProvider.send('state_getStorage', [key, blockHash])
+    const remote = ((await this.#api.rpc.state.getStorage(key, blockHash)) as any).toHex()
     _.set(this.#db, [blockHash, key], remote)
     return remote
   }
 
-  async set(blockHash: string, key: string, value: string): Promise<void> {
-    logger.trace('Setting %s for block %s', key, blockHash)
-    _.set(this.#db, [blockHash, key], value)
+  get head(): string {
+    return this.#head
   }
 }

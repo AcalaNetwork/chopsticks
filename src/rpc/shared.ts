@@ -1,3 +1,5 @@
+import { ApiPromise } from '@polkadot/api'
+
 import { defaultLogger } from '../logger'
 import State from '../state'
 
@@ -22,7 +24,11 @@ export class ResponseError extends Error {
 
 export interface Context {
   state: State
+  api: ApiPromise
 }
 
-export type Handler = (context: Context, params: string[]) => Promise<object | string | number | void | undefined>
+export type Handler = (
+  context: Context,
+  params: string[]
+) => Promise<object | string | number | void | undefined | null>
 export type Handlers = Record<string, Handler>

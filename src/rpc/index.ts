@@ -1,8 +1,8 @@
 import { Context, Handlers, ResponseError, logger } from './shared'
-import runner from './runner'
+import exec from './exec'
 
 const allHandlers: Handlers = {
-  ...runner,
+  ...exec,
 }
 
 export const handler =

@@ -16,7 +16,7 @@ const parseRequest = (request: string) => {
 
 export const createServer = (port: number, handler: Handler) => {
   logger.debug('Starting on port %d', port)
-  const wss = new WebSocket.Server({ port })
+  const wss = new WebSocket.Server({ port, maxPayload: 1024 * 1024 * 100 })
   wss.on('listening', () => {
     logger.debug('Listening on port %d', port)
   })
@@ -25,8 +25,6 @@ export const createServer = (port: number, handler: Handler) => {
     logger.debug('New connection')
 
     const send = (data: object) => {
-      logger.debug('Sending %o', data)
-
       ws.send(JSON.stringify(data))
     }
 
@@ -43,7 +41,8 @@ export const createServer = (port: number, handler: Handler) => {
       logger.debug('Received message: %s', message)
 
       const req = parseRequest(message.toString())
-      if (!req || !req.id || !req.method) {
+      if (!req || !Object.hasOwn(req, 'id') || !req.method) {
+        logger.debug('Invalid request: %s', message)
         send({
           id: null,
           jsonrpc: '2.0',
@@ -57,13 +56,14 @@ export const createServer = (port: number, handler: Handler) => {
 
       try {
         const resp = await handler(req)
+        logger.debug('Sending response for request %o %o', req.id, req.method)
         send({
           id: req.id,
           jsonrpc: '2.0',
-          result: resp,
+          result: resp || null,
         })
       } catch (e) {
-        logger.debug('Error handling request: %o', e)
+        logger.debug('Error handling request: %o %s', e, e)
         send({
           id: req.id,
           jsonrpc: '2.0',
