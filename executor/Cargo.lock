@@ -800,6 +800,7 @@ name = "executor"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "hex",
  "hex-literal",
  "jsonrpsee",
  "serde",

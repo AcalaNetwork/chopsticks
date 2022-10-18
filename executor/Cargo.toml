@@ -12,5 +12,6 @@ jsonrpsee = { version = "0.15.1", features = ["ws-client", "macros"] }
 serde = "1.0.136"
 serde_json = "1.0"
 tokio = { version = "1.21.2", features = ["full"] }
+hex = "0.4.3"
 
 smoldot = { path = '../vendor/smoldot' }

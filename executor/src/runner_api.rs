@@ -13,7 +13,7 @@ use smoldot::json_rpc::methods::HexString;
 pub struct Task {
     pub wasm: HexString,
     pub block_hash: HexString,
-	pub calls: Vec<(String, HexString)>,
+    pub calls: Vec<(String, HexString)>,
 }
 
 #[rpc(client)]
