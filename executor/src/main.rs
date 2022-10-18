@@ -70,6 +70,10 @@ async fn main() -> Result<(), jsonrpsee::core::Error> {
                 RuntimeHostVm::PrefixKeys(req) => {
                     let prefix = req.prefix().as_ref().to_vec();
                     if prefix.is_empty() {
+						// this must be coming from `ExternalStorageRoot` trying to get all keys in order to calculate storage root digest
+						// we are not going to fetch all the storages for that, so a dummy value is returned
+						// this means the storage root digest will be wrong, and failed the final check
+						// so we should just avoid doing final check by not supporting execute_block
                         req.inject_keys_ordered(iter::empty::<Vec<u8>>())
                     } else {
                         let keys = client.prefix_keys(&block_hash, HexString(prefix)).await?;
@@ -93,7 +97,7 @@ async fn main() -> Result<(), jsonrpsee::core::Error> {
     }
 
     println!("Done");
-	println!("Storage top trie changes: {:?}", storage_top_trie_changes);
+	println!("Storage top trie changes: {:?}", storage_top_trie_changes.into_iter().collect::<Vec<_>>());
 
     Ok(())
 }

@@ -1,4 +1,4 @@
-import WebSocket from 'ws'
+import WebSocket, { AddressInfo } from 'ws'
 
 import { defaultLogger } from './logger'
 
@@ -17,8 +17,17 @@ const parseRequest = (request: string) => {
 export const createServer = (port: number, handler: Handler) => {
   logger.debug('Starting on port %d', port)
   const wss = new WebSocket.Server({ port, maxPayload: 1024 * 1024 * 100 })
-  wss.on('listening', () => {
-    logger.debug('Listening on port %d', port)
+
+  const promise = new Promise<number>((resolve, reject) => {
+    wss.on('listening', () => {
+      logger.debug(wss.address(), 'Listening')
+      resolve((wss.address() as AddressInfo).port)
+    })
+
+    wss.on('error', (err) => {
+      logger.error(err, 'Error')
+      reject(err)
+    })
   })
 
   wss.on('connection', (ws) => {
@@ -72,4 +81,6 @@ export const createServer = (port: number, handler: Handler) => {
       }
     })
   })
+
+  return promise
 }
