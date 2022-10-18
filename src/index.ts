@@ -99,11 +99,6 @@ yargs(hideBin(process.argv))
           desc: 'Block hash or block number. Default to latest block',
           string: true,
         },
-        'executor-cmd': {
-          desc: 'Command to execute the executor',
-          string: true,
-          require: true,
-        },
       }),
     (argv) => {
       setup(argv).catch((err) => {
