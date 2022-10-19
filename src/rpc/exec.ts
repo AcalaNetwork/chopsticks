@@ -6,7 +6,12 @@ import { fetchKeysToArray } from './fetch-keys'
 const handlers: Handlers = {
   exec_storageGet: async (context, params) => {
     const [blockHash, key] = params
-    return context.state.get(blockHash, key)
+    const block = await context.chain.getBlock(blockHash)
+    if (!block) {
+      throw new Error('Block not found')
+    }
+    const value = await block.get(key)
+    return value
   },
   exec_prefixKeys: async (context, params) => {
     const [blockHash, key] = params
@@ -20,16 +25,15 @@ const handlers: Handlers = {
   },
   exec_getTask: async (context) => {
     const wasmKey = stringToHex(':code')
-    const header = await context.api.rpc.chain.getHeader(context.state.head)
-    const head = header.hash.toHex()
+    const header = await context.chain.head.header
     const parent = header.parentHash.toHex()
-    const wasm = (await context.api.rpc.state.getStorage(wasmKey, parent)) as any
-    const block = await context.api.rpc.chain.getBlock(head)
+    const wasm = await context.chain.head.get(wasmKey)
+    const block = context.chain.head
 
     const calls = [['Core_initialize_block', header.toHex()]]
 
-    for (const extrinsic of block.block.extrinsics) {
-      calls.push(['BlockBuilder_apply_extrinsic', extrinsic.toHex()])
+    for (const extrinsic of await block.extrinsics) {
+      calls.push(['BlockBuilder_apply_extrinsic', extrinsic])
     }
 
     calls.push(['BlockBuilder_finalize_block', '0x'])
@@ -39,6 +43,10 @@ const handlers: Handlers = {
       blockHash: parent,
       calls,
     }
+  },
+  exec_taskResult: async (context, params) => {
+    void context
+    console.log(params)
   },
 }
 

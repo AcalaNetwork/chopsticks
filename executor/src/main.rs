@@ -98,13 +98,14 @@ async fn main() -> Result<(), jsonrpsee::core::Error> {
 
     println!("Done");
 
-    for (key, value) in storage_top_trie_changes.into_iter() {
-        println!(
-            "Storage changes: {} => {}",
-            hex::encode(key),
-            value.map_or("Deleted".to_owned(), hex::encode)
-        );
-    }
+    client
+        .task_result(
+            storage_top_trie_changes
+                .diff_into_iter_unordered()
+                .map(|(k, v)| (HexString(k), v.map(HexString)))
+                .collect(),
+        )
+        .await?;
 
     Ok(())
 }

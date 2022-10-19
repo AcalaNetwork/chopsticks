@@ -47,8 +47,6 @@ export const createServer = (port: number, handler: Handler) => {
     })
 
     ws.on('message', async (message) => {
-      logger.debug('Received message: %s', message)
-
       const req = parseRequest(message.toString())
       if (!req || !Object.hasOwn(req, 'id') || !req.method) {
         logger.debug('Invalid request: %s', message)
@@ -62,6 +60,14 @@ export const createServer = (port: number, handler: Handler) => {
         })
         return
       }
+
+      logger.debug(
+        {
+          id: req.id,
+          method: req.method,
+        },
+        'Received message'
+      )
 
       try {
         const resp = await handler(req)

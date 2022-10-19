@@ -4,10 +4,10 @@ import { hideBin } from 'yargs/helpers'
 import { spawn } from 'child_process'
 import yargs from 'yargs'
 
+import { Blockchain } from './state'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
-import State from './state'
 
 const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
@@ -24,7 +24,9 @@ const setup = async (argv: any) => {
     blockHash = (await api.rpc.chain.getBlockHash(blockHash)).toHex()
   }
 
-  const state = new State(api, blockHash)
+  const header = await api.rpc.chain.getHeader(blockHash)
+
+  const chain = new Blockchain(api, { hash: blockHash, number: header.number.toNumber() })
 
   defaultLogger.info(
     {
@@ -34,7 +36,7 @@ const setup = async (argv: any) => {
     'Args'
   )
 
-  const listeningPort = await createServer(port, handler({ state, api }))
+  const listeningPort = await createServer(port, handler({ chain, api }))
 
   return listeningPort
 }

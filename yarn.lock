@@ -662,13 +662,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4":
-  version: 4.14.186
-  resolution: "@types/lodash@npm:4.14.186"
-  checksum: ee0c1368a8100bb6efb88335107473a41928fc307ff1ef4ff1278868ccddba9c04c68c36d1ffe3a0392ef4a956e1955f7de3203ec09df4f1655dd1b88485c549
-  languageName: node
-  linkType: hard
-
 "@types/node-fetch@npm:^2.6.2":
   version: 2.6.2
   resolution: "@types/node-fetch@npm:2.6.2"
@@ -1173,7 +1166,6 @@ __metadata:
     "@polkadot/api": ^9.5.2
     "@polkadot/rpc-provider": ^9.5.2
     "@polkadot/util": ^10.1.11
-    "@types/lodash": ^4
     "@types/node": ^18.11.0
     "@types/ws": ^8
     "@types/yargs": ^17
@@ -1185,7 +1177,6 @@ __metadata:
     eslint-plugin-sort-imports-es6-autofix: ^0.6.0
     husky: ^8.0.1
     lint-staged: ^13.0.3
-    lodash: ^4.17.21
     node-dev: ^7.4.3
     pino: ^8.6.1
     pino-pretty: ^9.1.1

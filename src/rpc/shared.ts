@@ -1,7 +1,7 @@
 import { ApiPromise } from '@polkadot/api'
 
+import { Blockchain } from '../state'
 import { defaultLogger } from '../logger'
-import State from '../state'
 
 export const logger = defaultLogger.child({ name: 'rpc' })
 
@@ -23,7 +23,7 @@ export class ResponseError extends Error {
 }
 
 export interface Context {
-  state: State
+  chain: Blockchain
   api: ApiPromise
 }
 

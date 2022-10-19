@@ -41,6 +41,9 @@ pub trait RpcApi {
 
     #[method(name = "exec_getTask")]
     fn get_task(&self) -> Result<Task, RpcError>;
+
+	#[method(name = "exec_taskResult")]
+    fn task_result(&self, storage_changes: Vec<(HexString, Option<HexString>)>) -> Result<(), RpcError>;
 }
 
 pub async fn client(url: &str) -> Result<WsClient, RpcError> {
