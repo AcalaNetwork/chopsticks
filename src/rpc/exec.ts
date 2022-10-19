@@ -1,48 +1,29 @@
-import { stringToHex } from '@polkadot/util'
-
-import { Handlers } from './shared'
-import { fetchKeysToArray } from './fetch-keys'
+import { Handlers, ResponseError } from './shared'
+import { fetchKeysToArray } from '../utils'
 
 const handlers: Handlers = {
-  exec_storageGet: async (context, params) => {
-    const [blockHash, key] = params
+  exec_storageGet: async (context, [_task_id, blockHash, key]) => {
     const block = await context.chain.getBlock(blockHash)
     if (!block) {
-      throw new Error('Block not found')
+      throw new ResponseError(1, 'Block not found')
     }
     const value = await block.get(key)
     return value
   },
-  exec_prefixKeys: async (context, params) => {
-    const [blockHash, key] = params
+  exec_prefixKeys: async (context, [_task_id, blockHash, key]) => {
     const res = await fetchKeysToArray((startKey) => context.api.rpc.state.getKeysPaged(key, 500, startKey, blockHash))
     return res.map((k) => k.toHex())
   },
-  exec_nextKey: async (context, params) => {
-    const [blockHash, key] = params
+  exec_nextKey: async (context, [_task_id, blockHash, key]) => {
     const res = await context.api.rpc.state.getKeysPaged(key, 1, null, blockHash)
     return res[0]?.toHex()
   },
-  exec_getTask: async (context) => {
-    const wasmKey = stringToHex(':code')
-    const header = await context.chain.head.header
-    const parent = header.parentHash.toHex()
-    const wasm = await context.chain.head.get(wasmKey)
-    const block = context.chain.head
-
-    const calls = [['Core_initialize_block', header.toHex()]]
-
-    for (const extrinsic of await block.extrinsics) {
-      calls.push(['BlockBuilder_apply_extrinsic', extrinsic])
+  exec_getTask: async (context, [task_id]) => {
+    const task = context.tasks.getTask(Number(task_id))
+    if (!task) {
+      throw new ResponseError(1, 'Task not found')
     }
-
-    calls.push(['BlockBuilder_finalize_block', '0x'])
-
-    return {
-      wasm,
-      blockHash: parent,
-      calls,
-    }
+    return task
   },
   exec_taskResult: async (context, params) => {
     void context

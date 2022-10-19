@@ -18,5 +18,13 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     'sort-imports-es6-autofix/sort-imports-es6': 'error',
     '@typescript-eslint/no-explicit-any': 'off',
+    "@typescript-eslint/no-unused-vars": [
+      "warn", // or "error"
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
   },
 }

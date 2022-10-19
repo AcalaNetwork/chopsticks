@@ -1,13 +1,14 @@
 import { ApiPromise } from '@polkadot/api'
 import { WsProvider } from '@polkadot/rpc-provider'
 import { hideBin } from 'yargs/helpers'
-import { spawn } from 'child_process'
 import yargs from 'yargs'
 
-import { Blockchain } from './state'
+import { Blockchain } from './blockchain'
+import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
+import { wasmKey } from './rpc/shared'
 
 const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
@@ -24,10 +25,6 @@ const setup = async (argv: any) => {
     blockHash = (await api.rpc.chain.getBlockHash(blockHash)).toHex()
   }
 
-  const header = await api.rpc.chain.getHeader(blockHash)
-
-  const chain = new Blockchain(api, { hash: blockHash, number: header.number.toNumber() })
-
   defaultLogger.info(
     {
       endpoint: argv.endpoint,
@@ -36,19 +33,43 @@ const setup = async (argv: any) => {
     'Args'
   )
 
-  const listeningPort = await createServer(port, handler({ chain, api }))
+  const header = await api.rpc.chain.getHeader(blockHash)
+  const chain = new Blockchain(api, { hash: blockHash, number: header.number.toNumber() })
+  const tasks = new TaskManager(argv['executor-cmd'], port)
 
-  return listeningPort
+  const context = { chain, api, ws: wsProvider, tasks }
+
+  const listeningPort = await createServer(port, handler(context))
+
+  tasks.updateListeningPort(listeningPort)
+
+  return context
 }
 
-const main = async (argv: any) => {
-  const listeningPort = await setup(argv)
+const runBlock = async (argv: any) => {
+  const context = await setup(argv)
 
-  const executorCmd = argv['executor-cmd']
+  const header = await context.chain.head.header
+  const parent = header.parentHash.toHex()
+  const wasm = await context.chain.head.get(wasmKey)
+  const block = context.chain.head
 
-  const cmd = `${executorCmd} --runner-url=ws://localhost:${listeningPort}`
+  const calls: [string, string][] = [['Core_initialize_block', header.toHex()]]
 
-  spawn(cmd, { shell: true, stdio: 'inherit' })
+  for (const extrinsic of await block.extrinsics) {
+    calls.push(['BlockBuilder_apply_extrinsic', extrinsic])
+  }
+
+  calls.push(['BlockBuilder_finalize_block', '0x'])
+
+  await context.tasks.addAndRunTask({
+    kind: 'Call',
+    blockHash: parent,
+    wasm,
+    calls,
+  })
+
+  setTimeout(() => process.exit(0), 50)
 }
 
 yargs(hideBin(process.argv))
@@ -77,7 +98,7 @@ yargs(hideBin(process.argv))
         },
       }),
     (argv) => {
-      main(argv).catch((err) => {
+      runBlock(argv).catch((err) => {
         console.error(err)
         process.exit(1)
       })
@@ -100,6 +121,11 @@ yargs(hideBin(process.argv))
         block: {
           desc: 'Block hash or block number. Default to latest block',
           string: true,
+        },
+        'executor-cmd': {
+          desc: 'Command to execute the executor',
+          string: true,
+          require: true,
         },
       }),
     (argv) => {
