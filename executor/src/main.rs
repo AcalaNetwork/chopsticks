@@ -98,13 +98,14 @@ async fn main() -> Result<(), jsonrpsee::core::Error> {
 
     println!("Done");
 
-    for (key, value) in storage_top_trie_changes.into_iter() {
-        println!(
-            "Storage changes: {} => {}",
-            hex::encode(key),
-            value.map_or("Deleted".to_owned(), hex::encode)
-        );
-    }
+    let storage_changes = storage_top_trie_changes.into_iter()
+        .map(|(key, value)| (
+            format!("0x{}", hex::encode(key)),
+            value.map(|x| format!("0x{}", hex::encode(x))).unwrap_or("null".to_owned())
+        ))
+        .collect::<std::collections::HashMap<_, _>>();
+
+    println!("Storage changes: {:#?}", storage_changes);
 
     Ok(())
 }
