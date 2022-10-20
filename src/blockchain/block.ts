@@ -79,6 +79,7 @@ export class Block {
 
   #wasm?: Promise<string>
   #runtimeVersion?: Promise<any>
+  #metadata?: Promise<any>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
@@ -189,5 +190,28 @@ export class Block {
     }
 
     return this.#runtimeVersion
+  }
+
+  get metadata(): Promise<any> {
+    if (!this.#metadata) {
+      this.#metadata = new Promise((resolve, reject) => {
+        this.wasm
+          .then((wasm) => {
+            this.#chain.tasks.addAndRunTask(
+              {
+                kind: 'Call',
+                blockHash: this.hash,
+                wasm,
+                calls: [['Metadata_metadata', '0x']],
+              },
+              (resp) => {
+                resolve(resp['Call'].result)
+              }
+            )
+          })
+          .catch(reject)
+      })
+    }
+    return this.#metadata
   }
 }

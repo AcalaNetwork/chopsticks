@@ -1,8 +1,13 @@
 import { Handlers, ResponseError } from './shared'
+import { defaultLogger } from '../logger'
 import { fetchKeysToArray } from '../utils'
+
+const logger = defaultLogger.child({ name: 'exec' })
 
 const handlers: Handlers = {
   exec_storageGet: async (context, [_task_id, blockHash, key]) => {
+    logger.trace({ blockHash, key }, 'exec_storageGet')
+
     const block = await context.chain.getBlock(blockHash)
     if (!block) {
       throw new ResponseError(1, 'Block not found')
@@ -19,6 +24,8 @@ const handlers: Handlers = {
     return res[0]?.toHex()
   },
   exec_getTask: async (context, [task_id]) => {
+    logger.trace({ task_id }, 'exec_getTask')
+
     const task = context.tasks.getTask(Number(task_id))
     if (!task) {
       throw new ResponseError(1, 'Task not found')

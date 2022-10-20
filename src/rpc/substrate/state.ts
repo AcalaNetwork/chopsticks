@@ -5,7 +5,7 @@ const handlers: Handlers = {
     return context.chain.head.runtimeVersion
   },
   state_getMetadata: async (context) => {
-    return context.api.rpc.state.getMetadata()
+    return context.chain.head.metadata
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     const id = randomId()

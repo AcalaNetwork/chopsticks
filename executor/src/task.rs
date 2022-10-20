@@ -28,8 +28,15 @@ pub struct Task {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CallResponse {
+	result: HexString,
+	storage_diff: Vec<(HexString, Option<HexString>)>
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub enum TaskResponse {
-    Call(Vec<(HexString, Option<HexString>)>),
+    Call(CallResponse),
     RuntimeVersion(HexString),
 }
 
@@ -60,6 +67,8 @@ impl Task {
             allow_unresolved_imports: false,
         })
         .unwrap();
+
+		let mut ret: Vec<u8> = vec![];
 
         for (call, params) in self.calls.as_ref().unwrap() {
             let mut vm = runtime_host::run(runtime_host::Config {
@@ -120,16 +129,18 @@ impl Task {
 
             let res = res.unwrap();
 
+			ret = res.virtual_machine.value().as_ref().to_vec();
+
             storage_top_trie_changes = res.storage_top_trie_changes;
             offchain_storage_changes = res.offchain_storage_changes;
         }
 
-        let resp = storage_top_trie_changes
+        let diff = storage_top_trie_changes
             .diff_into_iter_unordered()
             .map(|(k, v)| (HexString(k), v.map(HexString)))
             .collect();
 
-        Ok(TaskResponse::Call(resp))
+        Ok(TaskResponse::Call(CallResponse { result: HexString(ret), storage_diff: diff }))
     }
 
     async fn runtime_version(
