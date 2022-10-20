@@ -24,18 +24,32 @@ pub struct Task {
     pub kind: TaskKind,
     pub wasm: HexString,
     pub block_hash: HexString,
-    pub calls: Vec<(String, HexString)>,
+    pub calls: Option<Vec<(String, HexString)>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum TaskResponse {
+    Call(Vec<(HexString, Option<HexString>)>),
+    RuntimeVersion(HexString),
 }
 
 impl Task {
     pub async fn run(&self, task_id: u32, client: &WsClient) -> Result<(), jsonrpsee::core::Error> {
-        match self.kind {
+        let resp = match self.kind {
             TaskKind::Call => self.call(task_id, client).await,
             TaskKind::RuntimeVersion => self.runtime_version(task_id, client).await,
-        }
+        }?;
+
+        client.task_result(task_id, resp).await?;
+
+        Ok(())
     }
 
-    async fn call(&self, task_id: u32, client: &WsClient) -> Result<(), jsonrpsee::core::Error> {
+    async fn call(
+        &self,
+        task_id: u32,
+        client: &WsClient,
+    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let mut storage_top_trie_changes = storage_diff::StorageDiff::empty();
         let mut offchain_storage_changes = storage_diff::StorageDiff::empty();
 
@@ -47,7 +61,7 @@ impl Task {
         })
         .unwrap();
 
-        for (call, params) in &self.calls {
+        for (call, params) in self.calls.as_ref().unwrap() {
             let mut vm = runtime_host::run(runtime_host::Config {
                 virtual_machine: vm_proto.clone(),
                 function_to_call: &call,
@@ -110,24 +124,29 @@ impl Task {
             offchain_storage_changes = res.offchain_storage_changes;
         }
 
-        client
-            .task_result(
-                task_id,
-                storage_top_trie_changes
-                    .diff_into_iter_unordered()
-                    .map(|(k, v)| (HexString(k), v.map(HexString)))
-                    .collect(),
-            )
-            .await?;
+        let resp = storage_top_trie_changes
+            .diff_into_iter_unordered()
+            .map(|(k, v)| (HexString(k), v.map(HexString)))
+            .collect();
 
-        Ok(())
+        Ok(TaskResponse::Call(resp))
     }
 
     async fn runtime_version(
         &self,
         _task_id: u32,
         _client: &WsClient,
-    ) -> Result<(), jsonrpsee::core::Error> {
-        Ok(())
+    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
+        let vm_proto = HostVmPrototype::new(Config {
+            module: &self.wasm,
+            heap_pages: HeapPages::from(2048),
+            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+            allow_unresolved_imports: false,
+        })
+        .unwrap();
+
+        let resp = vm_proto.runtime_version();
+
+        Ok(TaskResponse::RuntimeVersion(HexString(resp.as_ref().to_vec())))
     }
 }

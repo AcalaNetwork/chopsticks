@@ -6,7 +6,7 @@ use jsonrpsee::{
     ws_client::{WsClient, WsClientBuilder},
 };
 use smoldot::json_rpc::methods::HexString;
-use crate::task::Task;
+use crate::task::{Task, TaskResponse};
 
 #[rpc(client)]
 pub trait RpcApi {
@@ -41,7 +41,7 @@ pub trait RpcApi {
     fn task_result(
         &self,
         task_id: u32,
-        storage_changes: Vec<(HexString, Option<HexString>)>,
+        resp: TaskResponse,
     ) -> Result<(), RpcError>;
 }
 

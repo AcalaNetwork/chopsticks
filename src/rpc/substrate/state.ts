@@ -1,4 +1,4 @@
-import { Handlers } from '../shared'
+import { Handlers, randomId } from '../shared'
 
 const handlers: Handlers = {
   state_getRuntimeVersion: async (context) => {
@@ -7,17 +7,21 @@ const handlers: Handlers = {
   state_getMetadata: async (context) => {
     return context.api.rpc.state.getMetadata()
   },
-  state_subscribeRuntimeVersion: async (context, params, { subscribe }) => {
-    let callback: (_: any) => void = () => {}
-    const id = (
-      await context.ws.subscribe('state_runtimeVersion', 'state_subscribeRuntimeVersion', params, (_err, res) => {
-        console.log('state_subscribeRuntimeVersion', res)
-        callback(res)
-      })
-    ).toString()
-    callback = subscribe(id, () => {
-      context.ws.unsubscribe('state_runtimeVersion', 'unsubscribeRuntimeVersion', id)
-    })
+  state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
+    const id = randomId()
+    const callback = subscribe(id)
+    context.tasks.addAndRunTask(
+      {
+        kind: 'RuntimeVersion',
+        blockHash: context.chain.head.hash,
+        wasm: await context.chain.head.wasm,
+      },
+      (resp) => {
+        const ver = resp['RuntimeVersion']
+        const decoded = context.api.createType('RuntimeVersion', ver)
+        callback(decoded.toJSON())
+      }
+    )
     return id
   },
   state_unsubscribeRuntimeVersion: async (_context, params, { unsubscribe }) => {

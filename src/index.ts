@@ -8,7 +8,6 @@ import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
-import { wasmKey } from './rpc/shared'
 
 const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
@@ -25,13 +24,7 @@ const setup = async (argv: any) => {
     blockHash = (await api.rpc.chain.getBlockHash(blockHash)).toHex()
   }
 
-  defaultLogger.info(
-    {
-      endpoint: argv.endpoint,
-      blockHash,
-    },
-    'Args'
-  )
+  defaultLogger.info({ endpoint: argv.endpoint, blockHash }, 'Args')
 
   const header = await api.rpc.chain.getHeader(blockHash)
   const chain = new Blockchain(api, { hash: blockHash, number: header.number.toNumber() })
@@ -51,7 +44,7 @@ const runBlock = async (argv: any) => {
 
   const header = await context.chain.head.header
   const parent = header.parentHash.toHex()
-  const wasm = await context.chain.head.get(wasmKey)
+  const wasm = await context.chain.head.wasm
   const block = context.chain.head
 
   const calls: [string, string][] = [['Core_initialize_block', header.toHex()]]

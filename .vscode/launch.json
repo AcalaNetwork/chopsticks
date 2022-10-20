@@ -1,44 +1,34 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'executor'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=executor",
-                    "--package=executor",
-					"--manifest-path=executor/Cargo.toml"
-                ],
-                "filter": {
-                    "name": "executor",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}/executor",
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'executor'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=executor",
-                    "--package=executor"
-                ],
-                "filter": {
-                    "name": "executor",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}/executor"
-        },
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'executor'",
+			"cargo": {
+				"args": ["build", "--bin=executor", "--package=executor", "--manifest-path=executor/Cargo.toml"],
+				"filter": {
+					"name": "executor",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}/executor"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'executor'",
+			"cargo": {
+				"args": ["test", "--no-run", "--bin=executor", "--package=executor"],
+				"filter": {
+					"name": "executor",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}/executor"
+		},
 		{
 			"name": "Server",
 			"type": "node",
@@ -48,6 +38,6 @@
 			"sourceMaps": true,
 			"cwd": "${workspaceRoot}",
 			"protocol": "inspector"
-		  }
-    ]
+		}
+	]
 }

@@ -12,7 +12,7 @@ interface Task {
 }
 
 export class TaskManager {
-  #tasks: Task[] = []
+  #tasks: { task: Task; callback: (res: any) => any }[] = []
   #executorCmd: string
   #listeningPort: number
 
@@ -25,10 +25,15 @@ export class TaskManager {
     this.#listeningPort = port
   }
 
-  addTask(task: Task) {
-    logger.debug(task, 'AddTask')
+  addTask(task: Task, callback: (res: any) => any = () => {}) {
+    logger.debug(
+      {
+        kind: task.kind,
+      },
+      'AddTask'
+    )
 
-    this.#tasks.push(task)
+    this.#tasks.push({ task, callback })
     return this.#tasks.length - 1
   }
 
@@ -49,8 +54,8 @@ export class TaskManager {
     })
   }
 
-  async addAndRunTask(task: Task) {
-    const taskId = this.addTask(task)
+  async addAndRunTask(task: Task, callback: (res: any) => any = () => {}) {
+    const taskId = this.addTask(task, callback)
     await this.runTask(taskId)
   }
 }

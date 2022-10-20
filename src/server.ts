@@ -45,7 +45,7 @@ export const createServer = (port: number, handler: Handler) => {
 
     const subscriptions: Record<string, (subid: string) => void> = {}
     const subscriptionManager = {
-      subscribe: (subid: string, onCancel: () => void) => {
+      subscribe: (subid: string, onCancel: () => void = () => {}) => {
         subscriptions[subid] = onCancel
         return (data: object) => {
           if (subscriptions[subid]) {
@@ -108,7 +108,7 @@ export const createServer = (port: number, handler: Handler) => {
 
       try {
         const resp = await handler(req, subscriptionManager)
-        logger.debug('Sending response for request %o %o %o', req.id, req.method, resp)
+        logger.debug('Sending response for request %o %o', req.id, req.method)
         send({
           id: req.id,
           jsonrpc: '2.0',

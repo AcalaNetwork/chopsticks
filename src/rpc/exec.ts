@@ -23,11 +23,10 @@ const handlers: Handlers = {
     if (!task) {
       throw new ResponseError(1, 'Task not found')
     }
-    return task
+    return task.task
   },
-  exec_taskResult: async (context, params) => {
-    void context
-    console.log(params)
+  exec_taskResult: async (context, [taskId, resp]) => {
+    context.tasks.getTask(Number(taskId))?.callback(resp)
   },
 }
 

@@ -1,5 +1,4 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { stringToHex } from '@polkadot/util'
 
 import { Blockchain } from '../blockchain'
 import { TaskManager } from '../task'
@@ -32,7 +31,7 @@ export interface Context {
 }
 
 export interface SubscriptionManager {
-  subscribe: (subid: string, onCancel: () => void) => (data: object) => void
+  subscribe: (subid: string, onCancel?: () => void) => (data: any) => void
   unsubscribe: (subid: string) => void
 }
 
@@ -43,4 +42,4 @@ export type Handler = (
 ) => Promise<object | string | number | void | undefined | null>
 export type Handlers = Record<string, Handler>
 
-export const wasmKey = stringToHex(':code')
+export const randomId = () => Math.random().toString(36).substring(2)

@@ -1,5 +1,6 @@
 import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
+import { stringToHex } from '@polkadot/util'
 
 export const enum StorageValueKind {
   Deleted,
@@ -138,6 +139,19 @@ export class Block {
 
   popStorageLayer(): void {
     this.#storages.pop()
+  }
+
+  async #wasm(): Promise<string> {
+    const wasmKey = stringToHex(':code')
+    const wasm = await this.get(wasmKey)
+    if (!wasm) {
+      throw new Error('No wasm found')
+    }
+    return wasm
+  }
+
+  get wasm(): Promise<string> {
+    return this.#wasm()
   }
 }
 
