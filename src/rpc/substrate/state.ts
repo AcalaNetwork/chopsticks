@@ -19,6 +19,12 @@ const handlers: Handlers = {
     }
     return context.chain.head.get(key)
   },
+  state_getKeysPaged: async (context, [prefix, pageSize, startKey, hash]) => {
+    if (hash) {
+      return (await context.chain.getBlock(hash))?.getKeysPaged({ prefix, pageSize, startKey })
+    }
+    return context.chain.head.getKeysPaged({ prefix, pageSize, startKey })
+  },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     const id = randomId()
     const callback = subscribe('state_runtimeVersion', id)

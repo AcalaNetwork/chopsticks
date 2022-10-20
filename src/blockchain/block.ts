@@ -1,15 +1,15 @@
 import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
 import { stringToHex } from '@polkadot/util'
+import _ from 'lodash'
 
 import { Blockchain } from '.'
 
 export const enum StorageValueKind {
   Deleted,
-  Empty,
 }
 
-export type StorageValue = string | StorageValueKind
+export type StorageValue = string | StorageValueKind | undefined
 
 interface StorageLayerProvider {
   get(key: string, cache: boolean): Promise<StorageValue>
@@ -32,13 +32,31 @@ class RemoveStorageLayer implements StorageLayerProvider {
 
 class StorageLayer implements StorageLayerProvider {
   readonly #store: Record<string, StorageValue | Promise<StorageValue>> = {}
+  readonly #keys: string[] = []
   readonly #parent?: StorageLayerProvider
 
   constructor(parent?: StorageLayerProvider) {
     this.#parent = parent
   }
 
-  async get(key: string, cache: boolean): Promise<StorageValue> {
+  #addKey(key: string) {
+    const idx = _.sortedIndex(this.#keys, key)
+    const key2 = this.#keys[idx]
+    if (key === key2) {
+      return
+    }
+    this.#keys.splice(idx, 0, key)
+  }
+
+  #removeKey(key: string) {
+    const idx = _.sortedIndex(this.#keys, key)
+    const key2 = this.#keys[idx]
+    if (key === key2) {
+      this.#keys.splice(idx, 1)
+    }
+  }
+
+  async get(key: string, cache: boolean): Promise<StorageValue | undefined> {
     if (key in this.#store) {
       return this.#store[key]
     }
@@ -51,14 +69,23 @@ class StorageLayer implements StorageLayerProvider {
       return val
     }
 
-    return StorageValueKind.Empty
+    return undefined
   }
 
   async set(key: string, value: StorageValue): Promise<void> {
-    if (value === StorageValueKind.Empty) {
-      delete this.#store[key]
-    } else {
-      this.#store[key] = value
+    switch (value) {
+      case StorageValueKind.Deleted:
+        this.#store[key] = value
+        this.#removeKey(key)
+        break
+      case undefined:
+        delete this.#store[key]
+        this.#removeKey(key)
+        break
+      default:
+        this.#store[key] = value
+        this.#addKey(key)
+        break
     }
   }
 
@@ -132,12 +159,15 @@ export class Block {
   async get(key: string): Promise<string | undefined> {
     const val = await this.storage.get(key, true)
     switch (val) {
-      case StorageValueKind.Empty:
       case StorageValueKind.Deleted:
         return undefined
       default:
         return val
     }
+  }
+
+  async getKeysPaged(_options: { prefix?: string; startKey?: string; pageSize: number }): Promise<string[]> {
+    return []
   }
 
   pushStorageLayer(): StorageLayer {
