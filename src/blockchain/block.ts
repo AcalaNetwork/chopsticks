@@ -13,6 +13,10 @@ export type StorageValue = string | StorageValueKind | undefined
 
 interface StorageLayerProvider {
   get(key: string, cache: boolean): Promise<StorageValue>
+  foldInto(into: StorageLayer): Promise<StorageLayerProvider | undefined>
+  fold(): Promise<void>
+
+  getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]>
 }
 
 class RemoveStorageLayer implements StorageLayerProvider {
@@ -28,12 +32,22 @@ class RemoveStorageLayer implements StorageLayerProvider {
     const res = (await this.#api.rpc.state.getStorage(key, this.#at)) as any
     return res.toHex()
   }
+
+  async foldInto(_into: StorageLayer): Promise<StorageLayerProvider> {
+    return this
+  }
+  async fold(): Promise<void> {}
+
+  async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
+    const res = await this.#api.rpc.state.getKeysPaged(prefix, pageSize, startKey, this.#at)
+    return res.map((x) => x.toHex())
+  }
 }
 
 class StorageLayer implements StorageLayerProvider {
   readonly #store: Record<string, StorageValue | Promise<StorageValue>> = {}
   readonly #keys: string[] = []
-  readonly #parent?: StorageLayerProvider
+  #parent?: StorageLayerProvider
 
   constructor(parent?: StorageLayerProvider) {
     this.#parent = parent
@@ -93,6 +107,44 @@ class StorageLayer implements StorageLayerProvider {
     for (const [key, value] of Object.entries(values)) {
       await this.set(key, value)
     }
+  }
+
+  async foldInto(into: StorageLayer): Promise<StorageLayerProvider | undefined> {
+    const newParent = await this.#parent?.foldInto(into)
+
+    for (const key of this.#keys) {
+      const value = await this.#store[key]
+      this.#store[key] = value
+      into.set(key, value)
+    }
+
+    return newParent
+  }
+
+  async fold(): Promise<void> {
+    if (this.#parent) {
+      this.#parent = await this.#parent.foldInto(this)
+    }
+  }
+
+  async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
+    this.fold()
+    // TODO: maintain a list of fetched ranges to avoid fetching the same range multiple times
+    const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
+    for (const key of remote) {
+      this.#addKey(key)
+    }
+    let idx = _.sortedIndex(this.#keys, startKey)
+    const res = []
+    while (res.length < pageSize) {
+      const key: string = this.#keys[idx]
+      if (!key.startsWith(prefix)) {
+        break
+      }
+      res.push(key)
+      ++idx
+    }
+    return res
   }
 }
 
@@ -166,8 +218,14 @@ export class Block {
     }
   }
 
-  async getKeysPaged(_options: { prefix?: string; startKey?: string; pageSize: number }): Promise<string[]> {
-    return []
+  async getKeysPaged(options: { prefix?: string; startKey?: string; pageSize: number }): Promise<string[]> {
+    await this.storage.fold()
+
+    const prefix = options.prefix ?? '0x'
+    const startKey = options.startKey ?? prefix
+    const pageSize = options.pageSize
+
+    return this.storage.getKeysPaged(prefix, pageSize, startKey)
   }
 
   pushStorageLayer(): StorageLayer {
