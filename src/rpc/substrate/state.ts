@@ -1,11 +1,23 @@
+import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
+
 import { Handlers, randomId } from '../shared'
 
 const handlers: Handlers = {
-  state_getRuntimeVersion: async (context) => {
+  state_getRuntimeVersion: async (context, [hash]) => {
+    if (hash) {
+      return (await context.chain.getBlock(hash))?.runtimeVersion
+    }
     return context.chain.head.runtimeVersion
   },
   state_getMetadata: async (context) => {
-    return context.chain.head.metadata
+    const metadata = await context.chain.head.metadata
+    return u8aToHex(compactStripLength(hexToU8a(metadata))[1])
+  },
+  state_getStorage: async (context, [key, hash]) => {
+    if (hash) {
+      return (await context.chain.getBlock(hash))?.get(key)
+    }
+    return context.chain.head.get(key)
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     const id = randomId()

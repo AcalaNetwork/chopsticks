@@ -8,7 +8,10 @@ const handlers: Handlers = {
   ...chain,
   ...state,
   ...system,
-  rpc_methods: async () => Object.keys(handlers),
+  rpc_methods: async () => ({
+    version: 1,
+    methods: Object.keys(handlers),
+  }),
 }
 
 export default handlers

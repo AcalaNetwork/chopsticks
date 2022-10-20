@@ -13,6 +13,13 @@ const handlers: Handlers = {
   system_version: async (context) => {
     return context.api.rpc.system.version()
   },
+  system_health: async () => {
+    return {
+      peers: 0,
+      isSyncing: false,
+      shouldhVePeers: false,
+    }
+  },
 }
 
 export default handlers
