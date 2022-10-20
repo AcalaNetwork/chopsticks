@@ -8,7 +8,7 @@ const handlers: Handlers = {
   },
   chain_subscribeNewHeads: async (context, _params, { subscribe }) => {
     const id = randomId()
-    const callback = subscribe(id)
+    const callback = subscribe('chain_newHead', id)
     // TODO: actually subscribe to head
     callback(await context.chain.head.header)
     return id

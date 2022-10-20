@@ -9,7 +9,7 @@ const handlers: Handlers = {
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     const id = randomId()
-    const callback = subscribe(id)
+    const callback = subscribe('state_runtimeVersion', id)
     // TODO: actually subscribe to runtime version
     context.chain.head.runtimeVersion.then(callback)
     return id

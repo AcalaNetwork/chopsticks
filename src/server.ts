@@ -45,13 +45,13 @@ export const createServer = (port: number, handler: Handler) => {
 
     const subscriptions: Record<string, (subid: string) => void> = {}
     const subscriptionManager = {
-      subscribe: (subid: string, onCancel: () => void = () => {}) => {
+      subscribe: (method: string, subid: string, onCancel: () => void = () => {}) => {
         subscriptions[subid] = onCancel
         return (data: object) => {
           if (subscriptions[subid]) {
             send({
               jsonrpc: '2.0',
-              method: 'state_subscription',
+              method,
               params: {
                 result: data,
                 subscription: subid,
