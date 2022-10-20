@@ -15,6 +15,7 @@ export class Blockchain {
     this.#api = api
     this.tasks = tasks
     this.#head = new Block(api, this, header.number, header.hash)
+    this.#registerBlock(this.#head)
   }
 
   #registerBlock(block: Block) {
@@ -38,7 +39,7 @@ export class Blockchain {
     return this.#blocksByNumber[number]
   }
 
-  async getBlock(hash: string): Promise<Block | undefined> {
+  async getBlock(hash: string = this.head.hash): Promise<Block | undefined> {
     if (!this.#blocksByHash[hash]) {
       const header = await this.#api.rpc.chain.getHeader(hash)
       const block = new Block(this.#api, this, header.number.toNumber(), hash)

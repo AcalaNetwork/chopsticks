@@ -30,7 +30,7 @@ class RemoveStorageLayer implements StorageLayerProvider {
 
   async get(key: string): Promise<StorageValue> {
     const res = (await this.#api.rpc.state.getStorage(key, this.#at)) as any
-    return res.toHex()
+    return res.toJSON()
   }
 
   async foldInto(_into: StorageLayer): Promise<StorageLayerProvider> {

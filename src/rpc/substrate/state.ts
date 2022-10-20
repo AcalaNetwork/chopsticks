@@ -4,26 +4,30 @@ import { Handlers, randomId } from '../shared'
 
 const handlers: Handlers = {
   state_getRuntimeVersion: async (context, [hash]) => {
-    if (hash) {
-      return (await context.chain.getBlock(hash))?.runtimeVersion
-    }
-    return context.chain.head.runtimeVersion
+    return (await context.chain.getBlock(hash))?.runtimeVersion
   },
   state_getMetadata: async (context) => {
     const metadata = await context.chain.head.metadata
     return u8aToHex(compactStripLength(hexToU8a(metadata))[1])
   },
   state_getStorage: async (context, [key, hash]) => {
-    if (hash) {
-      return (await context.chain.getBlock(hash))?.get(key)
-    }
-    return context.chain.head.get(key)
+    return (await context.chain.getBlock(hash))?.get(key)
   },
   state_getKeysPaged: async (context, [prefix, pageSize, startKey, hash]) => {
-    if (hash) {
-      return (await context.chain.getBlock(hash))?.getKeysPaged({ prefix, pageSize, startKey })
+    return (await context.chain.getBlock(hash))?.getKeysPaged({ prefix, pageSize, startKey })
+  },
+  state_queryStorageAt: async (context, [keys, hash]) => {
+    const block = await context.chain.getBlock(hash)
+    if (!block) {
+      return []
     }
-    return context.chain.head.getKeysPaged({ prefix, pageSize, startKey })
+    const values = await Promise.all((keys as string[]).map(async (key) => [key, await block.get(key)]))
+    return [
+      {
+        block: block.hash,
+        changes: values,
+      },
+    ]
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     const id = randomId()

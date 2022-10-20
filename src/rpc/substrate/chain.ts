@@ -1,4 +1,4 @@
-import { Handlers, randomId } from '../shared'
+import { Handlers, ResponseError, randomId } from '../shared'
 
 const handlers: Handlers = {
   chain_getBlockHash: async (context, params) => {
@@ -8,6 +8,19 @@ const handlers: Handlers = {
   },
   chain_getHeader: async (context, [hash]) => {
     return (await context.chain.getBlock(hash))?.header
+  },
+  chain_getBlock: async (context, [hash]) => {
+    const block = await context.chain.getBlock(hash)
+    if (!block) {
+      throw new ResponseError(1, 'Block not found')
+    }
+    return {
+      block: {
+        header: await block.header,
+        extrinsics: await block.extrinsics,
+      },
+      justifications: null,
+    }
   },
   chain_subscribeNewHead: async (context, _params, { subscribe }) => {
     const id = randomId()
