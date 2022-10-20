@@ -14,8 +14,7 @@ const handlers: Handlers = {
     context.chain.head.runtimeVersion.then(callback)
     return id
   },
-  state_unsubscribeRuntimeVersion: async (_context, params, { unsubscribe }) => {
-    const [subid] = params
+  state_unsubscribeRuntimeVersion: async (_context, [subid], { unsubscribe }) => {
     unsubscribe(subid)
   },
 }
