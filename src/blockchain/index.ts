@@ -1,7 +1,11 @@
 import { ApiPromise } from '@polkadot/api'
-import { TaskManager } from '../task'
+import { blake2AsHex } from '@polkadot/util-crypto'
+import { u8aConcat, u8aToHex } from '@polkadot/util'
+import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Block } from './block'
+import { ResponseError } from '../rpc/shared'
+import { TaskManager } from '../task'
 
 export class Blockchain {
   readonly #api: ApiPromise
@@ -51,5 +55,16 @@ export class Blockchain {
   setHead(block: Block): void {
     this.#head = block
     this.#registerBlock(block)
+  }
+
+  async submitExtrinsic(extrinsic: string): Promise<string> {
+    const source = '0x02' // External
+    const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
+    const res = await this.head.call('TaggedTransactionQueue_validate_transaction', args)
+    const validity: TransactionValidity = this.#api.createType('TransactionValidity', res)
+    if (validity.isOk) {
+      return blake2AsHex(extrinsic, 256)
+    }
+    throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toHuman()}`)
   }
 }

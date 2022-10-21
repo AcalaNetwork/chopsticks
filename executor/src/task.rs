@@ -38,6 +38,7 @@ pub struct CallResponse {
 pub enum TaskResponse {
     Call(CallResponse),
     RuntimeVersion(HexString),
+	Error(String)
 }
 
 impl Task {

@@ -29,6 +29,13 @@ const handlers: Handlers = {
       },
     ]
   },
+  state_call: async (context, [method, data, hash]) => {
+    const block = await context.chain.getBlock(hash)
+    if (!block) {
+      return []
+    }
+    return block.call(method, data)
+  },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     const id = randomId()
     const callback = subscribe('state_runtimeVersion', id)

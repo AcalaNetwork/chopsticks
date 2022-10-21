@@ -22,6 +22,9 @@ const handlers: Handlers = {
       justifications: null,
     }
   },
+  chain_getFinalizedHead: async (context) => {
+    return context.chain.head.hash
+  },
   chain_subscribeNewHead: async (context, _params, { subscribe }) => {
     const id = randomId()
     const callback = subscribe('chain_newHead', id)

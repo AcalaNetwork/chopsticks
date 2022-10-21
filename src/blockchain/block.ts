@@ -282,24 +282,24 @@ export class Block {
 
   get metadata(): Promise<any> {
     if (!this.#metadata) {
-      this.#metadata = new Promise((resolve, reject) => {
-        this.wasm
-          .then((wasm) => {
-            this.#chain.tasks.addAndRunTask(
-              {
-                kind: 'Call',
-                blockHash: this.hash,
-                wasm,
-                calls: [['Metadata_metadata', '0x']],
-              },
-              (resp) => {
-                resolve(resp['Call'].result)
-              }
-            )
-          })
-          .catch(reject)
-      })
+      this.#metadata = this.call('Metadata_metadata', '0x')
     }
     return this.#metadata
+  }
+
+  async call(method: string, args: string): Promise<string> {
+    const wasm = await this.wasm
+    const res = await new Promise((resolve) => {
+      this.#chain.tasks.addAndRunTask(
+        {
+          kind: 'Call',
+          blockHash: this.hash,
+          wasm,
+          calls: [[method, args]],
+        },
+        (r) => resolve(r.Call.result)
+      )
+    })
+    return res as string
   }
 }
