@@ -8,6 +8,9 @@ import { Block } from './block'
 import { ResponseError } from '../rpc/shared'
 import { TaskManager } from '../task'
 import { TxPool } from './txpool'
+import { defaultLogger } from '../logger'
+
+const logger = defaultLogger.child({ name: 'blockchain' })
 
 export class Blockchain {
   readonly #api: ApiPromise
@@ -50,9 +53,14 @@ export class Blockchain {
 
   async getBlock(hash: string = this.head.hash): Promise<Block | undefined> {
     if (!this.#blocksByHash[hash]) {
-      const header = await this.#api.rpc.chain.getHeader(hash)
-      const block = new Block(this.#api, this, header.number.toNumber(), hash)
-      this.#registerBlock(block)
+      try {
+        const header = await this.#api.rpc.chain.getHeader(hash)
+        const block = new Block(this.#api, this, header.number.toNumber(), hash)
+        this.#registerBlock(block)
+      } catch (e) {
+        logger.debug(`getBlock(${hash}) failed: ${e}`)
+        return undefined
+      }
     }
     return this.#blocksByHash[hash]
   }

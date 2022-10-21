@@ -34,7 +34,7 @@ export class TxPool {
 
     const preRuntime = parentHeader.digest.logs[0].asPreRuntime
     const [consensusEngine, auraSlot] = preRuntime
-    const newAuraSlot = u8aToBn(auraSlot).addn(1)
+    const newAuraSlot = u8aToBn(auraSlot, { isLe: false }).addn(1)
     const seal = parentHeader.digest.logs[1]
     const header = this.#api.createType('Header', {
       parentHash: head.hash,

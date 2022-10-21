@@ -9,7 +9,7 @@ const handlers: Handlers = {
 
     const block = await context.chain.getBlock(blockHash)
     if (!block) {
-      throw new ResponseError(1, 'Block not found')
+      throw new ResponseError(1, `Block not found ${blockHash}`)
     }
     const value = await block.get(key)
     return value
@@ -17,14 +17,14 @@ const handlers: Handlers = {
   exec_prefixKeys: async (context, [_task_id, blockHash, key]) => {
     const block = await context.chain.getBlock(blockHash)
     if (!block) {
-      throw new ResponseError(1, 'Block not found')
+      throw new ResponseError(1, `Block not found ${blockHash}`)
     }
     return block.getKeysPaged({ prefix: key, pageSize: 1000, startKey: key })
   },
   exec_nextKey: async (context, [_task_id, blockHash, key]) => {
     const block = await context.chain.getBlock(blockHash)
     if (!block) {
-      throw new ResponseError(1, 'Block not found')
+      throw new ResponseError(1, `Block not found ${blockHash}`)
     }
     const res = await block.getKeysPaged({ prefix: key, pageSize: 1, startKey: key })
     return res[0] || null
@@ -34,7 +34,7 @@ const handlers: Handlers = {
 
     const task = context.tasks.getTask(Number(task_id))
     if (!task) {
-      throw new ResponseError(1, 'Task not found')
+      throw new ResponseError(1, `Task not found ${task_id}`)
     }
     return task.task
   },
