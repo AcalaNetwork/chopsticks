@@ -145,6 +145,9 @@ class StorageLayer implements StorageLayerProvider {
       this.#addKey(key)
     }
     let idx = _.sortedIndex(this.#keys, startKey)
+    if (this.#keys[idx] === startKey) {
+      ++idx
+    }
     const res = []
     while (res.length < pageSize) {
       const key: string = this.#keys[idx]

@@ -24,6 +24,7 @@ export class TxPool {
   }
 
   async buildBlock() {
+    // TODO: concurrent building will cause problem. make new build depends on old one
     const head = this.#chain.head
 
     logger.info({ hash: head.hash, number: head.number }, 'Building block')
