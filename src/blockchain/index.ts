@@ -65,6 +65,6 @@ export class Blockchain {
     if (validity.isOk) {
       return blake2AsHex(extrinsic, 256)
     }
-    throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toHuman()}`)
+    throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toString()}`)
   }
 }

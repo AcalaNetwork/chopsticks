@@ -4,6 +4,7 @@ import { stringToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Blockchain } from '.'
+import { ResponseError } from '../rpc/shared'
 
 export const enum StorageValueKind {
   Deleted,
@@ -289,7 +290,7 @@ export class Block {
 
   async call(method: string, args: string): Promise<string> {
     const wasm = await this.wasm
-    const res = await new Promise((resolve) => {
+    const res = await new Promise((resolve, reject) => {
       this.#chain.tasks.addAndRunTask(
         {
           kind: 'Call',
@@ -297,7 +298,13 @@ export class Block {
           wasm,
           calls: [[method, args]],
         },
-        (r) => resolve(r.Call.result)
+        (r) => {
+          if (r.Call) {
+            resolve(r.Call.result)
+          } else {
+            reject(new ResponseError(1, r.Error))
+          }
+        }
       )
     })
     return res as string
