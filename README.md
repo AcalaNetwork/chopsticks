@@ -15,3 +15,10 @@ Connect to the rpc via localhost:8000 and you may be able to submit transaction 
 
 NOTE: subscriptions are not yet implemented so you will need to refresh to see new blocks.
 NOTE2: this currently takes ~half minute to produce a new block.
+
+Next step:
+
+- Implements subscription
+- Disable signature verification
+- API for arbitrary storage override
+- Compile the rust part into wasm
