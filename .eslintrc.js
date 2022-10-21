@@ -1,30 +1,26 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: [
-    '@typescript-eslint',
-    'import',
-    'sort-imports-es6-autofix',
-  ],
+  plugins: ['@typescript-eslint', 'import', 'sort-imports-es6-autofix'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'plugin:import/recommended',
-    'plugin:import/typescript'
+    'plugin:import/typescript',
   ],
   rules: {
     '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     'sort-imports-es6-autofix/sort-imports-es6': 'error',
     '@typescript-eslint/no-explicit-any': 'off',
-    "@typescript-eslint/no-unused-vars": [
-      "warn", // or "error"
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
       {
-        "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_",
-        "caughtErrorsIgnorePattern": "^_"
-      }
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
     ],
   },
 }

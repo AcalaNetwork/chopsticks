@@ -1,5 +1,4 @@
 .yarn
-.eslintrc.js
 *.yml
 executor/
 vendor/
