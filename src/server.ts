@@ -115,7 +115,7 @@ export const createServer = (port: number, handler: Handler) => {
           result: resp || null,
         })
       } catch (e) {
-        logger.debug('Error handling request: %o %s', e, e)
+        logger.debug('Error handling request: %s %o', e, (e as Error).stack)
         send({
           id: req.id,
           jsonrpc: '2.0',

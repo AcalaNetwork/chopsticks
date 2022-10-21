@@ -1,6 +1,5 @@
 import { Handlers, ResponseError } from './shared'
 import { defaultLogger } from '../logger'
-import { fetchKeysToArray } from '../utils'
 
 const logger = defaultLogger.child({ name: 'exec' })
 
@@ -16,12 +15,19 @@ const handlers: Handlers = {
     return value
   },
   exec_prefixKeys: async (context, [_task_id, blockHash, key]) => {
-    const res = await fetchKeysToArray((startKey) => context.api.rpc.state.getKeysPaged(key, 500, startKey, blockHash))
-    return res.map((k) => k.toHex())
+    const block = await context.chain.getBlock(blockHash)
+    if (!block) {
+      throw new ResponseError(1, 'Block not found')
+    }
+    return block.getKeysPaged({ prefix: key, pageSize: 1000, startKey: key })
   },
   exec_nextKey: async (context, [_task_id, blockHash, key]) => {
-    const res = await context.api.rpc.state.getKeysPaged(key, 1, null, blockHash)
-    return res[0]?.toHex()
+    const block = await context.chain.getBlock(blockHash)
+    if (!block) {
+      throw new ResponseError(1, 'Block not found')
+    }
+    const res = await block.getKeysPaged({ prefix: key, pageSize: 1, startKey: key })
+    return res[0] || null
   },
   exec_getTask: async (context, [task_id]) => {
     logger.trace({ task_id }, 'exec_getTask')

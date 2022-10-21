@@ -5,6 +5,10 @@ import _ from 'lodash'
 
 import { Blockchain } from '.'
 import { ResponseError } from '../rpc/shared'
+import { TaskResponseCall } from '../task'
+import { defaultLogger } from '../logger'
+
+const logger = defaultLogger.child({ name: 'block' })
 
 export const enum StorageValueKind {
   Deleted,
@@ -30,6 +34,7 @@ class RemoveStorageLayer implements StorageLayerProvider {
   }
 
   async get(key: string): Promise<StorageValue> {
+    logger.trace({ at: this.#at, key }, 'RemoveStorageLayer get')
     const res = (await this.#api.rpc.state.getStorage(key, this.#at)) as any
     return res.toJSON()
   }
@@ -40,6 +45,7 @@ class RemoveStorageLayer implements StorageLayerProvider {
   async fold(): Promise<void> {}
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
+    logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoveStorageLayer getKeysPaged')
     const res = await this.#api.rpc.state.getKeysPaged(prefix, pageSize, startKey, this.#at)
     return res.map((x) => x.toHex())
   }
@@ -104,9 +110,12 @@ class StorageLayer implements StorageLayerProvider {
     }
   }
 
-  async setAll(values: Record<string, StorageValue>) {
-    for (const [key, value] of Object.entries(values)) {
-      await this.set(key, value)
+  async setAll(values: Record<string, StorageValue | null> | [string, StorageValue | null][]) {
+    if (!Array.isArray(values)) {
+      values = Object.entries(values)
+    }
+    for (const [key, value] of values) {
+      await this.set(key, value || undefined)
     }
   }
 
@@ -139,7 +148,7 @@ class StorageLayer implements StorageLayerProvider {
     const res = []
     while (res.length < pageSize) {
       const key: string = this.#keys[idx]
-      if (!key.startsWith(prefix)) {
+      if (!key || !key.startsWith(prefix)) {
         break
       }
       res.push(key)
@@ -159,7 +168,7 @@ export class Block {
 
   #wasm?: Promise<string>
   #runtimeVersion?: Promise<any>
-  #metadata?: Promise<any>
+  #metadata?: Promise<string>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
@@ -268,9 +277,13 @@ export class Block {
                 wasm,
               },
               (resp) => {
-                const ver = resp['RuntimeVersion']
-                const decoded = this.#api.createType('RuntimeVersion', ver)
-                resolve(decoded.toJSON())
+                if ('RuntimeVersion' in resp) {
+                  const ver = resp.RuntimeVersion
+                  const decoded = this.#api.createType('RuntimeVersion', ver)
+                  resolve(decoded.toJSON())
+                } else if ('Error' in resp) {
+                  reject(new ResponseError(1, resp.Error))
+                }
               }
             )
           })
@@ -281,16 +294,16 @@ export class Block {
     return this.#runtimeVersion
   }
 
-  get metadata(): Promise<any> {
+  get metadata(): Promise<string> {
     if (!this.#metadata) {
-      this.#metadata = this.call('Metadata_metadata', '0x')
+      this.#metadata = this.call('Metadata_metadata', '0x').then((x) => x.result)
     }
     return this.#metadata
   }
 
-  async call(method: string, args: string): Promise<string> {
+  async call(method: string, args: string): Promise<TaskResponseCall['Call']> {
     const wasm = await this.wasm
-    const res = await new Promise((resolve, reject) => {
+    const res = await new Promise<TaskResponseCall['Call']>((resolve, reject) => {
       this.#chain.tasks.addAndRunTask(
         {
           kind: 'Call',
@@ -299,14 +312,16 @@ export class Block {
           calls: [[method, args]],
         },
         (r) => {
-          if (r.Call) {
-            resolve(r.Call.result)
-          } else {
+          if ('Call' in r) {
+            resolve(r.Call)
+          } else if ('Error' in r) {
             reject(new ResponseError(1, r.Error))
+          } else {
+            reject(new ResponseError(1, 'Unexpected response'))
           }
         }
       )
     })
-    return res as string
+    return res
   }
 }

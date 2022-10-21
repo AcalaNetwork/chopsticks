@@ -1,4 +1,5 @@
 import { ApiPromise } from '@polkadot/api'
+import { Header } from '@polkadot/types/interfaces'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
@@ -6,10 +7,12 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 import { Block } from './block'
 import { ResponseError } from '../rpc/shared'
 import { TaskManager } from '../task'
+import { TxPool } from './txpool'
 
 export class Blockchain {
   readonly #api: ApiPromise
   readonly tasks: TaskManager
+  readonly #txpool: TxPool
 
   #head: Block
   readonly #blocksByNumber: Block[] = []
@@ -20,6 +23,8 @@ export class Blockchain {
     this.tasks = tasks
     this.#head = new Block(api, this, header.number, header.hash)
     this.#registerBlock(this.#head)
+
+    this.#txpool = new TxPool(this, api)
   }
 
   #registerBlock(block: Block) {
@@ -52,6 +57,28 @@ export class Blockchain {
     return this.#blocksByHash[hash]
   }
 
+  newTempBlock(parent: Block, header: Header): Block {
+    const number = parent.number + 1
+    const hash =
+      '0x' +
+      Math.round(Math.random() * 100000000)
+        .toString(16)
+        .padEnd(64, '0')
+    const block = new Block(this.#api, this, number, hash, parent, { header, extrinsics: [], storage: parent.storage })
+    this.#blocksByHash[hash] = block
+    return block
+  }
+
+  unregisterBlock(block: Block): void {
+    if (block.hash === this.head.hash) {
+      throw new Error('Cannot unregister head block')
+    }
+    if (this.#blocksByNumber[block.number]?.hash === block.hash) {
+      delete this.#blocksByNumber[block.number]
+    }
+    delete this.#blocksByHash[block.hash]
+  }
+
   setHead(block: Block): void {
     this.#head = block
     this.#registerBlock(block)
@@ -61,8 +88,9 @@ export class Blockchain {
     const source = '0x02' // External
     const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
     const res = await this.head.call('TaggedTransactionQueue_validate_transaction', args)
-    const validity: TransactionValidity = this.#api.createType('TransactionValidity', res)
+    const validity: TransactionValidity = this.#api.createType('TransactionValidity', res.result)
     if (validity.isOk) {
+      this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)
     }
     throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toString()}`)
