@@ -10,7 +10,7 @@ const allHandlers: Handlers = {
 export const handler =
   (context: Context) =>
   ({ method, params }: { method: string; params: string[] }, subscriptionManager: SubscriptionManager) => {
-    logger.debug('Handling %s', method)
+    logger.trace('Handling %s', method)
 
     const handler = allHandlers[method]
     if (!handler) {
