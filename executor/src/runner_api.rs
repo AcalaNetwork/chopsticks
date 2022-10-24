@@ -1,12 +1,12 @@
 use std::time::Duration;
 
+use crate::task::{Task, TaskResponse};
 use jsonrpsee::{
-    core::Error as RpcError,
+    core::{client::Client, Error as RpcError},
     proc_macros::rpc,
-    ws_client::{WsClient, WsClientBuilder},
+    wasm_client::WasmClientBuilder,
 };
 use smoldot::json_rpc::methods::HexString;
-use crate::task::{Task, TaskResponse};
 
 #[rpc(client)]
 pub trait RpcApi {
@@ -38,15 +38,11 @@ pub trait RpcApi {
     fn get_task(&self, task_id: u32) -> Result<Task, RpcError>;
 
     #[method(name = "exec_taskResult")]
-    fn task_result(
-        &self,
-        task_id: u32,
-        resp: TaskResponse,
-    ) -> Result<(), RpcError>;
+    fn task_result(&self, task_id: u32, resp: TaskResponse) -> Result<(), RpcError>;
 }
 
-pub async fn client(url: &str) -> Result<WsClient, RpcError> {
-    let client = WsClientBuilder::default()
+pub async fn client(url: &str) -> Result<Client, RpcError> {
+    let client = WasmClientBuilder::default()
         .request_timeout(Duration::from_secs(120))
         .build(url)
         .await?;

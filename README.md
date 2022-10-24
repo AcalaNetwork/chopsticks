@@ -6,9 +6,9 @@ Create parallel reality of your Substrate network.
 
 - Install deps
   - `yarn`
+- Build wasm
+  - `yarn build-wasm`
 - Run nodejs runner
-  - `yarn dev`
-- Run rust executor
-  - `cargo run --manifest-path executor/Cargo.toml`
+  - `yarn start run-block --endpoint=wss://acala-rpc-2.aca-api.network/ws`
 
 Currently it defaults to execute the latest block of Acala parachain. More options will be added later.

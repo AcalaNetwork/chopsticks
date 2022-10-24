@@ -1,6 +1,9 @@
-import { spawn } from 'child_process'
+import { WebSocket } from 'ws'
+// @ts-ignore
+global.WebSocket = WebSocket;
 
 import { defaultLogger } from './logger'
+import { start } from '../executor/pkg'
 
 const logger = defaultLogger.child({ name: 'task' })
 
@@ -13,11 +16,9 @@ interface Task {
 
 export class TaskManager {
   #tasks: { task: Task; callback: (res: any) => any }[] = []
-  #executorCmd: string
   #listeningPort: number
 
-  constructor(executorCmd: string, listeningPort: number) {
-    this.#executorCmd = executorCmd
+  constructor(listeningPort: number) {
     this.#listeningPort = listeningPort
   }
 
@@ -42,16 +43,7 @@ export class TaskManager {
   }
 
   runTask(taskId: number): Promise<void> {
-    const cmd = `${this.#executorCmd} --runner-url=ws://localhost:${this.#listeningPort} --task-id=${taskId}`
-    logger.info({ taskId, cmd }, 'RunTask')
-    const p = spawn(cmd, { shell: true, stdio: 'inherit' })
-
-    return new Promise((resolve) => {
-      p.once('exit', (code) => {
-        logger.debug({ taskId, code }, 'RunTask done')
-        resolve()
-      })
-    })
+    return start(taskId, `ws://localhost:${this.#listeningPort}`)
   }
 
   async addAndRunTask(task: Task, callback: (res: any) => any = () => {}) {

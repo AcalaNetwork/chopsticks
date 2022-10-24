@@ -9,8 +9,9 @@
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
+		"build-wasm": "cd executor && wasm-pack --log-level=info build --target nodejs",
 		"start": "ts-node src/index.ts",
-		"dev": "LOG_LEVEL=trace node-dev --notify=false src/index.ts -- dev --endpoint=wss://acala-rpc-2.aca-api.network/ws --head=0xecd7db7a9959ef8a3632789aed9e94cfdcd9790f64f310e0393c58295658e3a3 --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty"
+		"dev": "LOG_LEVEL=trace node-dev --notify=false src/index.ts -- dev --endpoint=wss://acala-rpc-2.aca-api.network/ws --head=0xecd7db7a9959ef8a3632789aed9e94cfdcd9790f64f310e0393c58295658e3a3 | pino-pretty"
 	},
 	"dependencies": {
 		"@polkadot/api": "^9.5.2",

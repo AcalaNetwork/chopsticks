@@ -27,7 +27,7 @@ const setup = async (argv: any) => {
   defaultLogger.info({ endpoint: argv.endpoint, blockHash }, 'Args')
 
   const header = await api.rpc.chain.getHeader(blockHash)
-  const tasks = new TaskManager(argv['executor-cmd'], port)
+  const tasks = new TaskManager(port)
   const chain = new Blockchain(api, tasks, { hash: blockHash, number: header.number.toNumber() })
 
   const context = { chain, api, ws: wsProvider, tasks }
@@ -60,7 +60,7 @@ const runBlock = async (argv: any) => {
     blockHash: parent,
     wasm,
     calls,
-  })
+  }, console.log)
 
   setTimeout(() => process.exit(0), 50)
 }
@@ -83,11 +83,6 @@ yargs(hideBin(process.argv))
         block: {
           desc: 'Block hash or block number. Default to latest block',
           string: true,
-        },
-        'executor-cmd': {
-          desc: 'Command to execute the executor',
-          string: true,
-          require: true,
         },
       }),
     (argv) => {
@@ -114,11 +109,6 @@ yargs(hideBin(process.argv))
         block: {
           desc: 'Block hash or block number. Default to latest block',
           string: true,
-        },
-        'executor-cmd': {
-          desc: 'Command to execute the executor',
-          string: true,
-          require: true,
         },
       }),
     (argv) => {
