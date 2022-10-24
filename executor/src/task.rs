@@ -136,7 +136,7 @@ impl Task {
                 }
                 Err(err) => {
                     ret = Err(err.to_string());
-					storage_top_trie_changes = StorageDiff::empty();
+                    storage_top_trie_changes = StorageDiff::empty();
                     break;
                 }
             }
