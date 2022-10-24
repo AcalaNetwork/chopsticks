@@ -41,5 +41,3 @@ export type Handler = (
   subscriptionManager: SubscriptionManager
 ) => Promise<object | string | number | void | undefined | null>
 export type Handlers = Record<string, Handler>
-
-export const randomId = () => Math.random().toString(36).substring(2)

@@ -1,6 +1,10 @@
 import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
 
-import { Handlers, randomId } from '../shared'
+import { Block } from '../../blockchain/block'
+import { Handlers } from '../shared'
+import { defaultLogger } from '../../logger'
+
+const logger = defaultLogger.child({ name: 'rpc-state' })
 
 const handlers: Handlers = {
   state_getRuntimeVersion: async (context, [hash]) => {
@@ -37,9 +41,10 @@ const handlers: Handlers = {
     return block.call(method, data)
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
-    const id = randomId()
+    let update = (_block: Block) => {}
+    const id = context.chain.headState.subscrubeRuntimeVersion((block) => update(block))
     const callback = subscribe('state_runtimeVersion', id)
-    // TODO: actually subscribe
+    update = async (block) => callback(await block.runtimeVersion)
     context.chain.head.runtimeVersion.then(callback)
     return id
   },
@@ -47,10 +52,18 @@ const handlers: Handlers = {
     unsubscribe(subid)
   },
   state_subscribeStorage: async (context, [keys], { subscribe }) => {
-    const id = randomId()
-    const callback = subscribe('state_storage', id)
-    // TODO: actually subscribe
+    let update = (_block: Block, _pairs: [string, string][]) => {}
 
+    const id = await context.chain.headState.subscribeStorage(keys, (block, pairs) => update(block, pairs))
+    const callback = subscribe('state_storage', id, () => context.chain.headState.unsubscribeStorage(id))
+
+    update = async (block, pairs) => {
+      logger.trace({ hash: block.hash }, 'state_subscribeStorage')
+      callback({
+        block: block.hash,
+        changes: pairs,
+      })
+    }
     ;(async () => {
       const pairs = await Promise.all(
         (keys as string[]).map(async (key) => {

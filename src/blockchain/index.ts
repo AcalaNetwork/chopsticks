@@ -5,6 +5,7 @@ import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Block } from './block'
+import { HeadState } from './head-state'
 import { ResponseError } from '../rpc/shared'
 import { TaskManager } from '../task'
 import { TxPool } from './txpool'
@@ -21,6 +22,8 @@ export class Blockchain {
   readonly #blocksByNumber: Block[] = []
   readonly #blocksByHash: Record<string, Block> = {}
 
+  readonly headState: HeadState
+
   constructor(api: ApiPromise, tasks: TaskManager, header: { number: number; hash: string }) {
     this.#api = api
     this.tasks = tasks
@@ -28,6 +31,8 @@ export class Blockchain {
     this.#registerBlock(this.#head)
 
     this.#txpool = new TxPool(this, api)
+
+    this.headState = new HeadState(this.#head)
   }
 
   #registerBlock(block: Block) {
@@ -88,8 +93,16 @@ export class Blockchain {
   }
 
   setHead(block: Block): void {
+    logger.debug(
+      {
+        number: block.number,
+        hash: block.hash,
+      },
+      'setHead'
+    )
     this.#head = block
     this.#registerBlock(block)
+    this.headState.setHead(block)
   }
 
   async submitExtrinsic(extrinsic: string): Promise<string> {

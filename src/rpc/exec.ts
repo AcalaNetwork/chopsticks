@@ -1,7 +1,7 @@
 import { Handlers, ResponseError } from './shared'
 import { defaultLogger } from '../logger'
 
-const logger = defaultLogger.child({ name: 'exec' })
+const logger = defaultLogger.child({ name: 'rpc-exec' })
 
 const handlers: Handlers = {
   exec_storageGet: async (context, [_task_id, blockHash, key]) => {

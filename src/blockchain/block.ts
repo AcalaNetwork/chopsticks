@@ -159,6 +159,17 @@ class StorageLayer implements StorageLayerProvider {
     }
     return res
   }
+
+  mergeInto(into: Record<string, string>) {
+    for (const key of this.#keys) {
+      const value = this.#store[key]
+      if (value === StorageValueKind.Deleted) {
+        delete into[key]
+      } else {
+        into[key] = value as string
+      }
+    }
+  }
 }
 
 export class Block {
@@ -249,6 +260,16 @@ export class Block {
 
   popStorageLayer(): void {
     this.#storages.pop()
+  }
+
+  storageDiff(): Record<string, string> {
+    const storage = {}
+
+    for (const layer of this.#storages) {
+      layer.mergeInto(storage)
+    }
+
+    return storage
   }
 
   get wasm(): Promise<string> {
