@@ -7,6 +7,23 @@ import { start } from '../executor/pkg'
 
 const logger = defaultLogger.child({ name: 'task' })
 
+export interface TaskResponseCall {
+  Call: {
+    result: string
+    storageDiff: [string, string | null][]
+  }
+}
+
+export interface TaskReponseRuntimeVersion {
+  RuntimeVersion: string
+}
+
+export interface TaskResponseError {
+  Error: string
+}
+
+export type TaskResponse = TaskResponseCall | TaskReponseRuntimeVersion | TaskResponseError
+
 interface Task {
   kind: 'Call' | 'RuntimeVersion'
   blockHash: string
@@ -15,7 +32,7 @@ interface Task {
 }
 
 export class TaskManager {
-  #tasks: { task: Task; callback: (res: any) => any }[] = []
+  #tasks: { task: Task; callback: (res: TaskResponse) => any }[] = []
   #listeningPort: number
 
   constructor(listeningPort: number) {
@@ -26,7 +43,7 @@ export class TaskManager {
     this.#listeningPort = port
   }
 
-  addTask(task: Task, callback: (res: any) => any = () => {}) {
+  addTask(task: Task, callback: (res: TaskResponse) => any = () => {}) {
     logger.debug(
       {
         kind: task.kind,
@@ -46,7 +63,7 @@ export class TaskManager {
     return start(taskId, `ws://localhost:${this.#listeningPort}`)
   }
 
-  async addAndRunTask(task: Task, callback: (res: any) => any = () => {}) {
+  async addAndRunTask(task: Task, callback: (res: TaskResponse) => any = () => {}) {
     const taskId = this.addTask(task, callback)
     await this.runTask(taskId)
   }

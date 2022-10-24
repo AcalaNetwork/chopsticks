@@ -10,11 +10,11 @@ const allHandlers: Handlers = {
 export const handler =
   (context: Context) =>
   ({ method, params }: { method: string; params: string[] }, subscriptionManager: SubscriptionManager) => {
-    logger.debug('Handling %s', method)
+    logger.trace('Handling %s', method)
 
     const handler = allHandlers[method]
     if (!handler) {
-      logger.debug('Method %s not found', method)
+      logger.warn('Method %s not found', method)
       throw new ResponseError(-32601, 'Method not found')
     }
 

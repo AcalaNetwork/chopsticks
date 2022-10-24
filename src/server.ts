@@ -86,7 +86,7 @@ export const createServer = (port: number, handler: Handler) => {
     ws.on('message', async (message) => {
       const req = parseRequest(message.toString())
       if (!req || !Object.hasOwn(req, 'id') || !req.method) {
-        logger.debug('Invalid request: %s', message)
+        logger.info('Invalid request: %s', message)
         send({
           id: null,
           jsonrpc: '2.0',
@@ -98,7 +98,7 @@ export const createServer = (port: number, handler: Handler) => {
         return
       }
 
-      logger.debug(
+      logger.trace(
         {
           id: req.id,
           method: req.method,
@@ -108,14 +108,14 @@ export const createServer = (port: number, handler: Handler) => {
 
       try {
         const resp = await handler(req, subscriptionManager)
-        logger.debug('Sending response for request %o %o', req.id, req.method)
+        logger.trace('Sending response for request %o %o', req.id, req.method)
         send({
           id: req.id,
           jsonrpc: '2.0',
           result: resp || null,
         })
       } catch (e) {
-        logger.debug('Error handling request: %o %s', e, e)
+        logger.info('Error handling request: %s %o', e, (e as Error).stack)
         send({
           id: req.id,
           jsonrpc: '2.0',

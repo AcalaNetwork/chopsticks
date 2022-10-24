@@ -5,7 +5,7 @@ use smoldot::{
     executor::{
         host::{Config, HeapPages, HostVmPrototype},
         runtime_host::{self, RuntimeHostVm},
-        storage_diff,
+        storage_diff::StorageDiff,
     },
     json_rpc::methods::HexString,
 };
@@ -38,6 +38,7 @@ pub struct CallResponse {
 pub enum TaskResponse {
     Call(CallResponse),
     RuntimeVersion(HexString),
+    Error(String),
 }
 
 impl Task {
@@ -57,8 +58,8 @@ impl Task {
         task_id: u32,
         client: &Client,
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
-        let mut storage_top_trie_changes = storage_diff::StorageDiff::empty();
-        let mut offchain_storage_changes = storage_diff::StorageDiff::empty();
+        let mut storage_top_trie_changes = StorageDiff::empty();
+        let mut offchain_storage_changes = StorageDiff::empty();
 
         let vm_proto = HostVmPrototype::new(Config {
             module: &self.wasm,
@@ -67,8 +68,7 @@ impl Task {
             allow_unresolved_imports: false,
         })
         .unwrap();
-
-        let mut ret: Vec<u8> = vec![];
+        let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
 
         for (call, params) in self.calls.as_ref().unwrap() {
             let mut vm = runtime_host::run(runtime_host::Config {
@@ -127,23 +127,35 @@ impl Task {
 
             println!("Completed {}", call);
 
-            let res = res.unwrap();
+            match res {
+                Ok(success) => {
+                    ret = Ok(success.virtual_machine.value().as_ref().to_vec());
 
-            ret = res.virtual_machine.value().as_ref().to_vec();
-
-            storage_top_trie_changes = res.storage_top_trie_changes;
-            offchain_storage_changes = res.offchain_storage_changes;
+                    storage_top_trie_changes = success.storage_top_trie_changes;
+                    offchain_storage_changes = success.offchain_storage_changes;
+                }
+                Err(err) => {
+                    ret = Err(err.to_string());
+					storage_top_trie_changes = StorageDiff::empty();
+                    break;
+                }
+            }
         }
 
-        let diff = storage_top_trie_changes
-            .diff_into_iter_unordered()
-            .map(|(k, v)| (HexString(k), v.map(HexString)))
-            .collect();
+        Ok(ret.map_or_else(
+            |err| TaskResponse::Error(err),
+            move |ret| {
+                let diff = storage_top_trie_changes
+                    .diff_into_iter_unordered()
+                    .map(|(k, v)| (HexString(k), v.map(HexString)))
+                    .collect();
 
-        Ok(TaskResponse::Call(CallResponse {
-            result: HexString(ret),
-            storage_diff: diff,
-        }))
+                TaskResponse::Call(CallResponse {
+                    result: HexString(ret),
+                    storage_diff: diff,
+                })
+            },
+        ))
     }
 
     async fn runtime_version(
