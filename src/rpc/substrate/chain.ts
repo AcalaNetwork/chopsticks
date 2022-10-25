@@ -1,10 +1,12 @@
 import { Handlers, ResponseError } from '../shared'
 
 const handlers: Handlers = {
-  chain_getBlockHash: async (context, params) => {
-    const [blockNumber] = params
-    const blockHash = await context.api.rpc.chain.getBlockHash(blockNumber)
-    return blockHash.toHex()
+  chain_getBlockHash: async (context, [blockNumber]) => {
+    const block = await context.chain.getBlockAt(blockNumber)
+    if (!block) {
+      throw new ResponseError(1, 'Block not found')
+    }
+    return block.hash
   },
   chain_getHeader: async (context, [hash]) => {
     return (await context.chain.getBlock(hash))?.header

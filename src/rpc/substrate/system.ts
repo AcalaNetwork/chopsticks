@@ -10,8 +10,8 @@ const handlers: Handlers = {
   system_name: async (context) => {
     return context.api.rpc.system.name()
   },
-  system_version: async (context) => {
-    return context.api.rpc.system.version()
+  system_version: async (_context) => {
+    return 'chopsticks-1.1.0'
   },
   system_health: async () => {
     return {

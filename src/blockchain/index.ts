@@ -44,7 +44,10 @@ export class Blockchain {
     return this.#head
   }
 
-  async getBlockAt(number: number): Promise<Block | undefined> {
+  async getBlockAt(number?: number): Promise<Block | undefined> {
+    if (number === undefined) {
+      return this.head
+    }
     if (number > this.#head.number) {
       return undefined
     }
