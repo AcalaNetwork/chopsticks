@@ -54,12 +54,15 @@ const runBlock = async (argv: any) => {
 
   calls.push(['BlockBuilder_finalize_block', '0x'])
 
-  await context.tasks.addAndRunTask({
-    kind: 'Call',
-    blockHash: parent,
-    wasm,
-    calls,
-  }, console.log)
+  await context.tasks.addAndRunTask(
+    {
+      kind: 'Call',
+      blockHash: parent,
+      wasm,
+      calls,
+    },
+    console.log
+  )
 
   setTimeout(() => process.exit(0), 50)
 }
