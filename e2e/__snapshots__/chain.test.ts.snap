@@ -1,6 +1,6 @@
 // Vitest Snapshot v1
 
-exports[`chain rpc > getter works 1`] = `
+exports[`chain rpc > getXXX 1`] = `
 {
   "digest": {
     "logs": [
@@ -25,7 +25,7 @@ exports[`chain rpc > getter works 1`] = `
 }
 `;
 
-exports[`chain rpc > getter works 2`] = `
+exports[`chain rpc > getXXX 2`] = `
 {
   "digest": {
     "logs": [
@@ -50,7 +50,7 @@ exports[`chain rpc > getter works 2`] = `
 }
 `;
 
-exports[`chain rpc > getter works 3`] = `
+exports[`chain rpc > getXXX 3`] = `
 {
   "digest": {
     "logs": [],
@@ -62,7 +62,7 @@ exports[`chain rpc > getter works 3`] = `
 }
 `;
 
-exports[`chain rpc > getter works 4`] = `
+exports[`chain rpc > getXXX 4`] = `
 {
   "digest": {
     "logs": [
@@ -87,7 +87,7 @@ exports[`chain rpc > getter works 4`] = `
 }
 `;
 
-exports[`chain rpc > getter works 5`] = `
+exports[`chain rpc > getXXX 5`] = `
 {
   "block": {
     "extrinsics": [
@@ -121,7 +121,7 @@ exports[`chain rpc > getter works 5`] = `
 }
 `;
 
-exports[`chain rpc > getter works 6`] = `
+exports[`chain rpc > getXXX 6`] = `
 {
   "block": {
     "extrinsics": [
@@ -155,7 +155,7 @@ exports[`chain rpc > getter works 6`] = `
 }
 `;
 
-exports[`chain rpc > getter works 7`] = `
+exports[`chain rpc > getXXX 7`] = `
 {
   "block": {
     "extrinsics": [],
@@ -173,7 +173,7 @@ exports[`chain rpc > getter works 7`] = `
 }
 `;
 
-exports[`chain rpc > getter works 8`] = `
+exports[`chain rpc > getXXX 8`] = `
 {
   "block": {
     "extrinsics": [
@@ -204,5 +204,30 @@ exports[`chain rpc > getter works 8`] = `
     },
   },
   "justifications": null,
+}
+`;
+
+exports[`chain rpc > subscribeNewHeads 1`] = `
+{
+  "digest": {
+    "logs": [
+      {
+        "preRuntime": [
+          "0x61757261",
+          "0xf144470800000000",
+        ],
+      },
+      {
+        "seal": [
+          "0x61757261",
+          "0xdcda8a4510552aac316a4182ceca732d019876605367e62f2dbe766a0300523fcf49adfe174e74772375ba0472abe87aee4a9fdc92a8092e858d05189838528f",
+        ],
+      },
+    ],
+  },
+  "extrinsicsRoot": "0xef277eb69bce528c705c3286ec7db1a3a949bb35757b9651e757dedb8fea0ac1",
+  "number": 170000,
+  "parentHash": "0xd146548de54577c1163549ab5469e9b33f52b937cb742cbeb0cec15f8f037400",
+  "stateRoot": "0xe9e7f39d8daec432afa105d27055d2d9ff7daaa21dc59b1d2cdf4d1b2049756d",
 }
 `;
