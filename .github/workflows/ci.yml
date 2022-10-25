@@ -36,8 +36,8 @@ jobs:
         node-version: 18.x
         cache: 'yarn'
     - run: yarn --immutable
-    - run: yarn lint
     - run: yarn build-wasm
+    - run: yarn lint
     - run: yarn build
     - run: yarn test
 
