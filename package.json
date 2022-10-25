@@ -9,10 +9,12 @@
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
+		"build-wasm": "cd executor && wasm-pack --log-level=info build --target nodejs --no-default-features",
 		"start": "ts-node src/index.ts",
 		"build": "cd executor && cargo build --locked",
 		"test": "vitest",
-		"dev": "LOG_LEVEL=trace node-dev --notify=false src/index.ts -- dev --endpoint=wss://karura-rococo-rpc.aca-staging.network/ws --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty"
+		"test:wasm": "WASM_EXECUTOR=true vitest",
+		"dev": "LOG_LEVEL=trace node-dev --notify=false src/index.ts -- dev --endpoint=wss://karura-rococo-rpc.aca-staging.network/ws | pino-pretty"
 	},
 	"dependencies": {
 		"@polkadot/api": "^9.5.2",
@@ -41,7 +43,8 @@
 		"prettier": "^2.7.1",
 		"ts-node": "^10.9.1",
 		"typescript": "^4.8.4",
-		"vitest": "^0.24.3"
+		"vitest": "^0.24.3",
+		"wasm-pack": "^0.10.3"
 	},
 	"prettier": {
 		"tabWidth": 2,

@@ -1,5 +1,5 @@
 use core::iter;
-use jsonrpsee::ws_client::WsClient;
+use jsonrpsee::core::client::Client;
 use serde::{Deserialize, Serialize};
 use smoldot::{
     executor::{
@@ -42,7 +42,7 @@ pub enum TaskResponse {
 }
 
 impl Task {
-    pub async fn run(&self, task_id: u32, client: &WsClient) -> Result<(), jsonrpsee::core::Error> {
+    pub async fn run(&self, task_id: u32, client: &Client) -> Result<(), jsonrpsee::core::Error> {
         let resp = match self.kind {
             TaskKind::Call => self.call(task_id, client).await,
             TaskKind::RuntimeVersion => self.runtime_version(task_id, client).await,
@@ -56,7 +56,7 @@ impl Task {
     async fn call(
         &self,
         task_id: u32,
-        client: &WsClient,
+        client: &Client,
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let mut storage_top_trie_changes = StorageDiff::empty();
         let mut offchain_storage_changes = StorageDiff::empty();
@@ -68,7 +68,6 @@ impl Task {
             allow_unresolved_imports: false,
         })
         .unwrap();
-
         let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
 
         for (call, params) in self.calls.as_ref().unwrap() {
@@ -137,8 +136,7 @@ impl Task {
                 }
                 Err(err) => {
                     ret = Err(err.to_string());
-
-					storage_top_trie_changes = StorageDiff::empty();
+                    storage_top_trie_changes = StorageDiff::empty();
                     break;
                 }
             }
@@ -163,7 +161,7 @@ impl Task {
     async fn runtime_version(
         &self,
         _task_id: u32,
-        _client: &WsClient,
+        _client: &Client,
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let vm_proto = HostVmPrototype::new(Config {
             module: &self.wasm,

@@ -23,7 +23,7 @@ const setupAll = async () => {
 
   return {
     async setup() {
-      const tasks = new TaskManager(executorCmd, 8000)
+      const tasks = new TaskManager(process.env.WASM_EXECUTOR === 'true' ? '' : executorCmd, 8000)
 
       const chain = new Blockchain(api, tasks, { hash: blockHash, number: header.number.toNumber() })
 

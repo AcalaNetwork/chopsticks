@@ -54,12 +54,15 @@ const runBlock = async (argv: any) => {
 
   calls.push(['BlockBuilder_finalize_block', '0x'])
 
-  await context.tasks.addAndRunTask({
-    kind: 'Call',
-    blockHash: parent,
-    wasm,
-    calls,
-  })
+  await context.tasks.addAndRunTask(
+    {
+      kind: 'Call',
+      blockHash: parent,
+      wasm,
+      calls,
+    },
+    console.log
+  )
 
   setTimeout(() => process.exit(0), 50)
 }
@@ -86,7 +89,6 @@ yargs(hideBin(process.argv))
         'executor-cmd': {
           desc: 'Command to execute the executor',
           string: true,
-          require: true,
         },
       }),
     (argv) => {
@@ -117,7 +119,6 @@ yargs(hideBin(process.argv))
         'executor-cmd': {
           desc: 'Command to execute the executor',
           string: true,
-          require: true,
         },
       }),
     (argv) => {

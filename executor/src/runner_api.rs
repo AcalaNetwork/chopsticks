@@ -1,12 +1,18 @@
 use std::time::Duration;
 
-use jsonrpsee::{
-    core::Error as RpcError,
-    proc_macros::rpc,
-    ws_client::{WsClient, WsClientBuilder},
-};
-use smoldot::json_rpc::methods::HexString;
 use crate::task::{Task, TaskResponse};
+use jsonrpsee::{
+    core::{client::Client, Error as RpcError},
+    proc_macros::rpc,
+};
+
+#[cfg(target_arch = "wasm32")]
+use jsonrpsee::wasm_client::WasmClientBuilder;
+
+#[cfg(feature = "std")]
+use jsonrpsee::ws_client::WsClientBuilder;
+
+use smoldot::json_rpc::methods::HexString;
 
 #[rpc(client)]
 pub trait RpcApi {
@@ -38,15 +44,16 @@ pub trait RpcApi {
     fn get_task(&self, task_id: u32) -> Result<Task, RpcError>;
 
     #[method(name = "exec_taskResult")]
-    fn task_result(
-        &self,
-        task_id: u32,
-        resp: TaskResponse,
-    ) -> Result<(), RpcError>;
+    fn task_result(&self, task_id: u32, resp: TaskResponse) -> Result<(), RpcError>;
 }
 
-pub async fn client(url: &str) -> Result<WsClient, RpcError> {
-    let client = WsClientBuilder::default()
+pub async fn client(url: &str) -> Result<Client, RpcError> {
+    #[cfg(target_arch = "wasm32")]
+    let builder = WasmClientBuilder::default();
+    #[cfg(feature = "std")]
+    let builder = WsClientBuilder::default();
+
+    let client = builder
         .request_timeout(Duration::from_secs(120))
         .build(url)
         .await?;

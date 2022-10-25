@@ -148,7 +148,7 @@ class StorageLayer implements StorageLayerProvider {
     if (this.#keys[idx] === startKey) {
       ++idx
     }
-    const res = []
+    const res: string[] = []
     while (res.length < pageSize) {
       const key: string = this.#keys[idx]
       if (!key || !key.startsWith(prefix)) {

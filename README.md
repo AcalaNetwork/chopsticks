@@ -8,8 +8,10 @@ Make sure you have setup Rust environment.
 
 - Install deps
   - `yarn`
+- Build wasm
+  - `yarn build-wasm`
 - Run nodejs runner
-  - `yarn dev`
+  - `yarn start run-block --endpoint=wss://acala-rpc-2.aca-api.network/ws`
 
 Connect to the rpc via localhost:8000 and you may be able to submit transaction and it will be executed in parallel reality.
 

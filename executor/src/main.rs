@@ -27,7 +27,7 @@ async fn real_main() -> Result<(), jsonrpsee::core::Error> {
 
     let task = client.get_task(task_id).await?;
 
-	task.run(task_id, &client).await?;
+    task.run(task_id, &client).await?;
 
     println!("Done");
 

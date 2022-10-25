@@ -116,3 +116,5 @@ dist
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+
+.idea

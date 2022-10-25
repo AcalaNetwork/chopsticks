@@ -5,13 +5,32 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-clap = { version = "4.0.15", features = ["derive"] }
-hex-literal = "0.3.4"
-jsonrpsee = { version = "0.15.1", features = ["ws-client", "macros"] }
-serde = "1.0.136"
-serde_json = "1.0"
-tokio = { version = "1.21.2", features = ["full"] }
-hex = "0.4.3"
+[lib]
+crate-type = ["cdylib"]
 
-smoldot = { path = '../vendor/smoldot' }
+[dependencies]
+getrandom = { version = "0.2", default-features = false, features = ["js"] }
+jsonrpsee = { version = "0.15.1", default-features = false, features = ["wasm-client", "macros"] }
+serde = { version = "1.0.136", default-features = false }
+serde_json = { version = "1.0", default-features = false }
+hex = { version = "0.4.3", default-features = false }
+hex-literal = "0.3.4"
+wasm-bindgen = "0.2.83"
+wasm-bindgen-futures = "0.4.33"
+futures = "0.3.24"
+log = { version = "0.4.17", features = ["std"] }
+console_error_panic_hook = "0.1.7"
+console_log = "0.2.0"
+
+clap = { version = "4.0.15", features = ["derive"], optional = true }
+tokio = { version = "1.21.2", features = ["full"], optional = true }
+
+smoldot = { path = '../vendor/smoldot', default-features = false }
+
+[features]
+default = ["std"]
+std = [
+    "clap",
+    "tokio",
+    "jsonrpsee/ws-client"
+]
