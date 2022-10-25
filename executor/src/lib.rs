@@ -12,7 +12,7 @@ use crate::runner_api::RpcApiClient;
 #[wasm_bindgen]
 pub async fn start(task_id: u32, ws_url: &str) -> Result<(), JsValue> {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    console_log::init_with_level(log::Level::Debug).expect("error initializing logger");
+    _ = console_log::init_with_level(log::Level::Debug);
 
     let client = runner_api::client(ws_url)
         .await
