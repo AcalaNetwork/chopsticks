@@ -4,8 +4,14 @@ use crate::task::{Task, TaskResponse};
 use jsonrpsee::{
     core::{client::Client, Error as RpcError},
     proc_macros::rpc,
-    wasm_client::WasmClientBuilder,
 };
+
+#[cfg(target_arch = "wasm32")]
+use jsonrpsee::wasm_client::WasmClientBuilder;
+
+#[cfg(feature = "std")]
+use jsonrpsee::ws_client::WsClientBuilder;
+
 use smoldot::json_rpc::methods::HexString;
 
 #[rpc(client)]
@@ -42,7 +48,12 @@ pub trait RpcApi {
 }
 
 pub async fn client(url: &str) -> Result<Client, RpcError> {
-    let client = WasmClientBuilder::default()
+    #[cfg(target_arch = "wasm32")]
+    let builder = WasmClientBuilder::default();
+    #[cfg(feature = "std")]
+    let builder = WsClientBuilder::default();
+
+    let client = builder
         .request_timeout(Duration::from_secs(120))
         .build(url)
         .await?;
