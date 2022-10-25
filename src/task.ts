@@ -1,10 +1,11 @@
 import { spawn } from 'child_process'
-import { WebSocket } from 'ws'
-// @ts-ignore
-global.WebSocket = WebSocket;
 
 import { defaultLogger } from './logger'
 import { start } from '../executor/pkg'
+
+import { WebSocket } from 'ws'
+// @ts-ignore
+global.WebSocket = WebSocket;
 
 const logger = defaultLogger.child({ name: 'task' })
 
