@@ -1,5 +1,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { beforeAll, beforeEach } from 'vitest'
+import { Codec } from '@polkadot/types/types'
+import { beforeAll, beforeEach, expect } from 'vitest'
 
 import { Blockchain } from '../src/blockchain'
 import { TaskManager } from '../src/task'
@@ -40,11 +41,13 @@ const setupAll = async () => {
         api: api2,
         async teardown() {
           await api2.disconnect()
+          await new Promise((resolve) => setTimeout(resolve, 1000))
           await close()
         },
       }
     },
     async teardownAll() {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       await api.disconnect()
     },
   }
@@ -65,3 +68,11 @@ beforeEach(async () => {
   api = res.api
   return res.teardown
 })
+
+export const expectJson = (codec: Codec | Promise<Codec>) => {
+  return expect(Promise.resolve(codec).then((x) => x.toJSON())).resolves
+}
+
+export const expectHex = (codec: Codec | Promise<Codec>) => {
+  return expect(Promise.resolve(codec).then((x) => x.toHex())).resolves
+}
