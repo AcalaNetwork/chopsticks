@@ -10,6 +10,7 @@
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
 		"start": "ts-node src/index.ts",
+		"build": "cd executor && cargo build --locked",
 		"test": "vitest",
 		"dev": "LOG_LEVEL=trace node-dev --notify=false src/index.ts -- dev --endpoint=wss://karura-rococo-rpc.aca-staging.network/ws --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty"
 	},
