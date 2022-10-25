@@ -1,0 +1,9 @@
+// Vitest Snapshot v1
+
+exports[`storage > getStorage 2`] = `
+{
+  "free": "0x0000000000000000016e0dc6c80c5343",
+  "frozen": 0,
+  "reserved": 0,
+}
+`;
