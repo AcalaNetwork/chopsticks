@@ -1,4 +1,4 @@
-import WebSocket, { AddressInfo } from 'ws'
+import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
 import { SubscriptionManager } from './rpc/shared'
 import { defaultLogger } from './logger'
@@ -20,7 +20,7 @@ const parseRequest = (request: string) => {
 
 export const createServer = (port: number, handler: Handler) => {
   logger.debug('Starting on port %d', port)
-  const wss = new WebSocket.Server({ port, maxPayload: 1024 * 1024 * 100 })
+  const wss = new WebSocketServer({ port, maxPayload: 1024 * 1024 * 100 })
 
   const promise = new Promise<number>((resolve, reject) => {
     wss.on('listening', () => {
@@ -125,5 +125,17 @@ export const createServer = (port: number, handler: Handler) => {
     })
   })
 
-  return promise
+  return {
+    port: promise,
+    close: () =>
+      new Promise<void>((resolve, reject) => {
+        wss.close((err) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve()
+          }
+        })
+      }),
+  }
 }

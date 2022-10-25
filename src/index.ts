@@ -1,5 +1,4 @@
-import { ApiPromise } from '@polkadot/api'
-import { WsProvider } from '@polkadot/rpc-provider'
+import { ApiPromise, WsProvider } from '@polkadot/api'
 import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs'
 
@@ -32,7 +31,7 @@ const setup = async (argv: any) => {
 
   const context = { chain, api, ws: wsProvider, tasks }
 
-  const listeningPort = await createServer(port, handler(context))
+  const listeningPort = await createServer(port, handler(context)).port
 
   tasks.updateListeningPort(listeningPort)
 
@@ -118,4 +117,5 @@ yargs(hideBin(process.argv))
       })
     }
   )
+  .strict()
   .help().argv
