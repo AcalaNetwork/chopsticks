@@ -129,6 +129,7 @@ export const createServer = (port: number, handler: Handler) => {
     port: promise,
     close: () =>
       new Promise<void>((resolve, reject) => {
+        wss.clients.forEach((socket) => socket.close())
         wss.close((err) => {
           if (err) {
             reject(err)
