@@ -4,6 +4,7 @@ import yargs from 'yargs'
 
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
+import { SetTimestamp } from './blockchain/inherents'
 import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
@@ -28,7 +29,8 @@ const setup = async (argv: any) => {
 
   const header = await api.rpc.chain.getHeader(blockHash)
   const tasks = new TaskManager(argv['executor-cmd'], port)
-  const chain = new Blockchain(api, tasks, argv['build-block-mode'], {
+  const inherents = new SetTimestamp()
+  const chain = new Blockchain(api, tasks, argv['build-block-mode'], inherents, {
     hash: blockHash,
     number: header.number.toNumber(),
   })

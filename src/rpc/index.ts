@@ -16,8 +16,8 @@ export const handler =
 
     const handler = allHandlers[method]
     if (!handler) {
-      logger.warn('Method %s not found', method)
-      throw new ResponseError(-32601, 'Method not found')
+      logger.warn('Method not found %s', method)
+      throw new ResponseError(-32601, `Method not found: ${method}`)
     }
 
     return handler(context, params, subscriptionManager)

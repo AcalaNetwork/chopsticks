@@ -7,6 +7,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 import { Block } from './block'
 import { BuildBlockMode, TxPool } from './txpool'
 import { HeadState } from './head-state'
+import { InherentProvider } from './inherents'
 import { ResponseError } from '../rpc/shared'
 import { TaskManager } from '../task'
 import { defaultLogger } from '../logger'
@@ -28,6 +29,7 @@ export class Blockchain {
     api: ApiPromise,
     tasks: TaskManager,
     buildBlockMode: BuildBlockMode | undefined,
+    inherentProvider: InherentProvider,
     header: { number: number; hash: string }
   ) {
     this.#api = api
@@ -35,7 +37,7 @@ export class Blockchain {
     this.#head = new Block(api, this, header.number, header.hash)
     this.#registerBlock(this.#head)
 
-    this.#txpool = new TxPool(this, api, buildBlockMode)
+    this.#txpool = new TxPool(this, api, inherentProvider, buildBlockMode)
 
     this.headState = new HeadState(this.#head)
   }

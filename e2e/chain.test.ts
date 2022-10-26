@@ -1,8 +1,8 @@
 /* eslint-disable no-async-promise-executor */
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import { api, expectHex, expectJson } from './helper'
+import { api, delay, dev, expectHex, expectJson, mockCallback } from './helper'
 
 describe('chain rpc', () => {
   it('getXXX', async () => {
@@ -26,18 +26,42 @@ describe('chain rpc', () => {
 
     await expectHex(api.rpc.chain.getFinalizedHead()).toMatch(hashHead)
 
-    // TODO: advance block and have more tests
+    expect(await dev.newBlock()).toMatchInlineSnapshot(
+      '"0x1ec9e0f282817d92307b4d0f46cb9c1149d941e6e622607793d56229d5ea83d6"'
+    )
+
+    await expectHex(api.rpc.chain.getBlockHash()).toMatchInlineSnapshot()
+    await expectJson(api.rpc.chain.getHeader()).toMatchSnapshot()
+    await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
   })
 
-  it('subscribeNewHeads', async () => {
-    await new Promise<void>(async (resolve) => {
-      const unsub = await api.rpc.chain.subscribeNewHeads((header) => {
-        expect(header.toJSON()).toMatchSnapshot()
-        unsub()
-        resolve()
-      })
-    })
+  it.only('subscribeNewHeads', async () => {
+    const { callback, next } = mockCallback()
+    const unsub = await api.rpc.chain.subscribeNewHeads(callback)
 
-    // TODO: advance block and have more tests and unsure unsubscribe works
+    await next()
+    expect(callback.mock.calls).toMatchSnapshot()
+
+    callback.mockClear()
+
+    expect(await dev.newBlock()).toMatchInlineSnapshot(
+      '"0x5e29ae2538ffa601a9da913b75de8c95d0ce0bc7458756a094348d7f7e9b146a"'
+    )
+
+    await next()
+
+    expect(callback.mock.calls).toMatchSnapshot()
+
+    callback.mockClear()
+
+    unsub()
+
+    expect(await dev.newBlock()).toMatchInlineSnapshot(
+      '"0xe300c88d4790076560300b914c7a742929121cb2812fd931f859aa97e38b9393"'
+    )
+
+    await delay(100)
+
+    expect(callback).not.toHaveBeenCalled()
   })
 })

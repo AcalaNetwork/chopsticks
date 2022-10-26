@@ -1,11 +1,12 @@
 import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
+import { bnToU8a, u8aToBn } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
 import { Blockchain } from '.'
+import { InherentProvider } from './inherents'
 import { defaultLogger } from '../logger'
-import { u8aToBn } from '@polkadot/util'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
@@ -20,13 +21,20 @@ export class TxPool {
   readonly #chain: Blockchain
   readonly #pool: string[] = []
   readonly #mode: BuildBlockMode
+  readonly #inherentProvider: InherentProvider
 
   #lastBuildBlockPromise: Promise<void> = Promise.resolve()
 
-  constructor(chain: Blockchain, api: ApiPromise, mode: BuildBlockMode = BuildBlockMode.Batch) {
+  constructor(
+    chain: Blockchain,
+    api: ApiPromise,
+    inherentProvider: InherentProvider,
+    mode: BuildBlockMode = BuildBlockMode.Batch
+  ) {
     this.#chain = chain
     this.#api = api
     this.#mode = mode
+    this.#inherentProvider = inherentProvider
   }
 
   submitExtrinsic(extrinsic: string) {
@@ -50,6 +58,7 @@ export class TxPool {
   async buildBlock() {
     const last = this.#lastBuildBlockPromise
     this.#lastBuildBlockPromise = this.#buildBlock(last)
+    await this.#lastBuildBlockPromise
   }
 
   async #buildBlock(wait: Promise<void>) {
@@ -57,15 +66,13 @@ export class TxPool {
 
     const head = this.#chain.head
 
-    logger.info({ hash: head.hash, number: head.number }, 'Building block')
+    const extrinsics = this.#pool.splice(0)
 
     const parentHeader = await head.header
 
-    const extrinsics = this.#pool.splice(0)
-
     const preRuntime = parentHeader.digest.logs[0].asPreRuntime
     const [consensusEngine, auraSlot] = preRuntime
-    const newAuraSlot = u8aToBn(auraSlot, { isLe: false }).addn(1)
+    const newAuraSlot = bnToU8a(u8aToBn(auraSlot, { isLe: false }).addn(1), { isLe: true, bitLength: 64 })
     const seal = parentHeader.digest.logs[1]
     const header = this.#api.createType('Header', {
       parentHash: head.hash,
@@ -79,18 +86,30 @@ export class TxPool {
 
     const newBlock = this.#chain.newTempBlock(head, header)
 
+    logger.info(
+      {
+        hash: head.hash,
+        number: head.number,
+        extrinsicsCount: extrinsics.length,
+        tempHash: newBlock.hash,
+      },
+      'Building block'
+    )
+
     const resp = await newBlock.call('Core_initialize_block', header.toHex())
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
+    logger.trace(resp.storageDiff, 'Initialize block')
 
-    const setTimestamp = this.#api.tx.timestamp.set(Date.now())
+    const inherents = await this.#inherentProvider.createInherents(this.#api, newBlock)
 
-    extrinsics.unshift(setTimestamp.toHex())
+    extrinsics.unshift(...inherents)
 
     for (const extrinsic of extrinsics) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
         newBlock.pushStorageLayer().setAll(resp.storageDiff)
+        logger.trace(resp.storageDiff, 'Applied extrinsic')
       } catch (e) {
         logger.info('Failed to apply extrinsic %o %s', e, e)
         this.#pool.push(extrinsic)
@@ -100,6 +119,7 @@ export class TxPool {
     const resp2 = await newBlock.call('BlockBuilder_finalize_block', '0x')
 
     newBlock.pushStorageLayer().setAll(resp2.storageDiff)
+    logger.trace(resp2.storageDiff, 'Finalize block')
 
     const blockData = this.#api.createType('Block', {
       header,
@@ -115,6 +135,6 @@ export class TxPool {
     this.#chain.unregisterBlock(newBlock)
     this.#chain.setHead(finalBlock)
 
-    logger.info({ hash: finalBlock.hash, number: finalBlock.number }, 'Block built')
+    logger.info({ hash: finalBlock.hash, number: finalBlock.number, prevHash: newBlock.hash }, 'Block built')
   }
 }
