@@ -69,10 +69,12 @@ beforeEach(async () => {
   return res.teardown
 })
 
-export const expectJson = (codec: Codec | Promise<Codec>) => {
-  return expect(Promise.resolve(codec).then((x) => x.toJSON())).resolves
+type CodecOrArray = Codec | Codec[]
+
+export const expectJson = (codec: CodecOrArray | Promise<CodecOrArray>) => {
+  return expect(Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toJSON()) : x.toJSON()))).resolves
 }
 
-export const expectHex = (codec: Codec | Promise<Codec>) => {
-  return expect(Promise.resolve(codec).then((x) => x.toHex())).resolves
+export const expectHex = (codec: CodecOrArray | Promise<CodecOrArray>) => {
+  return expect(Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toHex()) : x.toHex()))).resolves
 }
