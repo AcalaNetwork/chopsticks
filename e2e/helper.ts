@@ -9,9 +9,6 @@ import { handler } from '../src/rpc'
 
 const setupAll = async () => {
   const endpoint = 'wss://mandala-rpc.aca-staging.network/ws'
-  const executorCmd = process.env.CI
-    ? './executor/target/debug/executor'
-    : 'cargo run --manifest-path executor/Cargo.toml --'
   const blockHash = '0x68cff8682eda3e5e63b375253bdb3a01f0dce1879fe7ade97c9697406c56b55a'
 
   const wsProvider = new WsProvider(endpoint)
@@ -23,7 +20,7 @@ const setupAll = async () => {
 
   return {
     async setup() {
-      const tasks = new TaskManager(process.env.WASM_EXECUTOR === 'true' ? '' : executorCmd, 8000)
+      const tasks = new TaskManager(8000)
 
       const chain = new Blockchain(api, tasks, { hash: blockHash, number: header.number.toNumber() })
 

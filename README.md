@@ -24,4 +24,3 @@ Next step:
 - Implements subscription
 - Disable signature verification
 - API for arbitrary storage override
-- Compile the rust part into wasm
