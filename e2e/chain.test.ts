@@ -33,7 +33,7 @@ describe('chain rpc', () => {
     await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
   })
 
-  it.only('subscribeNewHeads', async () => {
+  it('subscribeNewHeads', async () => {
     const { callback, next } = mockCallback()
     const unsub = await api.rpc.chain.subscribeNewHeads(callback)
 
