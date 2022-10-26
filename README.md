@@ -2,14 +2,19 @@
 
 Create parallel reality of your Substrate network.
 
-## Run
+## Install
 
-Make sure you have setup Rust environment.
+Make sure you have setup Rust environment (>= 1.64).
 
+- Clone repository with submodules ([smoldot](https://github.com/paritytech/smoldot))
+  - `git clone --recurse-submodules https://github.com/AcalaNetwork/chopsticks.git && cd chopsticks`
 - Install deps
   - `yarn`
 - Build wasm
   - `yarn build-wasm`
+
+## Run
+
 - Run nodejs runner
   - `yarn start run-block --endpoint=wss://acala-rpc-2.aca-api.network/ws`
 
