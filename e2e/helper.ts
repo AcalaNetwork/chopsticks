@@ -3,6 +3,7 @@ import { Codec } from '@polkadot/types/types'
 import { beforeAll, beforeEach, expect } from 'vitest'
 
 import { Blockchain } from '../src/blockchain'
+import { BuildBlockMode } from '../src/blockchain/txpool'
 import { TaskManager } from '../src/task'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'
@@ -25,7 +26,10 @@ const setupAll = async () => {
     async setup() {
       const tasks = new TaskManager(process.env.WASM_EXECUTOR === 'true' ? '' : executorCmd, 8000)
 
-      const chain = new Blockchain(api, tasks, { hash: blockHash, number: header.number.toNumber() })
+      const chain = new Blockchain(api, tasks, BuildBlockMode.Manual, {
+        hash: blockHash,
+        number: header.number.toNumber(),
+      })
 
       const context = { chain, api, ws: wsProvider, tasks }
 

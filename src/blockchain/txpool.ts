@@ -1,5 +1,6 @@
 import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
+import _ from 'lodash'
 
 import { Block } from './block'
 import { Blockchain } from '.'
@@ -8,23 +9,52 @@ import { u8aToBn } from '@polkadot/util'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
-export class TxPool {
-  #api: ApiPromise
-  #chain: Blockchain
-  #pool: string[] = []
+export const enum BuildBlockMode {
+  Batch, // one block per batch, default
+  Instant, // one block per tx
+  Manual, // only build when triggered
+}
 
-  constructor(chain: Blockchain, api: ApiPromise) {
+export class TxPool {
+  readonly #api: ApiPromise
+  readonly #chain: Blockchain
+  readonly #pool: string[] = []
+  readonly #mode: BuildBlockMode
+
+  #lastBuildBlockPromise: Promise<void> = Promise.resolve()
+
+  constructor(chain: Blockchain, api: ApiPromise, mode: BuildBlockMode = BuildBlockMode.Batch) {
     this.#chain = chain
     this.#api = api
+    this.#mode = mode
   }
 
   submitExtrinsic(extrinsic: string) {
     this.#pool.push(extrinsic)
-    setTimeout(() => this.buildBlock(), 500)
+
+    switch (this.#mode) {
+      case BuildBlockMode.Batch:
+        this.#batchBuildBlock()
+        break
+      case BuildBlockMode.Instant:
+        this.buildBlock()
+        break
+      case BuildBlockMode.Manual:
+        // does nothing
+        break
+    }
   }
 
+  #batchBuildBlock = _.debounce(this.buildBlock, 100, { maxWait: 1000 })
+
   async buildBlock() {
-    // TODO: concurrent building will cause problem. make new build depends on old one
+    const last = this.#lastBuildBlockPromise
+    this.#lastBuildBlockPromise = this.#buildBlock(last)
+  }
+
+  async #buildBlock(wait: Promise<void>) {
+    await wait
+
     const head = this.#chain.head
 
     logger.info({ hash: head.hash, number: head.number }, 'Building block')

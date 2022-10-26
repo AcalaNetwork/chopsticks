@@ -5,10 +5,10 @@ import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Block } from './block'
+import { BuildBlockMode, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { ResponseError } from '../rpc/shared'
 import { TaskManager } from '../task'
-import { TxPool } from './txpool'
 import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
@@ -24,13 +24,18 @@ export class Blockchain {
 
   readonly headState: HeadState
 
-  constructor(api: ApiPromise, tasks: TaskManager, header: { number: number; hash: string }) {
+  constructor(
+    api: ApiPromise,
+    tasks: TaskManager,
+    buildBlockMode: BuildBlockMode | undefined,
+    header: { number: number; hash: string }
+  ) {
     this.#api = api
     this.tasks = tasks
     this.#head = new Block(api, this, header.number, header.hash)
     this.#registerBlock(this.#head)
 
-    this.#txpool = new TxPool(this, api)
+    this.#txpool = new TxPool(this, api, buildBlockMode)
 
     this.headState = new HeadState(this.#head)
   }
@@ -118,5 +123,10 @@ export class Blockchain {
       return blake2AsHex(extrinsic, 256)
     }
     throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toString()}`)
+  }
+
+  async newBlock(): Promise<Block> {
+    await this.#txpool.buildBlock()
+    return this.#head
   }
 }

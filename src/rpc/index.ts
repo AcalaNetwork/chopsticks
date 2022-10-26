@@ -1,10 +1,12 @@
 import { Context, Handlers, ResponseError, SubscriptionManager, logger } from './shared'
+import dev from './dev'
 import exec from './exec'
 import substrate from './substrate'
 
 const allHandlers: Handlers = {
   ...exec,
   ...substrate,
+  ...dev,
 }
 
 export const handler =
