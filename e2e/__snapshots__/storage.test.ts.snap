@@ -1,9 +1,457 @@
 // Vitest Snapshot v1
 
+exports[`storage > getKeysPaged 1`] = `
+[
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d5100032a92b0874b73712e5ad58abce721d8ff756a738d21206cda2584c521beb0f28b6107847c5ebbacee10d2e1f7f0677f9938b78bd5ff520082",
+    {
+      "free": 171158107890,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d5100032a92b0874b73712e5ad58abce721d8ff756a738d21206cda2584c521beb0f28b6107847c5ebbacee10d2e1f7f067c483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d5100032a92b0874b73712e5ad58abce721d8ff756a738d21206cda2584c521beb0f28b6107847c5ebbacee10d2e1f7f067cbfe9046395d10280083",
+    {
+      "free": 1199475847872,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510007410345f92de37f8d660034524b98a6b811cd3baaee2f7e3e77741a808ead8d01950d9eb56d85754f42d2fdf69b487f9938b78bd5ff520082",
+    {
+      "free": 199999999999,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510007410345f92de37f8d660034524b98a6b811cd3baaee2f7e3e77741a808ead8d01950d9eb56d85754f42d2fdf69b48c483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510007410345f92de37f8d660034524b98a6b811cd3baaee2f7e3e77741a808ead8d01950d9eb56d85754f42d2fdf69b48cbfe9046395d10280083",
+    {
+      "free": 9072663311684,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f6357f9938b78bd5ff520082",
+    {
+      "free": 500000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f635c483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f635cbfe9046395d10280083",
+    {
+      "free": 3360045614066,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f635e8d2a526a4a22d1e0300000000",
+    {
+      "free": 213051445306,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+]
+`;
+
+exports[`storage > getKeysPaged 2`] = `
+[
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510018140569f474ce8faf7d95869625933e615866da18a1c44d9d3de23709c6fe5fda8545f3c7b1b97bddeaa30c3beb1dc483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510018140569f474ce8faf7d95869625933e615866da18a1c44d9d3de23709c6fe5fda8545f3c7b1b97bddeaa30c3beb1de8d2a526a4a22d1e0300000000",
+    {
+      "free": 2800851686,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e9007f9938b78bd5ff520082",
+    {
+      "free": 500000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e900c483de2de1246ea70002",
+    {
+      "free": 4276516458,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e900cbfe9046395d10280083",
+    {
+      "free": 100000000005,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e900e8d2a526a4a22d1e0300000000",
+    {
+      "free": 4310484,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd54257f9938b78bd5ff520082",
+    {
+      "free": 199999999999,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd542588730a11ad01953f0003",
+    {
+      "free": 134845574508,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd5425b5605e1962c08fd20084",
+    {
+      "free": 630361126612,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd5425c483de2de1246ea70002",
+    {
+      "free": 10000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+]
+`;
+
+exports[`storage > getKeysPagedAt 1`] = `
+[
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d5100032a92b0874b73712e5ad58abce721d8ff756a738d21206cda2584c521beb0f28b6107847c5ebbacee10d2e1f7f0677f9938b78bd5ff520082",
+    {
+      "free": 171158107890,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d5100032a92b0874b73712e5ad58abce721d8ff756a738d21206cda2584c521beb0f28b6107847c5ebbacee10d2e1f7f067c483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d5100032a92b0874b73712e5ad58abce721d8ff756a738d21206cda2584c521beb0f28b6107847c5ebbacee10d2e1f7f067cbfe9046395d10280083",
+    {
+      "free": 1199475847872,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510007410345f92de37f8d660034524b98a6b811cd3baaee2f7e3e77741a808ead8d01950d9eb56d85754f42d2fdf69b487f9938b78bd5ff520082",
+    {
+      "free": 199999999999,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510007410345f92de37f8d660034524b98a6b811cd3baaee2f7e3e77741a808ead8d01950d9eb56d85754f42d2fdf69b48c483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510007410345f92de37f8d660034524b98a6b811cd3baaee2f7e3e77741a808ead8d01950d9eb56d85754f42d2fdf69b48cbfe9046395d10280083",
+    {
+      "free": 9072663311684,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f6357f9938b78bd5ff520082",
+    {
+      "free": 500000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f635c483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f635cbfe9046395d10280083",
+    {
+      "free": 3360045614066,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51000c7bf7f22fda241a3abca4239f9aa88cd59e3e6b6b17c4c892f7da4f2336ab7e60764cb486624521dd437e42a6f635e8d2a526a4a22d1e0300000000",
+    {
+      "free": 213051445306,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+]
+`;
+
+exports[`storage > getKeysPagedAt 2`] = `
+[
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510018140569f474ce8faf7d95869625933e615866da18a1c44d9d3de23709c6fe5fda8545f3c7b1b97bddeaa30c3beb1dc483de2de1246ea70002",
+    {
+      "free": 20000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510018140569f474ce8faf7d95869625933e615866da18a1c44d9d3de23709c6fe5fda8545f3c7b1b97bddeaa30c3beb1de8d2a526a4a22d1e0300000000",
+    {
+      "free": 2800851686,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e9007f9938b78bd5ff520082",
+    {
+      "free": 500000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e900c483de2de1246ea70002",
+    {
+      "free": 4276516458,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e900cbfe9046395d10280083",
+    {
+      "free": 100000000005,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d510019f10ed2f7983b79c317f101b7be9eb84acd456cf34b8ef849b93df1f7bef7abfca00f311e6c31748647ed5a10e900e8d2a526a4a22d1e0300000000",
+    {
+      "free": 4310484,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd54257f9938b78bd5ff520082",
+    {
+      "free": 199999999999,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd542588730a11ad01953f0003",
+    {
+      "free": 134845574508,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd5425b5605e1962c08fd20084",
+    {
+      "free": 630361126612,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+  [
+    "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51001d101a1663afd3e00d8f6917b435ae020af08134556afe2dac8ac11c0a43561848a1dd0d7d03a1ca696c789dcd5425c483de2de1246ea70002",
+    {
+      "free": 10000000000,
+      "frozen": 0,
+      "reserved": 0,
+    },
+  ],
+]
+`;
+
+exports[`storage > getStorage 1`] = `1666661202090`;
+
 exports[`storage > getStorage 2`] = `
 {
-  "free": "0x0000000000000000016e0dc6c80c5343",
-  "frozen": 0,
-  "reserved": 0,
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": "0x000000000000000000da3b16ca6f2062",
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 448,
+  "providers": 7,
+  "sufficients": 0,
 }
+`;
+
+exports[`storage > getStorage 3`] = `1664167614054`;
+
+exports[`storage > getStorage 4`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": "0x000000000000000000da3b1d59993fec",
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 446,
+  "providers": 7,
+  "sufficients": 0,
+}
+`;
+
+exports[`storage > getStorageMulti 1`] = `
+[
+  {
+    "consumers": 0,
+    "data": {
+      "feeFrozen": 0,
+      "free": "0x000000000000000000da3b16ca6f2062",
+      "miscFrozen": 0,
+      "reserved": 0,
+    },
+    "nonce": 448,
+    "providers": 7,
+    "sufficients": 0,
+  },
+  {
+    "consumers": 0,
+    "data": {
+      "feeFrozen": 0,
+      "free": "0x00000000000000000c57bbcdb034ab67",
+      "miscFrozen": 0,
+      "reserved": 2004100000000,
+    },
+    "nonce": 5773,
+    "providers": 1,
+    "sufficients": 0,
+  },
+  {
+    "consumers": 0,
+    "data": {
+      "feeFrozen": 0,
+      "free": "0x00000000000000000022a3d0abf23271",
+      "miscFrozen": 0,
+      "reserved": 0,
+    },
+    "nonce": 1742,
+    "providers": 1,
+    "sufficients": 0,
+  },
+]
+`;
+
+exports[`storage > getStorageMulti 2`] = `
+[
+  {
+    "consumers": 0,
+    "data": {
+      "feeFrozen": 0,
+      "free": "0x000000000000000000da3b1d59993fec",
+      "miscFrozen": 0,
+      "reserved": 0,
+    },
+    "nonce": 446,
+    "providers": 7,
+    "sufficients": 0,
+  },
+  {
+    "consumers": 0,
+    "data": {
+      "feeFrozen": 0,
+      "free": "0x00000000000000000c57bbcdb034ab67",
+      "miscFrozen": 0,
+      "reserved": 2004100000000,
+    },
+    "nonce": 4548,
+    "providers": 1,
+    "sufficients": 0,
+  },
+  {
+    "consumers": 0,
+    "data": {
+      "feeFrozen": 0,
+      "free": "0x00000000000000000022a3d0abf23271",
+      "miscFrozen": 0,
+      "reserved": 0,
+    },
+    "nonce": 1742,
+    "providers": 1,
+    "sufficients": 0,
+  },
+]
 `;
