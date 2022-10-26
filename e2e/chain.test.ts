@@ -1,6 +1,4 @@
-/* eslint-disable no-async-promise-executor */
-
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { api, delay, dev, expectHex, expectJson, mockCallback } from './helper'
 
