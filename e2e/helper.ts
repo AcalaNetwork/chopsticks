@@ -20,7 +20,7 @@ const setupAll = async () => {
 
   return {
     async setup() {
-      const tasks = new TaskManager(8000)
+      const tasks = new TaskManager(8000, process.env.EXECUTOR_CMD)
 
       const chain = new Blockchain(api, tasks, { hash: blockHash, number: header.number.toNumber() })
 
