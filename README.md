@@ -15,18 +15,18 @@ Make sure you have setup Rust environment (>= 1.64).
 
 ## Run
 
-- Run nodejs runner
+- Replay latest block
+
   - `yarn start run-block --endpoint=wss://acala-rpc-2.aca-api.network/ws`
+  - This will replay the last block and print out the changed storages
 
-Connect to the rpc via localhost:8000 and you may be able to submit transaction and it will be executed in parallel reality.
-
-NOTE: subscriptions are not yet implemented so you will need to refresh to see new blocks.
-
-NOTE2: this currently takes ~half minute to produce a new block.
+- Run a test node
+  - `yarn start dev --endpoint=wss://acala-rpc-2.aca-api.network/ws`
+  - You have a test node running at `ws://localhost:8000`
+  - You can use [Polkadot.js Apps](https://polkadot.js.org/apps/) to connect to this node
+  - Submit any transaction to produce a new block in the in parallel reality
 
 Next step:
 
-- Implements subscription
 - Disable signature verification
 - API for arbitrary storage override
-- Compile the rust part into wasm
