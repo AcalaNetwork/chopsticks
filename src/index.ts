@@ -3,6 +3,8 @@ import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs'
 
 import { Blockchain } from './blockchain'
+import { BuildBlockMode } from './blockchain/txpool'
+import { SetTimestamp } from './blockchain/inherents'
 import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
@@ -27,7 +29,11 @@ const setup = async (argv: any) => {
 
   const header = await api.rpc.chain.getHeader(blockHash)
   const tasks = new TaskManager(port, argv['executor-cmd'])
-  const chain = new Blockchain(api, tasks, { hash: blockHash, number: header.number.toNumber() })
+  const inherents = new SetTimestamp()
+  const chain = new Blockchain(api, tasks, argv['build-block-mode'], inherents, {
+    hash: blockHash,
+    number: header.number.toNumber(),
+  })
 
   const context = { chain, api, ws: wsProvider, tasks }
 
@@ -119,6 +125,10 @@ yargs(hideBin(process.argv))
         'executor-cmd': {
           desc: 'Command to execute the executor',
           string: true,
+        },
+        'build-block-mode': {
+          desc: 'Build block mode. Default to Batch',
+          enum: [BuildBlockMode.Batch, BuildBlockMode.Manual, BuildBlockMode.Instant],
         },
       }),
     (argv) => {
