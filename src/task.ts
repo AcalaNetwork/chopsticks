@@ -35,12 +35,12 @@ interface Task {
 
 export class TaskManager {
   #tasks: { task: Task; callback: (res: TaskResponse) => any }[] = []
-  #executorCmd: string
   #listeningPort: number
+  #executorCmd?: string
 
-  constructor(executorCmd: string, listeningPort: number) {
-    this.#executorCmd = executorCmd
+  constructor(listeningPort: number, executorCmd?: string) {
     this.#listeningPort = listeningPort
+    this.#executorCmd = executorCmd
   }
 
   updateListeningPort(port: number) {
@@ -64,7 +64,7 @@ export class TaskManager {
   }
 
   runTask(taskId: number): Promise<void> {
-    if (this.#executorCmd && this.#executorCmd.length > 0) {
+    if (this.#executorCmd) {
       const cmd = `${this.#executorCmd} --runner-url=ws://localhost:${this.#listeningPort} --task-id=${taskId}`
       logger.info({ taskId, cmd }, 'RunTask')
       const p = spawn(cmd, { shell: true, stdio: 'inherit' })

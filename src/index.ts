@@ -29,7 +29,7 @@ const setup = async (argv: any) => {
   defaultLogger.info({ endpoint: argv.endpoint, blockHash }, 'Args')
 
   const header = await api.rpc.chain.getHeader(blockHash)
-  const tasks = new TaskManager(argv['executor-cmd'], port)
+  const tasks = new TaskManager(port, argv['executor-cmd'])
   const inherents = new SetTimestamp()
   const chain = new Blockchain(api, tasks, argv['build-block-mode'], inherents, {
     hash: blockHash,
