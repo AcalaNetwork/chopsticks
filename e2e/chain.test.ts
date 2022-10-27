@@ -28,7 +28,9 @@ describe('chain rpc', () => {
       '"0x5e29ae2538ffa601a9da913b75de8c95d0ce0bc7458756a094348d7f7e9b146a"'
     )
 
-    await expectHex(api.rpc.chain.getBlockHash()).toMatchInlineSnapshot()
+    await expectHex(api.rpc.chain.getBlockHash()).toMatchInlineSnapshot(
+      '"0x5e29ae2538ffa601a9da913b75de8c95d0ce0bc7458756a094348d7f7e9b146a"'
+    )
     await expectJson(api.rpc.chain.getHeader()).toMatchSnapshot()
     await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
   })
