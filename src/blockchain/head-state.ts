@@ -51,14 +51,14 @@ export class HeadState {
     void id
   }
 
-  setHead(head: Block) {
+  async setHead(head: Block) {
     this.#head = head
 
     for (const cb of Object.values(this.#headListeners)) {
       cb(head)
     }
 
-    const diff = this.#head.storageDiff()
+    const diff = await this.#head.storageDiff()
 
     for (const [keys, cb] of Object.values(this.#storageListeners)) {
       const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string])

@@ -93,7 +93,7 @@ class StorageLayer implements StorageLayerProvider {
     return undefined
   }
 
-  async set(key: string, value: StorageValue): Promise<void> {
+  set(key: string, value: StorageValue): void {
     switch (value) {
       case StorageValueKind.Deleted:
         this.#store[key] = value
@@ -110,12 +110,12 @@ class StorageLayer implements StorageLayerProvider {
     }
   }
 
-  async setAll(values: Record<string, StorageValue | null> | [string, StorageValue | null][]) {
+  setAll(values: Record<string, StorageValue | null> | [string, StorageValue | null][]) {
     if (!Array.isArray(values)) {
       values = Object.entries(values)
     }
     for (const [key, value] of values) {
-      await this.set(key, value || undefined)
+      this.set(key, value || undefined)
     }
   }
 
@@ -160,9 +160,9 @@ class StorageLayer implements StorageLayerProvider {
     return res
   }
 
-  mergeInto(into: Record<string, string>) {
+  async mergeInto(into: Record<string, string>) {
     for (const key of this.#keys) {
-      const value = this.#store[key]
+      const value = await this.#store[key]
       if (value === StorageValueKind.Deleted) {
         delete into[key]
       } else {
@@ -262,11 +262,11 @@ export class Block {
     this.#storages.pop()
   }
 
-  storageDiff(): Record<string, string> {
+  async storageDiff(): Promise<Record<string, string>> {
     const storage = {}
 
     for (const layer of this.#storages) {
-      layer.mergeInto(storage)
+      await layer.mergeInto(storage)
     }
 
     return storage
