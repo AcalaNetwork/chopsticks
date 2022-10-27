@@ -455,3 +455,19 @@ exports[`storage > getStorageMulti 2`] = `
   },
 ]
 `;
+
+exports[`storage > subscription 1`] = `
+[
+  [
+    1666661202090,
+  ],
+]
+`;
+
+exports[`storage > subscription 3`] = `
+[
+  [
+    1666828820000,
+  ],
+]
+`;

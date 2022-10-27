@@ -1,6 +1,7 @@
+import '@polkadot/api-augment'
 import { describe, expect, it } from 'vitest'
 
-import { api, expectJson } from './helper'
+import { api, delay, dev, expectJson, mockCallback } from './helper'
 
 describe('storage', () => {
   it('getStorage', async () => {
@@ -57,5 +58,34 @@ describe('storage', () => {
       startKey: entries[entries.length - 1][0].toHex(),
     })
     expect(entries2).toMatchSnapshot()
+  })
+
+  it.only('subscription', async () => {
+    const { callback, next } = mockCallback()
+    const unsub = await api.query.timestamp.now(callback)
+
+    await next()
+
+    expect(callback.mock.calls).toMatchSnapshot()
+    callback.mockClear()
+
+    expect(await dev.newBlock()).toMatchInlineSnapshot(
+      '"0x5e29ae2538ffa601a9da913b75de8c95d0ce0bc7458756a094348d7f7e9b146a"'
+    )
+
+    await next()
+
+    expect(callback.mock.calls).toMatchSnapshot()
+    callback.mockClear()
+
+    unsub()
+
+    expect(await dev.newBlock()).toMatchInlineSnapshot(
+      '"0xe300c88d4790076560300b914c7a742929121cb2812fd931f859aa97e38b9393"'
+    )
+
+    await delay(100)
+
+    expect(callback).not.toHaveBeenCalled()
   })
 })

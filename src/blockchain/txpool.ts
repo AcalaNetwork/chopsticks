@@ -129,8 +129,11 @@ export class TxPool {
     const finalBlock = new Block(this.#api, this.#chain, newBlock.number, blockData.hash.toHex(), head, {
       header,
       extrinsics,
-      storage: newBlock.storage,
+      storage: head.storage,
     })
+
+    const diff = await newBlock.storageDiff()
+    finalBlock.pushStorageLayer().setAll(diff)
 
     this.#chain.unregisterBlock(newBlock)
     this.#chain.setHead(finalBlock)
