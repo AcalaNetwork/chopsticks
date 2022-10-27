@@ -9,6 +9,7 @@ import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
+import { writeFileSync } from 'fs'
 
 const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
@@ -67,7 +68,13 @@ const runBlock = async (argv: any) => {
       wasm,
       calls,
     },
-    console.log
+    (output) => {
+      if (argv['output-path']) {
+        writeFileSync(argv['output-path'], JSON.stringify(output, null, 2))
+      } else {
+        console.dir(output, { depth: null, colors: false })
+      }
+    }
   )
 
   setTimeout(() => process.exit(0), 50)
@@ -94,6 +101,10 @@ yargs(hideBin(process.argv))
         },
         'executor-cmd': {
           desc: 'Command to execute the executor',
+          string: true,
+        },
+        'output-path': {
+          desc: 'File path to print output',
           string: true,
         },
       }),
