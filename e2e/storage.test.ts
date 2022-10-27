@@ -60,7 +60,7 @@ describe('storage', () => {
     expect(entries2).toMatchSnapshot()
   })
 
-  it.only('subscription', async () => {
+  it('subscription', async () => {
     const { callback, next } = mockCallback()
     const unsub = await api.query.timestamp.now(callback)
 
