@@ -19,6 +19,7 @@ Make sure you have setup Rust environment (>= 1.64).
 
   - `yarn start run-block --endpoint=wss://acala-rpc-2.aca-api.network/ws`
   - This will replay the last block and print out the changed storages
+  - Use option `--output-path=<file_path>` to print out JSON file
 
 - Run a test node
   - `yarn start dev --endpoint=wss://acala-rpc-2.aca-api.network/ws`
