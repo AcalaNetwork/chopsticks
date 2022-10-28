@@ -340,7 +340,7 @@ exports[`storage > getKeysPagedAt 2`] = `
 ]
 `;
 
-exports[`storage > getStorage 1`] = `1666929570042`;
+exports[`storage > getStorage 1`] = `1666942794031`;
 
 exports[`storage > getStorage 2`] = `
 {
@@ -392,11 +392,11 @@ exports[`storage > getStorageMulti 1`] = `
     "consumers": 0,
     "data": {
       "feeFrozen": 0,
-      "free": "0x00000000000000000c57bbcdb034ab67",
+      "free": "0x00000000000000000c57b6515d1f5635",
       "miscFrozen": 0,
       "reserved": 2004100000000,
     },
-    "nonce": 5901,
+    "nonce": 5909,
     "providers": 1,
     "sufficients": 0,
   },
@@ -459,7 +459,7 @@ exports[`storage > getStorageMulti 2`] = `
 exports[`storage > subscription 1`] = `
 [
   [
-    1666929570042,
+    1666942794031,
   ],
 ]
 `;

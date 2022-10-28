@@ -11,7 +11,7 @@ import { handler } from '../src/rpc'
 
 const setupAll = async () => {
   const endpoint = 'wss://mandala-rpc.aca-staging.network/ws'
-  const blockHash = '0x35df24f3f2f87bf26768ea753c5dfe8898c194d73127bade0e1b33cf85170105'
+  const blockHash = '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1'
 
   const wsProvider = new WsProvider(endpoint)
   const api = await ApiPromise.create({ provider: wsProvider })

@@ -4,7 +4,7 @@ import { api, delay, dev, expectHex, expectJson, mockCallback } from './helper'
 
 describe('chain rpc', () => {
   it('getXXX', async () => {
-    const hashHead = '0x35df24f3f2f87bf26768ea753c5dfe8898c194d73127bade0e1b33cf85170105'
+    const hashHead = '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1'
     const hash0 = '0x23fc729c2cdb7bd6770a4e8c58748387cc715fcf338f1f74a16833d90383f4b0'
     const hash1000 = '0x7fbf942ac7a197ed6c9ecb7733bb1d42347b7b88c32973857cc13bd98febbbab'
 

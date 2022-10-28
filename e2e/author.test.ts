@@ -1,15 +1,18 @@
-import { createTestPairs } from '@polkadot/keyring/testingPairs'
+import { Keyring } from '@polkadot/keyring'
 import { describe, expect, it } from 'vitest'
 
 import { api, dev, expectJson, mockCallback } from './helper'
 
 describe('author rpc', () => {
   it('works', async () => {
-    const testPairs = createTestPairs({ type: 'sr25519' })
+    const keyring = new Keyring({ type: 'ed25519' }) // cannot use sr25519 as it is non determinstic
+    const alice = keyring.addFromUri('//Alice')
+    const bob = keyring.addFromUri('//Bob')
 
+    console.log(alice.address, bob.address)
     {
       const { callback, next } = mockCallback()
-      await api.tx.balances.transfer(testPairs.bob.address, 100).signAndSend(testPairs.alice, callback)
+      await api.tx.balances.transfer(bob.address, 100).signAndSend(alice, callback)
       await dev.newBlock()
 
       await next()
@@ -18,13 +21,13 @@ describe('author rpc', () => {
       callback.mockClear()
 
       await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
-      await expectJson(api.query.system.account(testPairs.alice.address)).toMatchSnapshot()
-      await expectJson(api.query.system.account(testPairs.bob.address)).toMatchSnapshot()
+      await expectJson(api.query.system.account(alice.address)).toMatchSnapshot()
+      await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
     }
 
     {
       const { callback, next } = mockCallback()
-      await api.tx.balances.transfer(testPairs.bob.address, 200).signAndSend(testPairs.alice, callback)
+      await api.tx.balances.transfer(bob.address, 200).signAndSend(alice, callback)
       await dev.newBlock()
 
       await next()
@@ -33,13 +36,13 @@ describe('author rpc', () => {
       callback.mockClear()
 
       await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
-      await expectJson(api.query.system.account(testPairs.alice.address)).toMatchSnapshot()
-      await expectJson(api.query.system.account(testPairs.bob.address)).toMatchSnapshot()
+      await expectJson(api.query.system.account(alice.address)).toMatchSnapshot()
+      await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
     }
 
     {
       const { callback, next } = mockCallback()
-      await api.tx.balances.transfer(testPairs.bob.address, 300).signAndSend(testPairs.alice, callback)
+      await api.tx.balances.transfer(bob.address, 300).signAndSend(alice, callback)
       await dev.newBlock()
 
       await next()
@@ -48,8 +51,8 @@ describe('author rpc', () => {
       callback.mockClear()
 
       await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
-      await expectJson(api.query.system.account(testPairs.alice.address)).toMatchSnapshot()
-      await expectJson(api.query.system.account(testPairs.bob.address)).toMatchSnapshot()
+      await expectJson(api.query.system.account(alice.address)).toMatchSnapshot()
+      await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
     }
   })
 })
