@@ -115,7 +115,7 @@ class StorageLayer implements StorageLayerProvider {
       values = Object.entries(values)
     }
     for (const [key, value] of values) {
-      this.set(key, value || undefined)
+      this.set(key, value || StorageValueKind.Deleted)
     }
   }
 
@@ -138,7 +138,7 @@ class StorageLayer implements StorageLayerProvider {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
-    this.fold()
+    await this.fold()
     // TODO: maintain a list of fetched ranges to avoid fetching the same range multiple times
     const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
     for (const key of remote) {
@@ -160,11 +160,11 @@ class StorageLayer implements StorageLayerProvider {
     return res
   }
 
-  async mergeInto(into: Record<string, string>) {
-    for (const key of this.#keys) {
-      const value = await this.#store[key]
+  async mergeInto(into: Record<string, string | null>) {
+    for (const [key, maybeValue] of Object.entries(this.#store)) {
+      const value = await maybeValue
       if (value === StorageValueKind.Deleted) {
-        delete into[key]
+        into[key] = null
       } else {
         into[key] = value as string
       }
