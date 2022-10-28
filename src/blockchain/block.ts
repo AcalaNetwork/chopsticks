@@ -97,7 +97,7 @@ class StorageLayer implements StorageLayerProvider {
     switch (value) {
       case StorageValueKind.Deleted:
         this.#store[key] = value
-        this.#addKey(key)
+        this.#removeKey(key)
         break
       case undefined:
         delete this.#store[key]
@@ -138,7 +138,7 @@ class StorageLayer implements StorageLayerProvider {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
-    this.fold()
+    await this.fold()
     // TODO: maintain a list of fetched ranges to avoid fetching the same range multiple times
     const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
     for (const key of remote) {
@@ -161,8 +161,8 @@ class StorageLayer implements StorageLayerProvider {
   }
 
   async mergeInto(into: Record<string, string | null>) {
-    for (const key of this.#keys) {
-      const value = await this.#store[key]
+    for (const [key, maybeValue] of Object.entries(this.#store)) {
+      const value = await maybeValue
       if (value === StorageValueKind.Deleted) {
         into[key] = null
       } else {
