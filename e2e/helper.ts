@@ -11,7 +11,7 @@ import { handler } from '../src/rpc'
 
 const setupAll = async () => {
   const endpoint = 'wss://mandala-rpc.aca-staging.network/ws'
-  const blockHash = '0x68cff8682eda3e5e63b375253bdb3a01f0dce1879fe7ade97c9697406c56b55a'
+  const blockHash = '0x35df24f3f2f87bf26768ea753c5dfe8898c194d73127bade0e1b33cf85170105'
 
   const wsProvider = new WsProvider(endpoint)
   const api = await ApiPromise.create({ provider: wsProvider })
@@ -24,7 +24,7 @@ const setupAll = async () => {
     async setup() {
       const tasks = new TaskManager(8000, process.env.EXECUTOR_CMD)
 
-      let now = new Date('2022-10-27T00:00:00.000Z').getTime()
+      let now = new Date('2022-10-30T00:00:00.000Z').getTime()
       const inherents = new SetTimestamp(() => {
         now += 20000
         return now
