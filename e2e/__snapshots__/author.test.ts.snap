@@ -11,7 +11,7 @@ exports[`author rpc > works 1`] = `
       "status": {
         "ready": null,
       },
-      "txHash": "0x6de90438a677d8db95425801f7c6caa49654542a76fdb55ade695accdcf2ec8f",
+      "txHash": "0xc2a84f9b56b87015a0a325792bdb9ac4c14439fd75a133cde9c7b06c5e56c850",
       "txIndex": undefined,
     },
   ],
@@ -24,7 +24,7 @@ exports[`author rpc > works 1`] = `
       "status": {
         "finalized": "0x9b286c39f3b65628bc3c8025dffa8e22e34a30f0736648aa63b12e7f9e9a7034",
       },
-      "txHash": "0x6de90438a677d8db95425801f7c6caa49654542a76fdb55ade695accdcf2ec8f",
+      "txHash": "0xc2a84f9b56b87015a0a325792bdb9ac4c14439fd75a133cde9c7b06c5e56c850",
       "txIndex": 1,
     },
   ],
@@ -36,7 +36,7 @@ exports[`author rpc > works 2`] = `
   "block": {
     "extrinsics": [
       "0x280401000b207230268401",
-      "0x35028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d016056477e076a1204708d4225fc285101eeb6fcf77444051575b524d5f621805487d5dc309920ac17616a7202753d9125b142455d583ed422d8cf2f75d846c2808401a101000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a489101",
+      "0x35028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d011838a3d73f9924a9393f65f695bac423699fc5be014d6e24ed673a1e01bb0455ee4eebde26b23a48828fd3c66d23bd7530ee86d84ca3552fc6305aa26089ae818401a101000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a489101",
     ],
     "header": {
       "digest": {
@@ -106,7 +106,7 @@ exports[`author rpc > works 5`] = `
       "status": {
         "ready": null,
       },
-      "txHash": "0xb46f344be2ce375496d18dd7aa5ec2e74f36a585d6728856f1e96dd6e37002a2",
+      "txHash": "0x199309ba8b7552d9087cd2405afb3a8279126d7dff57cd6f927e2dea996ac472",
       "txIndex": undefined,
     },
   ],
@@ -119,7 +119,7 @@ exports[`author rpc > works 5`] = `
       "status": {
         "finalized": "0x33237682c4552a2309ca8834b6d2253f1596394a66fdf99a3de171a15871327a",
       },
-      "txHash": "0xb46f344be2ce375496d18dd7aa5ec2e74f36a585d6728856f1e96dd6e37002a2",
+      "txHash": "0x199309ba8b7552d9087cd2405afb3a8279126d7dff57cd6f927e2dea996ac472",
       "txIndex": 1,
     },
   ],
@@ -131,7 +131,7 @@ exports[`author rpc > works 6`] = `
   "block": {
     "extrinsics": [
       "0x280401000b40c030268401",
-      "0x35028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0182ceef5da3567ce643e8d2dcd46fb0edb45e033af549a2d37c76566b39cf76400799f1f6add21ad313874470605be7f1df7da7f56a47349f054b8b96462e608a9401a501000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a482103",
+      "0x35028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d0124fb3f6027ef76d82556d7bf969996ecbd9153a39c5e39ad8f74b045c464f67542d676fd115008e4bc8075aca3a46ef82906601866dbbdd35ad544c2952d13859401a501000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a482103",
     ],
     "header": {
       "digest": {
@@ -201,7 +201,7 @@ exports[`author rpc > works 9`] = `
       "status": {
         "ready": null,
       },
-      "txHash": "0x6d05f29e0fe7da1326ba289d58f40ec08db09ca83eaf7bd942903ede6b7bd119",
+      "txHash": "0x8fb1f2c2fe71e0ba652b877118eb3aff160acf36029bf6d94b42240700be710f",
       "txIndex": undefined,
     },
   ],
@@ -214,7 +214,7 @@ exports[`author rpc > works 9`] = `
       "status": {
         "finalized": "0xe559d1ffaf65b1e0c0dba30711cbe066223101004a2fccd065ff34b0dc4d6f97",
       },
-      "txHash": "0x6d05f29e0fe7da1326ba289d58f40ec08db09ca83eaf7bd942903ede6b7bd119",
+      "txHash": "0x8fb1f2c2fe71e0ba652b877118eb3aff160acf36029bf6d94b42240700be710f",
       "txIndex": 1,
     },
   ],
@@ -226,7 +226,7 @@ exports[`author rpc > works 10`] = `
   "block": {
     "extrinsics": [
       "0x280401000b600e31268401",
-      "0x35028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d011893c920546cb915613e1baa2212d53fc99408fb142b0c152fd0237bbecdfa57c6783b19bf41808b7cd06f4be35fc83db78701f8d27e53db9d0a5f0b2590e386a401a501000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48b104",
+      "0x35028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d017a4f9ade87a006b203f537572a92aae211662770b2cdafc03ee11c9d7fe1326f37e19ecccba3a1d98cc6291565a5d66d63576e34bf593dfeed8e991d66a1b98ea401a501000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48b104",
     ],
     "header": {
       "digest": {
