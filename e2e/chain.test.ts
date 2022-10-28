@@ -4,7 +4,7 @@ import { api, delay, dev, expectHex, expectJson, mockCallback } from './helper'
 
 describe('chain rpc', () => {
   it('getXXX', async () => {
-    const hashHead = '0x68cff8682eda3e5e63b375253bdb3a01f0dce1879fe7ade97c9697406c56b55a'
+    const hashHead = '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1'
     const hash0 = '0x23fc729c2cdb7bd6770a4e8c58748387cc715fcf338f1f74a16833d90383f4b0'
     const hash1000 = '0x7fbf942ac7a197ed6c9ecb7733bb1d42347b7b88c32973857cc13bd98febbbab'
 
@@ -24,13 +24,9 @@ describe('chain rpc', () => {
 
     await expectHex(api.rpc.chain.getFinalizedHead()).toMatch(hashHead)
 
-    expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0x5e29ae2538ffa601a9da913b75de8c95d0ce0bc7458756a094348d7f7e9b146a"'
-    )
+    expect(await dev.newBlock()).toMatchSnapshot()
 
-    await expectHex(api.rpc.chain.getBlockHash()).toMatchInlineSnapshot(
-      '"0x5e29ae2538ffa601a9da913b75de8c95d0ce0bc7458756a094348d7f7e9b146a"'
-    )
+    await expectHex(api.rpc.chain.getBlockHash()).toMatchSnapshot()
     await expectJson(api.rpc.chain.getHeader()).toMatchSnapshot()
     await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
   })
@@ -44,9 +40,7 @@ describe('chain rpc', () => {
 
     callback.mockClear()
 
-    expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0x5e29ae2538ffa601a9da913b75de8c95d0ce0bc7458756a094348d7f7e9b146a"'
-    )
+    expect(await dev.newBlock()).toMatchSnapshot()
 
     await next()
 
@@ -56,9 +50,7 @@ describe('chain rpc', () => {
 
     unsub()
 
-    expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0xe300c88d4790076560300b914c7a742929121cb2812fd931f859aa97e38b9393"'
-    )
+    expect(await dev.newBlock()).toMatchSnapshot()
 
     await delay(100)
 

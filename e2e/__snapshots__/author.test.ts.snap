@@ -1,0 +1,286 @@
+// Vitest Snapshot v1
+
+exports[`author rpc > works 1`] = `
+[
+  [
+    SubmittableResult {
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "ready": null,
+      },
+      "txHash": "0x379a84a326f2abe840fc3b54db762da86f60c31b20f7d81d15cc5ffb7dc995be",
+      "txIndex": undefined,
+    },
+  ],
+  [
+    SubmittableResult {
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "finalized": "0x81a904a5358a1f36535e91fa1a386f333ec6d5e73840585a48111c1f276ce861",
+      },
+      "txHash": "0x379a84a326f2abe840fc3b54db762da86f60c31b20f7d81d15cc5ffb7dc995be",
+      "txIndex": 1,
+    },
+  ],
+]
+`;
+
+exports[`author rpc > works 2`] = `
+{
+  "block": {
+    "extrinsics": [
+      "0x280401000b207230268401",
+      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee00f7b92e81c4c3678cf2bd0ce0774782709b8792d46abcb381c5617fd79550a7b3a0d0cd858419dbadbb4e763960b710e2265e0d21bf33ba1009184859d9618d06040100000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae699101",
+    ],
+    "header": {
+      "digest": {
+        "logs": [
+          {
+            "preRuntime": [
+              "0x61757261",
+              "0x",
+            ],
+          },
+          {
+            "seal": [
+              "0x61757261",
+              "0x46e076a482debb2fe5d839f642f585570e9178620d731de559515666b95dda10eb4736d397e98b64afe66f2dbf7e1a3a6eeb394aa2cf9b5317e7dfcff0614e8f",
+            ],
+          },
+        ],
+      },
+      "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "number": 189521,
+      "parentHash": "0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1",
+      "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    },
+  },
+  "justifications": null,
+}
+`;
+
+exports[`author rpc > works 3`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 4984785197475,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 1,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;
+
+exports[`author rpc > works 4`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 1000000000100,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 0,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;
+
+exports[`author rpc > works 5`] = `
+[
+  [
+    SubmittableResult {
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "ready": null,
+      },
+      "txHash": "0xa35243e8a3b5950431848f6809a6ddb36611f6a10d9fe44a4a984f9925a086c1",
+      "txIndex": undefined,
+    },
+  ],
+  [
+    SubmittableResult {
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "finalized": "0xbc271d06d6f55f5bcbcb3be21fa162901e7d5fd7c8c8fe14bb9a3a9c36e6e1ee",
+      },
+      "txHash": "0xa35243e8a3b5950431848f6809a6ddb36611f6a10d9fe44a4a984f9925a086c1",
+      "txIndex": 1,
+    },
+  ],
+]
+`;
+
+exports[`author rpc > works 6`] = `
+{
+  "block": {
+    "extrinsics": [
+      "0x280401000b40c030268401",
+      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee00c836c58f39683b5add00e3f1de76f90cc90e0e13fc07e4b6e4125570c8a5c7ac53a2a0ce11cc83afe966525cb1ebc81d2dd6d2f6f8517ad4fb712f706f1fc40c140104000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae692103",
+    ],
+    "header": {
+      "digest": {
+        "logs": [
+          {
+            "preRuntime": [
+              "0x61757261",
+              "0x",
+            ],
+          },
+          {
+            "seal": [
+              "0x61757261",
+              "0x46e076a482debb2fe5d839f642f585570e9178620d731de559515666b95dda10eb4736d397e98b64afe66f2dbf7e1a3a6eeb394aa2cf9b5317e7dfcff0614e8f",
+            ],
+          },
+        ],
+      },
+      "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "number": 189522,
+      "parentHash": "0x81a904a5358a1f36535e91fa1a386f333ec6d5e73840585a48111c1f276ce861",
+      "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    },
+  },
+  "justifications": null,
+}
+`;
+
+exports[`author rpc > works 7`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 4984785197475,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 1,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;
+
+exports[`author rpc > works 8`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 1000000000100,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 0,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;
+
+exports[`author rpc > works 9`] = `
+[
+  [
+    SubmittableResult {
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "ready": null,
+      },
+      "txHash": "0x8a9822cf31018457f8a6d8ac5c641f433dcdf250c97955d1ef761500019ee4d7",
+      "txIndex": undefined,
+    },
+  ],
+  [
+    SubmittableResult {
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "finalized": "0xe9256f36e500bd6569a4a57a276aeb8db824372e90766bae513c17923c858b30",
+      },
+      "txHash": "0x8a9822cf31018457f8a6d8ac5c641f433dcdf250c97955d1ef761500019ee4d7",
+      "txIndex": 1,
+    },
+  ],
+]
+`;
+
+exports[`author rpc > works 10`] = `
+{
+  "block": {
+    "extrinsics": [
+      "0x280401000b600e31268401",
+      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee0053c7d8fa717ad584e223ef83f062ce6ff59de7df0e9f9c09298887fcb5c64f45ca8a1cd7165610b6a15ecbee55777e9f067dd6762b0936eb6d6b3bee3e242604240104000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae69b104",
+    ],
+    "header": {
+      "digest": {
+        "logs": [
+          {
+            "preRuntime": [
+              "0x61757261",
+              "0x",
+            ],
+          },
+          {
+            "seal": [
+              "0x61757261",
+              "0x46e076a482debb2fe5d839f642f585570e9178620d731de559515666b95dda10eb4736d397e98b64afe66f2dbf7e1a3a6eeb394aa2cf9b5317e7dfcff0614e8f",
+            ],
+          },
+        ],
+      },
+      "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "number": 189523,
+      "parentHash": "0xbc271d06d6f55f5bcbcb3be21fa162901e7d5fd7c8c8fe14bb9a3a9c36e6e1ee",
+      "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    },
+  },
+  "justifications": null,
+}
+`;
+
+exports[`author rpc > works 11`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 4984785197475,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 1,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;
+
+exports[`author rpc > works 12`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 1000000000100,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 0,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;

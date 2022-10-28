@@ -14,6 +14,7 @@
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest --silent",
 		"test:native": "EXECUTOR_CMD='cargo run --manifest-path executor/Cargo.toml --' vitest",
+		"test:dev": "LOG_LEVEL=trace vitest --inspect | pino-pretty",
 		"dev:base": "LOG_LEVEL=trace node-dev --inspect --notify=false src/index.ts -- dev --endpoint=wss://karura-rococo-rpc.aca-staging.network/ws",
 		"dev": "yarn dev:base | pino-pretty",
 		"dev:native": "yarn dev:base --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty"

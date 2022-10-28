@@ -340,18 +340,18 @@ exports[`storage > getKeysPagedAt 2`] = `
 ]
 `;
 
-exports[`storage > getStorage 1`] = `1666661202090`;
+exports[`storage > getStorage 1`] = `1666942794031`;
 
 exports[`storage > getStorage 2`] = `
 {
   "consumers": 0,
   "data": {
     "feeFrozen": 0,
-    "free": "0x000000000000000000da3b16ca6f2062",
+    "free": "0x000000000000000000da3686f49ee6ff",
     "miscFrozen": 0,
     "reserved": 0,
   },
-  "nonce": 448,
+  "nonce": 449,
   "providers": 7,
   "sufficients": 0,
 }
@@ -380,11 +380,11 @@ exports[`storage > getStorageMulti 1`] = `
     "consumers": 0,
     "data": {
       "feeFrozen": 0,
-      "free": "0x000000000000000000da3b16ca6f2062",
+      "free": "0x000000000000000000da3686f49ee6ff",
       "miscFrozen": 0,
       "reserved": 0,
     },
-    "nonce": 448,
+    "nonce": 449,
     "providers": 7,
     "sufficients": 0,
   },
@@ -392,11 +392,11 @@ exports[`storage > getStorageMulti 1`] = `
     "consumers": 0,
     "data": {
       "feeFrozen": 0,
-      "free": "0x00000000000000000c57bbcdb034ab67",
+      "free": "0x00000000000000000c57b6515d1f5635",
       "miscFrozen": 0,
       "reserved": 2004100000000,
     },
-    "nonce": 5773,
+    "nonce": 5909,
     "providers": 1,
     "sufficients": 0,
   },
@@ -459,7 +459,7 @@ exports[`storage > getStorageMulti 2`] = `
 exports[`storage > subscription 1`] = `
 [
   [
-    1666661202090,
+    1666942794031,
   ],
 ]
 `;
@@ -467,7 +467,7 @@ exports[`storage > subscription 1`] = `
 exports[`storage > subscription 3`] = `
 [
   [
-    1666828820000,
+    1667088020000,
   ],
 ]
 `;

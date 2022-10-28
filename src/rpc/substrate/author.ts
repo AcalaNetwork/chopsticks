@@ -9,8 +9,6 @@ const handlers: Handlers = {
     return context.chain.submitExtrinsic(extrinsic)
   },
   author_submitAndWatchExtrinsic: async (context, [extrinsic], { subscribe, unsubscribe }) => {
-    await context.chain.submitExtrinsic(extrinsic)
-
     let update = (_block: Block) => {}
 
     const id = context.chain.headState.subscribeHead((block) => update(block))
@@ -28,6 +26,11 @@ const handlers: Handlers = {
       unsubscribe(id)
     }
 
+    context.chain.submitExtrinsic(extrinsic).then(() => {
+      callback({
+        Ready: null,
+      })
+    })
     return id
   },
   author_unwatchExtrinsic: async (_context, [subid], { unsubscribe }) => {
