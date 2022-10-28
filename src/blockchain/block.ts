@@ -97,7 +97,7 @@ class StorageLayer implements StorageLayerProvider {
     switch (value) {
       case StorageValueKind.Deleted:
         this.#store[key] = value
-        this.#removeKey(key)
+        this.#addKey(key)
         break
       case undefined:
         delete this.#store[key]
@@ -115,7 +115,7 @@ class StorageLayer implements StorageLayerProvider {
       values = Object.entries(values)
     }
     for (const [key, value] of values) {
-      this.set(key, value || undefined)
+      this.set(key, value || StorageValueKind.Deleted)
     }
   }
 
@@ -160,11 +160,11 @@ class StorageLayer implements StorageLayerProvider {
     return res
   }
 
-  async mergeInto(into: Record<string, string>) {
+  async mergeInto(into: Record<string, string | null>) {
     for (const key of this.#keys) {
       const value = await this.#store[key]
       if (value === StorageValueKind.Deleted) {
-        delete into[key]
+        into[key] = null
       } else {
         into[key] = value as string
       }

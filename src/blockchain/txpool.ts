@@ -6,6 +6,7 @@ import _ from 'lodash'
 import { Block } from './block'
 import { Blockchain } from '.'
 import { InherentProvider } from './inherents'
+import { ResponseError } from '../rpc/shared'
 import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'txpool' })
@@ -97,13 +98,34 @@ export class TxPool {
     )
 
     const resp = await newBlock.call('Core_initialize_block', header.toHex())
+    logger.trace(resp.storageDiff, 'Initialize block')
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
-    logger.trace(resp.storageDiff, 'Initialize block')
 
     const inherents = await this.#inherentProvider.createInherents(this.#api, newBlock)
 
-    extrinsics.unshift(...inherents)
+    for (const extrinsic of inherents) {
+      try {
+        const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
+        newBlock.pushStorageLayer().setAll(resp.storageDiff)
+        logger.trace(resp.storageDiff, 'Applied inherent')
+      } catch (e) {
+        logger.info('Failed to apply inherents %o %s', e, e)
+        throw new ResponseError(1, 'Failed to apply inherents')
+      }
+    }
+
+    if (this.#api.query.parachainSystem?.validationData) {
+      // this is a parachain
+      const validationDataKey = this.#api.query.parachainSystem.validationData.key()
+      const validationData = await newBlock.get(validationDataKey)
+      if (!validationData) {
+        // there is no set validation data inherent
+        // so we need to restore the old validation data to make the on_finalize check happy
+        const oldValidationData = await head.get(validationDataKey)
+        newBlock.pushStorageLayer().set(validationDataKey, oldValidationData)
+      }
+    }
 
     for (const extrinsic of extrinsics) {
       try {
@@ -128,11 +150,12 @@ export class TxPool {
 
     const finalBlock = new Block(this.#api, this.#chain, newBlock.number, blockData.hash.toHex(), head, {
       header,
-      extrinsics,
+      extrinsics: [...inherents, ...extrinsics],
       storage: head.storage,
     })
 
     const diff = await newBlock.storageDiff()
+    logger.trace(diff, 'Final block')
     finalBlock.pushStorageLayer().setAll(diff)
 
     this.#chain.unregisterBlock(newBlock)
