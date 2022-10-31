@@ -22,6 +22,7 @@ Make sure you have setup Rust environment (>= 1.64).
   - Use option `--output-path=<file_path>` to print out JSON file
 
 - Run a test node
+
   - `yarn start dev --endpoint=wss://acala-rpc-2.aca-api.network/ws`
   - You have a test node running at `ws://localhost:8000`
   - You can use [Polkadot.js Apps](https://polkadot.js.org/apps/) to connect to this node
