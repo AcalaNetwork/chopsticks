@@ -1,5 +1,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Codec } from '@polkadot/types/types'
+import { Keyring } from '@polkadot/keyring'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Blockchain } from '../src/blockchain'
@@ -92,8 +93,11 @@ export const expectHex = (codec: CodecOrArray | Promise<CodecOrArray>) => {
 }
 
 export const dev = {
-  newBlock: () => {
+  newBlock: (): Promise<string> => {
     return ws.send('dev_newBlock', [])
+  },
+  setStorages: (values: Record<string, string | null>, blockHash?: string) => {
+    return ws.send('dev_setStorages', [values, blockHash])
   },
 }
 
@@ -122,3 +126,24 @@ export const mockCallback = () => {
 }
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export const testingPairs = () => {
+  const keyring = new Keyring({ type: 'ed25519' }) // cannot use sr25519 as it is non determinstic
+  const alice = keyring.addFromUri('//Alice')
+  const bob = keyring.addFromUri('//Bob')
+  const charlie = keyring.addFromUri('//Charlie')
+  const dave = keyring.addFromUri('//Dave')
+  const eve = keyring.addFromUri('//Eve')
+  const test1 = keyring.addFromUri('//test1')
+  const test2 = keyring.addFromUri('//test2')
+  return {
+    alice,
+    bob,
+    charlie,
+    dave,
+    eve,
+    test1,
+    test2,
+    keyring,
+  }
+}
