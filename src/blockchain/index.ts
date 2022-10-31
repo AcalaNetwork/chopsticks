@@ -66,7 +66,10 @@ export class Blockchain {
     return this.#blocksByNumber[number]
   }
 
-  async getBlock(hash: string = this.head.hash): Promise<Block | undefined> {
+  async getBlock(hash?: string): Promise<Block | undefined> {
+    if (hash == null) {
+      hash = this.head.hash
+    }
     if (!this.#blocksByHash[hash]) {
       try {
         const header = await this.#api.rpc.chain.getHeader(hash)

@@ -1,15 +1,11 @@
-import { Keyring } from '@polkadot/keyring'
 import { describe, expect, it } from 'vitest'
 
-import { api, dev, expectJson, mockCallback } from './helper'
+import { api, dev, expectJson, mockCallback, testingPairs } from './helper'
 
 describe('author rpc', () => {
   it('works', async () => {
-    const keyring = new Keyring({ type: 'ed25519' }) // cannot use sr25519 as it is non determinstic
-    const alice = keyring.addFromUri('//Alice')
-    const bob = keyring.addFromUri('//Bob')
+    const { alice, bob } = testingPairs()
 
-    console.log(alice.address, bob.address)
     {
       const { callback, next } = mockCallback()
       await api.tx.balances.transfer(bob.address, 100).signAndSend(alice, callback)
