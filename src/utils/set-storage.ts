@@ -42,8 +42,8 @@ const storageKeyMaker =
 function objectToStorageItems(
   api: ApiPromise,
   storage: Record<string, Record<string, any | [any, any][]>>
-): [string, string][] {
-  const storageItems: [string, string][] = [] as [string, string][]
+): [string, string | null][] {
+  const storageItems: [string, string | null][] = []
   for (const sectionName in storage) {
     const section = storage[sectionName]
     for (const storageName in section) {
@@ -51,11 +51,11 @@ function objectToStorageItems(
       const { makeKey, meta } = storageKeyMaker(api.registry, api.runtimeMetadata)(sectionName, storageName)
       if (meta.type.isPlain) {
         const key = makeKey()
-        storageItems.push([key.toHex(), storage ? api.createType(key.outputType, storage).toHex(true) : ''])
+        storageItems.push([key.toHex(), storage ? api.createType(key.outputType, storage).toHex(true) : null])
       } else {
         for (const [keys, value] of storage) {
           const key = makeKey(...keys)
-          storageItems.push([key.toHex(), value ? api.createType(key.outputType, value).toHex(true) : ''])
+          storageItems.push([key.toHex(), value ? api.createType(key.outputType, value).toHex(true) : null])
         }
       }
     }
@@ -67,7 +67,7 @@ export const setStorage = async (
   chain: Blockchain,
   storage: [string, string][] | Record<string, Record<string, any | Record<string, any>>>
 ): Promise<void> => {
-  let storageItems: [string, string][]
+  let storageItems: [string, string | null][]
   if (Array.isArray(storage)) {
     storageItems = storage
   } else {
