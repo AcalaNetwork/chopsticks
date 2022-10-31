@@ -22,7 +22,32 @@ Make sure you have setup Rust environment (>= 1.64).
   - Use option `--output-path=<file_path>` to print out JSON file
 
 - Run a test node
+
   - `yarn start dev --endpoint=wss://acala-rpc-2.aca-api.network/ws`
   - You have a test node running at `ws://localhost:8000`
   - You can use [Polkadot.js Apps](https://polkadot.js.org/apps/) to connect to this node
   - Submit any transaction to produce a new block in the in parallel reality
+  - (Optional) Pre-define/override state using option `--state-path=state.json`. See example state below.
+
+  ```json
+  {
+  	"Sudo": {
+  		"Key": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+  	},
+  	"TechnicalCommittee": {
+  		"Members": ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"]
+  	},
+  	"Tokens": {
+  		"Accounts": [
+  			[
+  				["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY", { "token": "KAR" }],
+  				{
+  					"free": 1000000000000000,
+  					"reserved": 0,
+  					"frozen": 0
+  				}
+  			]
+  		]
+  	}
+  }
+  ```

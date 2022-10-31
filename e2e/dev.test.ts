@@ -4,7 +4,7 @@ import { u8aToHex } from '@polkadot/util'
 import { api, dev, expectJson, testingPairs } from './helper'
 
 describe('dev rpc', () => {
-  it('setStroages', async () => {
+  it('setStorages', async () => {
     const { alice, test1 } = testingPairs()
 
     await expectJson(api.query.sudo.key()).toMatchSnapshot()
