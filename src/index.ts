@@ -8,8 +8,10 @@ import { SetTimestamp } from './blockchain/inherents'
 import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { handler } from './rpc'
-import { writeFileSync } from 'fs'
+import { setStorage } from './utils/set-storage'
+import assert from 'assert'
 
 const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
@@ -41,6 +43,14 @@ const setup = async (argv: any) => {
   const listeningPort = await createServer(port, handler(context)).port
 
   tasks.updateListeningPort(listeningPort)
+
+  const statePath = argv['state-path']
+  if (statePath) {
+    assert(existsSync(statePath), 'Invalid state path')
+    const state = JSON.parse(String(readFileSync(statePath)))
+    defaultLogger.trace({ state }, 'SetStorage')
+    await setStorage(chain, state)
+  }
 
   return context
 }
@@ -140,6 +150,10 @@ yargs(hideBin(process.argv))
         'build-block-mode': {
           desc: 'Build block mode. Default to Batch',
           enum: [BuildBlockMode.Batch, BuildBlockMode.Manual, BuildBlockMode.Instant],
+        },
+        'state-path': {
+          desc: 'Pre-defined JSON state file path',
+          string: true,
         },
       }),
     (argv) => {

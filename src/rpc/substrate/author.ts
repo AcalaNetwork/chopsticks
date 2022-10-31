@@ -26,11 +26,18 @@ const handlers: Handlers = {
       unsubscribe(id)
     }
 
-    context.chain.submitExtrinsic(extrinsic).then(() => {
-      callback({
-        Ready: null,
+    context.chain
+      .submitExtrinsic(extrinsic)
+      .then(() => {
+        callback({
+          Ready: null,
+        })
       })
-    })
+      .catch((error) => {
+        logger.error({ error }, 'ExtrinsicFailed')
+        callback({ Invalid: null })
+        unsubscribe(id)
+      })
     return id
   },
   author_unwatchExtrinsic: async (_context, [subid], { unsubscribe }) => {
