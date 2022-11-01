@@ -28,5 +28,7 @@ pub async fn start(task_id: u32, ws_url: &str) -> Result<(), JsValue> {
 
 async fn run_task(client: &Client, task_id: u32) -> Result<(), jsonrpsee::core::Error> {
     let task = client.get_task(task_id).await?;
-    task.run(task_id, &client).await
+    task.run(task_id, &client).await?;
+
+	Ok(())
 }

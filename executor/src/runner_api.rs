@@ -44,7 +44,7 @@ pub trait RpcApi {
     fn get_task(&self, task_id: u32) -> Result<Task, RpcError>;
 
     #[method(name = "exec_taskResult")]
-    fn task_result(&self, task_id: u32, resp: TaskResponse) -> Result<(), RpcError>;
+    fn task_result(&self, task_id: u32, resp: &TaskResponse) -> Result<(), RpcError>;
 }
 
 pub async fn client(url: &str) -> Result<Client, RpcError> {

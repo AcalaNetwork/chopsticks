@@ -1,6 +1,6 @@
 import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
-import { bnToU8a, u8aToBn } from '@polkadot/util'
+import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -63,7 +63,7 @@ export class TxPool {
   }
 
   async #buildBlock(wait: Promise<void>) {
-    await wait
+    await wait.catch(() => {}) // ignore error
 
     const head = this.#chain.head
 
@@ -71,17 +71,29 @@ export class TxPool {
 
     const parentHeader = await head.header
 
+    const time = this.#inherentProvider.getTimestamp()
+
     const preRuntime = parentHeader.digest.logs[0].asPreRuntime
-    const [consensusEngine, auraSlot] = preRuntime
-    const newAuraSlot = bnToU8a(u8aToBn(auraSlot, { isLe: false }).addn(1), { isLe: true, bitLength: 64 })
-    const seal = parentHeader.digest.logs[1]
+    const [consensusEngine] = preRuntime
+    const rest = parentHeader.digest.logs.slice(1)
+    let newLogs = parentHeader.digest.logs as any
+    const expectedSlot = Math.floor(time / ((this.#api.consts.timestamp.minimumPeriod as any).toNumber() * 2))
+    if (consensusEngine.isAura) {
+      const newSlot = compactAddLength(bnToU8a(expectedSlot, { isLe: true, bitLength: 64 }))
+      newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
+    } else if (consensusEngine.isBabe) {
+      // trying to make a SecondaryPlainPreDigest
+      const newSlot = compactAddLength(u8aConcat('0x02000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
+      newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
+    }
+
     const header = this.#api.createType('Header', {
       parentHash: head.hash,
       number: head.number + 1,
       stateRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
       extrinsicsRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
       digest: {
-        logs: [{ PreRuntime: [consensusEngine, newAuraSlot] }, seal],
+        logs: newLogs,
       },
     }) as Header
 
@@ -102,7 +114,14 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    const inherents = await this.#inherentProvider.createInherents(this.#api, newBlock)
+    if ((this.#api.query as any).babe?.currentSlot) {
+      // TODO: figure out how to generate a valid babe slot digest instead of just modify the data
+      // but hey, we can get it working without a valid digest
+      const key = this.#api.query.babe.currentSlot.key()
+      newBlock.pushStorageLayer().set(key, bnToHex(expectedSlot, { isLe: true, bitLength: 64 }))
+    }
+
+    const inherents = await this.#inherentProvider.createInherents(this.#api, time, newBlock)
 
     for (const extrinsic of inherents) {
       try {
@@ -136,6 +155,14 @@ export class TxPool {
         logger.info('Failed to apply extrinsic %o %s', e, e)
         this.#pool.push(extrinsic)
       }
+    }
+
+    if (this.#api.query.paraInherent?.included) {
+      // TODO: remvoe this once paraInherent.enter is implemented
+      // we are relaychain, however as we have not yet implemented the paraInherent.enter
+      // so need to do some trick to make the on_finalize check happy
+      const paraInherentIncludedKey = this.#api.query.paraInherent.included.key()
+      newBlock.pushStorageLayer().set(paraInherentIncludedKey, '0x01')
     }
 
     const resp2 = await newBlock.call('BlockBuilder_finalize_block', '0x')
