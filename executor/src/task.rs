@@ -42,15 +42,15 @@ pub enum TaskResponse {
 }
 
 impl Task {
-    pub async fn run(&self, task_id: u32, client: &Client) -> Result<(), jsonrpsee::core::Error> {
+    pub async fn run(&self, task_id: u32, client: &Client) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let resp = match self.kind {
             TaskKind::Call => self.call(task_id, client).await,
             TaskKind::RuntimeVersion => self.runtime_version(task_id, client).await,
         }?;
 
-        client.task_result(task_id, resp).await?;
+        client.task_result(task_id, &resp).await?;
 
-        Ok(())
+        Ok(resp)
     }
 
     async fn call(

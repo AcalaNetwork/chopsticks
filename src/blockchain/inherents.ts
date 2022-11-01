@@ -3,7 +3,8 @@ import { ApiPromise } from '@polkadot/api'
 import { Block } from './block'
 
 export interface InherentProvider {
-  createInherents(api: ApiPromise, parent: Block): Promise<string[]>
+  createInherents(api: ApiPromise, timestamp: number, parent: Block): Promise<string[]>
+  getTimestamp(): number
 }
 
 export class SetTimestamp implements InherentProvider {
@@ -13,7 +14,11 @@ export class SetTimestamp implements InherentProvider {
     this.#getTimestamp = getTimestamp
   }
 
-  async createInherents(api: ApiPromise, _parent: Block): Promise<string[]> {
-    return [api.tx.timestamp.set(this.#getTimestamp()).toHex()]
+  async createInherents(api: ApiPromise, timestamp: number, _parent: Block): Promise<string[]> {
+    return [api.tx.timestamp.set(timestamp).toHex()]
+  }
+
+  getTimestamp(): number {
+    return this.#getTimestamp()
   }
 }
