@@ -22,7 +22,7 @@ exports[`author rpc > works 1`] = `
       "events": [],
       "internalError": undefined,
       "status": {
-        "finalized": "0x81a904a5358a1f36535e91fa1a386f333ec6d5e73840585a48111c1f276ce861",
+        "finalized": "0xeefde1ec4bb9834c9282bdaa2034a1f603ef931b70c25caaa5a97f1fb2720fd5",
       },
       "txHash": "0x379a84a326f2abe840fc3b54db762da86f60c31b20f7d81d15cc5ffb7dc995be",
       "txIndex": 1,
@@ -44,7 +44,7 @@ exports[`author rpc > works 2`] = `
           {
             "preRuntime": [
               "0x61757261",
-              "0x",
+              "0xe1cf470800000000",
             ],
           },
           {
@@ -106,7 +106,7 @@ exports[`author rpc > works 5`] = `
       "status": {
         "ready": null,
       },
-      "txHash": "0xa35243e8a3b5950431848f6809a6ddb36611f6a10d9fe44a4a984f9925a086c1",
+      "txHash": "0x7a50dcf54f3f69a233ef03fd835b26b414c2892ccc0aad4f5b1a7b7407dbb16b",
       "txIndex": undefined,
     },
   ],
@@ -117,9 +117,9 @@ exports[`author rpc > works 5`] = `
       "events": [],
       "internalError": undefined,
       "status": {
-        "finalized": "0xbc271d06d6f55f5bcbcb3be21fa162901e7d5fd7c8c8fe14bb9a3a9c36e6e1ee",
+        "finalized": "0x0a88e86168da4aa27a33f9273b34bba3dbef86bd7b246e831333c83a8d38f975",
       },
-      "txHash": "0xa35243e8a3b5950431848f6809a6ddb36611f6a10d9fe44a4a984f9925a086c1",
+      "txHash": "0x7a50dcf54f3f69a233ef03fd835b26b414c2892ccc0aad4f5b1a7b7407dbb16b",
       "txIndex": 1,
     },
   ],
@@ -131,7 +131,7 @@ exports[`author rpc > works 6`] = `
   "block": {
     "extrinsics": [
       "0x280401000b40c030268401",
-      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee00c836c58f39683b5add00e3f1de76f90cc90e0e13fc07e4b6e4125570c8a5c7ac53a2a0ce11cc83afe966525cb1ebc81d2dd6d2f6f8517ad4fb712f706f1fc40c140104000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae692103",
+      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee00ac0122165c15db54e67d09a8f7aa0651c39c80bc775483f15a06dab12f7214019d6ae60ef92f4218819d4ddd2e2726bf500e82e405de7306aecbd6959701ef08140104000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae692103",
     ],
     "header": {
       "digest": {
@@ -139,7 +139,7 @@ exports[`author rpc > works 6`] = `
           {
             "preRuntime": [
               "0x61757261",
-              "0x",
+              "0xe3cf470800000000",
             ],
           },
           {
@@ -152,7 +152,7 @@ exports[`author rpc > works 6`] = `
       },
       "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "number": 189522,
-      "parentHash": "0x81a904a5358a1f36535e91fa1a386f333ec6d5e73840585a48111c1f276ce861",
+      "parentHash": "0xeefde1ec4bb9834c9282bdaa2034a1f603ef931b70c25caaa5a97f1fb2720fd5",
       "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
     },
   },
@@ -201,7 +201,7 @@ exports[`author rpc > works 9`] = `
       "status": {
         "ready": null,
       },
-      "txHash": "0x8a9822cf31018457f8a6d8ac5c641f433dcdf250c97955d1ef761500019ee4d7",
+      "txHash": "0xd56f14739289e8b4e93b208fbb16076d682139e4b09304a811d7d065318412d1",
       "txIndex": undefined,
     },
   ],
@@ -212,9 +212,9 @@ exports[`author rpc > works 9`] = `
       "events": [],
       "internalError": undefined,
       "status": {
-        "finalized": "0xe9256f36e500bd6569a4a57a276aeb8db824372e90766bae513c17923c858b30",
+        "finalized": "0xeaf40e1042a99e9c20fa0b03d0806ce738885597e5ef204dbdf6f325ad905c9e",
       },
-      "txHash": "0x8a9822cf31018457f8a6d8ac5c641f433dcdf250c97955d1ef761500019ee4d7",
+      "txHash": "0xd56f14739289e8b4e93b208fbb16076d682139e4b09304a811d7d065318412d1",
       "txIndex": 1,
     },
   ],
@@ -226,7 +226,7 @@ exports[`author rpc > works 10`] = `
   "block": {
     "extrinsics": [
       "0x280401000b600e31268401",
-      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee0053c7d8fa717ad584e223ef83f062ce6ff59de7df0e9f9c09298887fcb5c64f45ca8a1cd7165610b6a15ecbee55777e9f067dd6762b0936eb6d6b3bee3e242604240104000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae69b104",
+      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee00382223470912adf1cd1cdeb094097acc7fc4a8688ae9e1f251efefa6ba671314c85561f4cfe45e329ae4a3979f1a9b9ef21473757945fa471edbdc75865eb40b240104000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae69b104",
     ],
     "header": {
       "digest": {
@@ -234,7 +234,7 @@ exports[`author rpc > works 10`] = `
           {
             "preRuntime": [
               "0x61757261",
-              "0x",
+              "0xe5cf470800000000",
             ],
           },
           {
@@ -247,7 +247,7 @@ exports[`author rpc > works 10`] = `
       },
       "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
       "number": 189523,
-      "parentHash": "0xbc271d06d6f55f5bcbcb3be21fa162901e7d5fd7c8c8fe14bb9a3a9c36e6e1ee",
+      "parentHash": "0x0a88e86168da4aa27a33f9273b34bba3dbef86bd7b246e831333c83a8d38f975",
       "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
     },
   },

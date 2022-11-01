@@ -207,9 +207,9 @@ exports[`chain rpc > getXXX 8`] = `
 }
 `;
 
-exports[`chain rpc > getXXX 9`] = `"0x81a904a5358a1f36535e91fa1a386f333ec6d5e73840585a48111c1f276ce861"`;
+exports[`chain rpc > getXXX 9`] = `"0xeefde1ec4bb9834c9282bdaa2034a1f603ef931b70c25caaa5a97f1fb2720fd5"`;
 
-exports[`chain rpc > getXXX 10`] = `"0x81a904a5358a1f36535e91fa1a386f333ec6d5e73840585a48111c1f276ce861"`;
+exports[`chain rpc > getXXX 10`] = `"0xeefde1ec4bb9834c9282bdaa2034a1f603ef931b70c25caaa5a97f1fb2720fd5"`;
 
 exports[`chain rpc > getXXX 11`] = `
 {
@@ -218,7 +218,7 @@ exports[`chain rpc > getXXX 11`] = `
       {
         "preRuntime": [
           "0x61757261",
-          "0x",
+          "0xe1cf470800000000",
         ],
       },
       {
@@ -248,7 +248,7 @@ exports[`chain rpc > getXXX 12`] = `
           {
             "preRuntime": [
               "0x61757261",
-              "0x",
+              "0xe1cf470800000000",
             ],
           },
           {
@@ -298,7 +298,7 @@ exports[`chain rpc > subscribeNewHeads 1`] = `
 ]
 `;
 
-exports[`chain rpc > subscribeNewHeads 2`] = `"0x81a904a5358a1f36535e91fa1a386f333ec6d5e73840585a48111c1f276ce861"`;
+exports[`chain rpc > subscribeNewHeads 2`] = `"0xeefde1ec4bb9834c9282bdaa2034a1f603ef931b70c25caaa5a97f1fb2720fd5"`;
 
 exports[`chain rpc > subscribeNewHeads 3`] = `
 [
@@ -309,7 +309,7 @@ exports[`chain rpc > subscribeNewHeads 3`] = `
           {
             "preRuntime": [
               "0x61757261",
-              "0x",
+              "0xe1cf470800000000",
             ],
           },
           {
@@ -329,4 +329,4 @@ exports[`chain rpc > subscribeNewHeads 3`] = `
 ]
 `;
 
-exports[`chain rpc > subscribeNewHeads 4`] = `"0xbc271d06d6f55f5bcbcb3be21fa162901e7d5fd7c8c8fe14bb9a3a9c36e6e1ee"`;
+exports[`chain rpc > subscribeNewHeads 4`] = `"0x0a88e86168da4aa27a33f9273b34bba3dbef86bd7b246e831333c83a8d38f975"`;
