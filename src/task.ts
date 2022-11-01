@@ -31,16 +31,23 @@ interface Task {
   blockHash: string
   wasm?: string
   calls?: [string, string][]
+  mockSignatureHost?: boolean
 }
 
 export class TaskManager {
   #tasks: { task: Task; callback: (res: TaskResponse) => any }[] = []
   #listeningPort: number
+  #mockSignatureHost: boolean
   #executorCmd?: string
 
-  constructor(listeningPort: number, executorCmd?: string) {
+  constructor(listeningPort: number, mockSignatureHost = false, executorCmd?: string) {
     this.#listeningPort = listeningPort
+    this.#mockSignatureHost = mockSignatureHost
     this.#executorCmd = executorCmd
+
+    if (this.#mockSignatureHost) {
+      logger.info('Mock signature host enabled')
+    }
   }
 
   updateListeningPort(port: number) {
@@ -60,7 +67,13 @@ export class TaskManager {
   }
 
   getTask(taskId: number) {
-    return this.#tasks[taskId]
+    return {
+      ...this.#tasks[taskId],
+      task: {
+        mockSignatureHost: this.#mockSignatureHost,
+        ...this.#tasks[taskId].task,
+      },
+    }
   }
 
   runTask(taskId: number): Promise<void> {

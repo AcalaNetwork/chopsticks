@@ -25,6 +25,7 @@ pub struct Task {
     pub wasm: HexString,
     pub block_hash: HexString,
     pub calls: Option<Vec<(String, HexString)>>,
+	pub mock_signature_host: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -41,7 +42,7 @@ pub enum TaskResponse {
     Error(String),
 }
 
-
+// starts with 0xdeadbeef and then rest filled by 0xcd
 fn is_magic_signature(signature: &[u8]) -> bool {
 	signature.starts_with(&[0xde, 0xad, 0xbe, 0xef]) && signature[4..].iter().all(|&b| b == 0xcd)
 }
@@ -128,7 +129,7 @@ impl Task {
                         req.inject_key(next_key.map(|k| k.0))
                     }
 					RuntimeHostVm::SignatureVerification(req) => {
-						let bypass = is_magic_signature(req.signature().as_ref());
+						let bypass = self.mock_signature_host.unwrap_or(false) && is_magic_signature(req.signature().as_ref());
 						if bypass {
 							req.resume_success()
 						} else {
