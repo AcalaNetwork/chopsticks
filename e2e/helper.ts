@@ -6,6 +6,7 @@ import { beforeAll, beforeEach, expect, vi } from 'vitest'
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
 import { SetTimestamp } from '../src/blockchain/inherents'
+import { StorageValues } from '../src/utils/set-storage'
 import { TaskManager } from '../src/task'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'
@@ -115,7 +116,7 @@ export const dev = {
   newBlock: (): Promise<string> => {
     return ws.send('dev_newBlock', [])
   },
-  setStorages: (values: Record<string, string | null>, blockHash?: string) => {
+  setStorages: (values: StorageValues, blockHash?: string) => {
     return ws.send('dev_setStorages', [values, blockHash])
   },
 }

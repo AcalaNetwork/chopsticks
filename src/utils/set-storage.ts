@@ -6,6 +6,10 @@ import { createFunction } from '@polkadot/types/metadata/decorate/storage/create
 
 import { Blockchain } from '../blockchain'
 
+type RawStorageValues = [string, string | null][]
+type StorageConfig = Record<string, Record<string, any>>
+export type StorageValues = RawStorageValues | StorageConfig
+
 interface StorageKeyMaker {
   meta: StorageEntryMetadataLatest
   makeKey: (...keys: any[]) => StorageKey
@@ -38,11 +42,8 @@ const storageKeyMaker =
     }
   }
 
-function objectToStorageItems(
-  api: ApiPromise,
-  storage: Record<string, Record<string, any | [any, any][]>>
-): [string, string | null][] {
-  const storageItems: [string, string | null][] = []
+function objectToStorageItems(api: ApiPromise, storage: StorageConfig): RawStorageValues {
+  const storageItems: RawStorageValues = []
   for (const sectionName in storage) {
     const section = storage[sectionName]
     for (const storageName in section) {
@@ -62,17 +63,15 @@ function objectToStorageItems(
   return storageItems
 }
 
-export const setStorage = async (
-  chain: Blockchain,
-  storage: [string, string][] | Record<string, Record<string, any | Record<string, any>>>
-): Promise<void> => {
-  let storageItems: [string, string | null][]
+export const setStorage = async (chain: Blockchain, storage: StorageValues, blockHash?: string): Promise<string> => {
+  let storageItems: RawStorageValues
   if (Array.isArray(storage)) {
     storageItems = storage
   } else {
     storageItems = objectToStorageItems(chain.api, storage)
   }
-  const block = await chain.getBlock()
-  if (!block) throw Error('Cannot find current block')
+  const block = await chain.getBlock(blockHash)
+  if (!block) throw Error(`Cannot find block ${blockHash || 'latest'}`)
   block.pushStorageLayer().setAll(storageItems)
+  return block.hash
 }

@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { u8aToHex } from '@polkadot/util'
 
 import { api, dev, env, expectJson, setupApi, testingPairs } from './helper'
@@ -11,9 +11,7 @@ describe('dev rpc', () => {
 
     await expectJson(api.query.sudo.key()).toMatchSnapshot()
 
-    await dev.setStorages({
-      [api.query.sudo.key.key()]: u8aToHex(alice.addressRaw),
-    })
+    await dev.setStorages([[api.query.sudo.key.key(), u8aToHex(alice.addressRaw)]])
 
     await expectJson(api.query.sudo.key()).toMatchSnapshot()
 
@@ -22,13 +20,30 @@ describe('dev rpc', () => {
 
     await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
 
-    await dev.setStorages(
-      {
-        [api.query.system.account.key(test1.address)]: null,
-      },
-      hash
-    )
+    await dev.setStorages([[api.query.system.account.key(test1.address), null]], hash)
 
     await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
+
+    await dev.setStorages({
+      System: {
+        Account: [[[test1.address], { data: { free: 100000 }, nonce: 1 }]],
+      },
+    })
+
+    await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
+  })
+
+  it('setStorages handle errors', async () => {
+    await expect(
+      dev.setStorages({
+        SSystem: { Account: [] },
+      })
+    ).rejects.toThrowError('1: Error: Cannot find pallet SSystem')
+
+    await expect(
+      dev.setStorages({
+        System: { AAccount: [] },
+      })
+    ).rejects.toThrowError('1: Error: Cannot find meta for storage System.AAccount')
   })
 })

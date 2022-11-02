@@ -33,3 +33,18 @@ exports[`dev rpc > setStorages 4`] = `
   "sufficients": 0,
 }
 `;
+
+exports[`dev rpc > setStorages 5`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 100000,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 1,
+  "providers": 0,
+  "sufficients": 0,
+}
+`;
