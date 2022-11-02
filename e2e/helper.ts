@@ -61,6 +61,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
       const api2 = await ApiPromise.create({ provider: wsProvider2 })
 
       return {
+        chain,
         ws: wsProvider2,
         api: api2,
         async teardown() {
@@ -78,6 +79,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
 }
 
 export let api: ApiPromise
+export let chain: Blockchain
 export let ws: WsProvider
 
 export const setupApi = (option: SetupOption) => {
@@ -92,6 +94,7 @@ export const setupApi = (option: SetupOption) => {
   beforeEach(async () => {
     const res = await setup()
     api = res.api
+    chain = res.chain
     ws = res.ws
 
     return res.teardown

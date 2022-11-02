@@ -1,7 +1,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { hideBin } from 'yargs/helpers'
-import yaml from 'js-yaml'
+import { writeFileSync } from 'fs'
 import yargs from 'yargs'
 
 import { Blockchain } from './blockchain'
@@ -11,7 +10,7 @@ import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
-import { setStorage } from './utils/set-storage'
+import { importStorage } from './utils/import-storage'
 
 const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
@@ -45,12 +44,7 @@ const setup = async (argv: any) => {
   tasks.updateListeningPort(listeningPort)
 
   const storagePath = argv['import-storage']
-  if (storagePath) {
-    if (!existsSync(storagePath)) throw Error(`File path ${storagePath} does not exist`)
-    const storage: any = yaml.load(String(readFileSync(storagePath)))
-    await setStorage(chain, storage)
-    defaultLogger.trace({ storage }, 'SetStorage')
-  }
+  storagePath && (await importStorage(storagePath, chain))
 
   return context
 }
