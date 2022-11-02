@@ -3,7 +3,6 @@ import { Metadata, StorageKey } from '@polkadot/types'
 import { Registry } from '@polkadot/types/types'
 import { StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
 import { createFunction } from '@polkadot/types/metadata/decorate/storage/createFunction'
-import assert from 'assert'
 
 import { Blockchain } from '../blockchain'
 
@@ -16,11 +15,11 @@ const storageKeyMaker =
   (registry: Registry, metadata: Metadata) =>
   (section: string, method: string): StorageKeyMaker => {
     const pallet = metadata.asLatest.pallets.filter((x) => x.name.toString() === section)[0]
-    assert(pallet)
+    if (!pallet) throw Error(`Cannot find pallet ${section}`)
     const meta = pallet.storage
       .unwrap()
       .items.filter((x) => x.name.toString() === method)[0] as any as StorageEntryMetadataLatest
-    assert(meta)
+    if (!meta) throw Error(`Cannot find meta for storage ${section}.${method}`)
 
     const storageFn = createFunction(
       registry,
@@ -74,6 +73,6 @@ export const setStorage = async (
     storageItems = objectToStorageItems(chain.api, storage)
   }
   const block = await chain.getBlock()
-  assert(block)
+  if (!block) throw Error('Cannot find current block')
   block.pushStorageLayer().setAll(storageItems)
 }
