@@ -28,10 +28,10 @@ const setup = async (argv: any) => {
     blockHash = (await api.rpc.chain.getBlockHash(blockHash)).toHex()
   }
 
-  defaultLogger.info({ endpoint: argv.endpoint, blockHash }, 'Args')
+  defaultLogger.info({ ...argv, blockHash }, 'Args')
 
   const header = await api.rpc.chain.getHeader(blockHash)
-  const tasks = new TaskManager(port, argv['executor-cmd'])
+  const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
   const inherents = new SetTimestamp()
   const chain = new Blockchain(api, tasks, argv['build-block-mode'], inherents, {
     hash: blockHash,
@@ -154,6 +154,10 @@ yargs(hideBin(process.argv))
         'state-path': {
           desc: 'Pre-defined JSON state file path',
           string: true,
+        },
+        'mock-signature-host': {
+          desc: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
+          boolean: true,
         },
       }),
     (argv) => {

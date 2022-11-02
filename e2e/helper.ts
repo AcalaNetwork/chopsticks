@@ -10,10 +10,24 @@ import { TaskManager } from '../src/task'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'
 
-const setupAll = async () => {
-  const endpoint = 'wss://mandala-rpc.aca-staging.network/ws'
-  const blockHash = '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1'
+export type SetupOption = {
+  endpoint: string
+  blockHash: string
+  mockSignatureHost?: boolean
+}
 
+export const env = {
+  mandala: {
+    endpoint: 'wss://mandala-rpc.aca-staging.network/ws',
+    blockHash: '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1',
+  },
+  rococo: {
+    endpoint: 'wss://rococo-rpc.polkadot.io',
+    blockHash: '0x5269cf7f5b15fbc3a881987f014d5ecee5cfcc5c05a4b7c1cb8db550f22147e9',
+  },
+}
+
+const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption) => {
   const wsProvider = new WsProvider(endpoint)
   const api = await ApiPromise.create({ provider: wsProvider })
 
@@ -23,7 +37,7 @@ const setupAll = async () => {
 
   return {
     async setup() {
-      const tasks = new TaskManager(8000, process.env.EXECUTOR_CMD)
+      const tasks = new TaskManager(8000, mockSignatureHost, process.env.EXECUTOR_CMD)
 
       let now = new Date('2022-10-30T00:00:00.000Z').getTime()
       const inherents = new SetTimestamp(() => {
@@ -66,21 +80,23 @@ const setupAll = async () => {
 export let api: ApiPromise
 export let ws: WsProvider
 
-let setup: Awaited<ReturnType<typeof setupAll>>['setup']
+export const setupApi = (option: SetupOption) => {
+  let setup: Awaited<ReturnType<typeof setupAll>>['setup']
 
-beforeAll(async () => {
-  const res = await setupAll()
-  setup = res.setup
-  return () => res.teardownAll()
-})
+  beforeAll(async () => {
+    const res = await setupAll(option)
+    setup = res.setup
+    return () => res.teardownAll()
+  })
 
-beforeEach(async () => {
-  const res = await setup()
-  api = res.api
-  ws = res.ws
+  beforeEach(async () => {
+    const res = await setup()
+    api = res.api
+    ws = res.ws
 
-  return res.teardown
-})
+    return res.teardown
+  })
+}
 
 type CodecOrArray = Codec | Codec[]
 

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { api, delay, dev, expectHex, expectJson, mockCallback } from './helper'
+import { api, delay, dev, env, expectHex, expectJson, mockCallback, setupApi } from './helper'
+
+setupApi(env.mandala)
 
 describe('chain rpc', () => {
   it('getXXX', async () => {
