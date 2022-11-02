@@ -53,4 +53,19 @@ describe('author rpc', () => {
       await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
     }
   })
+
+  it('reject invalid signature', async () => {
+    const { alice, bob } = testingPairs()
+    const { nonce } = await api.query.system.account(alice.address)
+    const tx = api.tx.balances.transfer(bob.address, 100)
+
+    tx.signFake(alice.address, {
+      nonce,
+      genesisHash: api.genesisHash,
+      runtimeVersion: api.runtimeVersion,
+      blockHash: api.genesisHash,
+    })
+
+    await expect(tx.send()).rejects.toThrow('Extrinsic is invalid')
+  })
 })
