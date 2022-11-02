@@ -1,7 +1,9 @@
 import { describe, it } from 'vitest'
 import { u8aToHex } from '@polkadot/util'
 
-import { api, dev, expectJson, testingPairs } from './helper'
+import { api, dev, env, expectJson, setupApi, testingPairs } from './helper'
+
+setupApi(env.mandala)
 
 describe('dev rpc', () => {
   it('setStorages', async () => {

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { api, dev, expectJson, mockCallback, testingPairs } from './helper'
+import { api, dev, env, expectJson, mockCallback, setupApi, testingPairs } from './helper'
+
+setupApi(env.mandala)
 
 describe('author rpc', () => {
   it('works', async () => {

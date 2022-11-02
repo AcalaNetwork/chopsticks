@@ -1,6 +1,8 @@
 import { describe, it } from 'vitest'
 
-import { api, expectHex, expectJson } from './helper'
+import { api, env, expectHex, expectJson, setupApi } from './helper'
+
+setupApi(env.mandala)
 
 describe('state rpc', () => {
   it('getXXX', async () => {

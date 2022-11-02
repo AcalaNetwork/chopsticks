@@ -1,7 +1,9 @@
 import '@polkadot/api-augment'
 import { describe, expect, it } from 'vitest'
 
-import { api, delay, dev, expectJson, mockCallback } from './helper'
+import { api, delay, dev, env, expectJson, mockCallback, setupApi } from './helper'
+
+setupApi(env.mandala)
 
 describe('storage', () => {
   it('getStorage', async () => {
