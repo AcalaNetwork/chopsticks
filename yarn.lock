@@ -678,6 +678,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/js-yaml@npm:^4":
+  version: 4.0.5
+  resolution: "@types/js-yaml@npm:4.0.5"
+  checksum: 7dcac8c50fec31643cc9d6444b5503239a861414cdfaa7ae9a38bc22597c4d850c4b8cec3d82d73b3fbca408348ce223b0408d598b32e094470dfffc6d486b4d
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:^7.0.9":
   version: 7.0.11
   resolution: "@types/json-schema@npm:7.0.11"
@@ -1260,6 +1267,7 @@ __metadata:
     "@polkadot/api": ^9.5.2
     "@polkadot/rpc-provider": ^9.5.2
     "@polkadot/util": ^10.1.11
+    "@types/js-yaml": ^4
     "@types/lodash": ^4
     "@types/node": ^18.11.0
     "@types/ws": ^8
@@ -1271,6 +1279,7 @@ __metadata:
     eslint-plugin-import: ^2.26.0
     eslint-plugin-sort-imports-es6-autofix: ^0.6.0
     husky: ^8.0.1
+    js-yaml: ^4.1.0
     lint-staged: ^13.0.3
     lodash: ^4.17.21
     node-dev: ^7.4.3

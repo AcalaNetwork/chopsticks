@@ -6,6 +6,7 @@ import { beforeAll, beforeEach, expect, vi } from 'vitest'
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
 import { SetTimestamp } from '../src/blockchain/inherents'
+import { StorageValues } from '../src/utils/set-storage'
 import { TaskManager } from '../src/task'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'
@@ -61,6 +62,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
       const api2 = await ApiPromise.create({ provider: wsProvider2 })
 
       return {
+        chain,
         ws: wsProvider2,
         api: api2,
         async teardown() {
@@ -78,6 +80,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
 }
 
 export let api: ApiPromise
+export let chain: Blockchain
 export let ws: WsProvider
 
 export const setupApi = (option: SetupOption) => {
@@ -92,6 +95,7 @@ export const setupApi = (option: SetupOption) => {
   beforeEach(async () => {
     const res = await setup()
     api = res.api
+    chain = res.chain
     ws = res.ws
 
     return res.teardown
@@ -112,7 +116,7 @@ export const dev = {
   newBlock: (): Promise<string> => {
     return ws.send('dev_newBlock', [])
   },
-  setStorages: (values: Record<string, string | null>, blockHash?: string) => {
+  setStorages: (values: StorageValues, blockHash?: string) => {
     return ws.send('dev_setStorages', [values, blockHash])
   },
 }
