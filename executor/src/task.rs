@@ -95,7 +95,7 @@ impl Task {
                         break res;
                     }
                     RuntimeHostVm::StorageGet(req) => {
-                        let key = req.key_as_vec();
+                        let key = req.key().as_ref().to_vec();
                         let mut value = client
                             .storage_get(task_id, &self.block_hash, HexString(key))
                             .await?;
