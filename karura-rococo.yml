@@ -1,0 +1,2 @@
+endpoint: wss://karura-rococo-rpc.aca-staging.network/ws
+mock-signature-host: true

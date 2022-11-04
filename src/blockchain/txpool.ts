@@ -11,7 +11,7 @@ import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
-export const enum BuildBlockMode {
+export enum BuildBlockMode {
   Batch, // one block per batch, default
   Instant, // one block per tx
   Manual, // only build when triggered
