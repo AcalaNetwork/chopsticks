@@ -1,6 +1,8 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { hideBin } from 'yargs/helpers'
-import { writeFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
+import { z } from 'zod'
+import yaml from 'js-yaml'
 import yargs from 'yargs'
 
 import { Blockchain } from './blockchain'
@@ -84,6 +86,28 @@ const runBlock = async (argv: any) => {
   setTimeout(() => process.exit(0), 50)
 }
 
+const configSchema = z
+  .object({
+    port: z.number().optional(),
+    endpoint: z.string().optional(),
+    block: z.union([z.string(), z.number()]).optional(),
+    'executor-cmd': z.string().optional(),
+    'build-block-mode': z.nativeEnum(BuildBlockMode),
+    'import-storage': z.string().optional(),
+    'mock-signature-host': z.boolean().optional(),
+  })
+  .strict()
+
+const processConfig = (argv: any) => {
+  if (argv.config) {
+    const configFile = readFileSync(argv.config, 'utf8')
+    const config = yaml.load(configFile) as any
+    const parsed = configSchema.parse(config)
+    return { ...parsed, ...argv }
+  }
+  return argv
+}
+
 yargs(hideBin(process.argv))
   .command(
     'run-block',
@@ -97,7 +121,6 @@ yargs(hideBin(process.argv))
         endpoint: {
           desc: 'Endpoint to connect to',
           string: true,
-          require: true,
         },
         block: {
           desc: 'Block hash or block number. Default to latest block',
@@ -111,9 +134,13 @@ yargs(hideBin(process.argv))
           desc: 'File path to print output',
           string: true,
         },
+        config: {
+          desc: 'Path to config file',
+          string: true,
+        },
       }),
     (argv) => {
-      runBlock(argv).catch((err) => {
+      runBlock(processConfig(argv)).catch((err) => {
         console.error(err)
         process.exit(1)
       })
@@ -131,7 +158,6 @@ yargs(hideBin(process.argv))
         endpoint: {
           desc: 'Endpoint to connect to',
           string: true,
-          require: true,
         },
         block: {
           desc: 'Block hash or block number. Default to latest block',
@@ -153,9 +179,13 @@ yargs(hideBin(process.argv))
           desc: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
           boolean: true,
         },
+        config: {
+          desc: 'Path to config file',
+          string: true,
+        },
       }),
     (argv) => {
-      setup(argv).catch((err) => {
+      setup(processConfig(argv)).catch((err) => {
         console.error(err)
         process.exit(1)
       })
