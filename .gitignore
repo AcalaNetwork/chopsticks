@@ -118,3 +118,5 @@ dist
 !.yarn/versions
 
 .idea
+
+*.sqlite

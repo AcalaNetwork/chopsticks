@@ -1,4 +1,5 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
+import { DataSource } from 'typeorm'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync, writeFileSync } from 'fs'
 import { z } from 'zod'
@@ -13,6 +14,7 @@ import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
 import { importStorage } from './utils/import-storage'
+import { openDb } from './db'
 
 const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
@@ -31,12 +33,24 @@ const setup = async (argv: any) => {
 
   defaultLogger.info({ ...argv, blockHash }, 'Args')
 
+  let db: DataSource | undefined
+  if (argv.db) {
+    db = await openDb(argv.db)
+  }
+
   const header = await api.rpc.chain.getHeader(blockHash)
   const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
   const inherents = new SetTimestamp()
-  const chain = new Blockchain(api, tasks, argv['build-block-mode'], inherents, {
-    hash: blockHash,
-    number: header.number.toNumber(),
+  const chain = new Blockchain({
+    api,
+    tasks,
+    buildBlockMode: argv['build-block-mode'],
+    inherentProvider: inherents,
+    db,
+    header: {
+      hash: blockHash,
+      number: header.number.toNumber(),
+    },
   })
 
   const context = { chain, api, ws: wsProvider, tasks }
@@ -95,6 +109,7 @@ const configSchema = z
     'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
     'import-storage': z.string().optional(),
     'mock-signature-host': z.boolean().optional(),
+    db: z.string().optional(),
   })
   .strict()
 
@@ -132,6 +147,10 @@ yargs(hideBin(process.argv))
         },
         'output-path': {
           desc: 'File path to print output',
+          string: true,
+        },
+        db: {
+          desc: 'Path to database',
           string: true,
         },
         config: {
@@ -178,6 +197,10 @@ yargs(hideBin(process.argv))
         'mock-signature-host': {
           desc: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
           boolean: true,
+        },
+        db: {
+          desc: 'Path to database',
+          string: true,
         },
         config: {
           desc: 'Path to config file',
