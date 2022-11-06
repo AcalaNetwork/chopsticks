@@ -13,6 +13,9 @@ const handlers: Handlers = {
   system_version: async (_context) => {
     return 'chopsticks-1.1.0'
   },
+  system_chainType: async (_context) => {
+    return 'Development'
+  },
   system_health: async () => {
     return {
       peers: 0,
