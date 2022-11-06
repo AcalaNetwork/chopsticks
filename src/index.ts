@@ -92,7 +92,7 @@ const configSchema = z
     endpoint: z.string().optional(),
     block: z.union([z.string(), z.number()]).optional(),
     'executor-cmd': z.string().optional(),
-    'build-block-mode': z.nativeEnum(BuildBlockMode),
+    'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
     'import-storage': z.string().optional(),
     'mock-signature-host': z.boolean().optional(),
   })
