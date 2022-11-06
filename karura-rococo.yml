@@ -2,3 +2,7 @@ endpoint: wss://karura-rococo-rpc.aca-staging.network/ws
 mock-signature-host: true
 block: 1238000
 db: ./db.sqlite
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice

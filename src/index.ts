@@ -59,8 +59,7 @@ const setup = async (argv: any) => {
 
   tasks.updateListeningPort(listeningPort)
 
-  const storagePath = argv['import-storage']
-  storagePath && (await importStorage(storagePath, chain))
+  await importStorage(argv['import-storage'], chain)
 
   return context
 }
@@ -107,7 +106,7 @@ const configSchema = z
     block: z.union([z.string(), z.number()]).optional(),
     'executor-cmd': z.string().optional(),
     'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
-    'import-storage': z.string().optional(),
+    'import-storage': z.any().optional(),
     'mock-signature-host': z.boolean().optional(),
     db: z.string().optional(),
   })
