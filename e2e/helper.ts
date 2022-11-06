@@ -46,9 +46,15 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
         return now
       })
 
-      const chain = new Blockchain(api, tasks, BuildBlockMode.Manual, inherents, {
-        hash: blockHash,
-        number: header.number.toNumber(),
+      const chain = new Blockchain({
+        api,
+        tasks,
+        buildBlockMode: BuildBlockMode.Manual,
+        inherentProvider: inherents,
+        header: {
+          hash: blockHash,
+          number: header.number.toNumber(),
+        },
       })
 
       const context = { chain, api, ws: wsProvider, tasks }

@@ -1,4 +1,5 @@
 import { ApiPromise } from '@polkadot/api'
+import { DataSource } from 'typeorm'
 import { Header } from '@polkadot/types/interfaces'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
@@ -14,9 +15,20 @@ import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
+export interface Options {
+  api: ApiPromise
+  tasks: TaskManager
+  buildBlockMode?: BuildBlockMode
+  inherentProvider: InherentProvider
+  db?: DataSource
+  header: { number: number; hash: string }
+}
+
 export class Blockchain {
   readonly api: ApiPromise
   readonly tasks: TaskManager
+  readonly db: DataSource | undefined
+
   readonly #txpool: TxPool
 
   #head: Block
@@ -25,15 +37,11 @@ export class Blockchain {
 
   readonly headState: HeadState
 
-  constructor(
-    api: ApiPromise,
-    tasks: TaskManager,
-    buildBlockMode: BuildBlockMode | undefined,
-    inherentProvider: InherentProvider,
-    header: { number: number; hash: string }
-  ) {
+  constructor({ api, tasks, buildBlockMode, inherentProvider, db, header }: Options) {
     this.api = api
     this.tasks = tasks
+    this.db = db
+
     this.#head = new Block(api, this, header.number, header.hash)
     this.#registerBlock(this.#head)
 

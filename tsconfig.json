@@ -12,7 +12,9 @@
 		"sourceMap": true,
 		"target": "esnext",
 		"skipLibCheck": true,
-		"strict": true
+		"strict": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true
 	},
 	"exclude": ["node_modules", "vendor"]
 }

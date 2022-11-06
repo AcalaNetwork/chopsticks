@@ -1,10 +1,9 @@
 import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
 import { stringToHex } from '@polkadot/util'
-import _ from 'lodash'
 
 import { Blockchain } from '.'
-import { RemoveStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
+import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
 import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
 
@@ -36,7 +35,7 @@ export class Block {
     this.#parentBlock = parentBlock
     this.#header = block?.header
     this.#extrinsics = block?.extrinsics
-    this.#baseStorage = block?.storage ?? new RemoveStorageLayer(api, hash)
+    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(api, hash, chain.db)
     this.#storages = []
   }
 
