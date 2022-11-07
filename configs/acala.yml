@@ -1,0 +1,9 @@
+endpoint: wss://acala-rpc.dwellir.com
+mock-signature-host: true
+block: 2244000
+db: ./db.sqlite
+# wasm-override: acala-2101.wasm
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice

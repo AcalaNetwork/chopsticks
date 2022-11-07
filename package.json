@@ -17,7 +17,9 @@
 		"test:dev": "LOG_LEVEL=trace vitest --inspect | pino-pretty",
 		"dev:base": "LOG_LEVEL=trace node-dev --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
 		"dev": "yarn dev:base | pino-pretty",
-		"dev:native": "yarn dev:base --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty"
+		"dev:native": "yarn dev:base --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty",
+		"dev:karura": "node-dev --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml | pino-pretty",
+		"dev:acala": "node-dev --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml | pino-pretty"
 	},
 	"dependencies": {
 		"@polkadot/api": "^9.5.2",

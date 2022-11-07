@@ -78,10 +78,7 @@ export class SetValidationData implements CreateInherents {
       },
     }
 
-    console
-
     const inherent = api.tx.parachainSystem.setValidationData(newData)
-    console.dir(inherent.toHuman(), { depth: null })
 
     return [inherent.toHex()]
   }
