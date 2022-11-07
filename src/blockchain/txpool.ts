@@ -122,14 +122,13 @@ export class TxPool {
     }
 
     const inherents = await this.#inherentProvider.createInherents(this.#api, time, newBlock)
-
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
         newBlock.pushStorageLayer().setAll(resp.storageDiff)
         logger.trace(resp.storageDiff, 'Applied inherent')
       } catch (e) {
-        logger.info('Failed to apply inherents %o %s', e, e)
+        logger.warn('Failed to apply inherents %o %s', e, e)
         throw new ResponseError(1, 'Failed to apply inherents')
       }
     }

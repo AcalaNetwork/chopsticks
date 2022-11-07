@@ -26,13 +26,22 @@ export interface TaskResponseError {
 
 export type TaskResponse = TaskResponseCall | TaskReponseRuntimeVersion | TaskResponseError
 
-interface Task {
-  kind: 'Call' | 'RuntimeVersion'
+interface TaskCall {
+  wasm: string
   blockHash: string
-  wasm?: string
-  calls?: [string, string][]
+  calls: [string, string][]
   mockSignatureHost?: boolean
 }
+
+interface TaskRuntimeVersion {
+  wasm: string
+}
+
+interface TaskCalculateStateRoot {
+  entries: [string, string][]
+}
+
+type Task = { Call: TaskCall } | { RuntimeVersion: TaskRuntimeVersion } | { CalculateStateRoot: TaskCalculateStateRoot }
 
 export class TaskManager {
   #tasks: { task: Task; callback: (res: TaskResponse) => any }[] = []
@@ -57,23 +66,21 @@ export class TaskManager {
   addTask(task: Task, callback: (res: TaskResponse) => any = () => {}) {
     logger.debug(
       {
-        kind: task.kind,
+        kind: Object.keys(task)[0],
       },
       'AddTask'
     )
+
+    if ('Call' in task && task.Call.mockSignatureHost === undefined) {
+      task.Call.mockSignatureHost = this.#mockSignatureHost
+    }
 
     this.#tasks.push({ task, callback })
     return this.#tasks.length - 1
   }
 
   getTask(taskId: number) {
-    return {
-      ...this.#tasks[taskId],
-      task: {
-        mockSignatureHost: this.#mockSignatureHost,
-        ...this.#tasks[taskId].task,
-      },
-    }
+    return this.#tasks[taskId]
   }
 
   runTask(taskId: number): Promise<void> {

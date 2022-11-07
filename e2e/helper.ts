@@ -5,7 +5,7 @@ import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
-import { SetTimestamp } from '../src/blockchain/inherents'
+import { InherentProviders, SetTimestamp, SetValidationData } from '../src/blockchain/inherents'
 import { StorageValues } from '../src/utils/set-storage'
 import { TaskManager } from '../src/task'
 import { createServer } from '../src/server'
@@ -41,10 +41,11 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
       const tasks = new TaskManager(8000, mockSignatureHost, process.env.EXECUTOR_CMD)
 
       let now = new Date('2022-10-30T00:00:00.000Z').getTime()
-      const inherents = new SetTimestamp(() => {
+      const setTimestamp = new SetTimestamp(() => {
         now += 20000
         return now
       })
+      const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
 
       const chain = new Blockchain({
         api,

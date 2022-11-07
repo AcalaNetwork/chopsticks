@@ -8,7 +8,7 @@ import yargs from 'yargs'
 
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
-import { SetTimestamp } from './blockchain/inherents'
+import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
 import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
@@ -40,7 +40,10 @@ const setup = async (argv: any) => {
 
   const header = await api.rpc.chain.getHeader(blockHash)
   const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
-  const inherents = new SetTimestamp()
+
+  const setTimestamp = new SetTimestamp()
+  const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
+
   const chain = new Blockchain({
     api,
     tasks,
@@ -82,10 +85,11 @@ const runBlock = async (argv: any) => {
 
   await context.tasks.addAndRunTask(
     {
-      kind: 'Call',
-      blockHash: parent,
-      wasm,
-      calls,
+      Call: {
+        blockHash: parent,
+        wasm,
+        calls,
+      },
     },
     (output) => {
       if (argv['output-path']) {

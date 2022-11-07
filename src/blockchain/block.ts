@@ -131,9 +131,9 @@ export class Block {
           .then((wasm) => {
             this.#chain.tasks.addAndRunTask(
               {
-                kind: 'RuntimeVersion',
-                blockHash: this.hash,
-                wasm,
+                RuntimeVersion: {
+                  wasm,
+                },
               },
               (resp) => {
                 if ('RuntimeVersion' in resp) {
@@ -165,10 +165,11 @@ export class Block {
     const res = await new Promise<TaskResponseCall['Call']>((resolve, reject) => {
       this.#chain.tasks.addAndRunTask(
         {
-          kind: 'Call',
-          blockHash: this.hash,
-          wasm,
-          calls: [[method, args]],
+          Call: {
+            blockHash: this.hash,
+            wasm,
+            calls: [[method, args]],
+          },
         },
         (r) => {
           if ('Call' in r) {
