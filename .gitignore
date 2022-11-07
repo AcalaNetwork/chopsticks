@@ -120,3 +120,4 @@ dist
 .idea
 
 *.sqlite
+*.wasm
