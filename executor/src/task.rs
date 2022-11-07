@@ -13,19 +13,23 @@ use smoldot::{
 use crate::runner_api::RpcApiClient;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub enum TaskKind {
-    Call,
-    RuntimeVersion,
+#[serde(rename_all = "camelCase")]
+pub struct TaskCall {
+	wasm: HexString,
+	block_hash: HexString,
+	calls: Option<Vec<(String, HexString)>>,
+	mock_signature_host: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct Task {
-    pub kind: TaskKind,
-    pub wasm: HexString,
-    pub block_hash: HexString,
-    pub calls: Option<Vec<(String, HexString)>>,
-	pub mock_signature_host: Option<bool>,
+pub enum Task {
+    Call(TaskCall),
+    RuntimeVersion {
+		wasm: HexString,
+	},
+	CalculateStateRoot {
+		entries: Vec<(HexString, HexString)>,
+	},
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -39,6 +43,7 @@ pub struct CallResponse {
 pub enum TaskResponse {
     Call(CallResponse),
     RuntimeVersion(HexString),
+	CalculateStateRoot(HexString),
     Error(String),
 }
 
@@ -49,9 +54,10 @@ fn is_magic_signature(signature: &[u8]) -> bool {
 
 impl Task {
     pub async fn run(&self, task_id: u32, client: &Client) -> Result<TaskResponse, jsonrpsee::core::Error> {
-        let resp = match self.kind {
-            TaskKind::Call => self.call(task_id, client).await,
-            TaskKind::RuntimeVersion => self.runtime_version(task_id, client).await,
+        let resp = match self {
+            Task::Call(call) => Task::call(task_id, client, call).await,
+            Task::RuntimeVersion { wasm } => Task::runtime_version(task_id, client, wasm).await,
+			Task::CalculateStateRoot { entries } => Task::calculate_state_root(task_id, client, entries).await,
         }?;
 
         client.task_result(task_id, &resp).await?;
@@ -60,15 +66,15 @@ impl Task {
     }
 
     async fn call(
-        &self,
         task_id: u32,
         client: &Client,
+		task_params: &TaskCall
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let mut storage_top_trie_changes = StorageDiff::empty();
         let mut offchain_storage_changes = StorageDiff::empty();
 
         let vm_proto = HostVmPrototype::new(Config {
-            module: &self.wasm,
+            module: &task_params.wasm,
             heap_pages: HeapPages::from(2048),
             exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
             allow_unresolved_imports: false,
@@ -76,7 +82,7 @@ impl Task {
         .unwrap();
         let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
 
-        for (call, params) in self.calls.as_ref().unwrap() {
+        for (call, params) in task_params.calls.as_ref().unwrap() {
             let mut vm = runtime_host::run(runtime_host::Config {
                 virtual_machine: vm_proto.clone(),
                 function_to_call: &call,
@@ -97,7 +103,7 @@ impl Task {
                     RuntimeHostVm::StorageGet(req) => {
                         let key = req.key().as_ref().to_vec();
                         let mut value = client
-                            .storage_get(task_id, &self.block_hash, HexString(key))
+                            .storage_get(task_id, &task_params.block_hash, HexString(key))
                             .await?;
                         if let Some(val) = &value {
                             if val.0.is_empty() {
@@ -116,7 +122,7 @@ impl Task {
                             req.inject_keys_ordered(iter::empty::<Vec<u8>>())
                         } else {
                             let keys = client
-                                .prefix_keys(task_id, &self.block_hash, HexString(prefix))
+                                .prefix_keys(task_id, &task_params.block_hash, HexString(prefix))
                                 .await?;
                             req.inject_keys_ordered(keys.into_iter().map(|v| v.0))
                         }
@@ -124,12 +130,12 @@ impl Task {
                     RuntimeHostVm::NextKey(req) => {
                         let key = req.key().as_ref().to_vec();
                         let next_key = client
-                            .next_key(task_id, &self.block_hash, HexString(key))
+                            .next_key(task_id, &task_params.block_hash, HexString(key))
                             .await?;
                         req.inject_key(next_key.map(|k| k.0))
                     }
 					RuntimeHostVm::SignatureVerification(req) => {
-						let bypass = self.mock_signature_host.unwrap_or(false) && is_magic_signature(req.signature().as_ref());
+						let bypass = task_params.mock_signature_host && is_magic_signature(req.signature().as_ref());
 						if bypass {
 							req.resume_success()
 						} else {
@@ -173,12 +179,12 @@ impl Task {
     }
 
     async fn runtime_version(
-        &self,
         _task_id: u32,
         _client: &Client,
+		wasm: &HexString,
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let vm_proto = HostVmPrototype::new(Config {
-            module: &self.wasm,
+            module: &wasm,
             heap_pages: HeapPages::from(2048),
             exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
             allow_unresolved_imports: false,
@@ -191,6 +197,15 @@ impl Task {
             resp.as_ref().to_vec(),
         )))
     }
+
+
+	async fn calculate_state_root(
+		_task_id: u32,
+        _client: &Client,
+		_entries: &Vec<(HexString, HexString)>,
+	) -> Result<TaskResponse, jsonrpsee::core::Error> {
+		Ok(TaskResponse::CalculateStateRoot(HexString(vec![0u8; 32])))
+	}
 }
 
 #[test]

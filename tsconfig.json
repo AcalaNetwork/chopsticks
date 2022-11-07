@@ -16,5 +16,5 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true
 	},
-	"exclude": ["node_modules", "vendor"]
+	"exclude": ["node_modules", "vendor", "executor"]
 }

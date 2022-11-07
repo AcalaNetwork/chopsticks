@@ -82,10 +82,11 @@ const runBlock = async (argv: any) => {
 
   await context.tasks.addAndRunTask(
     {
-      kind: 'Call',
-      blockHash: parent,
-      wasm,
-      calls,
+      Call: {
+        blockHash: parent,
+        wasm,
+        calls,
+      },
     },
     (output) => {
       if (argv['output-path']) {
