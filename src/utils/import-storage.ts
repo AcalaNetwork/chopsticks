@@ -19,3 +19,19 @@ export const importStorage = async (storage: any, chain: Blockchain) => {
   const blockHash = await setStorage(chain, storageValue)
   defaultLogger.trace({ blockHash, storage }, 'ImportStorage')
 }
+
+export const overrideWasm = async (wasmPath: string, chain: Blockchain) => {
+  if (wasmPath == null) {
+    return
+  }
+  const wasm = readFileSync(wasmPath)
+  let wasmHex: string
+  if (wasm.at(0) === 0x30 && wasm.at(1) === 0x78) {
+    // starts with 0x
+    wasmHex = wasm.toString()
+  } else {
+    wasmHex = '0x' + wasm.toString('hex')
+  }
+  console.log(wasmHex.substring(0, 100))
+  chain.head.setWasm(wasmHex)
+}

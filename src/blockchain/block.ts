@@ -124,6 +124,12 @@ export class Block {
     return this.#wasm
   }
 
+  setWasm(wasm: string): void {
+    const wasmKey = stringToHex(':code')
+    this.pushStorageLayer().set(wasmKey, wasm)
+    this.#wasm = Promise.resolve(wasm)
+  }
+
   get runtimeVersion(): Promise<any> {
     if (!this.#runtimeVersion) {
       this.#runtimeVersion = new Promise((resolve, reject) => {

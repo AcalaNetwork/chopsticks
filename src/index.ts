@@ -13,7 +13,7 @@ import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
-import { importStorage } from './utils/import-storage'
+import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
 
 const setup = async (argv: any) => {
@@ -63,6 +63,7 @@ const setup = async (argv: any) => {
   tasks.updateListeningPort(listeningPort)
 
   await importStorage(argv['import-storage'], chain)
+  overrideWasm(argv['wasm-override'], chain)
 
   return context
 }
@@ -113,6 +114,7 @@ const configSchema = z
     'import-storage': z.any().optional(),
     'mock-signature-host': z.boolean().optional(),
     db: z.string().optional(),
+    'wasm-override': z.string().optional(),
   })
   .strict()
 
@@ -154,6 +156,10 @@ yargs(hideBin(process.argv))
         },
         db: {
           desc: 'Path to database',
+          string: true,
+        },
+        'wasm-override': {
+          desc: 'Path to wasm override',
           string: true,
         },
         config: {
@@ -203,6 +209,10 @@ yargs(hideBin(process.argv))
         },
         db: {
           desc: 'Path to database',
+          string: true,
+        },
+        'wasm-override': {
+          desc: 'Path to wasm override',
           string: true,
         },
         config: {
