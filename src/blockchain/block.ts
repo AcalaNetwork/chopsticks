@@ -1,4 +1,3 @@
-import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
 import { stringToHex } from '@polkadot/util'
 
@@ -8,7 +7,6 @@ import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
 
 export class Block {
-  #api: ApiPromise
   #chain: Blockchain
 
   #header?: Header | Promise<Header>
@@ -23,32 +21,32 @@ export class Block {
   #storages: StorageLayer[]
 
   constructor(
-    api: ApiPromise,
     chain: Blockchain,
     public readonly number: number,
     public readonly hash: string,
     parentBlock?: Block,
     block?: { header: Header; extrinsics: string[]; storage?: StorageLayerProvider }
   ) {
-    this.#api = api
     this.#chain = chain
     this.#parentBlock = parentBlock
     this.#header = block?.header
     this.#extrinsics = block?.extrinsics
-    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(api, hash, chain.db)
+    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.upstreamApi, hash, chain.db)
     this.#storages = []
   }
 
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = this.#api.rpc.chain.getHeader(this.hash)
+      this.#header = this.#chain.upstreamApi.rpc.chain.getHeader(this.hash)
     }
     return this.#header
   }
 
   get extrinsics(): string[] | Promise<string[]> {
     if (!this.#extrinsics) {
-      this.#extrinsics = this.#api.rpc.chain.getBlock(this.hash).then((b) => b.block.extrinsics.map((e) => e.toHex()))
+      this.#extrinsics = this.#chain.upstreamApi.rpc.chain
+        .getBlock(this.hash)
+        .then((b) => b.block.extrinsics.map((e) => e.toHex()))
     }
     return this.#extrinsics
   }
@@ -144,7 +142,7 @@ export class Block {
               (resp) => {
                 if ('RuntimeVersion' in resp) {
                   const ver = resp.RuntimeVersion
-                  const decoded = this.#api.createType('RuntimeVersion', ver)
+                  const decoded = this.#chain.upstreamApi.createType('RuntimeVersion', ver)
                   resolve(decoded.toJSON())
                 } else if ('Error' in resp) {
                   reject(new ResponseError(1, resp.Error))

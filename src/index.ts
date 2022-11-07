@@ -45,7 +45,7 @@ const setup = async (argv: any) => {
   const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
 
   const chain = new Blockchain({
-    api,
+    upstreamApi: api,
     tasks,
     buildBlockMode: argv['build-block-mode'],
     inherentProvider: inherents,

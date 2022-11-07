@@ -16,7 +16,7 @@ import { defaultLogger } from '../logger'
 const logger = defaultLogger.child({ name: 'blockchain' })
 
 export interface Options {
-  api: ApiPromise
+  upstreamApi: ApiPromise
   tasks: TaskManager
   buildBlockMode?: BuildBlockMode
   inherentProvider: InherentProvider
@@ -25,7 +25,7 @@ export interface Options {
 }
 
 export class Blockchain {
-  readonly api: ApiPromise
+  readonly upstreamApi: ApiPromise
   readonly tasks: TaskManager
   readonly db: DataSource | undefined
 
@@ -37,15 +37,15 @@ export class Blockchain {
 
   readonly headState: HeadState
 
-  constructor({ api, tasks, buildBlockMode, inherentProvider, db, header }: Options) {
-    this.api = api
+  constructor({ upstreamApi, tasks, buildBlockMode, inherentProvider, db, header }: Options) {
+    this.upstreamApi = upstreamApi
     this.tasks = tasks
     this.db = db
 
-    this.#head = new Block(api, this, header.number, header.hash)
+    this.#head = new Block(this, header.number, header.hash)
     this.#registerBlock(this.#head)
 
-    this.#txpool = new TxPool(this, api, inherentProvider, buildBlockMode)
+    this.#txpool = new TxPool(this, inherentProvider, buildBlockMode)
 
     this.headState = new HeadState(this.#head)
   }
@@ -67,8 +67,8 @@ export class Blockchain {
       return undefined
     }
     if (!this.#blocksByNumber[number]) {
-      const hash = await this.api.rpc.chain.getBlockHash(number)
-      const block = new Block(this.api, this, number, hash.toHex())
+      const hash = await this.upstreamApi.rpc.chain.getBlockHash(number)
+      const block = new Block(this, number, hash.toHex())
       this.#registerBlock(block)
     }
     return this.#blocksByNumber[number]
@@ -80,8 +80,8 @@ export class Blockchain {
     }
     if (!this.#blocksByHash[hash]) {
       try {
-        const header = await this.api.rpc.chain.getHeader(hash)
-        const block = new Block(this.api, this, header.number.toNumber(), hash)
+        const header = await this.upstreamApi.rpc.chain.getHeader(hash)
+        const block = new Block(this, header.number.toNumber(), hash)
         this.#registerBlock(block)
       } catch (e) {
         logger.debug(`getBlock(${hash}) failed: ${e}`)
@@ -98,7 +98,7 @@ export class Blockchain {
       Math.round(Math.random() * 100000000)
         .toString(16)
         .padEnd(64, '0')
-    const block = new Block(this.api, this, number, hash, parent, { header, extrinsics: [], storage: parent.storage })
+    const block = new Block(this, number, hash, parent, { header, extrinsics: [], storage: parent.storage })
     this.#blocksByHash[hash] = block
     return block
   }
@@ -130,7 +130,7 @@ export class Blockchain {
     const source = '0x02' // External
     const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
     const res = await this.head.call('TaggedTransactionQueue_validate_transaction', args)
-    const validity: TransactionValidity = this.api.createType('TransactionValidity', res.result)
+    const validity: TransactionValidity = this.upstreamApi.createType('TransactionValidity', res.result)
     if (validity.isOk) {
       this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)

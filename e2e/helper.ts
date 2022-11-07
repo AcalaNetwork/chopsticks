@@ -48,7 +48,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
       const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
 
       const chain = new Blockchain({
-        api,
+        upstreamApi: api,
         tasks,
         buildBlockMode: BuildBlockMode.Manual,
         inherentProvider: inherents,
