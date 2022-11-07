@@ -30,5 +30,5 @@ async fn run_task(client: &Client, task_id: u32) -> Result<(), jsonrpsee::core::
     let task = client.get_task(task_id).await?;
     task.run(task_id, &client).await?;
 
-	Ok(())
+    Ok(())
 }

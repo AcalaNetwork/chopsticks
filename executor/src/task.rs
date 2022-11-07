@@ -1,4 +1,5 @@
 use core::iter;
+use std::collections::BTreeMap;
 use jsonrpsee::core::client::Client;
 use serde::{Deserialize, Serialize};
 use smoldot::{
@@ -7,7 +8,7 @@ use smoldot::{
         runtime_host::{self, RuntimeHostVm},
         storage_diff::StorageDiff,
     },
-    json_rpc::methods::HexString,
+    json_rpc::methods::HexString, trie::{calculate_root::{root_merkle_value, RootMerkleValueCalculation}, TrieEntryVersion},
 };
 
 use crate::runner_api::RpcApiClient;
@@ -15,21 +16,21 @@ use crate::runner_api::RpcApiClient;
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskCall {
-	wasm: HexString,
-	block_hash: HexString,
-	calls: Option<Vec<(String, HexString)>>,
-	mock_signature_host: bool,
+    wasm: HexString,
+    block_hash: HexString,
+    calls: Option<Vec<(String, HexString)>>,
+    mock_signature_host: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Task {
     Call(TaskCall),
     RuntimeVersion {
-		wasm: HexString,
-	},
-	CalculateStateRoot {
-		entries: Vec<(HexString, HexString)>,
-	},
+        wasm: HexString,
+    },
+    CalculateStateRoot {
+        entries: Vec<(HexString, HexString)>,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -43,21 +44,27 @@ pub struct CallResponse {
 pub enum TaskResponse {
     Call(CallResponse),
     RuntimeVersion(HexString),
-	CalculateStateRoot(HexString),
+    CalculateStateRoot(HexString),
     Error(String),
 }
 
 // starts with 0xdeadbeef and then rest filled by 0xcd
 fn is_magic_signature(signature: &[u8]) -> bool {
-	signature.starts_with(&[0xde, 0xad, 0xbe, 0xef]) && signature[4..].iter().all(|&b| b == 0xcd)
+    signature.starts_with(&[0xde, 0xad, 0xbe, 0xef]) && signature[4..].iter().all(|&b| b == 0xcd)
 }
 
 impl Task {
-    pub async fn run(&self, task_id: u32, client: &Client) -> Result<TaskResponse, jsonrpsee::core::Error> {
+    pub async fn run(
+        self,
+        task_id: u32,
+        client: &Client,
+    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let resp = match self {
             Task::Call(call) => Task::call(task_id, client, call).await,
             Task::RuntimeVersion { wasm } => Task::runtime_version(task_id, client, wasm).await,
-			Task::CalculateStateRoot { entries } => Task::calculate_state_root(task_id, client, entries).await,
+            Task::CalculateStateRoot { entries } => {
+                Task::calculate_state_root(task_id, client, entries).await
+            }
         }?;
 
         client.task_result(task_id, &resp).await?;
@@ -68,7 +75,7 @@ impl Task {
     async fn call(
         task_id: u32,
         client: &Client,
-		task_params: &TaskCall
+        task_params: TaskCall,
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let mut storage_top_trie_changes = StorageDiff::empty();
         let mut offchain_storage_changes = StorageDiff::empty();
@@ -134,14 +141,15 @@ impl Task {
                             .await?;
                         req.inject_key(next_key.map(|k| k.0))
                     }
-					RuntimeHostVm::SignatureVerification(req) => {
-						let bypass = task_params.mock_signature_host && is_magic_signature(req.signature().as_ref());
-						if bypass {
-							req.resume_success()
-						} else {
-							req.verify_and_resume()
-						}
-					}
+                    RuntimeHostVm::SignatureVerification(req) => {
+                        let bypass = task_params.mock_signature_host
+                            && is_magic_signature(req.signature().as_ref());
+                        if bypass {
+                            req.resume_success()
+                        } else {
+                            req.verify_and_resume()
+                        }
+                    }
                 }
             };
 
@@ -181,7 +189,7 @@ impl Task {
     async fn runtime_version(
         _task_id: u32,
         _client: &Client,
-		wasm: &HexString,
+        wasm: HexString,
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let vm_proto = HostVmPrototype::new(Config {
             module: &wasm,
@@ -198,26 +206,42 @@ impl Task {
         )))
     }
 
-
-	async fn calculate_state_root(
-		_task_id: u32,
+    async fn calculate_state_root(
+        _task_id: u32,
         _client: &Client,
-		_entries: &Vec<(HexString, HexString)>,
-	) -> Result<TaskResponse, jsonrpsee::core::Error> {
-		Ok(TaskResponse::CalculateStateRoot(HexString(vec![0u8; 32])))
-	}
+        entries: Vec<(HexString, HexString)>,
+    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
+		let mut calc = root_merkle_value(None);
+		let map = entries.into_iter().map(|(k, v)| (k.0, v.0)).collect::<BTreeMap<Vec<u8>, Vec<u8>>>();
+		loop {
+			match calc {
+				RootMerkleValueCalculation::Finished { hash, .. } => {
+					return Ok(TaskResponse::CalculateStateRoot(HexString(hash.to_vec())));
+				},
+				RootMerkleValueCalculation::AllKeys(req) => {
+					calc = req.inject(map.keys().map(|k| k.iter().cloned()));
+				},
+				RootMerkleValueCalculation::StorageValue(req) => {
+					let key = req.key().collect::<Vec<u8>>();
+					calc = req.inject(TrieEntryVersion::V0, map.get(&key));
+				},
+			}
+		}
+
+
+    }
 }
 
 #[test]
 fn is_magic_signature_works() {
-	assert!(is_magic_signature(&[0xde, 0xad, 0xbe, 0xef, 0xcd, 0xcd]));
-	assert!(is_magic_signature(&[
-		0xde, 0xad, 0xbe, 0xef, 0xcd, 0xcd, 0xcd, 0xcd
-	]));
-	assert!(!is_magic_signature(&[
-		0xde, 0xad, 0xbe, 0xef, 0xcd, 0xcd, 0xcd, 0x00
-	]));
-	assert!(!is_magic_signature(&[
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	]));
+    assert!(is_magic_signature(&[0xde, 0xad, 0xbe, 0xef, 0xcd, 0xcd]));
+    assert!(is_magic_signature(&[
+        0xde, 0xad, 0xbe, 0xef, 0xcd, 0xcd, 0xcd, 0xcd
+    ]));
+    assert!(!is_magic_signature(&[
+        0xde, 0xad, 0xbe, 0xef, 0xcd, 0xcd, 0xcd, 0x00
+    ]));
+    assert!(!is_magic_signature(&[
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    ]));
 }
