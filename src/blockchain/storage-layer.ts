@@ -130,7 +130,6 @@ export class StorageLayer implements StorageLayerProvider {
 
     for (const key of this.#keys) {
       const value = await this.#store[key]
-      this.#store[key] = value
       into.set(key, value)
     }
 

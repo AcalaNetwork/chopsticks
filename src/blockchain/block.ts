@@ -78,13 +78,14 @@ export class Block {
   }
 
   async getKeysPaged(options: { prefix?: string; startKey?: string; pageSize: number }): Promise<string[]> {
-    await this.storage.fold()
+    const layer = new StorageLayer(this.storage)
+    await layer.fold()
 
     const prefix = options.prefix ?? '0x'
     const startKey = options.startKey ?? prefix
     const pageSize = options.pageSize
 
-    return this.storage.getKeysPaged(prefix, pageSize, startKey)
+    return layer.getKeysPaged(prefix, pageSize, startKey)
   }
 
   pushStorageLayer(): StorageLayer {
