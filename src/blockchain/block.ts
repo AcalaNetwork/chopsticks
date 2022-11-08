@@ -1,6 +1,6 @@
-import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
-import { stringToHex } from '@polkadot/util'
+import { Metadata, TypeRegistry } from '@polkadot/types'
+import { compactStripLength, hexToU8a, stringToHex, u8aToHex } from '@polkadot/util'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
@@ -8,7 +8,6 @@ import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
 
 export class Block {
-  #api: ApiPromise
   #chain: Blockchain
 
   #header?: Header | Promise<Header>
@@ -18,37 +17,38 @@ export class Block {
   #wasm?: Promise<string>
   #runtimeVersion?: Promise<any>
   #metadata?: Promise<string>
+  #registry?: Promise<TypeRegistry>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
 
   constructor(
-    api: ApiPromise,
     chain: Blockchain,
     public readonly number: number,
     public readonly hash: string,
     parentBlock?: Block,
     block?: { header: Header; extrinsics: string[]; storage?: StorageLayerProvider }
   ) {
-    this.#api = api
     this.#chain = chain
     this.#parentBlock = parentBlock
     this.#header = block?.header
     this.#extrinsics = block?.extrinsics
-    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(api, hash, chain.db)
+    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.upstreamApi, hash, chain.db)
     this.#storages = []
   }
 
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = this.#api.rpc.chain.getHeader(this.hash)
+      this.#header = this.#chain.upstreamApi.rpc.chain.getHeader(this.hash)
     }
     return this.#header
   }
 
   get extrinsics(): string[] | Promise<string[]> {
     if (!this.#extrinsics) {
-      this.#extrinsics = this.#api.rpc.chain.getBlock(this.hash).then((b) => b.block.extrinsics.map((e) => e.toHex()))
+      this.#extrinsics = this.#chain.upstreamApi.rpc.chain
+        .getBlock(this.hash)
+        .then((b) => b.block.extrinsics.map((e) => e.toHex()))
     }
     return this.#extrinsics
   }
@@ -128,6 +128,18 @@ export class Block {
     const wasmKey = stringToHex(':code')
     this.pushStorageLayer().set(wasmKey, wasm)
     this.#wasm = Promise.resolve(wasm)
+    this.#registry = undefined
+  }
+
+  get registry(): Promise<TypeRegistry> {
+    if (!this.#registry) {
+      this.#registry = this.metadata.then((metadata) => {
+        const registry = new TypeRegistry()
+        registry.setMetadata(new Metadata(registry, metadata as any))
+        return registry
+      })
+    }
+    return this.#registry
   }
 
   get runtimeVersion(): Promise<any> {
@@ -144,8 +156,7 @@ export class Block {
               (resp) => {
                 if ('RuntimeVersion' in resp) {
                   const ver = resp.RuntimeVersion
-                  const decoded = this.#api.createType('RuntimeVersion', ver)
-                  resolve(decoded.toJSON())
+                  resolve(this.registry.then((registry) => registry.createType('RuntimeVersion', ver).toJSON()))
                 } else if ('Error' in resp) {
                   reject(new ResponseError(1, resp.Error))
                 }
@@ -161,7 +172,9 @@ export class Block {
 
   get metadata(): Promise<string> {
     if (!this.#metadata) {
-      this.#metadata = this.call('Metadata_metadata', '0x').then((x) => x.result)
+      this.#metadata = this.call('Metadata_metadata', '0x').then((x) =>
+        u8aToHex(compactStripLength(hexToU8a(x.result))[1])
+      )
     }
     return this.#metadata
   }

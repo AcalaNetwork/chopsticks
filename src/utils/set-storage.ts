@@ -68,7 +68,7 @@ export const setStorage = async (chain: Blockchain, storage: StorageValues, bloc
   if (Array.isArray(storage)) {
     storageItems = storage
   } else {
-    storageItems = objectToStorageItems(chain.api, storage)
+    storageItems = objectToStorageItems(chain.upstreamApi, storage)
   }
   const block = await chain.getBlock(blockHash)
   if (!block) throw Error(`Cannot find block ${blockHash || 'latest'}`)

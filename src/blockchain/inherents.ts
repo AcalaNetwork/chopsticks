@@ -1,10 +1,11 @@
 import { ApiPromise } from '@polkadot/api'
-import { TaskManager } from '../task'
+import { TypeRegistry } from '@polkadot/types'
 
 import { Block } from './block'
+import { TaskManager } from '../task'
 
 export interface CreateInherents {
-  createInherents(api: ApiPromise, timestamp: number, parent: Block): Promise<string[]>
+  createInherents(api: ApiPromise, registry: TypeRegistry, timestamp: number, parent: Block): Promise<string[]>
 }
 
 export interface InherentProvider extends CreateInherents {
@@ -18,7 +19,12 @@ export class SetTimestamp implements InherentProvider {
     this.#getTimestamp = getTimestamp
   }
 
-  async createInherents(api: ApiPromise, timestamp: number, _parent: Block): Promise<string[]> {
+  async createInherents(
+    api: ApiPromise,
+    _registry: TypeRegistry,
+    timestamp: number,
+    _parent: Block
+  ): Promise<string[]> {
     return [api.tx.timestamp.set(timestamp).toHex()]
   }
 
@@ -36,9 +42,11 @@ export class InherentProviders implements InherentProvider {
     this.#providers = providers
   }
 
-  async createInherents(api: ApiPromise, timestamp: number, parent: Block): Promise<string[]> {
-    const base = await this.#base.createInherents(api, timestamp, parent)
-    const extra = await Promise.all(this.#providers.map((provider) => provider.createInherents(api, timestamp, parent)))
+  async createInherents(api: ApiPromise, registry: TypeRegistry, timestamp: number, parent: Block): Promise<string[]> {
+    const base = await this.#base.createInherents(api, registry, timestamp, parent)
+    const extra = await Promise.all(
+      this.#providers.map((provider) => provider.createInherents(api, registry, timestamp, parent))
+    )
     return [...base, ...extra.flat()]
   }
 
@@ -56,7 +64,7 @@ export class SetValidationData implements CreateInherents {
     this.#expectedIndex = expectedIndex
   }
 
-  async createInherents(api: ApiPromise, _timestamp: number, parent: Block): Promise<string[]> {
+  async createInherents(api: ApiPromise, registry: TypeRegistry, _timestamp: number, parent: Block): Promise<string[]> {
     if (!api.tx.parachainSystem?.setValidationData) {
       return []
     }
@@ -67,7 +75,7 @@ export class SetValidationData implements CreateInherents {
       throw new Error('Parent block not found')
     }
     const extrinsics = await parentBlock.extrinsics
-    const method = api.createType('GenericExtrinsic', extrinsics[this.#expectedIndex])
+    const method = registry.createType('GenericExtrinsic', extrinsics[this.#expectedIndex])
     const validationData = (method as any).args[0].toJSON()
 
     const newData = {

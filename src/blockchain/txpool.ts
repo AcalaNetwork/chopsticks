@@ -1,4 +1,3 @@
-import { ApiPromise } from '@polkadot/api'
 import { Header } from '@polkadot/types/interfaces'
 import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
@@ -18,7 +17,6 @@ export enum BuildBlockMode {
 }
 
 export class TxPool {
-  readonly #api: ApiPromise
   readonly #chain: Blockchain
   readonly #pool: string[] = []
   readonly #mode: BuildBlockMode
@@ -26,14 +24,8 @@ export class TxPool {
 
   #lastBuildBlockPromise: Promise<void> = Promise.resolve()
 
-  constructor(
-    chain: Blockchain,
-    api: ApiPromise,
-    inherentProvider: InherentProvider,
-    mode: BuildBlockMode = BuildBlockMode.Batch
-  ) {
+  constructor(chain: Blockchain, inherentProvider: InherentProvider, mode: BuildBlockMode = BuildBlockMode.Batch) {
     this.#chain = chain
-    this.#api = api
     this.#mode = mode
     this.#inherentProvider = inherentProvider
   }
@@ -77,7 +69,9 @@ export class TxPool {
     const [consensusEngine] = preRuntime
     const rest = parentHeader.digest.logs.slice(1)
     let newLogs = parentHeader.digest.logs as any
-    const expectedSlot = Math.floor(time / ((this.#api.consts.timestamp.minimumPeriod as any).toNumber() * 2))
+    const expectedSlot = Math.floor(
+      time / ((this.#chain.upstreamApi.consts.timestamp.minimumPeriod as any).toNumber() * 2)
+    )
     if (consensusEngine.isAura) {
       const newSlot = compactAddLength(bnToU8a(expectedSlot, { isLe: true, bitLength: 64 }))
       newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
@@ -87,7 +81,8 @@ export class TxPool {
       newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
     }
 
-    const header = this.#api.createType('Header', {
+    const registry = await head.registry
+    const header = registry.createType('Header', {
       parentHash: head.hash,
       number: head.number + 1,
       stateRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -114,14 +109,14 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    if ((this.#api.query as any).babe?.currentSlot) {
+    if ((this.#chain.upstreamApi.query as any).babe?.currentSlot) {
       // TODO: figure out how to generate a valid babe slot digest instead of just modify the data
       // but hey, we can get it working without a valid digest
-      const key = this.#api.query.babe.currentSlot.key()
+      const key = this.#chain.upstreamApi.query.babe.currentSlot.key()
       newBlock.pushStorageLayer().set(key, bnToHex(expectedSlot, { isLe: true, bitLength: 64 }))
     }
 
-    const inherents = await this.#inherentProvider.createInherents(this.#api, time, newBlock)
+    const inherents = await this.#inherentProvider.createInherents(this.#chain.upstreamApi, registry, time, newBlock)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
@@ -133,9 +128,9 @@ export class TxPool {
       }
     }
 
-    if (this.#api.query.parachainSystem?.validationData) {
+    if (this.#chain.upstreamApi.query.parachainSystem?.validationData) {
       // this is a parachain
-      const validationDataKey = this.#api.query.parachainSystem.validationData.key()
+      const validationDataKey = this.#chain.upstreamApi.query.parachainSystem.validationData.key()
       const validationData = await newBlock.get(validationDataKey)
       if (!validationData) {
         // there is no set validation data inherent
@@ -156,11 +151,11 @@ export class TxPool {
       }
     }
 
-    if (this.#api.query.paraInherent?.included) {
+    if (this.#chain.upstreamApi.query.paraInherent?.included) {
       // TODO: remvoe this once paraInherent.enter is implemented
       // we are relaychain, however as we have not yet implemented the paraInherent.enter
       // so need to do some trick to make the on_finalize check happy
-      const paraInherentIncludedKey = this.#api.query.paraInherent.included.key()
+      const paraInherentIncludedKey = this.#chain.upstreamApi.query.paraInherent.included.key()
       newBlock.pushStorageLayer().set(paraInherentIncludedKey, '0x01')
     }
 
@@ -169,12 +164,12 @@ export class TxPool {
     newBlock.pushStorageLayer().setAll(resp2.storageDiff)
     logger.trace(resp2.storageDiff, 'Finalize block')
 
-    const blockData = this.#api.createType('Block', {
+    const blockData = registry.createType('Block', {
       header,
       extrinsics,
     })
 
-    const finalBlock = new Block(this.#api, this.#chain, newBlock.number, blockData.hash.toHex(), head, {
+    const finalBlock = new Block(this.#chain, newBlock.number, blockData.hash.toHex(), head, {
       header,
       extrinsics: [...inherents, ...extrinsics],
       storage: head.storage,
