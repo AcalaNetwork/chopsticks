@@ -1,6 +1,5 @@
 import { Handlers, ResponseError } from './shared'
-import { defaultLogger } from '../logger'
-import { truncate } from 'lodash'
+import { defaultLogger, truncate } from '../logger'
 
 const logger = defaultLogger.child({ name: 'rpc-exec' })
 

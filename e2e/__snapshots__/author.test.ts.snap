@@ -18,8 +18,109 @@ exports[`author rpc > works 1`] = `
   [
     SubmittableResult {
       "dispatchError": undefined,
-      "dispatchInfo": undefined,
-      "events": [],
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": 166860000,
+      },
+      "events": [
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              15214802425,
+            ],
+            "index": "0x0a08",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              "5GoNkf6WdbxCFnPdAnYYQyCjAKPJgLNxXwPjwTh6DGg6gN3E",
+              100,
+            ],
+            "index": "0x0a02",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5EYCAe5fiQJsoL71D8qNrZ7NznTuLKXk24Wjp9pe18su2Yk1",
+              12171841940,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              12171841940,
+            ],
+            "index": "0x1406",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5EYCAe5fiQJsnou3Fd4QznxPAJXfuj3yDpKUnabchMqHdBoQ",
+              3042960485,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              15214802425,
+              0,
+              0,
+            ],
+            "index": "0x0e03",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              {
+                "class": "Normal",
+                "paysFee": "Yes",
+                "weight": 166860000,
+              },
+            ],
+            "index": "0x0000",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+      ],
       "internalError": undefined,
       "status": {
         "finalized": "0xeefde1ec4bb9834c9282bdaa2034a1f603ef931b70c25caaa5a97f1fb2720fd5",
@@ -114,8 +215,109 @@ exports[`author rpc > works 5`] = `
   [
     SubmittableResult {
       "dispatchError": undefined,
-      "dispatchInfo": undefined,
-      "events": [],
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": 166860000,
+      },
+      "events": [
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              15214802389,
+            ],
+            "index": "0x0a08",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              "5GoNkf6WdbxCFnPdAnYYQyCjAKPJgLNxXwPjwTh6DGg6gN3E",
+              200,
+            ],
+            "index": "0x0a02",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5EYCAe5fiQJsoL71D8qNrZ7NznTuLKXk24Wjp9pe18su2Yk1",
+              12171841911,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              12171841911,
+            ],
+            "index": "0x1406",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5EYCAe5fiQJsnou3Fd4QznxPAJXfuj3yDpKUnabchMqHdBoQ",
+              3042960478,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              15214802389,
+              0,
+              0,
+            ],
+            "index": "0x0e03",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              {
+                "class": "Normal",
+                "paysFee": "Yes",
+                "weight": 166860000,
+              },
+            ],
+            "index": "0x0000",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+      ],
       "internalError": undefined,
       "status": {
         "finalized": "0x0a88e86168da4aa27a33f9273b34bba3dbef86bd7b246e831333c83a8d38f975",
@@ -167,11 +369,11 @@ exports[`author rpc > works 7`] = `
   "consumers": 0,
   "data": {
     "feeFrozen": 0,
-    "free": 4984785197475,
+    "free": 4969570394886,
     "miscFrozen": 0,
     "reserved": 0,
   },
-  "nonce": 1,
+  "nonce": 2,
   "providers": 1,
   "sufficients": 0,
 }
@@ -182,7 +384,7 @@ exports[`author rpc > works 8`] = `
   "consumers": 0,
   "data": {
     "feeFrozen": 0,
-    "free": 1000000000100,
+    "free": 1000000000300,
     "miscFrozen": 0,
     "reserved": 0,
   },
@@ -203,20 +405,121 @@ exports[`author rpc > works 9`] = `
       "status": {
         "ready": null,
       },
-      "txHash": "0xd56f14739289e8b4e93b208fbb16076d682139e4b09304a811d7d065318412d1",
+      "txHash": "0xa250b7e868080aab25980d209bfd59c5ca9fdc98391820d56ea50454901ac6c3",
       "txIndex": undefined,
     },
   ],
   [
     SubmittableResult {
       "dispatchError": undefined,
-      "dispatchInfo": undefined,
-      "events": [],
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": 166860000,
+      },
+      "events": [
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              15214802352,
+            ],
+            "index": "0x0a08",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              "5GoNkf6WdbxCFnPdAnYYQyCjAKPJgLNxXwPjwTh6DGg6gN3E",
+              300,
+            ],
+            "index": "0x0a02",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5EYCAe5fiQJsoL71D8qNrZ7NznTuLKXk24Wjp9pe18su2Yk1",
+              12171841881,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              12171841881,
+            ],
+            "index": "0x1406",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5EYCAe5fiQJsnou3Fd4QznxPAJXfuj3yDpKUnabchMqHdBoQ",
+              3042960471,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu",
+              15214802352,
+              0,
+              0,
+            ],
+            "index": "0x0e03",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              {
+                "class": "Normal",
+                "paysFee": "Yes",
+                "weight": 166860000,
+              },
+            ],
+            "index": "0x0000",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+      ],
       "internalError": undefined,
       "status": {
         "finalized": "0xeaf40e1042a99e9c20fa0b03d0806ce738885597e5ef204dbdf6f325ad905c9e",
       },
-      "txHash": "0xd56f14739289e8b4e93b208fbb16076d682139e4b09304a811d7d065318412d1",
+      "txHash": "0xa250b7e868080aab25980d209bfd59c5ca9fdc98391820d56ea50454901ac6c3",
       "txIndex": 2,
     },
   ],
@@ -229,7 +532,7 @@ exports[`author rpc > works 10`] = `
     "extrinsics": [
       "0x280401000b600e31268401",
       "0x352c04a000e902d94d2e18b4a8a88d9b21cb03bbe4df4431a93718c2c602c13043d595e8b8735a3e910b0021c0ecb97a4c7cc86aa22eeb2db02b60829551cf67bdc490f0948ac009f6c0801257ffee8b177dab50e7b537ccbd2d1ffcd8a0068a08d57a92ce367e4e0f52e1080661757261209aa0470800000000056175726101013aefb1326d057c6d6d174f1565404a8b1a6ab45c941fa89bd8a56ac401226d1b0d96a6e436d7021dd097d316f07fe554fc35c92e1966e8a9b6ebc4de15e57886941e070049416764844ff0d8bad851e8abe686dff9dd2de78621180ef8e9f99bb7a480f10000500050c45e414cb008e0e61e46722aa60abdd67280bd82018ee510cf360e1a460326ef53dde570b25b9e835fc045551ffe4e88fe08c85e77dfdb8adb10f78f10a5df8742c5458401df75b8601e1b21393fc7772afc0788aa25e88713977d61495fabb2550af5c835c45ee678799d3eff024253b90e84927cc6807ed4bd40e4853d40a1fd44e7128aa75ded4660543dc48918f507ac56fbef7d9745035f04b49d95320d9021994c850f25b8e385f902000030000080000008000000000010000000100005000000050000000a0000000a000000000050000000100000e8764817000000040000000400000000000000000000000000000000000000000000000000000000000000000000000800000000200000040000000400000000001000b0040000000000000000000014000000040000000400000000000000010100000000060000006400000002000000c8000000020000001900000000000000020000000200000000c817a804000000150180001480451c10fa62e420ae9678ed9e9f7f19e3e39be3a38ed4e3fe314234f3e6fed31780d3dac5ff6c2ce4154f56c20524e2dd095001f40b34d7c8afca34011128bc86201501800110800641aad9b51d5b63bd72bc66e847b8b6b6506b467a5a2cbf21d34ca91182cf72800ebe650369ce0e3ce85b22816181f598cc6ecf7a3b22314357ab4181b9ccb867150180011080ace5323aee784b03389c0e2cc68d81973f8fa26d395f333ecad7399271c781e1808e5db75be813c05205986cbd6fdede707a4d26816063a41eb42ebc262c734fad1d028004648086a9239b72237f5bf119e2a880c32f5866460632700509cb874c60f67fe815ea80f6f6801e4b41e2e6d8ec194dba122bfb9eb33feb2545ef5144cea79551f7cc5280c629a7e712d763fe83b35d2a082430af6737a89f23219c0eb3051c83bc5af5ad80fed5ecd6097308a6540f8cf31aeaad186e6898d2ecc0e623767c521c70e399531501800804809f3ada68c357b5e0a3ebb39ef181acfa9943af4725c244330a4b2c60837612e88082ad3fbdf392429afeacc70177704b760bb145547c1f152e1fcf651916b43820dc8008208042793f557c1d003b647e2eda79c2b5088c7d8cab2e82c1dcc87f4343cca91ae4485ead6eef5c4b1c68eaa71ea17a02d9de0400a102801017806ad8bda250a43737b26933c1b7bebe6f4fe689b2888ff5ab4833d7394853350f8038f5c136db5bdb74d6a62722e6ea23af4fe820eb7fe28dee3a5f76d637dd3376803419c1ea3c5c7873325866f82a3d4bd7d3f222733227fcf3af1423fed4781c998065a1214a991ac85d93f38385d6f52af7b4ddcf56e589fcb92c8d9e8f27291c92805c5a7c2cdb53c4196aff4e5ce6da4b8d22a62c80db5ef5d0940ae4c1a4322b55990180210280de38445d825563f8e218255a417c16971afa85b4f2ef18fbe08fbc5b976dc0d6801a2ff24096295cfccf1adda80b8dfffe380b9f3b54d7a3cdb67864a4655e62968022a699b2cc90a6654c84163d2a498506b192afe7cd9777227e5288e8ff069c0f150180400180ebebd1a1cd0bbc6714b7fb0ac854cca5a4c4e34e69485da48be3c8087b56e09b80128645c79ca6581c248a412fd7b8bc532a187600e6e1cc20c915538ba4df6a79450780ffbe80d9302a505e2b1ac931f539aed33bf791d1982906ae64c7197324044f191e9bca80972cd2f703f9c94fd516e14b7013c6f1545095855b6c4b36f21d89dad30aa54d80b2495ce4d07001927bb0857611f8d3a1449e791d0b010e3861c32dec0c44179680f5929c8ef9b0ac6ec8a529c91348d8cd6c169920dd37d055544a6c31c53b11e380402a0bf7ff07cee790d9cc065fc138ff6afa7db016d898d65b2b716af354c6f68042aef1dafffd1d9debbb8e6c4eb48b5c141ddf0aad2b0f3f4ddf53e6b38e65c080b31fa0392c1abdce1aa29d1544c94634ecab87ecaba6409db33aaa7621992a8280b1f4de7c3ac5665016d561a60659cd2d8f2d3e0a97e2ea9749279bd8e35eb1f180816ac87a2893694016b21768137a76ea459190ea0fc3c645d85e1a3d4eb194fe802e563b43e7334454c841953424be8c2b7a1c3295dbc391045cb6b88388ad5e7080b1ed3b02e5989b7d134ca056c778f1f5b6ffd377b2d8064483da6e94b82b0e40800cb3299c44a5db8fdcb4932e1b6ab0385d6ef1c9f8d85e0a75b787b6f4fd6c3c805a44c30e2676dc2d4c17451f51d9502e85064387999f366e6f3d404509a7780f80d6788ca71c6aabe421c352027acdb9532563dc5f1b25e6154b721f431e9990edf1019d0da05ca59913bc38a8630590f2627c154080834dda0ba5adf00d798e981a28a13e728cf83e35aefc87318440a61869f724474c5f0a351b6a99a5b21324516e668bb86a570400505f0e7b9012096b41c4eb3aaf947f6ea4290800007c7700e67da63472835bb0b737093a19ad4c63f5a4efb16ffa83d00700000400ec9e207f03cfdce586301014700e2c25931040505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f0ec2d17a76153ff51817f12d9cfc3c7f040085049e710b30bd2eab0352ddcc26417aa1945fc180699a53b51a9709a3a86039c49b5ef278e9fc244dae27e1a0380c91bff5b0488580c0d4096d94e724b8e86f952e5456c7253776de04c405582d2c350ee172d3eaa77c77081e0bfde17b36573208a06cb5cfba6b63f5a4efb16ffa83d00700000402803d0ae0b8f6832e8fabf0ec62521c2487c58b69eb97060faa8059b00ff6b7262d505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f03c716fb8fff3de61a883bb76adb34a20400806c8122e0f7f786071d6a51b330d612eccdcbe8d8f79936accabd640506dffdf380a6abfb72ed49b586829cca4ce631c092d45a017ab0d68288d308873025cfe5d280521b868fc212b25f021984cf02ced547cd45952b88360766839dfde7d4683e61f9049eb6f36e027abb2091cfb5110ab5087ff96c685f06155b3cd9a8c9e5e9a23fd5dc13a5ed2037418f1000000000685f08316cbf8fa0da822a20ac1c55bf1be3208212000000000000505f0e7b9012096b41c4eb3aaf947f6ea42908000080e63c6175a901b4879d3c394e46980fb04e78755f0835d3bbf7c5f414cba07df280a75b29e0e24889a69c6b8c37a437692b76ca9aa52ab78997098b79da5c34a31a80740bfbe51a080a46d5c79a4b185680b175abb3ccdb602dbdba7552f7172ed8c1800f52715d71fe1c37787c148742c2476aadc24f49210fbc78bc78548c1a9544b6808f85bb9e09b1dc3958541a079dedea1ebb40e90bb6128b956104ed2447a777bf80546f9de70a2056a16cff4eddf15b5b5ca69a495225f8e8be67c90184fdd1af38685f090e2fbf2d792cb324bffa9427fe1f0e202a1e07008e1e070021019ede3d8a54d27e44a9d5ce189618f22d1008505f0e7b9012096b41c4eb3aaf947f6ea42908010080c74756edffa217dfb07ab596d82753deff985ac215e5cc2997d29afe1d397c161d019ef78c98723ddc9073523ef3beefda0c1004505f0e7b9012096b41c4eb3aaf947f6ea4290800007c77095dac46c07a40d91506e7637ec4ba5763f5a4efb16ffa83d007000004000000",
-      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee00382223470912adf1cd1cdeb094097acc7fc4a8688ae9e1f251efefa6ba671314c85561f4cfe45e329ae4a3979f1a9b9ef21473757945fa471edbdc75865eb40b240104000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae69b104",
+      "0x3102840088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee007aa899b75e856b8caa34caec04857abe9f7d921b1e92e6867f7e906211d0f9e977d10c4d26e1a254708e77168f506e9a711369993025ccb379dc695f935b540f240108000a0000d17c2d7823ebf260fd138f2d7e27d114c0145d968b5ff5006125f2414fadae69b104",
     ],
     "header": {
       "digest": {
@@ -263,11 +566,11 @@ exports[`author rpc > works 11`] = `
   "consumers": 0,
   "data": {
     "feeFrozen": 0,
-    "free": 4984785197475,
+    "free": 4954355592234,
     "miscFrozen": 0,
     "reserved": 0,
   },
-  "nonce": 1,
+  "nonce": 3,
   "providers": 1,
   "sufficients": 0,
 }
@@ -278,7 +581,7 @@ exports[`author rpc > works 12`] = `
   "consumers": 0,
   "data": {
     "feeFrozen": 0,
-    "free": 1000000000100,
+    "free": 1000000000600,
     "miscFrozen": 0,
     "reserved": 0,
   },
