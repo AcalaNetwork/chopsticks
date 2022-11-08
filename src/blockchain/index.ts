@@ -130,7 +130,8 @@ export class Blockchain {
     const source = '0x02' // External
     const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
     const res = await this.head.call('TaggedTransactionQueue_validate_transaction', args)
-    const validity: TransactionValidity = this.upstreamApi.createType('TransactionValidity', res.result)
+    const registry = await this.head.registry
+    const validity: TransactionValidity = registry.createType('TransactionValidity', res.result)
     if (validity.isOk) {
       this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)

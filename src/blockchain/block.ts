@@ -1,5 +1,6 @@
 import { Header } from '@polkadot/types/interfaces'
-import { stringToHex } from '@polkadot/util'
+import { Metadata, TypeRegistry } from '@polkadot/types'
+import { compactStripLength, hexToU8a, stringToHex, u8aToHex } from '@polkadot/util'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
@@ -16,6 +17,7 @@ export class Block {
   #wasm?: Promise<string>
   #runtimeVersion?: Promise<any>
   #metadata?: Promise<string>
+  #registry?: Promise<TypeRegistry>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
@@ -126,6 +128,18 @@ export class Block {
     const wasmKey = stringToHex(':code')
     this.pushStorageLayer().set(wasmKey, wasm)
     this.#wasm = Promise.resolve(wasm)
+    this.#registry = undefined
+  }
+
+  get registry(): Promise<TypeRegistry> {
+    if (!this.#registry) {
+      this.#registry = this.metadata.then((metadata) => {
+        const registry = new TypeRegistry()
+        registry.setMetadata(new Metadata(registry, metadata as any))
+        return registry
+      })
+    }
+    return this.#registry
   }
 
   get runtimeVersion(): Promise<any> {
@@ -142,8 +156,7 @@ export class Block {
               (resp) => {
                 if ('RuntimeVersion' in resp) {
                   const ver = resp.RuntimeVersion
-                  const decoded = this.#chain.upstreamApi.createType('RuntimeVersion', ver)
-                  resolve(decoded.toJSON())
+                  resolve(this.registry.then((registry) => registry.createType('RuntimeVersion', ver).toJSON()))
                 } else if ('Error' in resp) {
                   reject(new ResponseError(1, resp.Error))
                 }
@@ -159,7 +172,9 @@ export class Block {
 
   get metadata(): Promise<string> {
     if (!this.#metadata) {
-      this.#metadata = this.call('Metadata_metadata', '0x').then((x) => x.result)
+      this.#metadata = this.call('Metadata_metadata', '0x').then((x) =>
+        u8aToHex(compactStripLength(hexToU8a(x.result))[1])
+      )
     }
     return this.#metadata
   }

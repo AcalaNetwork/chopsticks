@@ -1,5 +1,3 @@
-import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
-
 import { Block } from '../../blockchain/block'
 import { Handlers } from '../shared'
 import { defaultLogger } from '../../logger'
@@ -11,8 +9,7 @@ const handlers: Handlers = {
     return (await context.chain.getBlock(hash))?.runtimeVersion
   },
   state_getMetadata: async (context) => {
-    const metadata = await context.chain.head.metadata
-    return u8aToHex(compactStripLength(hexToU8a(metadata))[1])
+    return context.chain.head.metadata
   },
   state_getStorage: async (context, [key, hash]) => {
     return (await context.chain.getBlock(hash))?.get(key)

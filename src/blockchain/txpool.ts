@@ -81,7 +81,8 @@ export class TxPool {
       newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
     }
 
-    const header = this.#chain.upstreamApi.createType('Header', {
+    const registry = await head.registry
+    const header = registry.createType('Header', {
       parentHash: head.hash,
       number: head.number + 1,
       stateRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -115,7 +116,7 @@ export class TxPool {
       newBlock.pushStorageLayer().set(key, bnToHex(expectedSlot, { isLe: true, bitLength: 64 }))
     }
 
-    const inherents = await this.#inherentProvider.createInherents(this.#chain.upstreamApi, time, newBlock)
+    const inherents = await this.#inherentProvider.createInherents(this.#chain.upstreamApi, registry, time, newBlock)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
@@ -163,7 +164,7 @@ export class TxPool {
     newBlock.pushStorageLayer().setAll(resp2.storageDiff)
     logger.trace(resp2.storageDiff, 'Finalize block')
 
-    const blockData = this.#chain.upstreamApi.createType('Block', {
+    const blockData = registry.createType('Block', {
       header,
       extrinsics,
     })
