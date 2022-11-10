@@ -1,3 +1,4 @@
+import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 
 type ChainProperties = {
@@ -7,35 +8,43 @@ type ChainProperties = {
 }
 
 type Header = {
-  parentHash: `0x{string}`
-  number: `0x{string}`
-  stateRoot: `0x{string}`
-  extrinsicsRoot: `0x{string}`
+  parentHash: HexString
+  number: HexString
+  stateRoot: HexString
+  extrinsicsRoot: HexString
   digest: {
-    logs: `0x{string}`[]
+    logs: HexString[]
   }
 }
 
 type SignedBlock = {
   block: {
     header: Header
-    extrinsics: string[]
+    extrinsics: HexString[]
   }
-  justifications?: string[]
+  justifications?: HexString[]
 }
 
 export class Api {
   #provider: ProviderInterface
   #isReady: Promise<void>
 
+  #chainProperties: Promise<ChainProperties>
+
   constructor(provider: ProviderInterface) {
     this.#provider = provider
     this.#isReady = new Promise((resolve, reject) => {
       if (this.#provider.isConnected) {
-        setTimeout(resolve, 500)
+        setTimeout(() => {
+          this.#onConnected()
+          resolve()
+        }, 500)
       } else {
         this.#provider.on('connected', () => {
-          setTimeout(resolve, 500)
+          setTimeout(() => {
+            this.#onConnected()
+            resolve()
+          }, 500)
         })
       }
       this.#provider.on('error', reject)
@@ -49,12 +58,20 @@ export class Api {
     this.#provider.connect()
   }
 
+  #onConnected() {
+    this.#chainProperties = this.getSystemProperties()
+  }
+
   async disconnect() {
     return this.#provider.disconnect()
   }
 
   get isReady() {
     return this.#isReady
+  }
+
+  async chainProperties() {
+    return this.#chainProperties
   }
 
   async getSystemName() {

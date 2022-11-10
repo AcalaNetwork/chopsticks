@@ -145,11 +145,10 @@ export class Block {
 
   get registry(): Promise<TypeRegistry> {
     if (!this.#registry) {
-      this.#registry = this.metadata.then((data) => {
-        const registry = new TypeRegistry()
-        registry.clearCache()
-        const metadata = new Metadata(registry, data)
-        registry.setMetadata(metadata)
+      this.#registry = Promise.all([this.metadata, this.#chain.api.chainProperties]).then(([data, properties]) => {
+        const registry = new TypeRegistry(this.hash)
+        registry.setMetadata(new Metadata(registry, data))
+        registry.setChainProperties(registry.createType('ChainProperties', properties))
         return registry
       })
     }
