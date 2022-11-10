@@ -35,16 +35,10 @@ export class Api {
     this.#provider = provider
     this.#isReady = new Promise((resolve, reject) => {
       if (this.#provider.isConnected) {
-        setTimeout(() => {
-          this.#onConnected()
-          resolve()
-        }, 500)
+        setTimeout(resolve, 500)
       } else {
         this.#provider.on('connected', () => {
-          setTimeout(() => {
-            this.#onConnected()
-            resolve()
-          }, 500)
+          setTimeout(resolve, 500)
         })
       }
       this.#provider.on('error', reject)
@@ -55,11 +49,9 @@ export class Api {
       console.warn('Api disconnected')
     })
 
-    this.#provider.connect()
-  }
+    this.#chainProperties = this.#isReady.then(() => this.getSystemProperties())
 
-  #onConnected() {
-    this.#chainProperties = this.getSystemProperties()
+    this.#provider.connect()
   }
 
   async disconnect() {
