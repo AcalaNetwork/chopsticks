@@ -9,17 +9,17 @@
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
-		"start": "ts-node src/index.ts",
+		"start": "ts-node --transpile-only src/index.ts",
 		"build-wasm": "cd executor && wasm-pack --log-level=info build --target nodejs --no-default-features",
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest --silent",
 		"test:native": "EXECUTOR_CMD='cargo run --manifest-path executor/Cargo.toml --' vitest",
 		"test:dev": "LOG_LEVEL=trace vitest --inspect | pino-pretty",
-		"dev:base": "LOG_LEVEL=trace node-dev --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
+		"dev:base": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
 		"dev": "yarn dev:base | pino-pretty",
 		"dev:native": "yarn dev:base --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty",
-		"dev:karura": "node-dev --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml | pino-pretty",
-		"dev:acala": "node-dev --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml | pino-pretty"
+		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml | pino-pretty",
+		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml | pino-pretty"
 	},
 	"dependencies": {
 		"@polkadot/api": "^9.5.2",
@@ -49,10 +49,10 @@
 		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
 		"husky": "^8.0.1",
 		"lint-staged": "^13.0.3",
-		"node-dev": "^7.4.3",
 		"pino-pretty": "^9.1.1",
 		"prettier": "^2.7.1",
 		"ts-node": "^10.9.1",
+		"ts-node-dev": "^2.0.0",
 		"typescript": "^4.8.4",
 		"vitest": "^0.24.3",
 		"wasm-pack": "^0.10.3"

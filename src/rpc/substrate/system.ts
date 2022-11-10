@@ -2,13 +2,13 @@ import { Handlers } from '../shared'
 
 const handlers: Handlers = {
   system_chain: async (context) => {
-    return context.api.rpc.system.chain()
+    return context.api.getSystemChain()
   },
   system_properties: async (context) => {
-    return context.api.rpc.system.properties()
+    return context.api.getSystemProperties()
   },
   system_name: async (context) => {
-    return context.api.rpc.system.name()
+    return context.api.getSystemName()
   },
   system_version: async (_context) => {
     return 'chopsticks-1.1.0'

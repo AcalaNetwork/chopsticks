@@ -1,11 +1,12 @@
-import { ApiPromise, WsProvider } from '@polkadot/api'
 import { DataSource } from 'typeorm'
+import { WsProvider } from '@polkadot/api'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync, writeFileSync } from 'fs'
 import { z } from 'zod'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
+import { Api } from './api'
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
@@ -20,15 +21,15 @@ const setup = async (argv: any) => {
   const port = argv.port || process.env.PORT || 8000
 
   const wsProvider = new WsProvider(argv.endpoint)
-  const api = await ApiPromise.create({ provider: wsProvider })
+  const api = new Api(wsProvider)
   await api.isReady
 
   let blockHash = argv.block
 
   if (blockHash == null) {
-    blockHash = (await api.rpc.chain.getBlockHash()).toHex()
+    blockHash = await api.getBlockHash()
   } else if (Number.isInteger(blockHash)) {
-    blockHash = (await api.rpc.chain.getBlockHash(blockHash)).toHex()
+    blockHash = await api.getBlockHash(blockHash)
   }
 
   defaultLogger.info({ ...argv, blockHash }, 'Args')
@@ -38,21 +39,21 @@ const setup = async (argv: any) => {
     db = await openDb(argv.db)
   }
 
-  const header = await api.rpc.chain.getHeader(blockHash)
+  const header = await api.getHeader(blockHash)
   const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
 
   const setTimestamp = new SetTimestamp()
   const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
 
   const chain = new Blockchain({
-    upstreamApi: api,
+    api,
     tasks,
     buildBlockMode: argv['build-block-mode'],
     inherentProvider: inherents,
     db,
     header: {
       hash: blockHash,
-      number: header.number.toNumber(),
+      number: Number(header.number),
     },
   })
 

@@ -1,11 +1,21 @@
+import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Header } from '@polkadot/types/interfaces'
+import { HexString } from '@polkadot/util/types'
 import { Metadata, TypeRegistry } from '@polkadot/types'
-import { compactStripLength, hexToU8a, stringToHex, u8aToHex } from '@polkadot/util'
+import { StorageEntry } from '@polkadot/types/primitive/types'
+import { compactStripLength, hexToU8a, stringPascalCase, stringToHex, u8aToHex } from '@polkadot/util'
+import { expandMetadata } from '@polkadot/types/metadata'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
 import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
+import { get_metadata, get_runtime_version } from '../../executor/pkg/executor'
+import { storageKeyMaker } from '../utils/set-storage'
+
+export interface Decorated extends DecoratedMeta {
+  key(storage: StorageEntry, ...keys: any[]): string
+}
 
 export class Block {
   #chain: Blockchain
@@ -14,10 +24,11 @@ export class Block {
   #parentBlock?: Block | Promise<Block | undefined>
   #extrinsics?: string[] | Promise<string[]>
 
-  #wasm?: Promise<string>
+  #wasm?: Promise<HexString>
   #runtimeVersion?: Promise<any>
-  #metadata?: Promise<string>
+  #metadata?: Promise<HexString>
   #registry?: Promise<TypeRegistry>
+  #decorated?: Promise<Decorated>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
@@ -33,22 +44,22 @@ export class Block {
     this.#parentBlock = parentBlock
     this.#header = block?.header
     this.#extrinsics = block?.extrinsics
-    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.upstreamApi, hash, chain.db)
+    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db)
     this.#storages = []
   }
 
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = this.#chain.upstreamApi.rpc.chain.getHeader(this.hash)
+      this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(([registry, header]) =>
+        registry.createType('Header', header)
+      )
     }
     return this.#header
   }
 
   get extrinsics(): string[] | Promise<string[]> {
     if (!this.#extrinsics) {
-      this.#extrinsics = this.#chain.upstreamApi.rpc.chain
-        .getBlock(this.hash)
-        .then((b) => b.block.extrinsics.map((e) => e.toHex()))
+      this.#extrinsics = this.#chain.api.getBlock(this.hash).then((b) => b.block.extrinsics)
     }
     return this.#extrinsics
   }
@@ -108,14 +119,14 @@ export class Block {
     return storage
   }
 
-  get wasm(): Promise<string> {
-    const getWasm = async () => {
+  get wasm() {
+    const getWasm = async (): Promise<HexString> => {
       const wasmKey = stringToHex(':code')
       const wasm = await this.get(wasmKey)
       if (!wasm) {
         throw new Error('No wasm found')
       }
-      return wasm
+      return wasm as HexString
     }
 
     if (!this.#wasm) {
@@ -125,7 +136,7 @@ export class Block {
     return this.#wasm
   }
 
-  setWasm(wasm: string): void {
+  setWasm(wasm: HexString): void {
     const wasmKey = stringToHex(':code')
     this.pushStorageLayer().set(wasmKey, wasm)
     this.#wasm = Promise.resolve(wasm)
@@ -134,9 +145,11 @@ export class Block {
 
   get registry(): Promise<TypeRegistry> {
     if (!this.#registry) {
-      this.#registry = this.metadata.then((metadata) => {
+      this.#registry = this.metadata.then((data) => {
         const registry = new TypeRegistry()
-        registry.setMetadata(new Metadata(registry, metadata as any))
+        registry.clearCache()
+        const metadata = new Metadata(registry, data)
+        registry.setMetadata(metadata)
         return registry
       })
     }
@@ -145,39 +158,38 @@ export class Block {
 
   get runtimeVersion(): Promise<any> {
     if (!this.#runtimeVersion) {
-      this.#runtimeVersion = new Promise((resolve, reject) => {
-        this.wasm
-          .then((wasm) => {
-            this.#chain.tasks.addAndRunTask(
-              {
-                RuntimeVersion: {
-                  wasm,
-                },
-              },
-              (resp) => {
-                if ('RuntimeVersion' in resp) {
-                  const ver = resp.RuntimeVersion
-                  resolve(this.registry.then((registry) => registry.createType('RuntimeVersion', ver).toJSON()))
-                } else if ('Error' in resp) {
-                  reject(new ResponseError(1, resp.Error))
-                }
-              }
-            )
-          })
-          .catch(reject)
-      })
+      this.#runtimeVersion = Promise.all([this.registry, this.wasm.then((code) => get_runtime_version(code))]).then(
+        ([registry, data]) => registry.createType('RuntimeVersion', data).toJSON()
+      )
     }
-
     return this.#runtimeVersion
   }
 
-  get metadata(): Promise<string> {
+  get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.call('Metadata_metadata', '0x').then((x) =>
-        u8aToHex(compactStripLength(hexToU8a(x.result))[1])
-      )
+      this.#metadata = this.wasm
+        .then((code) => get_metadata(code))
+        .then((data) => u8aToHex(compactStripLength(hexToU8a(data))[1]))
     }
     return this.#metadata
+  }
+
+  get decorated(): Promise<Decorated> {
+    if (!this.#decorated) {
+      this.#decorated = Promise.all([this.registry, this.metadata]).then(([registry, metadataStr]) => {
+        const metadata = new Metadata(registry, metadataStr)
+        const decorated = expandMetadata(registry, metadata)
+        const keyMaker = storageKeyMaker(registry, metadata.asLatest)
+        return {
+          ...decorated,
+          key(storage: StorageEntry, ...keys: any[]): string {
+            const { makeKey } = keyMaker(stringPascalCase(storage.section), stringPascalCase(storage.method))
+            return makeKey(...keys).toHex()
+          },
+        }
+      })
+    }
+    return this.#decorated
   }
 
   async call(method: string, args: string): Promise<TaskResponseCall['Call']> {

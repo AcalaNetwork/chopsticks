@@ -1,5 +1,6 @@
-import { ApiPromise, WsProvider } from '@polkadot/api'
+import { ProviderInterface } from '@polkadot/rpc-provider/types'
 
+import { Api } from '../api'
 import { Blockchain } from '../blockchain'
 import { TaskManager } from '../task'
 import { defaultLogger } from '../logger'
@@ -25,8 +26,8 @@ export class ResponseError extends Error {
 
 export interface Context {
   chain: Blockchain
-  api: ApiPromise
-  ws: WsProvider
+  api: Api
+  ws: ProviderInterface
   tasks: TaskManager
 }
 

@@ -1,7 +1,7 @@
-import { ApiPromise } from '@polkadot/api'
 import { DataSource } from 'typeorm'
 import _ from 'lodash'
 
+import { Api } from '../api'
 import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'layer' })
@@ -21,11 +21,11 @@ export interface StorageLayerProvider {
 }
 
 export class RemoteStorageLayer implements StorageLayerProvider {
-  readonly #api: ApiPromise
+  readonly #api: Api
   readonly #at: string
   readonly #db: DataSource | undefined
 
-  constructor(api: ApiPromise, at: string, db: DataSource | undefined) {
+  constructor(api: Api, at: string, db: DataSource | undefined) {
     this.#api = api
     this.#at = at
     this.#db = db
@@ -39,8 +39,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
-    const res = (await this.#api.rpc.state.getStorage(key, this.#at)) as any
-    const data = res.toJSON()
+    const data = await this.#api.getStorage(key, this.#at)
     this.#db?.getRepository('KeyValuePair').upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
     return data
   }
@@ -52,8 +51,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoteStorageLayer getKeysPaged')
-    const res = await this.#api.rpc.state.getKeysPaged(prefix, pageSize, startKey, this.#at)
-    return res.map((x) => x.toHex())
+    return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
   }
 }
 
