@@ -1,3 +1,4 @@
+import { HexString } from '@polkadot/util/types'
 import { existsSync, readFileSync } from 'fs'
 import yaml from 'js-yaml'
 
@@ -32,5 +33,5 @@ export const overrideWasm = async (wasmPath: string, chain: Blockchain) => {
   } else {
     wasmHex = '0x' + wasm.toString('hex')
   }
-  chain.head.setWasm(wasmHex)
+  chain.head.setWasm(wasmHex as HexString)
 }

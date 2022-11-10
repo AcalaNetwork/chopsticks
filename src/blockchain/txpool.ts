@@ -1,4 +1,3 @@
-import { Header } from '@polkadot/types/interfaces'
 import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
@@ -55,12 +54,12 @@ export class TxPool {
   }
 
   async #buildBlock(wait: Promise<void>) {
+    await this.#chain.api.isReady
     await wait.catch(() => {}) // ignore error
-
     const head = this.#chain.head
-
     const extrinsics = this.#pool.splice(0)
 
+    const decorated = await head.decorated
     const parentHeader = await head.header
 
     const time = this.#inherentProvider.getTimestamp()
@@ -69,9 +68,7 @@ export class TxPool {
     const [consensusEngine] = preRuntime
     const rest = parentHeader.digest.logs.slice(1)
     let newLogs = parentHeader.digest.logs as any
-    const expectedSlot = Math.floor(
-      time / ((this.#chain.upstreamApi.consts.timestamp.minimumPeriod as any).toNumber() * 2)
-    )
+    const expectedSlot = Math.floor(time / ((decorated.consts.timestamp.minimumPeriod as any).toNumber() * 2))
     if (consensusEngine.isAura) {
       const newSlot = compactAddLength(bnToU8a(expectedSlot, { isLe: true, bitLength: 64 }))
       newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
@@ -90,7 +87,7 @@ export class TxPool {
       digest: {
         logs: newLogs,
       },
-    }) as Header
+    })
 
     const newBlock = this.#chain.newTempBlock(head, header)
 
@@ -109,14 +106,14 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    if ((this.#chain.upstreamApi.query as any).babe?.currentSlot) {
+    if ((decorated.query as any).babe?.currentSlot) {
       // TODO: figure out how to generate a valid babe slot digest instead of just modify the data
       // but hey, we can get it working without a valid digest
-      const key = this.#chain.upstreamApi.query.babe.currentSlot.key()
+      const key = decorated.key(decorated.query.babe.currentSlot)
       newBlock.pushStorageLayer().set(key, bnToHex(expectedSlot, { isLe: true, bitLength: 64 }))
     }
 
-    const inherents = await this.#inherentProvider.createInherents(this.#chain.upstreamApi, registry, time, newBlock)
+    const inherents = await this.#inherentProvider.createInherents(decorated, registry, time, newBlock)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
@@ -128,9 +125,9 @@ export class TxPool {
       }
     }
 
-    if (this.#chain.upstreamApi.query.parachainSystem?.validationData) {
+    if (decorated.query.parachainSystem?.validationData) {
       // this is a parachain
-      const validationDataKey = this.#chain.upstreamApi.query.parachainSystem.validationData.key()
+      const validationDataKey = decorated.key(decorated.query.parachainSystem.validationData)
       const validationData = await newBlock.get(validationDataKey)
       if (!validationData) {
         // there is no set validation data inherent
@@ -151,11 +148,11 @@ export class TxPool {
       }
     }
 
-    if (this.#chain.upstreamApi.query.paraInherent?.included) {
+    if (decorated.query.paraInherent?.included) {
       // TODO: remvoe this once paraInherent.enter is implemented
       // we are relaychain, however as we have not yet implemented the paraInherent.enter
       // so need to do some trick to make the on_finalize check happy
-      const paraInherentIncludedKey = this.#chain.upstreamApi.query.paraInherent.included.key()
+      const paraInherentIncludedKey = decorated.key(decorated.query.paraInherent.included)
       newBlock.pushStorageLayer().set(paraInherentIncludedKey, '0x01')
     }
 

@@ -1,5 +1,4 @@
 use core::iter;
-use std::collections::BTreeMap;
 use jsonrpsee::core::client::Client;
 use serde::{Deserialize, Serialize};
 use smoldot::{
@@ -8,8 +7,13 @@ use smoldot::{
         runtime_host::{self, RuntimeHostVm},
         storage_diff::StorageDiff,
     },
-    json_rpc::methods::HexString, trie::{calculate_root::{root_merkle_value, RootMerkleValueCalculation}, TrieEntryVersion},
+    json_rpc::methods::HexString,
+    trie::{
+        calculate_root::{root_merkle_value, RootMerkleValueCalculation},
+        TrieEntryVersion,
+    },
 };
+use std::collections::BTreeMap;
 
 use crate::runner_api::RpcApiClient;
 
@@ -61,7 +65,9 @@ impl Task {
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let resp = match self {
             Task::Call(call) => Task::call(task_id, client, call).await,
-            Task::RuntimeVersion { wasm } => Task::runtime_version(task_id, client, wasm).await,
+            Task::RuntimeVersion { wasm } => Task::runtime_version(wasm)
+                .await
+                .map(TaskResponse::RuntimeVersion),
             Task::CalculateStateRoot { entries } => {
                 Task::calculate_state_root(task_id, client, entries).await
             }
@@ -70,6 +76,42 @@ impl Task {
         client.task_result(task_id, &resp).await?;
 
         Ok(resp)
+    }
+
+    #[allow(unused)]
+    pub async fn get_metadata(wasm: HexString) -> Result<HexString, jsonrpsee::core::Error> {
+        let vm_proto = HostVmPrototype::new(Config {
+            module: &wasm,
+            heap_pages: HeapPages::from(2048),
+            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+            allow_unresolved_imports: false,
+        })
+        .unwrap();
+
+        let mut vm = runtime_host::run(runtime_host::Config {
+            virtual_machine: vm_proto.clone(),
+            function_to_call: "Metadata_metadata",
+            parameter: iter::empty::<Vec<u8>>(),
+            top_trie_root_calculation_cache: None,
+            storage_top_trie_changes: StorageDiff::empty(),
+            offchain_storage_changes: StorageDiff::empty(),
+        })
+        .unwrap();
+
+        let res = loop {
+            vm = match vm {
+                RuntimeHostVm::Finished(res) => {
+                    break res;
+                }
+                RuntimeHostVm::StorageGet(req) => req.inject_value(Some(iter::empty::<Vec<u8>>())),
+                RuntimeHostVm::PrefixKeys(req) => req.inject_keys_ordered(iter::empty::<Vec<u8>>()),
+                RuntimeHostVm::NextKey(req) => req.inject_key(Some(Vec::<u8>::new())),
+                RuntimeHostVm::SignatureVerification(req) => req.resume_success(),
+            }
+        };
+
+        res.map(|success| HexString(success.virtual_machine.value().as_ref().to_vec()))
+            .map_err(|e| jsonrpsee::core::Error::Custom(e.to_string()))
     }
 
     async fn call(
@@ -186,11 +228,7 @@ impl Task {
         ))
     }
 
-    async fn runtime_version(
-        _task_id: u32,
-        _client: &Client,
-        wasm: HexString,
-    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
+    pub async fn runtime_version(wasm: HexString) -> Result<HexString, jsonrpsee::core::Error> {
         let vm_proto = HostVmPrototype::new(Config {
             module: &wasm,
             heap_pages: HeapPages::from(2048),
@@ -201,9 +239,7 @@ impl Task {
 
         let resp = vm_proto.runtime_version();
 
-        Ok(TaskResponse::RuntimeVersion(HexString(
-            resp.as_ref().to_vec(),
-        )))
+        Ok(HexString(resp.as_ref().to_vec()))
     }
 
     async fn calculate_state_root(
@@ -211,24 +247,25 @@ impl Task {
         _client: &Client,
         entries: Vec<(HexString, HexString)>,
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
-		let mut calc = root_merkle_value(None);
-		let map = entries.into_iter().map(|(k, v)| (k.0, v.0)).collect::<BTreeMap<Vec<u8>, Vec<u8>>>();
-		loop {
-			match calc {
-				RootMerkleValueCalculation::Finished { hash, .. } => {
-					return Ok(TaskResponse::CalculateStateRoot(HexString(hash.to_vec())));
-				},
-				RootMerkleValueCalculation::AllKeys(req) => {
-					calc = req.inject(map.keys().map(|k| k.iter().cloned()));
-				},
-				RootMerkleValueCalculation::StorageValue(req) => {
-					let key = req.key().collect::<Vec<u8>>();
-					calc = req.inject(TrieEntryVersion::V0, map.get(&key));
-				},
-			}
-		}
-
-
+        let mut calc = root_merkle_value(None);
+        let map = entries
+            .into_iter()
+            .map(|(k, v)| (k.0, v.0))
+            .collect::<BTreeMap<Vec<u8>, Vec<u8>>>();
+        loop {
+            match calc {
+                RootMerkleValueCalculation::Finished { hash, .. } => {
+                    return Ok(TaskResponse::CalculateStateRoot(HexString(hash.to_vec())));
+                }
+                RootMerkleValueCalculation::AllKeys(req) => {
+                    calc = req.inject(map.keys().map(|k| k.iter().cloned()));
+                }
+                RootMerkleValueCalculation::StorageValue(req) => {
+                    let key = req.key().collect::<Vec<u8>>();
+                    calc = req.inject(TrieEntryVersion::V0, map.get(&key));
+                }
+            }
+        }
     }
 }
 

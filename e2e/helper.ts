@@ -3,6 +3,7 @@ import { Codec } from '@polkadot/types/types'
 import { Keyring } from '@polkadot/keyring'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
+import { Api } from '../src/api'
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
 import { InherentProviders, SetTimestamp, SetValidationData } from '../src/blockchain/inherents'
@@ -30,11 +31,11 @@ export const env = {
 
 const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption) => {
   const wsProvider = new WsProvider(endpoint)
-  const api = await ApiPromise.create({ provider: wsProvider })
+  const api = new Api(wsProvider)
 
   await api.isReady
 
-  const header = await api.rpc.chain.getHeader(blockHash)
+  const header = await api.getHeader(blockHash)
 
   return {
     async setup() {
@@ -48,13 +49,13 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
       const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
 
       const chain = new Blockchain({
-        upstreamApi: api,
+        api,
         tasks,
         buildBlockMode: BuildBlockMode.Manual,
         inherentProvider: inherents,
         header: {
           hash: blockHash,
-          number: header.number.toNumber(),
+          number: Number(header.number),
         },
       })
 

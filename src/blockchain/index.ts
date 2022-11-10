@@ -1,10 +1,10 @@
-import { ApiPromise } from '@polkadot/api'
 import { DataSource } from 'typeorm'
 import { Header } from '@polkadot/types/interfaces'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
+import { Api } from '../api'
 import { Block } from './block'
 import { BuildBlockMode, TxPool } from './txpool'
 import { HeadState } from './head-state'
@@ -16,7 +16,7 @@ import { defaultLogger } from '../logger'
 const logger = defaultLogger.child({ name: 'blockchain' })
 
 export interface Options {
-  upstreamApi: ApiPromise
+  api: Api
   tasks: TaskManager
   buildBlockMode?: BuildBlockMode
   inherentProvider: InherentProvider
@@ -25,7 +25,7 @@ export interface Options {
 }
 
 export class Blockchain {
-  readonly upstreamApi: ApiPromise
+  readonly api: Api
   readonly tasks: TaskManager
   readonly db: DataSource | undefined
 
@@ -37,8 +37,8 @@ export class Blockchain {
 
   readonly headState: HeadState
 
-  constructor({ upstreamApi, tasks, buildBlockMode, inherentProvider, db, header }: Options) {
-    this.upstreamApi = upstreamApi
+  constructor({ api, tasks, buildBlockMode, inherentProvider, db, header }: Options) {
+    this.api = api
     this.tasks = tasks
     this.db = db
 
@@ -67,20 +67,22 @@ export class Blockchain {
       return undefined
     }
     if (!this.#blocksByNumber[number]) {
-      const hash = await this.upstreamApi.rpc.chain.getBlockHash(number)
-      const block = new Block(this, number, hash.toHex())
+      const hash = await this.api.getBlockHash(number)
+      const block = new Block(this, number, hash)
       this.#registerBlock(block)
     }
     return this.#blocksByNumber[number]
   }
 
   async getBlock(hash?: string): Promise<Block | undefined> {
+    await this.api.isReady
     if (hash == null) {
       hash = this.head.hash
     }
     if (!this.#blocksByHash[hash]) {
       try {
-        const header = await this.upstreamApi.rpc.chain.getHeader(hash)
+        const registry = await this.head.registry
+        const header = registry.createType('Header', await this.api.getHeader(hash))
         const block = new Block(this, header.number.toNumber(), hash)
         this.#registerBlock(block)
       } catch (e) {

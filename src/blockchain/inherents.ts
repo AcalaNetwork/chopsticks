@@ -1,11 +1,10 @@
-import { ApiPromise } from '@polkadot/api'
-import { TypeRegistry } from '@polkadot/types'
-
-import { Block } from './block'
+import { Block, Decorated } from './block'
+import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import { GenericExtrinsic, TypeRegistry } from '@polkadot/types'
 import { TaskManager } from '../task'
 
 export interface CreateInherents {
-  createInherents(api: ApiPromise, registry: TypeRegistry, timestamp: number, parent: Block): Promise<string[]>
+  createInherents(decorated: Decorated, registry: TypeRegistry, timestamp: number, parent: Block): Promise<string[]>
 }
 
 export interface InherentProvider extends CreateInherents {
@@ -20,12 +19,12 @@ export class SetTimestamp implements InherentProvider {
   }
 
   async createInherents(
-    api: ApiPromise,
-    _registry: TypeRegistry,
+    decorated: DecoratedMeta,
+    registry: TypeRegistry,
     timestamp: number,
     _parent: Block
   ): Promise<string[]> {
-    return [api.tx.timestamp.set(timestamp).toHex()]
+    return [new GenericExtrinsic(registry, decorated.tx.timestamp.set(timestamp)).toHex()]
   }
 
   getTimestamp(): number {
@@ -42,10 +41,15 @@ export class InherentProviders implements InherentProvider {
     this.#providers = providers
   }
 
-  async createInherents(api: ApiPromise, registry: TypeRegistry, timestamp: number, parent: Block): Promise<string[]> {
-    const base = await this.#base.createInherents(api, registry, timestamp, parent)
+  async createInherents(
+    decorated: Decorated,
+    registry: TypeRegistry,
+    timestamp: number,
+    parent: Block
+  ): Promise<string[]> {
+    const base = await this.#base.createInherents(decorated, registry, timestamp, parent)
     const extra = await Promise.all(
-      this.#providers.map((provider) => provider.createInherents(api, registry, timestamp, parent))
+      this.#providers.map((provider) => provider.createInherents(decorated, registry, timestamp, parent))
     )
     return [...base, ...extra.flat()]
   }
@@ -64,8 +68,13 @@ export class SetValidationData implements CreateInherents {
     this.#expectedIndex = expectedIndex
   }
 
-  async createInherents(api: ApiPromise, registry: TypeRegistry, _timestamp: number, parent: Block): Promise<string[]> {
-    if (!api.tx.parachainSystem?.setValidationData) {
+  async createInherents(
+    decorated: Decorated,
+    registry: TypeRegistry,
+    _timestamp: number,
+    parent: Block
+  ): Promise<string[]> {
+    if (!decorated.tx.parachainSystem?.setValidationData) {
       return []
     }
     void this.#tasks // TODO
@@ -86,7 +95,7 @@ export class SetValidationData implements CreateInherents {
       },
     }
 
-    const inherent = api.tx.parachainSystem.setValidationData(newData)
+    const inherent = new GenericExtrinsic(registry, decorated.tx.parachainSystem.setValidationData(newData))
 
     return [inherent.toHex()]
   }

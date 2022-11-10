@@ -1,7 +1,6 @@
-import { ApiPromise } from '@polkadot/api'
-import { Metadata, StorageKey } from '@polkadot/types'
+import { MetadataLatest, StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
 import { Registry } from '@polkadot/types/types'
-import { StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
+import { StorageKey } from '@polkadot/types'
 import { createFunction } from '@polkadot/types/metadata/decorate/storage/createFunction'
 
 import { Blockchain } from '../blockchain'
@@ -15,10 +14,10 @@ interface StorageKeyMaker {
   makeKey: (...keys: any[]) => StorageKey
 }
 
-const storageKeyMaker =
-  (registry: Registry, metadata: Metadata) =>
+export const storageKeyMaker =
+  (registry: Registry, metadata: MetadataLatest) =>
   (section: string, method: string): StorageKeyMaker => {
-    const pallet = metadata.asLatest.pallets.filter((x) => x.name.toString() === section)[0]
+    const pallet = metadata.pallets.filter((x) => x.name.toString() === section)[0]
     if (!pallet) throw Error(`Cannot find pallet ${section}`)
     const meta = pallet.storage
       .unwrap()
@@ -42,20 +41,20 @@ const storageKeyMaker =
     }
   }
 
-function objectToStorageItems(api: ApiPromise, storage: StorageConfig): RawStorageValues {
+function objectToStorageItems(registry: Registry, storage: StorageConfig): RawStorageValues {
   const storageItems: RawStorageValues = []
   for (const sectionName in storage) {
     const section = storage[sectionName]
     for (const storageName in section) {
       const storage = section[storageName]
-      const { makeKey, meta } = storageKeyMaker(api.registry, api.runtimeMetadata)(sectionName, storageName)
+      const { makeKey, meta } = storageKeyMaker(registry, registry.metadata)(sectionName, storageName)
       if (meta.type.isPlain) {
         const key = makeKey()
-        storageItems.push([key.toHex(), storage ? api.createType(key.outputType, storage).toHex(true) : null])
+        storageItems.push([key.toHex(), storage ? registry.createType(key.outputType, storage).toHex(true) : null])
       } else {
         for (const [keys, value] of storage) {
           const key = makeKey(...keys)
-          storageItems.push([key.toHex(), value ? api.createType(key.outputType, value).toHex(true) : null])
+          storageItems.push([key.toHex(), value ? registry.createType(key.outputType, value).toHex(true) : null])
         }
       }
     }
@@ -64,14 +63,15 @@ function objectToStorageItems(api: ApiPromise, storage: StorageConfig): RawStora
 }
 
 export const setStorage = async (chain: Blockchain, storage: StorageValues, blockHash?: string): Promise<string> => {
+  const block = await chain.getBlock(blockHash)
+  if (!block) throw Error(`Cannot find block ${blockHash || 'latest'}`)
+
   let storageItems: RawStorageValues
   if (Array.isArray(storage)) {
     storageItems = storage
   } else {
-    storageItems = objectToStorageItems(chain.upstreamApi, storage)
+    storageItems = objectToStorageItems(await block.registry, storage)
   }
-  const block = await chain.getBlock(blockHash)
-  if (!block) throw Error(`Cannot find block ${blockHash || 'latest'}`)
   block.pushStorageLayer().setAll(storageItems)
   return block.hash
 }

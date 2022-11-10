@@ -6,8 +6,34 @@ use wasm_bindgen::prelude::*;
 
 mod runner_api;
 mod task;
-
 use crate::runner_api::RpcApiClient;
+use smoldot::json_rpc::methods::HexString;
+
+#[wasm_bindgen]
+pub async fn get_metadata(code: &str) -> Result<JsValue, JsValue> {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    _ = console_log::init_with_level(log::Level::Debug);
+
+    let code = HexString(hex::decode(&code[2..]).map_err(|e| e.to_string())?);
+    let result = task::Task::get_metadata(code).await;
+
+    let metadata = result.map_err(|e| e.to_string())?;
+
+    Ok(metadata.to_string().into())
+}
+
+#[wasm_bindgen]
+pub async fn get_runtime_version(code: &str) -> Result<JsValue, JsValue> {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    _ = console_log::init_with_level(log::Level::Debug);
+
+    let code = HexString(hex::decode(&code[2..]).map_err(|e| e.to_string())?);
+    let result = task::Task::runtime_version(code).await;
+
+    let runtime_version = result.map_err(|e| e.to_string())?;
+
+    Ok(runtime_version.to_string().into())
+}
 
 #[wasm_bindgen]
 pub async fn start(task_id: u32, ws_url: &str) -> Result<(), JsValue> {

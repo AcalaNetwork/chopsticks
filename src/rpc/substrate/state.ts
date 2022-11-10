@@ -6,16 +6,20 @@ const logger = defaultLogger.child({ name: 'rpc-state' })
 
 const handlers: Handlers = {
   state_getRuntimeVersion: async (context, [hash]) => {
-    return (await context.chain.getBlock(hash))?.runtimeVersion
+    const block = await context.chain.getBlock(hash)
+    return block?.runtimeVersion
   },
-  state_getMetadata: async (context) => {
-    return context.chain.head.metadata
+  state_getMetadata: async (context, [hash]) => {
+    const block = await context.chain.getBlock(hash)
+    return block?.metadata
   },
   state_getStorage: async (context, [key, hash]) => {
-    return (await context.chain.getBlock(hash))?.get(key)
+    const block = await context.chain.getBlock(hash)
+    return block?.get(key)
   },
   state_getKeysPaged: async (context, [prefix, pageSize, startKey, hash]) => {
-    return (await context.chain.getBlock(hash))?.getKeysPaged({ prefix, pageSize, startKey })
+    const block = await context.chain.getBlock(hash)
+    return block?.getKeysPaged({ prefix, pageSize, startKey })
   },
   state_queryStorageAt: async (context, [keys, hash]) => {
     const block = await context.chain.getBlock(hash)
