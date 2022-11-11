@@ -26,7 +26,7 @@ describe('import-storage', () => {
       'Cannot find pallet TTechnicalCommittee'
     )
     await expect(importStorage(path.join(__dirname, 'storage.error.storage.yml'), chain)).rejects.toThrowError(
-      'Cannot find meta for storage TechnicalCommittee.MMembers'
+      'Cannot find storage MMembers in pallet TechnicalCommittee'
     )
   })
 })

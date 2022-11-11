@@ -1,10 +1,9 @@
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Header } from '@polkadot/types/interfaces'
 import { Metadata, TypeRegistry } from '@polkadot/types'
-import { StorageEntry } from '@polkadot/types/primitive/types'
 import { expandMetadata } from '@polkadot/types/metadata'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
-import { objectSpread, stringPascalCase, stringToHex } from '@polkadot/util'
+import { objectSpread, stringToHex } from '@polkadot/util'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { HexString } from '@polkadot/util/types'
 
@@ -13,12 +12,7 @@ import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKin
 import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
 import { getMetadata, getRuntimeVersion } from '../executor'
-import { storageKeyMaker } from '../utils/set-storage'
 import type { RuntimeVersion } from '../executor'
-
-export interface Decorated extends DecoratedMeta {
-  key(storage: StorageEntry, ...keys: any[]): string
-}
 
 export class Block {
   #chain: Blockchain
@@ -31,7 +25,7 @@ export class Block {
   #runtimeVersion?: Promise<RuntimeVersion>
   #metadata?: Promise<HexString>
   #registry?: Promise<TypeRegistry>
-  #decorated?: Promise<Decorated>
+  #meta?: Promise<DecoratedMeta>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
@@ -183,22 +177,14 @@ export class Block {
     return this.#metadata
   }
 
-  get decorated(): Promise<Decorated> {
-    if (!this.#decorated) {
-      this.#decorated = Promise.all([this.registry, this.metadata]).then(([registry, metadataStr]) => {
+  get meta(): Promise<DecoratedMeta> {
+    if (!this.#meta) {
+      this.#meta = Promise.all([this.registry, this.metadata]).then(([registry, metadataStr]) => {
         const metadata = new Metadata(registry, metadataStr)
-        const decorated = expandMetadata(registry, metadata)
-        const keyMaker = storageKeyMaker(registry, metadata.asLatest)
-        return {
-          ...decorated,
-          key(storage: StorageEntry, ...keys: any[]): string {
-            const { makeKey } = keyMaker(stringPascalCase(storage.section), stringPascalCase(storage.method))
-            return makeKey(...keys).toHex()
-          },
-        }
+        return expandMetadata(registry, metadata)
       })
     }
-    return this.#decorated
+    return this.#meta
   }
 
   async call(method: string, args: string): Promise<TaskResponseCall['Call']> {

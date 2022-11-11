@@ -1,60 +1,41 @@
-import { MetadataLatest, StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
-import { Registry } from '@polkadot/types/types'
+import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { StorageKey } from '@polkadot/types'
-import { createFunction } from '@polkadot/types/metadata/decorate/storage/createFunction'
+import { stringCamelCase } from '@polkadot/util/string'
 
 import { Blockchain } from '../blockchain'
+import { compactHex } from '.'
 
 type RawStorageValues = [string, string | null][]
 type StorageConfig = Record<string, Record<string, any>>
 export type StorageValues = RawStorageValues | StorageConfig
 
-interface StorageKeyMaker {
-  meta: StorageEntryMetadataLatest
-  makeKey: (...keys: any[]) => StorageKey
-}
-
-export const storageKeyMaker =
-  (registry: Registry, metadata: MetadataLatest) =>
-  (section: string, method: string): StorageKeyMaker => {
-    const pallet = metadata.pallets.filter((x) => x.name.toString() === section)[0]
-    if (!pallet) throw Error(`Cannot find pallet ${section}`)
-    const meta = pallet.storage
-      .unwrap()
-      .items.filter((x) => x.name.toString() === method)[0] as any as StorageEntryMetadataLatest
-    if (!meta) throw Error(`Cannot find meta for storage ${section}.${method}`)
-
-    const storageFn = createFunction(
-      registry,
-      {
-        meta,
-        prefix: section,
-        section,
-        method,
-      },
-      {}
-    )
-
-    return {
-      meta,
-      makeKey: (...keys: any[]): StorageKey => new StorageKey(registry, [storageFn, keys]),
-    }
-  }
-
-function objectToStorageItems(registry: Registry, storage: StorageConfig): RawStorageValues {
+function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawStorageValues {
   const storageItems: RawStorageValues = []
   for (const sectionName in storage) {
     const section = storage[sectionName]
+
+    const pallet = meta.query[stringCamelCase(sectionName)]
+    if (!pallet) throw Error(`Cannot find pallet ${sectionName}`)
+
     for (const storageName in section) {
       const storage = section[storageName]
-      const { makeKey, meta } = storageKeyMaker(registry, registry.metadata)(sectionName, storageName)
-      if (meta.type.isPlain) {
-        const key = makeKey()
-        storageItems.push([key.toHex(), storage ? registry.createType(key.outputType, storage).toHex(true) : null])
+
+      const storageEntry = pallet[stringCamelCase(storageName)]
+      if (!storageEntry) throw Error(`Cannot find storage ${storageName} in pallet ${sectionName}`)
+
+      if (storageEntry.meta.type.isPlain) {
+        const outputType = new StorageKey(meta.registry, storageEntry).outputType
+        storageItems.push([
+          compactHex(storageEntry()),
+          storage ? meta.registry.createType(outputType, storage).toHex(true) : null,
+        ])
       } else {
         for (const [keys, value] of storage) {
-          const key = makeKey(...keys)
-          storageItems.push([key.toHex(), value ? registry.createType(key.outputType, value).toHex(true) : null])
+          const outputType = new StorageKey(meta.registry, [storageEntry, keys]).outputType
+          storageItems.push([
+            compactHex(storageEntry(...keys)),
+            value ? meta.registry.createType(outputType, value).toHex(true) : null,
+          ])
         }
       }
     }
@@ -70,7 +51,7 @@ export const setStorage = async (chain: Blockchain, storage: StorageValues, bloc
   if (Array.isArray(storage)) {
     storageItems = storage
   } else {
-    storageItems = objectToStorageItems(await block.registry, storage)
+    storageItems = objectToStorageItems(await block.meta, storage)
   }
   block.pushStorageLayer().setAll(storageItems)
   return block.hash

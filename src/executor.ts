@@ -1,8 +1,9 @@
 import { HexString } from '@polkadot/util/types'
 import { WebSocket } from 'ws'
-import { compactStripLength, hexToString, hexToU8a, u8aToHex } from '@polkadot/util'
+import { hexToString, hexToU8a } from '@polkadot/util'
 global.WebSocket = WebSocket
 
+import { compactHex } from './utils'
 import { get_metadata, get_runtime_version, run_task } from '../executor/pkg'
 
 export type RuntimeVersion = {
@@ -25,7 +26,7 @@ export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion
 }
 
 export const getMetadata = async (code: HexString): Promise<HexString> => {
-  return u8aToHex(compactStripLength(hexToU8a(await get_metadata(code)))[1])
+  return compactHex(hexToU8a(await get_metadata(code)))
 }
 
 export { run_task as runTask }

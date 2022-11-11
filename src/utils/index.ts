@@ -1,4 +1,6 @@
+import { HexString } from '@polkadot/util/types'
 import { StorageKey } from '@polkadot/types'
+import { compactStripLength, u8aToHex } from '@polkadot/util'
 
 export type GetKeys = (startKey?: string) => Promise<StorageKey<any>[]>
 
@@ -29,4 +31,8 @@ export async function fetchKeysToArray(getKeys: GetKeys) {
   const res = [] as StorageKey<any>[]
   await fetchKeys(getKeys, (key) => res.push(key))
   return res
+}
+
+export const compactHex = (value: Uint8Array): HexString => {
+  return u8aToHex(compactStripLength(value)[1])
 }

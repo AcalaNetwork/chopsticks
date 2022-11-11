@@ -44,6 +44,6 @@ describe('dev rpc', () => {
       dev.setStorages({
         System: { AAccount: [] },
       })
-    ).rejects.toThrowError('1: Error: Cannot find meta for storage System.AAccount')
+    ).rejects.toThrowError('1: Error: Cannot find storage AAccount in pallet System')
   })
 })
