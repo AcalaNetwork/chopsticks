@@ -1,11 +1,7 @@
 import { spawn } from 'child_process'
 
 import { defaultLogger } from './logger'
-import { start } from '../executor/pkg'
-
-import { WebSocket } from 'ws'
-// @ts-ignore
-global.WebSocket = WebSocket
+import { runTask } from './executor'
 
 const logger = defaultLogger.child({ name: 'task' })
 
@@ -88,7 +84,7 @@ export class TaskManager {
         })
       })
     } else {
-      return start(taskId, `ws://localhost:${this.#listeningPort}`)
+      return runTask(taskId, `ws://localhost:${this.#listeningPort}`)
     }
   }
 

@@ -1,9 +1,9 @@
+import { HexString } from '@polkadot/util/types'
 import { Metadata } from '@polkadot/types/metadata'
 import { TypeRegistry } from '@polkadot/types'
-import { compactStripLength, hexToU8a, stringToHex, u8aToHex } from '@polkadot/util'
 import { decorateStorage } from '@polkadot/types/metadata/decorate'
 import { describe, expect, it } from 'vitest'
-import { get_metadata, get_runtime_version } from '../executor/pkg/executor'
+import { getMetadata, getRuntimeVersion } from './executor'
 import { readFileSync } from 'fs'
 import path from 'path'
 
@@ -11,9 +11,8 @@ describe('wasm', () => {
   it('get metadata from wasm runtime', async () => {
     const code = String(readFileSync(path.join(__dirname, 'runtime.example'))).trim()
     expect(code.length).toBeGreaterThan(2)
-    const metadataStr = u8aToHex(compactStripLength(hexToU8a(await get_metadata(code)))[1])
     const registry = new TypeRegistry()
-    const metadata = new Metadata(registry, metadataStr)
+    const metadata = new Metadata(registry, await getMetadata(code as HexString))
     registry.setMetadata(metadata)
     expect(registry.metadata.pallets.length).toBeGreaterThan(0)
     const storage = decorateStorage(registry, metadata.asLatest, metadata.version)
@@ -25,8 +24,8 @@ describe('wasm', () => {
     expect(code.length).toBeGreaterThan(2)
 
     const expectedRuntimeVersion = {
-      specName: stringToHex('acala'),
-      implName: stringToHex('acala'),
+      specName: 'acala',
+      implName: 'acala',
       authoringVersion: 1,
       specVersion: 2000,
       implVersion: 0,
@@ -49,6 +48,6 @@ describe('wasm', () => {
       stateVersion: 0,
     }
 
-    expect(await get_runtime_version(code)).toMatchObject(expectedRuntimeVersion)
+    expect(await getRuntimeVersion(code as HexString)).toMatchObject(expectedRuntimeVersion)
   })
 })

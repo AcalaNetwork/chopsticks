@@ -2,17 +2,9 @@ import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Header } from '@polkadot/types/interfaces'
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
-import {
-  compactStripLength,
-  hexToString,
-  hexToU8a,
-  objectSpread,
-  stringPascalCase,
-  stringToHex,
-  u8aToHex,
-} from '@polkadot/util'
 import { expandMetadata } from '@polkadot/types/metadata'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
+import { objectSpread, stringPascalCase, stringToHex } from '@polkadot/util'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { HexString } from '@polkadot/util/types'
 
@@ -20,22 +12,12 @@ import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
 import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
-import { get_metadata, get_runtime_version } from '../../executor/pkg/executor'
+import { getMetadata, getRuntimeVersion } from '../executor'
 import { storageKeyMaker } from '../utils/set-storage'
+import type { RuntimeVersion } from '../executor'
 
 export interface Decorated extends DecoratedMeta {
   key(storage: StorageEntry, ...keys: any[]): string
-}
-
-export type RuntimeVersion = {
-  specName: string
-  implName: string
-  authoringVersion: number
-  specVersion: number
-  implVersion: number
-  apis: [HexString, number][]
-  transactionVersion: number
-  stateVersion: number
 }
 
 export class Block {
@@ -189,20 +171,14 @@ export class Block {
 
   get runtimeVersion(): Promise<RuntimeVersion> {
     if (!this.#runtimeVersion) {
-      this.#runtimeVersion = this.wasm.then(get_runtime_version).then((version) => {
-        version.specName = hexToString(version.specName)
-        version.implName = hexToString(version.implName)
-        return version
-      })
+      this.#runtimeVersion = this.wasm.then(getRuntimeVersion)
     }
     return this.#runtimeVersion
   }
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.wasm
-        .then((code) => get_metadata(code))
-        .then((data) => u8aToHex(compactStripLength(hexToU8a(data))[1]))
+      this.#metadata = this.wasm.then(getMetadata)
     }
     return this.#metadata
   }
