@@ -3,7 +3,6 @@ import { StorageKey } from '@polkadot/types'
 import { stringCamelCase } from '@polkadot/util/string'
 
 import { Blockchain } from '../blockchain'
-import { compactHex } from '.'
 
 type RawStorageValues = [string, string | null][]
 type StorageConfig = Record<string, Record<string, any>>
@@ -24,18 +23,12 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
       if (!storageEntry) throw Error(`Cannot find storage ${storageName} in pallet ${sectionName}`)
 
       if (storageEntry.meta.type.isPlain) {
-        const outputType = new StorageKey(meta.registry, storageEntry).outputType
-        storageItems.push([
-          compactHex(storageEntry()),
-          storage ? meta.registry.createType(outputType, storage).toHex(true) : null,
-        ])
+        const key = new StorageKey(meta.registry, [storageEntry])
+        storageItems.push([key.toHex(), storage ? meta.registry.createType(key.outputType, storage).toHex(true) : null])
       } else {
         for (const [keys, value] of storage) {
-          const outputType = new StorageKey(meta.registry, [storageEntry, keys]).outputType
-          storageItems.push([
-            compactHex(storageEntry(...keys)),
-            value ? meta.registry.createType(outputType, value).toHex(true) : null,
-          ])
+          const key = new StorageKey(meta.registry, [storageEntry, keys])
+          storageItems.push([key.toHex(), value ? meta.registry.createType(key.outputType, value).toHex(true) : null])
         }
       }
     }
