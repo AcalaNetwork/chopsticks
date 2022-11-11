@@ -28,7 +28,7 @@ type SignedBlock = {
 export class Api {
   #provider: ProviderInterface
   #isReady: Promise<void>
-
+  #chain: Promise<string>
   #chainProperties: Promise<ChainProperties>
 
   constructor(provider: ProviderInterface) {
@@ -49,6 +49,7 @@ export class Api {
       console.warn('Api disconnected')
     })
 
+    this.#chain = this.#isReady.then(() => this.getSystemChain())
     this.#chainProperties = this.#isReady.then(() => this.getSystemProperties())
 
     this.#provider.connect()
@@ -62,7 +63,11 @@ export class Api {
     return this.#isReady
   }
 
-  async chainProperties() {
+  get chain(): Promise<string> {
+    return this.#chain
+  }
+
+  get chainProperties(): Promise<ChainProperties> {
     return this.#chainProperties
   }
 

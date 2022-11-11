@@ -16,15 +16,11 @@ export interface TaskResponseCall {
   }
 }
 
-export interface TaskReponseRuntimeVersion {
-  RuntimeVersion: string
-}
-
 export interface TaskResponseError {
   Error: string
 }
 
-export type TaskResponse = TaskResponseCall | TaskReponseRuntimeVersion | TaskResponseError
+export type TaskResponse = TaskResponseCall | TaskResponseError
 
 interface TaskCall {
   wasm: string
@@ -33,15 +29,11 @@ interface TaskCall {
   mockSignatureHost?: boolean
 }
 
-interface TaskRuntimeVersion {
-  wasm: string
-}
-
 interface TaskCalculateStateRoot {
   entries: [string, string][]
 }
 
-type Task = { Call: TaskCall } | { RuntimeVersion: TaskRuntimeVersion } | { CalculateStateRoot: TaskCalculateStateRoot }
+type Task = { Call: TaskCall } | { CalculateStateRoot: TaskCalculateStateRoot }
 
 export class TaskManager {
   #tasks: { task: Task; callback: (res: TaskResponse) => any }[] = []

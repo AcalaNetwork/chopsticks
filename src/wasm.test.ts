@@ -1,6 +1,6 @@
 import { Metadata } from '@polkadot/types/metadata'
 import { TypeRegistry } from '@polkadot/types'
-import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
+import { compactStripLength, hexToU8a, stringToHex, u8aToHex } from '@polkadot/util'
 import { decorateStorage } from '@polkadot/types/metadata/decorate'
 import { describe, expect, it } from 'vitest'
 import { get_metadata, get_runtime_version } from '../executor/pkg/executor'
@@ -8,10 +8,10 @@ import { readFileSync } from 'fs'
 import path from 'path'
 
 describe('wasm', () => {
-  it('get metadata from wasm', async () => {
-    const wasm = String(readFileSync(path.join(__dirname, 'metadata.example'))).trim()
-    expect(wasm.length).toBeGreaterThan(2)
-    const metadataStr = u8aToHex(compactStripLength(hexToU8a(await get_metadata(wasm)))[1])
+  it('get metadata from wasm runtime', async () => {
+    const code = String(readFileSync(path.join(__dirname, 'runtime.example'))).trim()
+    expect(code.length).toBeGreaterThan(2)
+    const metadataStr = u8aToHex(compactStripLength(hexToU8a(await get_metadata(code)))[1])
     const registry = new TypeRegistry()
     const metadata = new Metadata(registry, metadataStr)
     registry.setMetadata(metadata)
@@ -20,16 +20,13 @@ describe('wasm', () => {
     expect(storage.system).toBeTruthy
   })
 
-  it('get runtime version from wasm', async () => {
-    const wasm = String(readFileSync(path.join(__dirname, 'metadata.example'))).trim()
-    expect(wasm.length).toBeGreaterThan(2)
-    const metadata = u8aToHex(compactStripLength(hexToU8a(await get_metadata(wasm)))[1])
-    const registry = new TypeRegistry()
-    registry.setMetadata(new Metadata(registry, metadata))
+  it('get runtime version from wasm runtime', async () => {
+    const code = String(readFileSync(path.join(__dirname, 'runtime.example'))).trim()
+    expect(code.length).toBeGreaterThan(2)
 
     const expectedRuntimeVersion = {
-      specName: 'acala',
-      implName: 'acala',
+      specName: stringToHex('acala'),
+      implName: stringToHex('acala'),
       authoringVersion: 1,
       specVersion: 2000,
       implVersion: 0,
@@ -52,8 +49,6 @@ describe('wasm', () => {
       stateVersion: 0,
     }
 
-    expect(registry.createType('RuntimeVersion', await get_runtime_version(wasm)).toJSON()).toMatchObject(
-      expectedRuntimeVersion
-    )
+    expect(await get_runtime_version(code)).toMatchObject(expectedRuntimeVersion)
   })
 })

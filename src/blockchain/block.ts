@@ -1,10 +1,20 @@
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Header } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
-import { compactStripLength, hexToU8a, stringPascalCase, stringToHex, u8aToHex } from '@polkadot/util'
+import {
+  compactStripLength,
+  hexToString,
+  hexToU8a,
+  objectSpread,
+  stringPascalCase,
+  stringToHex,
+  u8aToHex,
+} from '@polkadot/util'
 import { expandMetadata } from '@polkadot/types/metadata'
+import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
+import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
+import type { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
@@ -17,6 +27,17 @@ export interface Decorated extends DecoratedMeta {
   key(storage: StorageEntry, ...keys: any[]): string
 }
 
+export type RuntimeVersion = {
+  specName: string
+  implName: string
+  authoringVersion: number
+  specVersion: number
+  implVersion: number
+  apis: [HexString, number][]
+  transactionVersion: number
+  stateVersion: number
+}
+
 export class Block {
   #chain: Blockchain
 
@@ -25,7 +46,7 @@ export class Block {
   #extrinsics?: string[] | Promise<string[]>
 
   #wasm?: Promise<HexString>
-  #runtimeVersion?: Promise<any>
+  #runtimeVersion?: Promise<RuntimeVersion>
   #metadata?: Promise<HexString>
   #registry?: Promise<TypeRegistry>
   #decorated?: Promise<Decorated>
@@ -145,21 +166,34 @@ export class Block {
 
   get registry(): Promise<TypeRegistry> {
     if (!this.#registry) {
-      this.#registry = Promise.all([this.metadata, this.#chain.api.chainProperties]).then(([data, properties]) => {
+      this.#registry = Promise.all([
+        this.metadata,
+        this.#chain.api.chainProperties,
+        this.#chain.api.chain,
+        this.runtimeVersion,
+      ]).then(([data, properties, chain, version]) => {
         const registry = new TypeRegistry(this.hash)
-        registry.setMetadata(new Metadata(registry, data))
         registry.setChainProperties(registry.createType('ChainProperties', properties))
+        registry.register(getSpecTypes(registry, chain, version.specName, version.specVersion))
+        registry.setHasher(getSpecHasher(registry, chain, version.specName))
+        registry.setMetadata(
+          new Metadata(registry, data),
+          undefined,
+          objectSpread<ExtDef>({}, getSpecExtensions(registry, chain, version.specName), {})
+        )
         return registry
       })
     }
     return this.#registry
   }
 
-  get runtimeVersion(): Promise<any> {
+  get runtimeVersion(): Promise<RuntimeVersion> {
     if (!this.#runtimeVersion) {
-      this.#runtimeVersion = Promise.all([this.registry, this.wasm.then((code) => get_runtime_version(code))]).then(
-        ([registry, data]) => registry.createType('RuntimeVersion', data).toJSON()
-      )
+      this.#runtimeVersion = this.wasm.then(get_runtime_version).then((version) => {
+        version.specName = hexToString(version.specName)
+        version.implName = hexToString(version.implName)
+        return version
+      })
     }
     return this.#runtimeVersion
   }

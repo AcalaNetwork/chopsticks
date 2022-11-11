@@ -28,11 +28,12 @@ pub async fn get_runtime_version(code: &str) -> Result<JsValue, JsValue> {
     _ = console_log::init_with_level(log::Level::Debug);
 
     let code = HexString(hex::decode(&code[2..]).map_err(|e| e.to_string())?);
-    let result = task::Task::runtime_version(code).await;
+    let runtime_version = task::Task::runtime_version(code)
+        .await
+        .map_err(|e| e.to_string())?;
 
-    let runtime_version = result.map_err(|e| e.to_string())?;
-
-    Ok(runtime_version.to_string().into())
+    let result = serde_wasm_bindgen::to_value(&runtime_version).map_err(|e| e.to_string())?;
+    Ok(result)
 }
 
 #[wasm_bindgen]
@@ -47,14 +48,13 @@ pub async fn start(task_id: u32, ws_url: &str) -> Result<(), JsValue> {
         .map_err(|x| x.to_string())
         .await?;
 
-    Closure::<dyn Fn()>::new(move || drop(&client)).forget();
+    Closure::once(move || drop(client)).forget();
 
     Ok(())
 }
 
 async fn run_task(client: &Client, task_id: u32) -> Result<(), jsonrpsee::core::Error> {
     let task = client.get_task(task_id).await?;
-    task.run(task_id, &client).await?;
-
+    task.run(task_id, client).await?;
     Ok(())
 }

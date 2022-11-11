@@ -6,6 +6,7 @@ use smoldot::{
         host::{Config, HeapPages, HostVmPrototype},
         runtime_host::{self, RuntimeHostVm},
         storage_diff::StorageDiff,
+        CoreVersionRef,
     },
     json_rpc::methods::HexString,
     trie::{
@@ -16,6 +17,47 @@ use smoldot::{
 use std::collections::BTreeMap;
 
 use crate::runner_api::RpcApiClient;
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RuntimeVersion {
+    pub spec_name: HexString,
+    pub impl_name: HexString,
+    pub authoring_version: u32,
+    pub spec_version: u32,
+    pub impl_version: u32,
+    pub apis: Vec<(HexString, u32)>,
+    pub transaction_version: u32,
+    pub state_version: u8,
+}
+
+impl RuntimeVersion {
+    fn new(core_version_ref: CoreVersionRef) -> Self {
+        let CoreVersionRef {
+            spec_name,
+            impl_name,
+            authoring_version,
+            spec_version,
+            impl_version,
+            apis,
+            transaction_version,
+            state_version,
+        } = core_version_ref;
+        RuntimeVersion {
+            spec_name: HexString(spec_name.as_bytes().to_vec()),
+            impl_name: HexString(impl_name.as_bytes().to_vec()),
+            authoring_version,
+            spec_version,
+            impl_version,
+            apis: apis
+                .into_iter()
+                .map(|x| (HexString(x.name_hash.to_vec()), x.version))
+                .collect(),
+            transaction_version: transaction_version.unwrap_or_default(),
+            state_version: state_version.unwrap_or_default(),
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -29,9 +71,6 @@ pub struct TaskCall {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Task {
     Call(TaskCall),
-    RuntimeVersion {
-        wasm: HexString,
-    },
     CalculateStateRoot {
         entries: Vec<(HexString, HexString)>,
     },
@@ -47,7 +86,6 @@ pub struct CallResponse {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum TaskResponse {
     Call(CallResponse),
-    RuntimeVersion(HexString),
     CalculateStateRoot(HexString),
     Error(String),
 }
@@ -65,9 +103,6 @@ impl Task {
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let resp = match self {
             Task::Call(call) => Task::call(task_id, client, call).await,
-            Task::RuntimeVersion { wasm } => Task::runtime_version(wasm)
-                .await
-                .map(TaskResponse::RuntimeVersion),
             Task::CalculateStateRoot { entries } => {
                 Task::calculate_state_root(task_id, client, entries).await
             }
@@ -76,42 +111,6 @@ impl Task {
         client.task_result(task_id, &resp).await?;
 
         Ok(resp)
-    }
-
-    #[allow(unused)]
-    pub async fn get_metadata(wasm: HexString) -> Result<HexString, jsonrpsee::core::Error> {
-        let vm_proto = HostVmPrototype::new(Config {
-            module: &wasm,
-            heap_pages: HeapPages::from(2048),
-            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: false,
-        })
-        .unwrap();
-
-        let mut vm = runtime_host::run(runtime_host::Config {
-            virtual_machine: vm_proto.clone(),
-            function_to_call: "Metadata_metadata",
-            parameter: iter::empty::<Vec<u8>>(),
-            top_trie_root_calculation_cache: None,
-            storage_top_trie_changes: StorageDiff::empty(),
-            offchain_storage_changes: StorageDiff::empty(),
-        })
-        .unwrap();
-
-        let res = loop {
-            vm = match vm {
-                RuntimeHostVm::Finished(res) => {
-                    break res;
-                }
-                RuntimeHostVm::StorageGet(req) => req.inject_value(Some(iter::empty::<Vec<u8>>())),
-                RuntimeHostVm::PrefixKeys(req) => req.inject_keys_ordered(iter::empty::<Vec<u8>>()),
-                RuntimeHostVm::NextKey(req) => req.inject_key(Some(Vec::<u8>::new())),
-                RuntimeHostVm::SignatureVerification(req) => req.resume_success(),
-            }
-        };
-
-        res.map(|success| HexString(success.virtual_machine.value().as_ref().to_vec()))
-            .map_err(|e| jsonrpsee::core::Error::Custom(e.to_string()))
     }
 
     async fn call(
@@ -134,7 +133,7 @@ impl Task {
         for (call, params) in task_params.calls.as_ref().unwrap() {
             let mut vm = runtime_host::run(runtime_host::Config {
                 virtual_machine: vm_proto.clone(),
-                function_to_call: &call,
+                function_to_call: call,
                 parameter: iter::once(params.as_ref()),
                 top_trie_root_calculation_cache: None,
                 storage_top_trie_changes,
@@ -212,34 +211,17 @@ impl Task {
             }
         }
 
-        Ok(ret.map_or_else(
-            |err| TaskResponse::Error(err),
-            move |ret| {
-                let diff = storage_top_trie_changes
-                    .diff_into_iter_unordered()
-                    .map(|(k, v)| (HexString(k), v.map(HexString)))
-                    .collect();
+        Ok(ret.map_or_else(TaskResponse::Error, move |ret| {
+            let diff = storage_top_trie_changes
+                .diff_into_iter_unordered()
+                .map(|(k, v)| (HexString(k), v.map(HexString)))
+                .collect();
 
-                TaskResponse::Call(CallResponse {
-                    result: HexString(ret),
-                    storage_diff: diff,
-                })
-            },
-        ))
-    }
-
-    pub async fn runtime_version(wasm: HexString) -> Result<HexString, jsonrpsee::core::Error> {
-        let vm_proto = HostVmPrototype::new(Config {
-            module: &wasm,
-            heap_pages: HeapPages::from(2048),
-            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: false,
-        })
-        .unwrap();
-
-        let resp = vm_proto.runtime_version();
-
-        Ok(HexString(resp.as_ref().to_vec()))
+            TaskResponse::Call(CallResponse {
+                result: HexString(ret),
+                storage_diff: diff,
+            })
+        }))
     }
 
     async fn calculate_state_root(
@@ -266,6 +248,60 @@ impl Task {
                 }
             }
         }
+    }
+}
+
+#[allow(unused)]
+impl Task {
+    pub async fn get_metadata(wasm: HexString) -> Result<HexString, jsonrpsee::core::Error> {
+        let vm_proto = HostVmPrototype::new(Config {
+            module: &wasm,
+            heap_pages: HeapPages::from(2048),
+            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+            allow_unresolved_imports: false,
+        })
+        .unwrap();
+
+        let mut vm = runtime_host::run(runtime_host::Config {
+            virtual_machine: vm_proto,
+            function_to_call: "Metadata_metadata",
+            parameter: iter::empty::<Vec<u8>>(),
+            top_trie_root_calculation_cache: None,
+            storage_top_trie_changes: StorageDiff::empty(),
+            offchain_storage_changes: StorageDiff::empty(),
+        })
+        .unwrap();
+
+        let res = loop {
+            vm = match vm {
+                RuntimeHostVm::Finished(res) => {
+                    break res;
+                }
+                RuntimeHostVm::StorageGet(req) => req.inject_value(Some(iter::empty::<Vec<u8>>())),
+                RuntimeHostVm::PrefixKeys(req) => req.inject_keys_ordered(iter::empty::<Vec<u8>>()),
+                RuntimeHostVm::NextKey(req) => req.inject_key(Some(Vec::<u8>::new())),
+                RuntimeHostVm::SignatureVerification(req) => req.resume_success(),
+            }
+        };
+
+        res.map(|success| HexString(success.virtual_machine.value().as_ref().to_vec()))
+            .map_err(|e| jsonrpsee::core::Error::Custom(e.to_string()))
+    }
+
+    pub async fn runtime_version(
+        wasm: HexString,
+    ) -> Result<RuntimeVersion, jsonrpsee::core::Error> {
+        let vm_proto = HostVmPrototype::new(Config {
+            module: &wasm,
+            heap_pages: HeapPages::from(2048),
+            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+            allow_unresolved_imports: false,
+        })
+        .unwrap();
+
+        let core_version = vm_proto.runtime_version().decode();
+
+        Ok(RuntimeVersion::new(core_version))
     }
 }
 
