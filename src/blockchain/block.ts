@@ -1,21 +1,18 @@
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Header } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
 import { Metadata, TypeRegistry } from '@polkadot/types'
-import { StorageEntry } from '@polkadot/types/primitive/types'
-import { compactStripLength, hexToU8a, stringPascalCase, stringToHex, u8aToHex } from '@polkadot/util'
 import { expandMetadata } from '@polkadot/types/metadata'
+import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
+import { objectSpread, stringToHex } from '@polkadot/util'
+import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
+import type { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
 import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
-import { get_metadata, get_runtime_version } from '../../executor/pkg/executor'
-import { storageKeyMaker } from '../utils/set-storage'
-
-export interface Decorated extends DecoratedMeta {
-  key(storage: StorageEntry, ...keys: any[]): string
-}
+import { getMetadata, getRuntimeVersion } from '../executor'
+import type { RuntimeVersion } from '../executor'
 
 export class Block {
   #chain: Blockchain
@@ -25,10 +22,10 @@ export class Block {
   #extrinsics?: string[] | Promise<string[]>
 
   #wasm?: Promise<HexString>
-  #runtimeVersion?: Promise<any>
+  #runtimeVersion?: Promise<RuntimeVersion>
   #metadata?: Promise<HexString>
   #registry?: Promise<TypeRegistry>
-  #decorated?: Promise<Decorated>
+  #meta?: Promise<DecoratedMeta>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
@@ -145,50 +142,49 @@ export class Block {
 
   get registry(): Promise<TypeRegistry> {
     if (!this.#registry) {
-      this.#registry = Promise.all([this.metadata, this.#chain.api.chainProperties]).then(([data, properties]) => {
+      this.#registry = Promise.all([
+        this.metadata,
+        this.#chain.api.chainProperties,
+        this.#chain.api.chain,
+        this.runtimeVersion,
+      ]).then(([data, properties, chain, version]) => {
         const registry = new TypeRegistry(this.hash)
-        registry.setMetadata(new Metadata(registry, data))
         registry.setChainProperties(registry.createType('ChainProperties', properties))
+        registry.register(getSpecTypes(registry, chain, version.specName, version.specVersion))
+        registry.setHasher(getSpecHasher(registry, chain, version.specName))
+        registry.setMetadata(
+          new Metadata(registry, data),
+          undefined,
+          objectSpread<ExtDef>({}, getSpecExtensions(registry, chain, version.specName), {})
+        )
         return registry
       })
     }
     return this.#registry
   }
 
-  get runtimeVersion(): Promise<any> {
+  get runtimeVersion(): Promise<RuntimeVersion> {
     if (!this.#runtimeVersion) {
-      this.#runtimeVersion = Promise.all([this.registry, this.wasm.then((code) => get_runtime_version(code))]).then(
-        ([registry, data]) => registry.createType('RuntimeVersion', data).toJSON()
-      )
+      this.#runtimeVersion = this.wasm.then(getRuntimeVersion)
     }
     return this.#runtimeVersion
   }
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.wasm
-        .then((code) => get_metadata(code))
-        .then((data) => u8aToHex(compactStripLength(hexToU8a(data))[1]))
+      this.#metadata = this.wasm.then(getMetadata)
     }
     return this.#metadata
   }
 
-  get decorated(): Promise<Decorated> {
-    if (!this.#decorated) {
-      this.#decorated = Promise.all([this.registry, this.metadata]).then(([registry, metadataStr]) => {
+  get meta(): Promise<DecoratedMeta> {
+    if (!this.#meta) {
+      this.#meta = Promise.all([this.registry, this.metadata]).then(([registry, metadataStr]) => {
         const metadata = new Metadata(registry, metadataStr)
-        const decorated = expandMetadata(registry, metadata)
-        const keyMaker = storageKeyMaker(registry, metadata.asLatest)
-        return {
-          ...decorated,
-          key(storage: StorageEntry, ...keys: any[]): string {
-            const { makeKey } = keyMaker(stringPascalCase(storage.section), stringPascalCase(storage.method))
-            return makeKey(...keys).toHex()
-          },
-        }
+        return expandMetadata(registry, metadata)
       })
     }
-    return this.#decorated
+    return this.#meta
   }
 
   async call(method: string, args: string): Promise<TaskResponseCall['Call']> {

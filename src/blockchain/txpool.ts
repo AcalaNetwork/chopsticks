@@ -5,6 +5,7 @@ import { Block } from './block'
 import { Blockchain } from '.'
 import { InherentProvider } from './inherents'
 import { ResponseError } from '../rpc/shared'
+import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'txpool' })
@@ -59,7 +60,7 @@ export class TxPool {
     const head = this.#chain.head
     const extrinsics = this.#pool.splice(0)
 
-    const decorated = await head.decorated
+    const meta = await head.meta
     const parentHeader = await head.header
 
     const time = this.#inherentProvider.getTimestamp()
@@ -68,7 +69,7 @@ export class TxPool {
     const [consensusEngine] = preRuntime
     const rest = parentHeader.digest.logs.slice(1)
     let newLogs = parentHeader.digest.logs as any
-    const expectedSlot = Math.floor(time / ((decorated.consts.timestamp.minimumPeriod as any).toNumber() * 2))
+    const expectedSlot = Math.floor(time / ((meta.consts.timestamp.minimumPeriod as any).toNumber() * 2))
     if (consensusEngine.isAura) {
       const newSlot = compactAddLength(bnToU8a(expectedSlot, { isLe: true, bitLength: 64 }))
       newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
@@ -106,14 +107,14 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    if ((decorated.query as any).babe?.currentSlot) {
+    if (meta.query.babe?.currentSlot) {
       // TODO: figure out how to generate a valid babe slot digest instead of just modify the data
       // but hey, we can get it working without a valid digest
-      const key = decorated.key(decorated.query.babe.currentSlot)
+      const key = compactHex(meta.query.babe.currentSlot())
       newBlock.pushStorageLayer().set(key, bnToHex(expectedSlot, { isLe: true, bitLength: 64 }))
     }
 
-    const inherents = await this.#inherentProvider.createInherents(decorated, registry, time, newBlock)
+    const inherents = await this.#inherentProvider.createInherents(meta, time, newBlock)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
@@ -125,9 +126,9 @@ export class TxPool {
       }
     }
 
-    if (decorated.query.parachainSystem?.validationData) {
+    if (meta.query.parachainSystem?.validationData) {
       // this is a parachain
-      const validationDataKey = decorated.key(decorated.query.parachainSystem.validationData)
+      const validationDataKey = compactHex(meta.query.parachainSystem.validationData())
       const validationData = await newBlock.get(validationDataKey)
       if (!validationData) {
         // there is no set validation data inherent
@@ -148,11 +149,11 @@ export class TxPool {
       }
     }
 
-    if (decorated.query.paraInherent?.included) {
+    if (meta.query.paraInherent?.included) {
       // TODO: remvoe this once paraInherent.enter is implemented
       // we are relaychain, however as we have not yet implemented the paraInherent.enter
       // so need to do some trick to make the on_finalize check happy
-      const paraInherentIncludedKey = decorated.key(decorated.query.paraInherent.included)
+      const paraInherentIncludedKey = compactHex(meta.query.paraInherent.included())
       newBlock.pushStorageLayer().set(paraInherentIncludedKey, '0x01')
     }
 

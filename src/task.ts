@@ -1,11 +1,7 @@
 import { spawn } from 'child_process'
 
 import { defaultLogger } from './logger'
-import { start } from '../executor/pkg'
-
-import { WebSocket } from 'ws'
-// @ts-ignore
-global.WebSocket = WebSocket
+import { runTask } from './executor'
 
 const logger = defaultLogger.child({ name: 'task' })
 
@@ -16,15 +12,11 @@ export interface TaskResponseCall {
   }
 }
 
-export interface TaskReponseRuntimeVersion {
-  RuntimeVersion: string
-}
-
 export interface TaskResponseError {
   Error: string
 }
 
-export type TaskResponse = TaskResponseCall | TaskReponseRuntimeVersion | TaskResponseError
+export type TaskResponse = TaskResponseCall | TaskResponseError
 
 interface TaskCall {
   wasm: string
@@ -33,15 +25,11 @@ interface TaskCall {
   mockSignatureHost?: boolean
 }
 
-interface TaskRuntimeVersion {
-  wasm: string
-}
-
 interface TaskCalculateStateRoot {
   entries: [string, string][]
 }
 
-type Task = { Call: TaskCall } | { RuntimeVersion: TaskRuntimeVersion } | { CalculateStateRoot: TaskCalculateStateRoot }
+type Task = { Call: TaskCall } | { CalculateStateRoot: TaskCalculateStateRoot }
 
 export class TaskManager {
   #tasks: { task: Task; callback: (res: TaskResponse) => any }[] = []
@@ -96,7 +84,7 @@ export class TaskManager {
         })
       })
     } else {
-      return start(taskId, `ws://localhost:${this.#listeningPort}`)
+      return runTask(taskId, `ws://localhost:${this.#listeningPort}`)
     }
   }
 
