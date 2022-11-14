@@ -31,7 +31,7 @@ export const env = {
 
 const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption) => {
   const wsProvider = new WsProvider(endpoint)
-  const api = new Api(wsProvider)
+  const api = new Api(wsProvider, { SetEvmOrigin: { payload: {}, extrinsic: {} } })
 
   await api.isReady
 
@@ -67,7 +67,15 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
       tasks.updateListeningPort(listeningPort)
 
       const wsProvider2 = new WsProvider(`ws://localhost:${listeningPort}`)
-      const api2 = await ApiPromise.create({ provider: wsProvider2 })
+      const api2 = await ApiPromise.create({
+        provider: wsProvider2,
+        signedExtensions: {
+          SetEvmOrigin: {
+            extrinsic: {},
+            payload: {},
+          },
+        },
+      })
 
       return {
         chain,
