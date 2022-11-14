@@ -43,6 +43,7 @@ export class Block {
     this.#extrinsics = block?.extrinsics
     this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db)
     this.#storages = []
+    this.#registry = parentBlock?.registry
   }
 
   get header(): Header | Promise<Header> {
@@ -155,7 +156,11 @@ export class Block {
         registry.setMetadata(
           new Metadata(registry, data),
           undefined,
-          objectSpread<ExtDef>({}, getSpecExtensions(registry, chain, version.specName), {})
+          objectSpread<ExtDef>(
+            {},
+            getSpecExtensions(registry, chain, version.specName),
+            this.#chain.api.signedExtensions
+          )
         )
         return registry
       })

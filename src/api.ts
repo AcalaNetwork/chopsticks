@@ -1,3 +1,4 @@
+import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 
@@ -31,8 +32,11 @@ export class Api {
   #chain: Promise<string>
   #chainProperties: Promise<ChainProperties>
 
-  constructor(provider: ProviderInterface) {
+  readonly signedExtensions: ExtDef
+
+  constructor(provider: ProviderInterface, signedExtensions?: ExtDef) {
     this.#provider = provider
+    this.signedExtensions = signedExtensions || {}
     this.#isReady = new Promise((resolve, reject) => {
       if (this.#provider.isConnected) {
         setTimeout(resolve, 500)
