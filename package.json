@@ -22,7 +22,7 @@
 		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml | pino-pretty"
 	},
 	"dependencies": {
-		"@polkadot/api": "^9.5.2",
+		"@polkadot/api": "^9.8.1",
 		"@polkadot/rpc-provider": "^9.5.2",
 		"@polkadot/util": "^10.1.11",
 		"js-yaml": "^4.1.0",
