@@ -14,6 +14,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:^7.20.1":
+  version: 7.20.1
+  resolution: "@babel/runtime@npm:7.20.1"
+  dependencies:
+    regenerator-runtime: ^0.13.10
+  checksum: 00567a333d3357925742a6f5e39394dcc0af6e6029103fe188158bf7ae8b0b3ee3c6c0f68fccc217f0a6cfa455f6be252298baf56b3f5ff37b34313b170cd9f6
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -464,6 +473,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@polkadot/util@npm:^10.1.12":
+  version: 10.1.12
+  resolution: "@polkadot/util@npm:10.1.12"
+  dependencies:
+    "@babel/runtime": ^7.20.1
+    "@polkadot/x-bigint": 10.1.12
+    "@polkadot/x-global": 10.1.12
+    "@polkadot/x-textdecoder": 10.1.12
+    "@polkadot/x-textencoder": 10.1.12
+    "@types/bn.js": ^5.1.1
+    bn.js: ^5.2.1
+  checksum: 927157a1ee48bd9528a6217fa3e696a34d4c7ad4eacd8acd42d921d03c2ce20beb2d41436f0a0909edc976d7474ad5d6ffff187d6a81aa8025d4351e258f35bf
+  languageName: node
+  linkType: hard
+
 "@polkadot/wasm-bridge@npm:6.3.1":
   version: 6.3.1
   resolution: "@polkadot/wasm-bridge@npm:6.3.1"
@@ -552,6 +576,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@polkadot/x-bigint@npm:10.1.12":
+  version: 10.1.12
+  resolution: "@polkadot/x-bigint@npm:10.1.12"
+  dependencies:
+    "@babel/runtime": ^7.20.1
+    "@polkadot/x-global": 10.1.12
+  checksum: 6a0e4a4893dca8a6e0f2c390cdd676a2b60b04c1441b8d9ee2a653aff6357993bf5bed1e33a87540d2081ad18a8a33b39d48d4ec8a7d76b74862be6f9c44bc5b
+  languageName: node
+  linkType: hard
+
 "@polkadot/x-fetch@npm:^10.1.11":
   version: 10.1.11
   resolution: "@polkadot/x-fetch@npm:10.1.11"
@@ -570,6 +604,15 @@ __metadata:
   dependencies:
     "@babel/runtime": ^7.19.4
   checksum: 8df467ae5dc45341994b0763c83cdd236b6b10938bdcb758012234c8db399d5e0a5a2d3732a7de649a30df189c07b756a48d405e5290063f12ffb7988066b7f6
+  languageName: node
+  linkType: hard
+
+"@polkadot/x-global@npm:10.1.12":
+  version: 10.1.12
+  resolution: "@polkadot/x-global@npm:10.1.12"
+  dependencies:
+    "@babel/runtime": ^7.20.1
+  checksum: e6742855b3f89d97874089bbccf32ae535500bbf2e707761e660a9a00a6c21dc82fa3cdc8630d0983c6a81e9f3aa04b4563236424476dfc3fca1650f01ed632f
   languageName: node
   linkType: hard
 
@@ -593,6 +636,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@polkadot/x-textdecoder@npm:10.1.12":
+  version: 10.1.12
+  resolution: "@polkadot/x-textdecoder@npm:10.1.12"
+  dependencies:
+    "@babel/runtime": ^7.20.1
+    "@polkadot/x-global": 10.1.12
+  checksum: 1cda6060047faafd031f0774fa3edfdfd44b273a3ff10a8453ebc069d55b1d27b76274c20abe15f818f124f4a4938f59ae76143b1ac249115405374ff9ae0417
+  languageName: node
+  linkType: hard
+
 "@polkadot/x-textencoder@npm:10.1.11":
   version: 10.1.11
   resolution: "@polkadot/x-textencoder@npm:10.1.11"
@@ -600,6 +653,16 @@ __metadata:
     "@babel/runtime": ^7.19.4
     "@polkadot/x-global": 10.1.11
   checksum: d3ba066e83b66b45388ed4aa96335f30bfd499df7adda9fe4f60b846ea7ed331954e33bf4b1c99636f7ebd97539a5b2f97fc8715dfec83a23b565e3eb3cdace0
+  languageName: node
+  linkType: hard
+
+"@polkadot/x-textencoder@npm:10.1.12":
+  version: 10.1.12
+  resolution: "@polkadot/x-textencoder@npm:10.1.12"
+  dependencies:
+    "@babel/runtime": ^7.20.1
+    "@polkadot/x-global": 10.1.12
+  checksum: 4b57e6f2532914d7f14e3405212e24b5bfa36ba68d2cd39c09bf81344b90bc961106bb30ce5d670d8d91fce830f8367d06c5493e8442d9d1072a85d3f87440b4
   languageName: node
   linkType: hard
 
@@ -1426,7 +1489,7 @@ __metadata:
   dependencies:
     "@polkadot/api": ^9.5.2
     "@polkadot/rpc-provider": ^9.5.2
-    "@polkadot/util": ^10.1.11
+    "@polkadot/util": ^10.1.12
     "@types/js-yaml": ^4
     "@types/lodash": ^4
     "@types/node": ^18.11.0
@@ -4277,6 +4340,13 @@ __metadata:
   version: 0.1.13
   resolution: "reflect-metadata@npm:0.1.13"
   checksum: 798d379a7b6f6455501145419505c97dd11cbc23857a386add2b9ef15963ccf15a48d9d15507afe01d4cd74116df8a213247200bac00320bd7c11ddeaa5e8fb4
+  languageName: node
+  linkType: hard
+
+"regenerator-runtime@npm:^0.13.10":
+  version: 0.13.11
+  resolution: "regenerator-runtime@npm:0.13.11"
+  checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
   languageName: node
   linkType: hard
 

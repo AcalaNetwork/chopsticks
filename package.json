@@ -24,7 +24,7 @@
 	"dependencies": {
 		"@polkadot/api": "^9.5.2",
 		"@polkadot/rpc-provider": "^9.5.2",
-		"@polkadot/util": "^10.1.11",
+		"@polkadot/util": "^10.1.12",
 		"js-yaml": "^4.1.0",
 		"lodash": "^4.17.21",
 		"pino": "^8.6.1",
