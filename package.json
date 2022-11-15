@@ -14,12 +14,11 @@
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest --silent",
 		"test:native": "EXECUTOR_CMD='cargo run --manifest-path executor/Cargo.toml --' vitest",
-		"test:dev": "LOG_LEVEL=trace vitest --inspect | pino-pretty",
-		"dev:base": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
-		"dev": "yarn dev:base | pino-pretty",
-		"dev:native": "yarn dev:base --executor-cmd='cargo run --manifest-path executor/Cargo.toml --' | pino-pretty",
-		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml | pino-pretty",
-		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml | pino-pretty"
+		"test:dev": "LOG_LEVEL=trace vitest --inspect",
+		"dev": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
+		"dev:native": "yarn dev --executor-cmd='cargo run --manifest-path executor/Cargo.toml --'",
+		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml",
+		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml"
 	},
 	"dependencies": {
 		"@polkadot/api": "^9.5.2",
