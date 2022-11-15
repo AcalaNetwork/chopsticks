@@ -140,6 +140,8 @@ export class Block {
     this.#wasm = Promise.resolve(wasm)
     this.#runtimeVersion = undefined
     this.#registry = undefined
+    this.#meta = undefined
+    this.#metadata = undefined
   }
 
   get registry(): Promise<TypeRegistry> {
