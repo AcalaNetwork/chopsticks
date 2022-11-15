@@ -138,6 +138,7 @@ export class Block {
     const wasmKey = stringToHex(':code')
     this.pushStorageLayer().set(wasmKey, wasm)
     this.#wasm = Promise.resolve(wasm)
+    this.#runtimeVersion = undefined
     this.#registry = undefined
   }
 
