@@ -18,7 +18,8 @@
 		"dev": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
 		"dev:native": "yarn dev --executor-cmd='cargo run --manifest-path executor/Cargo.toml --'",
 		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml",
-		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml"
+		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml",
+		"dev:local": "LOG_LEVEL=trace ts-node-dev --transpile-only --notify=false src/index.ts -- dev --config=configs/dev-local.yml"
 	},
 	"dependencies": {
 		"@polkadot/api": "^9.5.2",

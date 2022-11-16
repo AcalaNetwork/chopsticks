@@ -1,0 +1,7 @@
+endpoint: ws://localhost:9944
+mock-signature-host: true
+db: ./db.sqlite
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
