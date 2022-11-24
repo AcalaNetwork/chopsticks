@@ -16,19 +16,15 @@ Make sure you have setup Rust environment (>= 1.64).
 ## Run
 
 - Replay latest block
-
   - `yarn start run-block --endpoint=wss://acala-rpc-2.aca-api.network/ws`
   - This will replay the last block and print out the changed storages
   - Use option `--output-path=<file_path>` to print out JSON file
-
 - Run a test node
-
   - `yarn start dev --endpoint=wss://acala-rpc-2.aca-api.network/ws`
   - You have a test node running at `ws://localhost:8000`
   - You can use [Polkadot.js Apps](https://polkadot.js.org/apps/) to connect to this node
   - Submit any transaction to produce a new block in the in parallel reality
   - (Optional) Pre-define/override storage using option `--import-storage=storage.[json/yaml]`. See example storage below.
-
   ```json5
   // prettier-ignore
   {
@@ -50,3 +46,7 @@ Make sure you have setup Rust environment (>= 1.64).
     }
   }
   ```
+- Run Kusama fork
+  - Edit configs/kusama.yml if needed. (e.g. update the block number)
+  - `yarn start dev --config=configs/kusama.yml`
+	
