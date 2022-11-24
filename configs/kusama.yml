@@ -1,6 +1,6 @@
 endpoint: wss://kusama-rpc.dwellir.com
 mock-signature-host: true
-block: 15461900
+block: 15463000
 db: ./db.sqlite
 
 import-storage:
@@ -10,7 +10,7 @@ import-storage:
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
         - data:
-            free: 1000000000000000
+            free: '10000000000000000000'
   Council:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
   PhragmenElection:
