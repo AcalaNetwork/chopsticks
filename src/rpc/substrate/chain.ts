@@ -41,6 +41,20 @@ const handlers: Handlers = {
 
     return id
   },
+  chain_subscribeFinalizedHeads: async (context, _params, { subscribe }) => {
+    let update = () => {}
+
+    const id = context.chain.headState.subscribeHead(() => update())
+    const callback = subscribe('chain_newFinalizedHead', id, () => context.chain.headState.unsubscribeHead(id))
+
+    update = async () => {
+      callback(await context.chain.head.header)
+    }
+
+    update()
+
+    return id
+  },
   chain_unsubscribeNewHead: async (_context, [subid], { unsubscribe }) => {
     unsubscribe(subid)
   },
