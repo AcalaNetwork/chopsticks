@@ -21,7 +21,7 @@ export const importStorage = async (storage: any, chain: Blockchain) => {
   defaultLogger.trace({ blockHash, storage }, 'ImportStorage')
 }
 
-export const overrideWasm = async (wasmPath: string, chain: Blockchain) => {
+export const overrideWasm = async (wasmPath: string | undefined, chain: Blockchain) => {
   if (wasmPath == null) {
     return
   }

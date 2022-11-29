@@ -37,6 +37,17 @@ pub async fn get_runtime_version(code: &str) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
+pub async fn calculate_state_root(entries: JsValue) -> Result<JsValue, JsValue> {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    _ = console_log::init_with_level(log::Level::Debug);
+
+    let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
+    let hash = task::Task::calculate_state_root(entries);
+
+    Ok(hash.to_string().into())
+}
+
+#[wasm_bindgen]
 pub async fn run_task(task_id: u32, ws_url: &str) -> Result<(), JsValue> {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     _ = console_log::init_with_level(log::Level::Debug);

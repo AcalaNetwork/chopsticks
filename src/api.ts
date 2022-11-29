@@ -88,31 +88,32 @@ export class Api {
   }
 
   async getMetadata(hash?: string) {
-    return this.#provider.send<string>('state_getMetadata', [hash])
+    return this.#provider.send<string>('state_getMetadata', hash ? [hash] : [])
   }
 
   async getBlockHash(blockNumber?: number) {
-    return this.#provider.send<string>('chain_getBlockHash', [blockNumber])
+    return this.#provider.send<string>('chain_getBlockHash', Number.isInteger(blockNumber) ? [blockNumber] : [])
   }
 
   async getHeader(hash?: string) {
-    return this.#provider.send<Header>('chain_getHeader', [hash])
+    return this.#provider.send<Header>('chain_getHeader', hash ? [hash] : [])
   }
 
   async getBlock(hash?: string) {
-    return this.#provider.send<SignedBlock>('chain_getBlock', [hash])
+    return this.#provider.send<SignedBlock>('chain_getBlock', hash ? [hash] : [])
   }
 
   async getStorage(key: string, hash?: string) {
-    return this.#provider.send<string>(hash ? 'state_getStorageAt' : 'state_getStorage', [key, hash])
+    if (hash) {
+      return this.#provider.send<string>('state_getStorageAt', [key, hash])
+    }
+    return this.#provider.send<string>('state_getStorage', [key])
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
-    return this.#provider.send<string[]>(hash ? 'state_getKeysPagedAt' : 'state_getKeysPaged', [
-      prefix,
-      pageSize,
-      startKey,
-      hash,
-    ])
+    if (hash) {
+      return this.#provider.send<string[]>('state_getKeysPagedAt', [prefix, pageSize, startKey, hash])
+    }
+    return this.#provider.send<string[]>('state_getKeysPaged', [prefix, pageSize, startKey])
   }
 }

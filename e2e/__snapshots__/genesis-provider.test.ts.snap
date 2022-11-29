@@ -1,0 +1,46 @@
+// Vitest Snapshot v1
+
+exports[`genesis provider works > handles tx 1`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 1000000000000000,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 0,
+  "providers": 0,
+  "sufficients": 0,
+}
+`;
+
+exports[`genesis provider works > handles tx 2`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 899981152759869,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 1,
+  "providers": 0,
+  "sufficients": 0,
+}
+`;
+
+exports[`genesis provider works > handles tx 3`] = `
+{
+  "consumers": 0,
+  "data": {
+    "feeFrozen": 0,
+    "free": 100000000000000,
+    "miscFrozen": 0,
+    "reserved": 0,
+  },
+  "nonce": 0,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;
