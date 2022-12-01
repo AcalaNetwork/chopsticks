@@ -11,7 +11,7 @@ import { lstatSync, readFileSync } from 'fs'
 import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
-import { Genesis } from './schema'
+import { Genesis, genesisSchema } from './schema'
 import { calculateStateRoot, getMetadata } from './executor'
 
 export class GenesisProvider implements ProviderInterface {
@@ -47,15 +47,17 @@ export class GenesisProvider implements ProviderInterface {
   }
 
   static fromUrl = async (url: string) => {
+    let file: any
     try {
       new URL(url)
-      return new GenesisProvider(await axios.get(url).then((x) => x.data))
+      file = await axios.get(url).then((x) => x.data)
     } catch (_) {
       if (lstatSync(url).isFile()) {
-        return new GenesisProvider(JSON.parse(String(readFileSync(url))))
+        file = JSON.parse(String(readFileSync(url)))
       }
       throw Error(`invalid genesis path or url ${url}`)
     }
+    return new GenesisProvider(genesisSchema.parse(file))
   }
 
   clone = (): ProviderInterface => {
