@@ -16,6 +16,7 @@ export type SetupOption = {
   endpoint: string
   blockHash: string
   mockSignatureHost?: boolean
+  allowUnresolvedImports?: boolean
 }
 
 export const env = {
@@ -29,7 +30,7 @@ export const env = {
   },
 }
 
-const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption) => {
+const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolvedImports }: SetupOption) => {
   const wsProvider = new WsProvider(endpoint)
   const api = new Api(wsProvider, { SetEvmOrigin: { payload: {}, extrinsic: {} } })
 
@@ -39,7 +40,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost }: SetupOption)
 
   return {
     async setup() {
-      const tasks = new TaskManager(8000, mockSignatureHost, process.env.EXECUTOR_CMD)
+      const tasks = new TaskManager(8000, mockSignatureHost, process.env.EXECUTOR_CMD, allowUnresolvedImports)
 
       let now = new Date('2022-10-30T00:00:00.000Z').getTime()
       const setTimestamp = new SetTimestamp(() => {
