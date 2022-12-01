@@ -18,6 +18,7 @@ export type SetupOption = {
   endpoint?: string
   blockHash?: string
   mockSignatureHost?: boolean
+  allowUnresolvedImports?: boolean
   genesis?: string
 }
 
@@ -35,7 +36,7 @@ export const env = {
   },
 }
 
-const setupAll = async ({ endpoint, blockHash, mockSignatureHost, genesis }: SetupOption) => {
+const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolvedImports, genesis }: SetupOption) => {
   let wsProvider: ProviderInterface
   if (genesis) {
     wsProvider = await GenesisProvider.fromUrl(genesis)
@@ -50,7 +51,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, genesis }: Set
 
   return {
     async setup() {
-      const tasks = new TaskManager(8000, mockSignatureHost, process.env.EXECUTOR_CMD)
+      const tasks = new TaskManager(8000, mockSignatureHost, process.env.EXECUTOR_CMD, allowUnresolvedImports)
 
       let now = new Date('2022-10-30T00:00:00.000Z').getTime()
       const setTimestamp = new SetTimestamp(() => {

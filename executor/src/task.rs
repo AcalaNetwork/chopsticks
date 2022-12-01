@@ -66,6 +66,7 @@ pub struct TaskCall {
     block_hash: HexString,
     calls: Option<Vec<(String, HexString)>>,
     mock_signature_host: bool,
+	allow_unresolved_imports: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -118,7 +119,7 @@ impl Task {
             module: &task_params.wasm,
             heap_pages: HeapPages::from(2048),
             exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: false,
+            allow_unresolved_imports: task_params.allow_unresolved_imports,
         })
         .unwrap();
         let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
@@ -225,7 +226,7 @@ impl Task {
             module: &wasm,
             heap_pages: HeapPages::from(2048),
             exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: false,
+            allow_unresolved_imports: true, // we do not care here - just reading metadata
         })
         .unwrap();
 
@@ -262,7 +263,7 @@ impl Task {
             module: &wasm,
             heap_pages: HeapPages::from(2048),
             exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: false,
+            allow_unresolved_imports: true, // we do not care to get just version
         })
         .unwrap();
 

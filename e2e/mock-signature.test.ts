@@ -5,6 +5,7 @@ import { api, env, setupApi, testingPairs } from './helper'
 setupApi({
   ...env.mandala,
   mockSignatureHost: true,
+  allowUnresolvedImports: false,
 })
 
 describe('mock signature', () => {
