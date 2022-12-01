@@ -40,7 +40,7 @@
 		"@types/node": "^18.11.0",
 		"@types/ws": "^8",
 		"@types/yargs": "^17",
-		"@typescript-eslint/eslint-plugin": "^5.23.0",
+		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.43.0",
 		"eslint": "^8.25.0",
 		"eslint-config-prettier": "^8.5.0",
