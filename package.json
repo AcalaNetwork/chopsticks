@@ -42,7 +42,7 @@
 		"@types/yargs": "^17",
 		"@typescript-eslint/eslint-plugin": "^5.23.0",
 		"@typescript-eslint/parser": "^5.43.0",
-		"eslint": "^8.25.0",
+		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-import": "^2.26.0",
 		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
