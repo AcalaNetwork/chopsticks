@@ -72,9 +72,6 @@ pub struct TaskCall {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Task {
     Call(TaskCall),
-    CalculateStateRoot {
-        entries: Vec<(HexString, HexString)>,
-    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -87,7 +84,6 @@ pub struct CallResponse {
 #[derive(Serialize, Deserialize, Debug)]
 pub enum TaskResponse {
     Call(CallResponse),
-    CalculateStateRoot(HexString),
     Error(String),
 }
 
@@ -104,9 +100,6 @@ impl Task {
     ) -> Result<TaskResponse, jsonrpsee::core::Error> {
         let resp = match self {
             Task::Call(call) => Task::call(task_id, client, call).await,
-            Task::CalculateStateRoot { entries } => {
-                Task::calculate_state_root(task_id, client, entries).await
-            }
         }?;
 
         client.task_result(task_id, &resp).await?;
@@ -224,32 +217,6 @@ impl Task {
             })
         }))
     }
-
-    async fn calculate_state_root(
-        _task_id: u32,
-        _client: &Client,
-        entries: Vec<(HexString, HexString)>,
-    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
-        let mut calc = root_merkle_value(None);
-        let map = entries
-            .into_iter()
-            .map(|(k, v)| (k.0, v.0))
-            .collect::<BTreeMap<Vec<u8>, Vec<u8>>>();
-        loop {
-            match calc {
-                RootMerkleValueCalculation::Finished { hash, .. } => {
-                    return Ok(TaskResponse::CalculateStateRoot(HexString(hash.to_vec())));
-                }
-                RootMerkleValueCalculation::AllKeys(req) => {
-                    calc = req.inject(map.keys().map(|k| k.iter().cloned()));
-                }
-                RootMerkleValueCalculation::StorageValue(req) => {
-                    let key = req.key().collect::<Vec<u8>>();
-                    calc = req.inject(TrieEntryVersion::V0, map.get(&key));
-                }
-            }
-        }
-    }
 }
 
 #[allow(unused)]
@@ -303,6 +270,28 @@ impl Task {
         let core_version = vm_proto.runtime_version().decode();
 
         Ok(RuntimeVersion::new(core_version))
+    }
+
+    pub fn calculate_state_root(entries: Vec<(HexString, HexString)>) -> HexString {
+        let mut calc = root_merkle_value(None);
+        let map = entries
+            .into_iter()
+            .map(|(k, v)| (k.0, v.0))
+            .collect::<BTreeMap<Vec<u8>, Vec<u8>>>();
+        loop {
+            match calc {
+                RootMerkleValueCalculation::Finished { hash, .. } => {
+                    return HexString(hash.to_vec());
+                }
+                RootMerkleValueCalculation::AllKeys(req) => {
+                    calc = req.inject(map.keys().map(|k| k.iter().cloned()));
+                }
+                RootMerkleValueCalculation::StorageValue(req) => {
+                    let key = req.key().collect::<Vec<u8>>();
+                    calc = req.inject(TrieEntryVersion::V0, map.get(&key));
+                }
+            }
+        }
     }
 }
 

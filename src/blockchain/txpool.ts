@@ -1,3 +1,4 @@
+import { Header } from '@polkadot/types/interfaces'
 import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
@@ -14,6 +15,13 @@ export enum BuildBlockMode {
   Batch, // one block per batch, default
   Instant, // one block per tx
   Manual, // only build when triggered
+}
+
+const getConsensus = (header: Header) => {
+  if (header.digest.logs.length === 0) return
+  const preRuntime = header.digest.logs[0].asPreRuntime
+  const [consensusEngine] = preRuntime
+  return { consensusEngine, rest: header.digest.logs.slice(1) }
 }
 
 export class TxPool {
@@ -65,18 +73,16 @@ export class TxPool {
 
     const time = this.#inherentProvider.getTimestamp()
 
-    const preRuntime = parentHeader.digest.logs[0].asPreRuntime
-    const [consensusEngine] = preRuntime
-    const rest = parentHeader.digest.logs.slice(1)
     let newLogs = parentHeader.digest.logs as any
     const expectedSlot = Math.floor(time / ((meta.consts.timestamp.minimumPeriod as any).toNumber() * 2))
-    if (consensusEngine.isAura) {
+    const consensus = getConsensus(parentHeader)
+    if (consensus?.consensusEngine.isAura) {
       const newSlot = compactAddLength(bnToU8a(expectedSlot, { isLe: true, bitLength: 64 }))
-      newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
-    } else if (consensusEngine.isBabe) {
+      newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
+    } else if (consensus?.consensusEngine.isBabe) {
       // trying to make a SecondaryPlainPreDigest
       const newSlot = compactAddLength(u8aConcat('0x02000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
-      newLogs = [{ PreRuntime: [consensusEngine, newSlot] }, ...rest]
+      newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     }
 
     const registry = await head.registry

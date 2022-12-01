@@ -6,17 +6,20 @@ import { beforeAll, beforeEach, expect, vi } from 'vitest'
 import { Api } from '../src/api'
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
+import { GenesisProvider } from '../src/genesis-provider'
 import { InherentProviders, SetTimestamp, SetValidationData } from '../src/blockchain/inherents'
+import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { StorageValues } from '../src/utils/set-storage'
 import { TaskManager } from '../src/task'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'
 
 export type SetupOption = {
-  endpoint: string
-  blockHash: string
+  endpoint?: string
+  blockHash?: string
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
+  genesis?: string
 }
 
 export const env = {
@@ -28,10 +31,18 @@ export const env = {
     endpoint: 'wss://rococo-rpc.polkadot.io',
     blockHash: '0x5269cf7f5b15fbc3a881987f014d5ecee5cfcc5c05a4b7c1cb8db550f22147e9',
   },
+  mandalaGenesis: {
+    genesis: 'https://raw.githubusercontent.com/AcalaNetwork/Acala/master/resources/mandala-dist.json',
+  },
 }
 
-const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolvedImports }: SetupOption) => {
-  const wsProvider = new WsProvider(endpoint)
+const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolvedImports, genesis }: SetupOption) => {
+  let wsProvider: ProviderInterface
+  if (genesis) {
+    wsProvider = await GenesisProvider.fromUrl(genesis)
+  } else {
+    wsProvider = new WsProvider(endpoint)
+  }
   const api = new Api(wsProvider, { SetEvmOrigin: { payload: {}, extrinsic: {} } })
 
   await api.isReady
@@ -55,7 +66,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
         buildBlockMode: BuildBlockMode.Manual,
         inherentProvider: inherents,
         header: {
-          hash: blockHash,
+          hash: blockHash || (await api.getBlockHash(0)),
           number: Number(header.number),
         },
       })
@@ -164,8 +175,8 @@ export const mockCallback = () => {
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export const testingPairs = () => {
-  const keyring = new Keyring({ type: 'ed25519' }) // cannot use sr25519 as it is non determinstic
+export const testingPairs = (ss58Format?: number) => {
+  const keyring = new Keyring({ type: 'ed25519', ss58Format }) // cannot use sr25519 as it is non determinstic
   const alice = keyring.addFromUri('//Alice')
   const bob = keyring.addFromUri('//Bob')
   const charlie = keyring.addFromUri('//Charlie')

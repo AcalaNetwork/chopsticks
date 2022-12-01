@@ -1,9 +1,9 @@
 import { HexString } from '@polkadot/util/types'
 import { Metadata } from '@polkadot/types/metadata'
 import { TypeRegistry } from '@polkadot/types'
+import { calculateStateRoot, getMetadata, getRuntimeVersion } from './executor'
 import { decorateStorage } from '@polkadot/types/metadata/decorate'
 import { describe, expect, it } from 'vitest'
-import { getMetadata, getRuntimeVersion } from './executor'
 import { readFileSync } from 'fs'
 import path from 'path'
 
@@ -49,5 +49,11 @@ describe('wasm', () => {
     }
 
     expect(await getRuntimeVersion(code as HexString)).toMatchObject(expectedRuntimeVersion)
+  })
+
+  it('calculate state root', async () => {
+    const a = await calculateStateRoot([['0x5301bf5ff0298f5c7b93a446709f8e885f772afdd0d8ba3d4d559a06f0742f12', '0x01']])
+    const b = await calculateStateRoot([['0x5301bf5ff0298f5c7b93a446709f8e885f772afdd0d8ba3d4d559a06f0742f12', '0x02']])
+    expect(a).to.not.eq(b)
   })
 })

@@ -2,14 +2,16 @@ import { DataSource } from 'typeorm'
 import { WsProvider } from '@polkadot/api'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync, writeFileSync } from 'fs'
-import { z } from 'zod'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
 import { Api } from './api'
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
+import { Config, configSchema } from './schema'
+import { GenesisProvider } from './genesis-provider'
 import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
+import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
@@ -17,19 +19,29 @@ import { handler } from './rpc'
 import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
 
-const setup = async (argv: any) => {
-  const port = argv.port || process.env.PORT || 8000
+const setup = async (argv: Config) => {
+  const port = argv.port || Number(process.env.PORT) || 8000
 
-  const wsProvider = new WsProvider(argv.endpoint)
+  let wsProvider: ProviderInterface
+  if (argv.genesis) {
+    if (typeof argv.genesis === 'string') {
+      wsProvider = await GenesisProvider.fromUrl(argv.genesis)
+    } else {
+      wsProvider = new GenesisProvider(argv.genesis)
+    }
+  } else {
+    wsProvider = new WsProvider(argv.endpoint)
+  }
   const api = new Api(wsProvider)
   await api.isReady
 
-  let blockHash = argv.block
-
-  if (blockHash == null) {
+  let blockHash: string
+  if (argv.block == null) {
     blockHash = await api.getBlockHash()
-  } else if (Number.isInteger(blockHash)) {
-    blockHash = await api.getBlockHash(blockHash)
+  } else if (Number.isInteger(argv.block)) {
+    blockHash = await api.getBlockHash(Number(argv.block))
+  } else {
+    blockHash = argv.block as string
   }
 
   defaultLogger.info({ ...argv, blockHash }, 'Args')
@@ -65,6 +77,11 @@ const setup = async (argv: any) => {
 
   await importStorage(argv['import-storage'], chain)
   overrideWasm(argv['wasm-override'], chain)
+
+  if (argv.genesis) {
+    // mine 1st block when starting from genesis to set some mock validation data
+    await chain.newBlock()
+  }
 
   return context
 }
@@ -104,20 +121,6 @@ const runBlock = async (argv: any) => {
 
   setTimeout(() => process.exit(0), 50)
 }
-
-const configSchema = z
-  .object({
-    port: z.number().optional(),
-    endpoint: z.string().optional(),
-    block: z.union([z.string(), z.number()]).optional(),
-    'executor-cmd': z.string().optional(),
-    'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
-    'import-storage': z.any().optional(),
-    'mock-signature-host': z.boolean().optional(),
-    db: z.string().optional(),
-    'wasm-override': z.string().optional(),
-  })
-  .strict()
 
 const processConfig = (argv: any) => {
   if (argv.config) {
