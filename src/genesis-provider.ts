@@ -47,14 +47,20 @@ export class GenesisProvider implements ProviderInterface {
   }
 
   static fromUrl = async (url: string) => {
-    let file: any
+    let isUrl = false
     try {
       new URL(url)
+      isUrl = true
+    } catch (e) {
+      void e
+    }
+
+    let file: any
+    if (isUrl) {
       file = await axios.get(url).then((x) => x.data)
-    } catch (_) {
-      if (lstatSync(url).isFile()) {
-        file = JSON.parse(String(readFileSync(url)))
-      }
+    } else if (lstatSync(url).isFile()) {
+      file = JSON.parse(String(readFileSync(url)))
+    } else {
       throw Error(`invalid genesis path or url ${url}`)
     }
     return new GenesisProvider(genesisSchema.parse(file))
