@@ -85,7 +85,7 @@ export const createServer = (port: number, handler: Handler) => {
 
     ws.on('message', async (message) => {
       const req = parseRequest(message.toString())
-      if (!req || !Object.hasOwn(req, 'id') || !req.method) {
+      if (!req || req.id == null || req.method == null) {
         logger.info('Invalid request: %s', message)
         send({
           id: null,
