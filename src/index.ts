@@ -75,8 +75,8 @@ const setup = async (argv: Config) => {
 
   tasks.updateListeningPort(listeningPort)
 
-  await importStorage(argv['import-storage'], chain)
-  overrideWasm(argv['wasm-override'], chain)
+  await importStorage(chain, argv['import-storage'])
+  await overrideWasm(chain, argv['wasm-override'])
 
   if (argv.genesis) {
     // mine 1st block when starting from genesis to set some mock validation data
