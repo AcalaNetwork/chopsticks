@@ -66,6 +66,10 @@ export class GenesisProvider implements ProviderInterface {
     return new GenesisProvider(genesisSchema.parse(file))
   }
 
+  get isClonable(): boolean {
+    return true
+  }
+
   clone = (): ProviderInterface => {
     return new GenesisProvider(this.#genesis)
   }
