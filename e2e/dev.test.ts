@@ -46,4 +46,15 @@ describe('dev rpc', () => {
       })
     ).rejects.toThrowError('1: Error: Cannot find storage AAccount in pallet System')
   })
+
+  it('newBlock', async () => {
+    const blockNumber = (await api.rpc.chain.getHeader()).number.toNumber()
+    const hash = await dev.newBlock({ count: 3 })
+    const newBlockNumber = (await api.rpc.chain.getHeader(hash)).number.toNumber()
+    expect(newBlockNumber).toBe(blockNumber + 3)
+
+    await dev.newBlock({ to: blockNumber + 5 })
+    const newBlockNumber2 = (await api.rpc.chain.getHeader()).number.toNumber()
+    expect(newBlockNumber2).toBe(blockNumber + 5)
+  })
 })

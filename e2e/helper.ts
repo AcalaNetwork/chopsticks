@@ -141,8 +141,8 @@ export const expectHex = (codec: CodecOrArray | Promise<CodecOrArray>) => {
 }
 
 export const dev = {
-  newBlock: (): Promise<string> => {
-    return ws.send('dev_newBlock', [])
+  newBlock: (param?: { count?: number; to?: number }): Promise<string> => {
+    return ws.send('dev_newBlock', [param])
   },
   setStorages: (values: StorageValues, blockHash?: string) => {
     return ws.send('dev_setStorages', [values, blockHash])
