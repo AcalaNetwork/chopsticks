@@ -39,7 +39,7 @@ const handlers: Handlers = {
     if (!block) {
       return []
     }
-    return block.call(method, data)
+    return (await block.call(method, data)).result
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     let update = (_block: Block) => {}
