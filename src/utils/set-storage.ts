@@ -1,8 +1,10 @@
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { StorageKey } from '@polkadot/types'
 import { stringCamelCase } from '@polkadot/util/string'
+import { u8aToHex } from '@polkadot/util'
 
 import { Blockchain } from '../blockchain'
+import { StorageValueKind } from '../blockchain/storage-layer'
 
 type RawStorageValues = [string, string | null][]
 type StorageConfig = Record<string, Record<string, any>>
@@ -18,6 +20,17 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
 
     for (const storageName in section) {
       const storage = section[storageName]
+
+      if (storageName === '$removePrefix') {
+        for (const mapName of storage) {
+          const storageEntry = pallet[stringCamelCase(mapName)]
+          if (!storageEntry) throw Error(`Cannot find storage ${mapName} in pallet ${sectionName}`)
+
+          const prefix = storageEntry.keyPrefix()
+          storageItems.push([u8aToHex(prefix), StorageValueKind.DeletedPrefix])
+        }
+        continue
+      }
 
       const storageEntry = pallet[stringCamelCase(storageName)]
       if (!storageEntry) throw Error(`Cannot find storage ${storageName} in pallet ${sectionName}`)

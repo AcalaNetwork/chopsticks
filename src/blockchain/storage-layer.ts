@@ -7,7 +7,8 @@ import { defaultLogger } from '../logger'
 const logger = defaultLogger.child({ name: 'layer' })
 
 export const enum StorageValueKind {
-  Deleted,
+  Deleted = 'Deleted',
+  DeletedPrefix = 'DeletedPrefix',
 }
 
 export type StorageValue = string | StorageValueKind | undefined
@@ -58,6 +59,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 export class StorageLayer implements StorageLayerProvider {
   readonly #store: Record<string, StorageValue | Promise<StorageValue>> = {}
   readonly #keys: string[] = []
+  readonly #deletedPrefix: string[] = []
   #parent?: StorageLayerProvider
 
   constructor(parent?: StorageLayerProvider) {
@@ -86,6 +88,10 @@ export class StorageLayer implements StorageLayerProvider {
       return this.#store[key]
     }
 
+    if (this.#deletedPrefix.some((prefix) => key.startsWith(prefix))) {
+      return StorageValueKind.Deleted
+    }
+
     if (this.#parent) {
       const val = this.#parent.get(key, false)
       if (cache) {
@@ -102,6 +108,15 @@ export class StorageLayer implements StorageLayerProvider {
       case StorageValueKind.Deleted:
         this.#store[key] = value
         this.#removeKey(key)
+        break
+      case StorageValueKind.DeletedPrefix:
+        this.#deletedPrefix.push(key)
+        for (const k of this.#keys) {
+          if (k.startsWith(key)) {
+            this.#store[k] = StorageValueKind.Deleted
+            this.#removeKey(k)
+          }
+        }
         break
       case undefined:
         delete this.#store[key]
@@ -126,6 +141,10 @@ export class StorageLayer implements StorageLayerProvider {
   async foldInto(into: StorageLayer): Promise<StorageLayerProvider | undefined> {
     const newParent = await this.#parent?.foldInto(into)
 
+    for (const deletedPrefix of this.#deletedPrefix) {
+      into.set(deletedPrefix, StorageValueKind.DeletedPrefix)
+    }
+
     for (const key of this.#keys) {
       const value = await this.#store[key]
       into.set(key, value)
@@ -141,12 +160,18 @@ export class StorageLayer implements StorageLayerProvider {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
-    await this.fold()
-    // TODO: maintain a list of fetched ranges to avoid fetching the same range multiple times
-    const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
-    for (const key of remote) {
-      this.#addKey(key)
+    if (!this.#deletedPrefix.some((prefix) => startKey.startsWith(prefix))) {
+      await this.fold()
+      // TODO: maintain a list of fetched ranges to avoid fetching the same range multiple times
+      const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
+      for (const key of remote) {
+        if (this.#deletedPrefix.some((prefix) => key.startsWith(prefix))) {
+          continue
+        }
+        this.#addKey(key)
+      }
     }
+
     let idx = _.sortedIndex(this.#keys, startKey)
     if (this.#keys[idx] === startKey) {
       ++idx

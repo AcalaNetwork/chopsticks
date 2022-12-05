@@ -1,6 +1,6 @@
 endpoint: wss://kusama-rpc.dwellir.com
 mock-signature-host: true
-block: 15463000
+block: 15616800
 db: ./db.sqlite
 
 import-storage:
@@ -22,3 +22,39 @@ import-storage:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
   TechnicalMembership:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+  FellowshipCollective:
+    $removePrefix:
+      - IdToIndex
+      - IndexToId
+      - MemberCount
+      - Members
+    IdToIndex:
+      - [[0, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[1, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[2, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[3, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[4, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[5, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[6, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[7, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+    IndexToId:
+      - [[0, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[1, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[2, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[3, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[4, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[5, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[6, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[7, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+    MemberCount:
+      - [[0], 1]
+      - [[1], 1]
+      - [[2], 1]
+      - [[3], 1]
+      - [[4], 1]
+      - [[5], 1]
+      - [[6], 1]
+      - [[7], 1]
+    Members:
+      - [[5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], rank: 7]
+    Voting: []
