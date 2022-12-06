@@ -46,12 +46,12 @@ jobs:
     needs: tests
     # if: github.event_name == "push"
     steps:
-      - run: yarn build
+      # - run: yarn build
       - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18.x
-        cache: 'yarn'
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
       - run: yarn --immutable
     # - name: Publish chopsticks
     #   uses: JS-DevTools/npm-publish@v1
