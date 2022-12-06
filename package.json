@@ -4,7 +4,6 @@
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
 	"types": "./dist/index.d.ts",
-	"type": "module",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "MIT",
 	"packageManager": "yarn@3.2.4",

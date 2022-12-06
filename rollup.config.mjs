@@ -11,7 +11,6 @@ const pkg = require('./package.json')
 
 const entries = {
   index: 'src/index.ts',
-  cli: 'src/cli.ts',
   api: 'src/api.ts',
   server: 'src/server.ts',
   executor: 'src/executor.ts',
@@ -35,7 +34,7 @@ const plugins = [
   }),
   json(),
   commonjs(),
-  typescript(),
+  typescript({ module: "ESNext" }),
 ]
 
 export default defineConfig([
