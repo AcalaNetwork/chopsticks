@@ -86,7 +86,7 @@ export class TxPool {
     }
 
     const registry = await head.registry
-    const header = registry.createType('Header', {
+    const header: Header = registry.createType('Header', {
       parentHash: head.hash,
       number: head.number + 1,
       stateRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',

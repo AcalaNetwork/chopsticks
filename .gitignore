@@ -121,3 +121,5 @@ dist
 
 *.sqlite
 *.wasm
+
+.DS_store

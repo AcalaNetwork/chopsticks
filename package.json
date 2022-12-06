@@ -1,15 +1,76 @@
 {
 	"name": "chopsticks",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "./dist/index.cjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"type": "module",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "MIT",
 	"packageManager": "yarn@3.2.4",
+	"workspaces": [
+		".",
+		"executor/pkg"
+	],
+	"bin": "./chopsticks.mjs",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs"
+		},
+		"./executor": {
+			"types": "./executor.d.ts",
+			"require": "./dist/executor.cjs",
+			"import": "./dist/executor.js"
+		},
+		"./genesis-provider": {
+			"types": "./genesis-provider.d.ts",
+			"require": "./dist/genesis-provider.cjs",
+			"import": "./dist/genesis-provider.js"
+		},
+		"./server": {
+			"types": "./server.d.ts",
+			"require": "./dist/server.cjs",
+			"import": "./dist/server.js"
+		},
+		"./task": {
+			"types": "./task.d.ts",
+			"require": "./dist/task.cjs",
+			"import": "./dist/task.js"
+		},
+		"./api": {
+			"types": "./api.d.ts",
+			"require": "./dist/api.cjs",
+			"import": "./dist/api.js"
+		},
+		"./blockchain": {
+			"types": "./blockchain.d.ts",
+			"require": "./dist/blockchain.cjs",
+			"import": "./dist/blockchain.js"
+		},
+		"./db": {
+			"types": "./db.d.ts",
+			"require": "./dist/db.cjs",
+			"import": "./dist/db.js"
+		},
+		"./rpc": {
+			"types": "./db.d.ts",
+			"require": "./dist/db.cjs",
+			"import": "./dist/db.js"
+		},
+		"./utils": {
+			"types": "./db.d.ts",
+			"require": "./dist/db.cjs",
+			"import": "./dist/db.js"
+		}
+	},
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
 		"start": "ts-node --transpile-only src/index.ts",
+		"build": "rimraf dist && rollup -c",
 		"build-wasm": "cd executor && wasm-pack --log-level=info build --target nodejs --no-default-features",
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest --silent",
@@ -23,21 +84,35 @@
 	"dependencies": {
 		"@polkadot/api": "^9.10.1",
 		"@polkadot/rpc-provider": "^9.10.1",
+		"@polkadot/types": "^9.10.1",
+		"@polkadot/types-codec": "^9.10.1",
+		"@polkadot/types-known": "^9.10.1",
 		"@polkadot/util": "^10.2.1",
+		"@polkadot/util-crypto": "^10.2.1",
+		"axios": "^1.2.1",
+		"chopsticks-executor": "workspace:*",
 		"js-yaml": "^4.1.0",
 		"lodash": "^4.17.21",
 		"pino": "^8.7.0",
+		"pino-pretty": "^9.1.1",
 		"reflect-metadata": "^0.1.13",
 		"sqlite3": "^5.1.2",
+		"tslib": "^2.4.1",
 		"typeorm": "^0.3.11",
+		"typescript": "^4.9.3",
 		"ws": "^8.11.0",
 		"yargs": "^17.6.2",
 		"zod": "^3.19.1"
 	},
 	"devDependencies": {
+		"@rollup/plugin-commonjs": "^23.0.3",
+		"@rollup/plugin-json": "^5.0.2",
+		"@rollup/plugin-node-resolve": "^15.0.1",
+		"@rollup/plugin-typescript": "^10.0.1",
 		"@types/js-yaml": "^4.0.5",
 		"@types/lodash": "^4.14.191",
 		"@types/node": "^18.11.10",
+		"@types/rimraf": "^3",
 		"@types/ws": "^8.5.3",
 		"@types/yargs": "^17.0.15",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
@@ -48,13 +123,22 @@
 		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
 		"husky": "^8.0.2",
 		"lint-staged": "^13.1.0",
-		"pino-pretty": "^9.1.1",
 		"prettier": "^2.8.0",
+		"rimraf": "^3.0.2",
+		"rollup": "^3.6.0",
+		"rollup-plugin-dts": "^5.0.0",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
-		"typescript": "^4.9.3",
 		"vitest": "^0.25.3",
 		"wasm-pack": "^0.10.3"
+	},
+	"files": [
+		"dist",
+		"bin",
+		"chopsticks.mjs"
+	],
+	"engines": {
+		"node": ">=v14"
 	},
 	"prettier": {
 		"tabWidth": 2,

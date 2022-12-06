@@ -2,19 +2,27 @@
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"lib": ["esnext"],
-		"module": "commonjs",
+		"lib": [
+			"esnext"
+		],
+		"module": "esnext",
 		"moduleResolution": "node",
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noImplicitAny": false,
-		"outDir": "lib",
-		"sourceMap": true,
+		"outDir": "dist",
 		"target": "esnext",
 		"skipLibCheck": true,
 		"strict": true,
 		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true
+		"experimentalDecorators": true,
+		"declaration": false,
+		"resolveJsonModule": true,
+		"types": [
+			"node",
+			"@polkadot/types-known",
+			"@polkadot/types-codec",
+		]
 	},
 	"exclude": ["node_modules", "vendor", "executor"]
 }

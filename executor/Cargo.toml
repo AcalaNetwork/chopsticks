@@ -1,5 +1,5 @@
 [package]
-name = "executor"
+name = "chopsticks-executor"
 version = "0.1.0"
 edition = "2021"
 
