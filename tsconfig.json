@@ -2,9 +2,7 @@
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"lib": [
-			"esnext"
-		],
+		"lib": ["esnext"],
 		"module": "esnext",
 		"moduleResolution": "node",
 		"noUnusedLocals": true,
@@ -18,11 +16,7 @@
 		"experimentalDecorators": true,
 		"declaration": false,
 		"resolveJsonModule": true,
-		"types": [
-			"node",
-			"@polkadot/types-known",
-			"@polkadot/types-codec",
-		]
+		"types": ["node", "@polkadot/types-known", "@polkadot/types-codec"]
 	},
 	"exclude": ["node_modules", "vendor", "executor"]
 }
