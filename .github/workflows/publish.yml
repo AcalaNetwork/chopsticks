@@ -49,5 +49,5 @@ jobs:
       uses: JS-DevTools/npm-publish@v1
       with:
         token: 123
-        package: ../../executor/pkg/package.json
+        package: ./executor/pkg/package.json
         dry-run: true
