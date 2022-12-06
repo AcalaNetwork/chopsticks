@@ -48,6 +48,6 @@ jobs:
     - name: Publish chopsticks-executor
       uses: JS-DevTools/npm-publish@v1
       with:
-        token: ${{ secrets.NPM_AUTH_TOKEN }}
+        token: 123
         package: ../../executor/pkg/package.json
         dry-run: true
