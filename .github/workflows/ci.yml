@@ -35,9 +35,23 @@ jobs:
       with:
         node-version: 18.x
         cache: 'yarn'
+    - run: yarn build-wasm
     - run: yarn --immutable
     - run: yarn check
-    - run: yarn build-wasm
     - run: yarn lint
     - run: yarn test
+    - name: Publish chopsticks
+      uses: JS-DevTools/npm-publish@v1
+      if: github.event_name == "push"
+      with:
+        token: ${{ secrets.NPM_AUTH_TOKEN }}
+        package: ../../package.json
+        dry-run: true
+    - name: Publish chopsticks-executor
+      uses: JS-DevTools/npm-publish@v1
+      if: github.event_name == "push"
+      with:
+        token: ${{ secrets.NPM_AUTH_TOKEN }}
+        package: ../../executor/pkg/package.json
+        dry-run: true
 

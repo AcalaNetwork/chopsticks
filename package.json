@@ -1,6 +1,6 @@
 {
 	"name": "chopsticks",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
@@ -10,61 +10,7 @@
 		".",
 		"executor/pkg"
 	],
-	"bin": {
-		"chopsticks": "./chopsticks.js"
-	},
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.cjs"
-		},
-		"./executor": {
-			"types": "./executor.d.ts",
-			"require": "./dist/executor.cjs",
-			"import": "./dist/executor.js"
-		},
-		"./genesis-provider": {
-			"types": "./genesis-provider.d.ts",
-			"require": "./dist/genesis-provider.cjs",
-			"import": "./dist/genesis-provider.js"
-		},
-		"./server": {
-			"types": "./server.d.ts",
-			"require": "./dist/server.cjs",
-			"import": "./dist/server.js"
-		},
-		"./task": {
-			"types": "./task.d.ts",
-			"require": "./dist/task.cjs",
-			"import": "./dist/task.js"
-		},
-		"./api": {
-			"types": "./api.d.ts",
-			"require": "./dist/api.cjs",
-			"import": "./dist/api.js"
-		},
-		"./blockchain": {
-			"types": "./blockchain.d.ts",
-			"require": "./dist/blockchain.cjs",
-			"import": "./dist/blockchain.js"
-		},
-		"./db": {
-			"types": "./db.d.ts",
-			"require": "./dist/db.cjs",
-			"import": "./dist/db.js"
-		},
-		"./rpc": {
-			"types": "./db.d.ts",
-			"require": "./dist/db.cjs",
-			"import": "./dist/db.js"
-		},
-		"./utils": {
-			"types": "./db.d.ts",
-			"require": "./dist/db.cjs",
-			"import": "./dist/db.js"
-		}
-	},
+	"bin": "./chopsticks.js",
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
