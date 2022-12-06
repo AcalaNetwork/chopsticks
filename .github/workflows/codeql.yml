@@ -22,7 +22,6 @@ on:
 
 jobs:
   analyze:
-    if: 1 == 2 # temp skip
     name: Analyze
     runs-on: ubuntu-latest
     permissions:
