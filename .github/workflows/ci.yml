@@ -42,7 +42,7 @@ jobs:
     - run: yarn test
     - run: yarn build
   publish:
-    if: github.event_name == "push"
+    # if: github.event_name == "push"
     steps:
     - name: Publish chopsticks
       uses: JS-DevTools/npm-publish@v1
