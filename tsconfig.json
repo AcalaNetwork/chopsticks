@@ -14,7 +14,7 @@
 		"strict": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"declaration": false,
+		"declaration": true,
 		"resolveJsonModule": true,
 		"types": ["node", "@polkadot/types-known", "@polkadot/types-codec"]
 	},

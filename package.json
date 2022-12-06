@@ -1,8 +1,7 @@
 {
 	"name": "chopsticks",
 	"version": "1.0.0",
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.mjs",
+	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "MIT",
@@ -11,7 +10,9 @@
 		".",
 		"executor/pkg"
 	],
-	"bin": "./chopsticks.mjs",
+	"bin": {
+		"chopsticks": "./chopsticks.js"
+	},
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
@@ -69,7 +70,7 @@
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
 		"start": "ts-node --transpile-only src/index.ts",
-		"build": "rimraf dist && rollup -c",
+		"build": "rimraf dist && tsc -p tsconfig.prod.json",
 		"build-wasm": "cd executor && wasm-pack --log-level=info build --target nodejs --no-default-features",
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest --silent",
@@ -96,7 +97,6 @@
 		"pino-pretty": "^9.1.1",
 		"reflect-metadata": "^0.1.13",
 		"sqlite3": "^5.1.2",
-		"tslib": "^2.4.1",
 		"typeorm": "^0.3.11",
 		"typescript": "^4.9.3",
 		"ws": "^8.11.0",
@@ -104,10 +104,6 @@
 		"zod": "^3.19.1"
 	},
 	"devDependencies": {
-		"@rollup/plugin-commonjs": "^23.0.3",
-		"@rollup/plugin-json": "^5.0.2",
-		"@rollup/plugin-node-resolve": "^15.0.1",
-		"@rollup/plugin-typescript": "^10.0.1",
 		"@types/js-yaml": "^4.0.5",
 		"@types/lodash": "^4.14.191",
 		"@types/node": "^18.11.10",
@@ -124,8 +120,6 @@
 		"lint-staged": "^13.1.0",
 		"prettier": "^2.8.0",
 		"rimraf": "^3.0.2",
-		"rollup": "^3.6.0",
-		"rollup-plugin-dts": "^5.0.0",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
 		"vitest": "^0.25.3",
