@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    branches: [ master, pkg-build ]
+    branches: [ master ]
 
 jobs:
   publish:
