@@ -38,16 +38,6 @@ jobs:
     - run: yarn build-wasm
     - run: yarn build
     - name: Publish @acala-network/chopsticks
-      uses: JS-DevTools/npm-publish@v1
-      with:
-        token: ${{ secrets.NPM_AUTH_TOKEN }}
-        package: ./package.json
-        check-version: true
-        access: public
+      run: yarn workspace @acala-network/chopsticks npm publish
     - name: Publish @acala-network/chopsticks-executor
-      uses: JS-DevTools/npm-publish@v1
-      with:
-        token: ${{ secrets.NPM_AUTH_TOKEN }}
-        package: ./executor/pkg/package.json
-        check-version: true
-        access: public
+      run: yarn workspace @acala-network/chopsticks-executor npm publish
