@@ -38,6 +38,9 @@ jobs:
     - run: yarn check
     - run: yarn build-wasm
     - run: yarn build
+    # Writes token to .yarnrc.yml. If written directly in .yarnrc.yml, it will cause an error
+    - run: |
+          echo npmAuthToken: "\${NPM_AUTH_TOKEN}" >> ./.yarnrc.yml
     - name: Publish @acala-network/chopsticks
       run: yarn workspace @acala-network/chopsticks npm publish --tolerate-republish --access public
       env:
