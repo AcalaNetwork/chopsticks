@@ -1,6 +1,8 @@
 name: Publish
 
-on: workflow_dispatch
+on:
+  push:
+    branches: [ master, pkg-build ]
 
 jobs:
   publish:
@@ -36,7 +38,7 @@ jobs:
     - run: yarn check
     - run: yarn build-wasm
     - run: yarn build
-    - name: Publish @acala-network/chopsticks 
+    - name: Publish @acala-network/chopsticks
       run: yarn npm publish --tolerate-republish
       env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
