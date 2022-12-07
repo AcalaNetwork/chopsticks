@@ -1,8 +1,6 @@
 name: Publish
 
-on:
-  push:
-    branches: [ master, pkg-build ]
+on: workflow_dispatch
 
 jobs:
   publish:
