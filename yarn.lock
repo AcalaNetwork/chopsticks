@@ -5,6 +5,61 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@acala-network/chopsticks-executor@workspace:*, @acala-network/chopsticks-executor@workspace:executor/pkg":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks-executor@workspace:executor/pkg"
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks@workspace:."
+  dependencies:
+    "@acala-network/chopsticks-executor": "workspace:*"
+    "@polkadot/api": ^9.10.1
+    "@polkadot/rpc-provider": ^9.10.1
+    "@polkadot/types": ^9.10.1
+    "@polkadot/types-codec": ^9.10.1
+    "@polkadot/types-known": ^9.10.1
+    "@polkadot/util": ^10.2.1
+    "@polkadot/util-crypto": ^10.2.1
+    "@types/js-yaml": ^4.0.5
+    "@types/lodash": ^4.14.191
+    "@types/node": ^18.11.10
+    "@types/rimraf": ^3
+    "@types/ws": ^8.5.3
+    "@types/yargs": ^17.0.15
+    "@typescript-eslint/eslint-plugin": ^5.45.0
+    "@typescript-eslint/parser": ^5.45.0
+    axios: ^1.2.1
+    eslint: ^8.29.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-sort-imports-es6-autofix: ^0.6.0
+    husky: ^8.0.2
+    js-yaml: ^4.1.0
+    lint-staged: ^13.1.0
+    lodash: ^4.17.21
+    pino: ^8.7.0
+    pino-pretty: ^9.1.1
+    prettier: ^2.8.0
+    reflect-metadata: ^0.1.13
+    rimraf: ^3.0.2
+    sqlite3: ^5.1.2
+    ts-node: ^10.9.1
+    ts-node-dev: ^2.0.0
+    typeorm: ^0.3.11
+    typescript: ^4.9.3
+    vitest: ^0.25.3
+    wasm-pack: ^0.10.3
+    ws: ^8.11.0
+    yargs: ^17.6.2
+    zod: ^3.19.1
+  bin:
+    chopsticks: ./chopsticks.js
+  languageName: unknown
+  linkType: soft
+
 "@babel/runtime@npm:^7.20.1, @babel/runtime@npm:^7.20.6":
   version: 7.20.6
   resolution: "@babel/runtime@npm:7.20.6"
@@ -366,7 +421,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types-codec@npm:9.10.1":
+"@polkadot/types-codec@npm:9.10.1, @polkadot/types-codec@npm:^9.10.1":
   version: 9.10.1
   resolution: "@polkadot/types-codec@npm:9.10.1"
   dependencies:
@@ -388,7 +443,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types-known@npm:9.10.1":
+"@polkadot/types-known@npm:9.10.1, @polkadot/types-known@npm:^9.10.1":
   version: 9.10.1
   resolution: "@polkadot/types-known@npm:9.10.1"
   dependencies:
@@ -412,7 +467,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types@npm:9.10.1":
+"@polkadot/types@npm:9.10.1, @polkadot/types@npm:^9.10.1":
   version: 9.10.1
   resolution: "@polkadot/types@npm:9.10.1"
   dependencies:
@@ -731,6 +786,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/glob@npm:*":
+  version: 8.0.0
+  resolution: "@types/glob@npm:8.0.0"
+  dependencies:
+    "@types/minimatch": "*"
+    "@types/node": "*"
+  checksum: 1817b05f5a8aed851d102a65b5e926d5c777bef927ea62b36d635860eef5364f2046bb5a692d135b6f2b28f34e4a9d44ade9396122c0845bcc7636d35f624747
+  languageName: node
+  linkType: hard
+
 "@types/js-yaml@npm:^4.0.5":
   version: 4.0.5
   resolution: "@types/js-yaml@npm:4.0.5"
@@ -759,6 +824,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/minimatch@npm:*":
+  version: 5.1.2
+  resolution: "@types/minimatch@npm:5.1.2"
+  checksum: 0391a282860c7cb6fe262c12b99564732401bdaa5e395bee9ca323c312c1a0f45efbf34dce974682036e857db59a5c9b1da522f3d6055aeead7097264c8705a8
+  languageName: node
+  linkType: hard
+
 "@types/node-fetch@npm:^2.6.2":
   version: 2.6.2
   resolution: "@types/node-fetch@npm:2.6.2"
@@ -780,6 +852,16 @@ __metadata:
   version: 18.11.10
   resolution: "@types/node@npm:18.11.10"
   checksum: 0f60cb090b2ee91fcd3dc4311bc1ed7889b92f14644c0069f100776f86474c12eebbcc6c75bc0d7d96b975a103b4d5d6b3c22b4e88bea6e7f4e2b1bb0daf5ea8
+  languageName: node
+  linkType: hard
+
+"@types/rimraf@npm:^3":
+  version: 3.0.2
+  resolution: "@types/rimraf@npm:3.0.2"
+  dependencies:
+    "@types/glob": "*"
+    "@types/node": "*"
+  checksum: b47fa302f46434cba704d20465861ad250df79467d3d289f9d6490d3aeeb41e8cb32dd80bd1a8fd833d1e185ac719fbf9be12e05ad9ce9be094d8ee8f1405347
   languageName: node
   linkType: hard
 
@@ -1214,6 +1296,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "axios@npm:1.2.1"
+  dependencies:
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: c4dc4e119064c9aed09a3de309bedb797a139a6fb372223aafe3e0c10a7d4a14e4d3e9c9d309467fadb9d2b490b891ee3df96ef5b55716bb971910466ff9f0c5
+  languageName: node
+  linkType: hard
+
 "balanced-match@npm:^1.0.0":
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
@@ -1427,45 +1520,6 @@ __metadata:
   checksum: b49fcde40176ba007ff361b198a2d35df60d9bb2a5aab228279eb810feae9294a6b4649ab15981304447afe1e6ffbf4788ad5db77235dc770ab777c6e771980c
   languageName: node
   linkType: hard
-
-"chopsticks@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "chopsticks@workspace:."
-  dependencies:
-    "@polkadot/api": ^9.10.1
-    "@polkadot/rpc-provider": ^9.10.1
-    "@polkadot/util": ^10.2.1
-    "@types/js-yaml": ^4.0.5
-    "@types/lodash": ^4.14.191
-    "@types/node": ^18.11.10
-    "@types/ws": ^8.5.3
-    "@types/yargs": ^17.0.15
-    "@typescript-eslint/eslint-plugin": ^5.45.0
-    "@typescript-eslint/parser": ^5.45.0
-    eslint: ^8.29.0
-    eslint-config-prettier: ^8.5.0
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-sort-imports-es6-autofix: ^0.6.0
-    husky: ^8.0.2
-    js-yaml: ^4.1.0
-    lint-staged: ^13.1.0
-    lodash: ^4.17.21
-    pino: ^8.7.0
-    pino-pretty: ^9.1.1
-    prettier: ^2.8.0
-    reflect-metadata: ^0.1.13
-    sqlite3: ^5.1.2
-    ts-node: ^10.9.1
-    ts-node-dev: ^2.0.0
-    typeorm: ^0.3.11
-    typescript: ^4.9.3
-    vitest: ^0.25.3
-    wasm-pack: ^0.10.3
-    ws: ^8.11.0
-    yargs: ^17.6.2
-    zod: ^3.19.1
-  languageName: unknown
-  linkType: soft
 
 "chownr@npm:^2.0.0":
   version: 2.0.0
@@ -2545,7 +2599,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.14.0":
+"follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.0":
   version: 1.15.2
   resolution: "follow-redirects@npm:1.15.2"
   peerDependenciesMeta:
@@ -2563,6 +2617,17 @@ __metadata:
     combined-stream: ^1.0.8
     mime-types: ^2.1.12
   checksum: b019e8d35c8afc14a2bd8a7a92fa4f525a4726b6d5a9740e8d2623c30e308fbb58dc8469f90415a856698933c8479b01646a9dff33c87cc4e76d72aedbbf860d
+  languageName: node
+  linkType: hard
+
+"form-data@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "form-data@npm:4.0.0"
+  dependencies:
+    asynckit: ^0.4.0
+    combined-stream: ^1.0.8
+    mime-types: ^2.1.12
+  checksum: 01135bf8675f9d5c61ff18e2e2932f719ca4de964e3be90ef4c36aacfc7b9cb2fceb5eca0b7e0190e3383fe51c5b37f4cb80b62ca06a99aaabfcfd6ac7c9328c
   languageName: node
   linkType: hard
 
@@ -4223,6 +4288,13 @@ __metadata:
   version: 2.0.1
   resolution: "propagate@npm:2.0.1"
   checksum: c4febaee2be0979e82fb6b3727878fd122a98d64a7fa3c9d09b0576751b88514a9e9275b1b92e76b364d488f508e223bd7e1dcdc616be4cdda876072fbc2a96c
+  languageName: node
+  linkType: hard
+
+"proxy-from-env@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "proxy-from-env@npm:1.1.0"
+  checksum: ed7fcc2ba0a33404958e34d95d18638249a68c430e30fcb6c478497d72739ba64ce9810a24f53a7d921d0c065e5b78e3822759800698167256b04659366ca4d4
   languageName: node
   linkType: hard
 

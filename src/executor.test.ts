@@ -4,8 +4,8 @@ import { TypeRegistry } from '@polkadot/types'
 import { calculateStateRoot, getMetadata, getRuntimeVersion } from './executor'
 import { decorateStorage } from '@polkadot/types/metadata/decorate'
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'fs'
-import path from 'path'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 
 describe('wasm', () => {
   it('get metadata from wasm runtime', async () => {

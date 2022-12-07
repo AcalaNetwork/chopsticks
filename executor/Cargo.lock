@@ -263,6 +263,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "chopsticks-executor"
+version = "0.2.0"
+dependencies = [
+ "clap",
+ "console_error_panic_hook",
+ "console_log",
+ "futures",
+ "getrandom",
+ "hex",
+ "hex-literal",
+ "jsonrpsee",
+ "log",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "smoldot",
+ "tokio",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+]
+
+[[package]]
 name = "cipher"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -522,28 +544,6 @@ name = "event-listener"
 version = "2.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0206175f82b8d6bf6652ff7d71a1e27fd2e4efde587fd368662814d6ec1d9ce0"
-
-[[package]]
-name = "executor"
-version = "0.1.0"
-dependencies = [
- "clap",
- "console_error_panic_hook",
- "console_log",
- "futures",
- "getrandom",
- "hex",
- "hex-literal",
- "jsonrpsee",
- "log",
- "serde",
- "serde-wasm-bindgen",
- "serde_json",
- "smoldot",
- "tokio",
- "wasm-bindgen",
- "wasm-bindgen-futures",
-]
 
 [[package]]
 name = "fnv"

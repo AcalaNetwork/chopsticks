@@ -1,25 +1,25 @@
-import { DataSource } from 'typeorm'
-import { WsProvider } from '@polkadot/api'
-import { hideBin } from 'yargs/helpers'
-import { readFileSync, writeFileSync } from 'fs'
-import yaml from 'js-yaml'
-import yargs from 'yargs'
-
+import '@polkadot/types-codec'
 import { Api } from './api'
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { Config, configSchema } from './schema'
+import { DataSource } from 'typeorm'
 import { GenesisProvider } from './genesis-provider'
 import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { TaskManager } from './task'
+import { WsProvider } from '@polkadot/api'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
+import { hideBin } from 'yargs/helpers'
 import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
+import { readFileSync, writeFileSync } from 'node:fs'
+import yaml from 'js-yaml'
+import yargs from 'yargs'
 
-const setup = async (argv: Config) => {
+export const setup = async (argv: Config) => {
   const port = argv.port || Number(process.env.PORT) || 8000
 
   let wsProvider: ProviderInterface
@@ -86,7 +86,7 @@ const setup = async (argv: Config) => {
   return context
 }
 
-const runBlock = async (argv: any) => {
+export const runBlock = async (argv: any) => {
   const context = await setup(argv)
 
   const header = await context.chain.head.header

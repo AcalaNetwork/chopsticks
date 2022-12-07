@@ -3,7 +3,7 @@ import { WebSocket } from 'ws'
 import { hexToString, hexToU8a } from '@polkadot/util'
 global.WebSocket = WebSocket
 
-import { calculate_state_root, get_metadata, get_runtime_version, run_task } from '../executor/pkg'
+import { calculate_state_root, get_metadata, get_runtime_version, run_task } from '@acala-network/chopsticks-executor'
 import { compactHex } from './utils'
 
 export type RuntimeVersion = {

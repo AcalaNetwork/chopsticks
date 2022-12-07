@@ -1,4 +1,4 @@
-import { EventEmitter } from 'stream'
+import { EventEmitter } from 'node:events'
 import { HexString } from '@polkadot/util/types'
 import {
   ProviderInterface,
@@ -7,7 +7,7 @@ import {
   ProviderInterfaceEmitted,
   ProviderStats,
 } from '@polkadot/rpc-provider/types'
-import { lstatSync, readFileSync } from 'fs'
+import { lstatSync, readFileSync } from 'node:fs'
 import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 

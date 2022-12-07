@@ -82,7 +82,7 @@ export class Blockchain {
     if (!this.#blocksByHash[hash]) {
       try {
         const registry = await this.head.registry
-        const header = registry.createType('Header', await this.api.getHeader(hash))
+        const header: Header = registry.createType('Header', await this.api.getHeader(hash))
         const block = new Block(this, header.number.toNumber(), hash)
         this.#registerBlock(block)
       } catch (e) {
