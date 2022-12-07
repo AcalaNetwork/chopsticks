@@ -1,5 +1,5 @@
 {
-	"name": "chopsticks",
+	"name": "@acala-network/chopsticks",
 	"version": "0.1.0",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -28,6 +28,7 @@
 		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml"
 	},
 	"dependencies": {
+		"@acala-network/chopsticks-executor": "workspace:*",
 		"@polkadot/api": "^9.10.1",
 		"@polkadot/rpc-provider": "^9.10.1",
 		"@polkadot/types": "^9.10.1",
@@ -36,7 +37,6 @@
 		"@polkadot/util": "^10.2.1",
 		"@polkadot/util-crypto": "^10.2.1",
 		"axios": "^1.2.1",
-		"chopsticks-executor": "workspace:*",
 		"js-yaml": "^4.1.0",
 		"lodash": "^4.17.21",
 		"pino": "^8.7.0",

@@ -5,6 +5,61 @@ __metadata:
   version: 6
   cacheKey: 8
 
+"@acala-network/chopsticks-executor@workspace:*, @acala-network/chopsticks-executor@workspace:executor/pkg":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks-executor@workspace:executor/pkg"
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks@workspace:."
+  dependencies:
+    "@acala-network/chopsticks-executor": "workspace:*"
+    "@polkadot/api": ^9.10.1
+    "@polkadot/rpc-provider": ^9.10.1
+    "@polkadot/types": ^9.10.1
+    "@polkadot/types-codec": ^9.10.1
+    "@polkadot/types-known": ^9.10.1
+    "@polkadot/util": ^10.2.1
+    "@polkadot/util-crypto": ^10.2.1
+    "@types/js-yaml": ^4.0.5
+    "@types/lodash": ^4.14.191
+    "@types/node": ^18.11.10
+    "@types/rimraf": ^3
+    "@types/ws": ^8.5.3
+    "@types/yargs": ^17.0.15
+    "@typescript-eslint/eslint-plugin": ^5.45.0
+    "@typescript-eslint/parser": ^5.45.0
+    axios: ^1.2.1
+    eslint: ^8.29.0
+    eslint-config-prettier: ^8.5.0
+    eslint-plugin-import: ^2.26.0
+    eslint-plugin-sort-imports-es6-autofix: ^0.6.0
+    husky: ^8.0.2
+    js-yaml: ^4.1.0
+    lint-staged: ^13.1.0
+    lodash: ^4.17.21
+    pino: ^8.7.0
+    pino-pretty: ^9.1.1
+    prettier: ^2.8.0
+    reflect-metadata: ^0.1.13
+    rimraf: ^3.0.2
+    sqlite3: ^5.1.2
+    ts-node: ^10.9.1
+    ts-node-dev: ^2.0.0
+    typeorm: ^0.3.11
+    typescript: ^4.9.3
+    vitest: ^0.25.3
+    wasm-pack: ^0.10.3
+    ws: ^8.11.0
+    yargs: ^17.6.2
+    zod: ^3.19.1
+  bin:
+    chopsticks: ./chopsticks.js
+  languageName: unknown
+  linkType: soft
+
 "@babel/runtime@npm:^7.20.1, @babel/runtime@npm:^7.20.6":
   version: 7.20.6
   resolution: "@babel/runtime@npm:7.20.6"
@@ -1465,61 +1520,6 @@ __metadata:
   checksum: b49fcde40176ba007ff361b198a2d35df60d9bb2a5aab228279eb810feae9294a6b4649ab15981304447afe1e6ffbf4788ad5db77235dc770ab777c6e771980c
   languageName: node
   linkType: hard
-
-"chopsticks-executor@workspace:*, chopsticks-executor@workspace:executor/pkg":
-  version: 0.0.0-use.local
-  resolution: "chopsticks-executor@workspace:executor/pkg"
-  languageName: unknown
-  linkType: soft
-
-"chopsticks@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "chopsticks@workspace:."
-  dependencies:
-    "@polkadot/api": ^9.10.1
-    "@polkadot/rpc-provider": ^9.10.1
-    "@polkadot/types": ^9.10.1
-    "@polkadot/types-codec": ^9.10.1
-    "@polkadot/types-known": ^9.10.1
-    "@polkadot/util": ^10.2.1
-    "@polkadot/util-crypto": ^10.2.1
-    "@types/js-yaml": ^4.0.5
-    "@types/lodash": ^4.14.191
-    "@types/node": ^18.11.10
-    "@types/rimraf": ^3
-    "@types/ws": ^8.5.3
-    "@types/yargs": ^17.0.15
-    "@typescript-eslint/eslint-plugin": ^5.45.0
-    "@typescript-eslint/parser": ^5.45.0
-    axios: ^1.2.1
-    chopsticks-executor: "workspace:*"
-    eslint: ^8.29.0
-    eslint-config-prettier: ^8.5.0
-    eslint-plugin-import: ^2.26.0
-    eslint-plugin-sort-imports-es6-autofix: ^0.6.0
-    husky: ^8.0.2
-    js-yaml: ^4.1.0
-    lint-staged: ^13.1.0
-    lodash: ^4.17.21
-    pino: ^8.7.0
-    pino-pretty: ^9.1.1
-    prettier: ^2.8.0
-    reflect-metadata: ^0.1.13
-    rimraf: ^3.0.2
-    sqlite3: ^5.1.2
-    ts-node: ^10.9.1
-    ts-node-dev: ^2.0.0
-    typeorm: ^0.3.11
-    typescript: ^4.9.3
-    vitest: ^0.25.3
-    wasm-pack: ^0.10.3
-    ws: ^8.11.0
-    yargs: ^17.6.2
-    zod: ^3.19.1
-  bin:
-    chopsticks: ./chopsticks.js
-  languageName: unknown
-  linkType: soft
 
 "chownr@npm:^2.0.0":
   version: 2.0.0
