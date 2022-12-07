@@ -43,9 +43,11 @@ jobs:
         token: ${{ secrets.NPM_AUTH_TOKEN }}
         package: ./package.json
         check-version: true
+        access: public
     - name: Publish @acala-network/chopsticks-executor
       uses: JS-DevTools/npm-publish@v1
       with:
         token: ${{ secrets.NPM_AUTH_TOKEN }}
         package: ./executor/pkg/package.json
         check-version: true
+        access: public
