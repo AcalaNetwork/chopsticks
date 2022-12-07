@@ -38,6 +38,11 @@ jobs:
     - run: yarn build-wasm
     - run: yarn build
     - name: Publish @acala-network/chopsticks
-      run: yarn npm publish --otp ${{ secrets.NPM_AUTH_TOKEN }}
+      run: yarn npm publish
+      env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - name: Publish @acala-network/chopsticks-executor
-      run: yarn workspace @acala-network/chopsticks-executor npm publish --otp ${{ secrets.NPM_AUTH_TOKEN }}
+      run: yarn workspace @acala-network/chopsticks-executor npm publish
+      env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      
