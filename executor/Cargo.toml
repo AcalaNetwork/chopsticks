@@ -1,5 +1,5 @@
 [package]
-name = "chopsticks-executor"
+name = "@acala-network/chopsticks-executor"
 version = "0.1.0"
 edition = "2021"
 
