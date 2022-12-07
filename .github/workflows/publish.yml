@@ -33,6 +33,7 @@ jobs:
       with:
         node-version: 18.x
         cache: 'yarn'
+        registry-url: https://registry.npmjs.org/
     - run: yarn --immutable
     - run: yarn check
     - run: yarn build-wasm
