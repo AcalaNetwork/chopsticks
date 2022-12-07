@@ -39,7 +39,7 @@ jobs:
     - run: yarn build-wasm
     - run: yarn build
     - name: Publish @acala-network/chopsticks
-      run: yarn npm publish --tolerate-republish --access public
+      run: yarn workspace @acala-network/chopsticks npm publish --tolerate-republish --access public
       env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - name: Publish @acala-network/chopsticks-executor
