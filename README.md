@@ -2,6 +2,14 @@
 
 Create parallel reality of your Substrate network.
 
+## Quick Start
+
+Fork Acala mainnet: `yarn dlx @acala-network/chopsticks dev --endpoint=wss://acala-rpc-2.aca-api.network/ws`
+
+It is recommended to use config file. You can check [configs](configs/) for examples.
+
+You can run a test node with config with `yarn dlx @acala-network/chopsticks dev --config=<config_file_path>`
+
 ## Install
 
 Make sure you have setup Rust environment (>= 1.64).
@@ -49,4 +57,3 @@ Make sure you have setup Rust environment (>= 1.64).
 - Run Kusama fork
   - Edit configs/kusama.yml if needed. (e.g. update the block number)
   - `yarn start dev --config=configs/kusama.yml`
-	
