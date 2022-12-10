@@ -5,13 +5,16 @@ import { BuildBlockMode } from './blockchain/txpool'
 import { Config, configSchema } from './schema'
 import { DataSource } from 'typeorm'
 import { GenesisProvider } from './genesis-provider'
+import { HexString } from '@polkadot/util/types'
 import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { TaskManager } from './task'
 import { WsProvider } from '@polkadot/api'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
+import { get_metadata } from '@acala-network/chopsticks-executor'
 import { handler } from './rpc'
+import { hexToU8a, u8aToHex } from '@polkadot/util'
 import { hideBin } from 'yargs/helpers'
 import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
@@ -132,6 +135,12 @@ const processConfig = (argv: any) => {
   return argv
 }
 
+export const exportMetadata = async (argv: any) => {
+  const wasm = u8aToHex(readFileSync(argv.wasm))
+  const metadata = (await get_metadata(wasm)) as HexString
+  writeFileSync('result.scale', hexToU8a(metadata))
+}
+
 yargs(hideBin(process.argv))
   .command(
     'run-block',
@@ -226,6 +235,23 @@ yargs(hideBin(process.argv))
       }),
     (argv) => {
       setup(processConfig(argv)).catch((err) => {
+        console.error(err)
+        process.exit(1)
+      })
+    }
+  )
+  .command(
+    'export-metadata',
+    'Export SCALE metadata from runtime WASM file (not all runtimes include metadata)',
+    (yargs) =>
+      yargs.options({
+        wasm: {
+          desc: 'Path to runtime WASM file',
+          string: true,
+        },
+      }),
+    (argv) => {
+      exportMetadata(processConfig(argv)).catch((err) => {
         console.error(err)
         process.exit(1)
       })
