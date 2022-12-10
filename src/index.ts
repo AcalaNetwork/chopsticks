@@ -138,7 +138,7 @@ const processConfig = (argv: any) => {
 export const exportMetadata = async (argv: any) => {
   const wasm = u8aToHex(readFileSync(argv.wasm))
   const metadata = (await get_metadata(wasm)) as HexString
-  writeFileSync('result.scale', hexToU8a(metadata))
+  writeFileSync('result.scale', hexToU8a(metadata.slice(10)))
 }
 
 yargs(hideBin(process.argv))
