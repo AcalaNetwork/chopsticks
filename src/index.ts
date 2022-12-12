@@ -1,38 +1,41 @@
 import '@polkadot/types-codec'
-import { Api } from './api'
-import { Blockchain } from './blockchain'
-import { BuildBlockMode } from './blockchain/txpool'
-import { Config, configSchema } from './schema'
-import { DataSource } from 'typeorm'
-import { GenesisProvider } from './genesis-provider'
-import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
-import { TaskManager } from './task'
 import { WsProvider } from '@polkadot/api'
-import { createServer } from './server'
-import { defaultLogger } from './logger'
-import { handler } from './rpc'
+import { u8aToHex } from '@polkadot/util'
+
+import { DataSource } from 'typeorm'
 import { hideBin } from 'yargs/helpers'
-import { importStorage, overrideWasm } from './utils/import-storage'
-import { openDb } from './db'
 import { readFileSync, writeFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
+import { Api } from './api'
+import { Blockchain } from './blockchain'
+import { BuildBlockMode } from './blockchain/txpool'
+import { Config, configSchema } from './schema'
+import { GenesisProvider } from './genesis-provider'
+import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
+import { TaskManager } from './task'
+import { createServer } from './server'
+import { defaultLogger } from './logger'
+import { handler } from './rpc'
+import { importStorage, overrideWasm } from './utils/import-storage'
+import { openDb } from './db'
+
 export const setup = async (argv: Config) => {
   const port = argv.port || Number(process.env.PORT) || 8000
 
-  let wsProvider: ProviderInterface
+  let provider: ProviderInterface
   if (argv.genesis) {
     if (typeof argv.genesis === 'string') {
-      wsProvider = await GenesisProvider.fromUrl(argv.genesis)
+      provider = await GenesisProvider.fromUrl(argv.genesis)
     } else {
-      wsProvider = new GenesisProvider(argv.genesis)
+      provider = new GenesisProvider(argv.genesis)
     }
   } else {
-    wsProvider = new WsProvider(argv.endpoint)
+    provider = new WsProvider(argv.endpoint)
   }
-  const api = new Api(wsProvider)
+  const api = new Api(provider)
   await api.isReady
 
   let blockHash: string
@@ -69,11 +72,11 @@ export const setup = async (argv: Config) => {
     },
   })
 
-  const context = { chain, api, ws: wsProvider, tasks }
+  const context = { chain, api, ws: provider, tasks }
 
-  const listeningPort = await createServer(port, handler(context)).port
+  const { port: listeningPort, close } = createServer(port, handler(context))
 
-  tasks.updateListeningPort(listeningPort)
+  tasks.updateListeningPort(await listeningPort)
 
   await importStorage(chain, argv['import-storage'])
   await overrideWasm(chain, argv['wasm-override'])
@@ -83,7 +86,10 @@ export const setup = async (argv: Config) => {
     await chain.newBlock()
   }
 
-  return context
+  return {
+    ...context,
+    close,
+  }
 }
 
 export const runBlock = async (argv: any) => {
@@ -119,6 +125,29 @@ export const runBlock = async (argv: any) => {
     }
   )
 
+  await context.close()
+  setTimeout(() => process.exit(0), 50)
+}
+
+export const decodeKey = async (argv: any) => {
+  // TODO: avoid unnecessary setup such as create server
+  const context = await setup(argv)
+
+  const key = argv.key
+  const meta = await context.chain.head.meta
+  outer: for (const module of Object.values(meta.query)) {
+    for (const storage of Object.values(module)) {
+      const keyPrefix = u8aToHex(storage.keyPrefix())
+      if (key.startsWith(keyPrefix)) {
+        const decodedKey = meta.registry.createType('StorageKey', key)
+        decodedKey.setMeta(storage.meta)
+        console.log(`${storage.section}.${storage.method}`, decodedKey.args.map((x) => x.toHuman()).join(', '))
+        break outer
+      }
+    }
+  }
+
+  await context.close()
   setTimeout(() => process.exit(0), 50)
 }
 
@@ -132,23 +161,40 @@ const processConfig = (argv: any) => {
   return argv
 }
 
+const defaultOptions = {
+  endpoint: {
+    desc: 'Endpoint to connect to',
+    string: true,
+  },
+  block: {
+    desc: 'Block hash or block number. Default to latest block',
+    string: true,
+  },
+  'wasm-override': {
+    desc: 'Path to wasm override',
+    string: true,
+  },
+  db: {
+    desc: 'Path to database',
+    string: true,
+  },
+  config: {
+    desc: 'Path to config file',
+    string: true,
+  },
+}
+
 yargs(hideBin(process.argv))
+  .scriptName('chopsticks')
   .command(
     'run-block',
     'Replay a block',
     (yargs) =>
       yargs.options({
+        ...defaultOptions,
         port: {
           desc: 'Port to listen on',
           number: true,
-        },
-        endpoint: {
-          desc: 'Endpoint to connect to',
-          string: true,
-        },
-        block: {
-          desc: 'Block hash or block number. Default to latest block',
-          string: true,
         },
         'executor-cmd': {
           desc: 'Command to execute the executor',
@@ -156,18 +202,6 @@ yargs(hideBin(process.argv))
         },
         'output-path': {
           desc: 'File path to print output',
-          string: true,
-        },
-        db: {
-          desc: 'Path to database',
-          string: true,
-        },
-        'wasm-override': {
-          desc: 'Path to wasm override',
-          string: true,
-        },
-        config: {
-          desc: 'Path to config file',
           string: true,
         },
       }),
@@ -187,14 +221,6 @@ yargs(hideBin(process.argv))
           desc: 'Port to listen on',
           number: true,
         },
-        endpoint: {
-          desc: 'Endpoint to connect to',
-          string: true,
-        },
-        block: {
-          desc: 'Block hash or block number. Default to latest block',
-          string: true,
-        },
         'executor-cmd': {
           desc: 'Command to execute the executor',
           string: true,
@@ -211,18 +237,6 @@ yargs(hideBin(process.argv))
           desc: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
           boolean: true,
         },
-        db: {
-          desc: 'Path to database',
-          string: true,
-        },
-        'wasm-override': {
-          desc: 'Path to wasm override',
-          string: true,
-        },
-        config: {
-          desc: 'Path to config file',
-          string: true,
-        },
       }),
     (argv) => {
       setup(processConfig(argv)).catch((err) => {
@@ -231,5 +245,25 @@ yargs(hideBin(process.argv))
       })
     }
   )
+  .command(
+    'decode-key <key>',
+    'Deocde a key',
+    (yargs) =>
+      yargs
+        .positional('key', {
+          desc: 'Key to decode',
+          type: 'string',
+        })
+        .options({
+          ...defaultOptions,
+        }),
+    (argv) => {
+      decodeKey(processConfig(argv)).catch((err) => {
+        console.error(err)
+        process.exit(1)
+      })
+    }
+  )
   .strict()
-  .help().argv
+  .help()
+  .alias('help', 'h').argv
