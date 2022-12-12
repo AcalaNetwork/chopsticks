@@ -23,8 +23,6 @@ import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
 
 export const setup = async (argv: Config) => {
-  const port = argv.port || Number(process.env.PORT) || 8000
-
   let provider: ProviderInterface
   if (argv.genesis) {
     if (typeof argv.genesis === 'string') {
@@ -55,7 +53,7 @@ export const setup = async (argv: Config) => {
   }
 
   const header = await api.getHeader(blockHash)
-  const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
+  const tasks = new TaskManager(0, argv['mock-signature-host'], argv['executor-cmd'])
 
   const blockNumber = +header.number
   const setTimestamp = new SetTimestamp((newBlockNumber) => {
@@ -80,16 +78,23 @@ export const setup = async (argv: Config) => {
 
   const context = { chain, api, ws: provider, tasks }
 
-  const { port: listeningPort, close } = createServer(port, handler(context))
-
-  tasks.updateListeningPort(await listeningPort)
-
   await importStorage(chain, argv['import-storage'])
   await overrideWasm(chain, argv['wasm-override'])
 
+  return context
+}
+
+export const setupWithServer = async (argv: Config) => {
+  const context = await setup(argv)
+  const port = argv.port || Number(process.env.PORT) || 8000
+
+  const { port: listeningPort, close } = createServer(port, handler(context))
+
+  context.tasks.updateListeningPort(await listeningPort)
+
   if (argv.genesis) {
     // mine 1st block when starting from genesis to set some mock validation data
-    await chain.newBlock()
+    await context.chain.newBlock()
   }
 
   return {
@@ -98,8 +103,8 @@ export const setup = async (argv: Config) => {
   }
 }
 
-export const runBlock = async (argv: any) => {
-  const context = await setup(argv)
+export const runBlock = async (argv: Config) => {
+  const context = await setupWithServer(argv)
 
   const header = await context.chain.head.header
   const parent = header.parentHash.toHex()
@@ -136,7 +141,6 @@ export const runBlock = async (argv: any) => {
 }
 
 export const decodeKey = async (argv: any) => {
-  // TODO: avoid unnecessary setup such as create server
   const context = await setup(argv)
 
   const key = argv.key
@@ -153,7 +157,6 @@ export const decodeKey = async (argv: any) => {
     }
   }
 
-  await context.close()
   setTimeout(() => process.exit(0), 50)
 }
 
@@ -246,7 +249,7 @@ yargs(hideBin(process.argv))
         },
       }),
     (argv) => {
-      setup(processConfig(argv)).catch((err) => {
+      setupWithServer(processConfig(argv)).catch((err) => {
         console.error(err)
         process.exit(1)
       })
