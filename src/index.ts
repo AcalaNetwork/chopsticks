@@ -217,6 +217,7 @@ yargs(hideBin(process.argv))
     'Dev mode',
     (yargs) =>
       yargs.options({
+        ...defaultOptions,
         port: {
           desc: 'Port to listen on',
           number: true,
