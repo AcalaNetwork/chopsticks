@@ -57,7 +57,13 @@ export const setup = async (argv: Config) => {
   const header = await api.getHeader(blockHash)
   const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
 
-  const setTimestamp = new SetTimestamp()
+  const blockNumber = +header.number
+  const setTimestamp = new SetTimestamp((newBlockNumber) => {
+    if (argv.timestamp) {
+      return argv.timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
+    }
+    return Date.now()
+  })
   const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
 
   const chain = new Blockchain({

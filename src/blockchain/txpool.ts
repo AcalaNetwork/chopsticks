@@ -71,7 +71,7 @@ export class TxPool {
     const meta = await head.meta
     const parentHeader = await head.header
 
-    const time = this.#inherentProvider.getTimestamp()
+    const time = this.#inherentProvider.getTimestamp(head.number + 1)
 
     let newLogs = parentHeader.digest.logs as any
     const expectedSlot = Math.floor(time / ((meta.consts.timestamp.minimumPeriod as any).toNumber() * 2))
@@ -81,7 +81,7 @@ export class TxPool {
       newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     } else if (consensus?.consensusEngine.isBabe) {
       // trying to make a SecondaryPlainPreDigest
-      const newSlot = compactAddLength(u8aConcat('0x02000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
+      const newSlot = compactAddLength(u8aConcat('0x0200000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
       newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     }
 

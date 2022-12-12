@@ -1,6 +1,7 @@
 endpoint: wss://kusama-rpc.dwellir.com
 mock-signature-host: true
 block: 15616800
+timestamp: 1670190990039
 db: ./db.sqlite
 
 import-storage:
