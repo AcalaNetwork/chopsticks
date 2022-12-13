@@ -132,18 +132,6 @@ export class TxPool {
       }
     }
 
-    if (meta.query.parachainSystem?.validationData) {
-      // this is a parachain
-      const validationDataKey = compactHex(meta.query.parachainSystem.validationData())
-      const validationData = await newBlock.get(validationDataKey)
-      if (!validationData) {
-        // there is no set validation data inherent
-        // so we need to restore the old validation data to make the on_finalize check happy
-        const oldValidationData = await head.get(validationDataKey)
-        newBlock.pushStorageLayer().set(validationDataKey, oldValidationData)
-      }
-    }
-
     for (const extrinsic of extrinsics) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
