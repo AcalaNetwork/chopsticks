@@ -1,0 +1,23 @@
+endpoint: wss://mandala-rpc.aca-staging.network/ws
+mock-signature-host: true
+block: 457700
+db: ./db.sqlite
+# wasm-override: acala-2101.wasm
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - data:
+            free: 1000000000000000
+  Tokens:
+    Accounts:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: AUSD
+        - free: 1000000000000000

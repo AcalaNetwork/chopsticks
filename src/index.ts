@@ -53,7 +53,9 @@ export const setup = async (argv: Config) => {
   }
 
   const header = await api.getHeader(blockHash)
-  const tasks = new TaskManager(0, argv['mock-signature-host'], argv['executor-cmd'])
+  const port = argv.port || Number(process.env.PORT) || 8000
+
+  const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
 
   const blockNumber = +header.number
   const setTimestamp = new SetTimestamp((newBlockNumber) => {
