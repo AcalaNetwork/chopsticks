@@ -1,7 +1,12 @@
 import { Block } from './block'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { GenericExtrinsic } from '@polkadot/types'
+import { HexString } from '@polkadot/util/types'
 import { TaskManager } from '../task'
+import { compactHex } from '../utils'
+import { createProof } from '../executor'
+import { hexToU8a } from '@polkadot/util'
+import { upgradeGoAheadSignal } from '../utils/proof'
 
 export interface CreateInherents {
   createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<string[]>
@@ -102,13 +107,33 @@ export class SetValidationData implements CreateInherents {
       newData = MOCK_VALIDATION_DATA
     } else {
       const method = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsics[this.#expectedIndex])
-      const validationData = method.args[0].toJSON() as typeof MOCK_VALIDATION_DATA
+      const extrinsic = method.args[0].toJSON() as typeof MOCK_VALIDATION_DATA
+
+      const newEntries: [HexString, HexString][] = []
+      const upgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
+      if (upgrade) {
+        const paraIdStorage = await parentBlock.get(compactHex(meta.query.parachainInfo.parachainId()))
+        const paraId = meta.registry.createType('u32', hexToU8a(paraIdStorage as any))
+        const upgradeKey = upgradeGoAheadSignal(paraId)
+        const goAhead = meta.registry.createType('UpgradeGoAhead', 'GoAhead')
+        newEntries.push([upgradeKey, goAhead.toHex()])
+      }
+
+      const { trieRootHash, nodes } = await createProof(
+        extrinsic.validationData.relayParentStorageRoot as HexString,
+        extrinsic.relayChainState.trieNodes as HexString[],
+        newEntries
+      )
 
       newData = {
-        ...validationData,
+        ...extrinsic,
         validationData: {
-          ...validationData.validationData,
-          relayParentNumber: validationData.validationData.relayParentNumber + 2,
+          ...extrinsic.validationData,
+          relayParentStorageRoot: trieRootHash,
+          relayParentNumber: extrinsic.validationData.relayParentNumber + 2,
+        },
+        relayChainState: {
+          trieNodes: nodes,
         },
       }
     }

@@ -66,7 +66,7 @@ pub struct TaskCall {
     block_hash: HexString,
     calls: Option<Vec<(String, HexString)>>,
     mock_signature_host: bool,
-	allow_unresolved_imports: bool,
+    allow_unresolved_imports: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

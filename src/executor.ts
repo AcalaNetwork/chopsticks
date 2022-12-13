@@ -1,9 +1,24 @@
 import { HexString } from '@polkadot/util/types'
 import { WebSocket } from 'ws'
-import { hexToString, hexToU8a } from '@polkadot/util'
+import {
+  compactAddLength,
+  compactToU8a,
+  hexToString,
+  hexToU8a,
+  u8aConcat,
+  u8aConcatStrict,
+  u8aToHex,
+} from '@polkadot/util'
 global.WebSocket = WebSocket
 
-import { calculate_state_root, get_metadata, get_runtime_version, run_task } from '@acala-network/chopsticks-executor'
+import {
+  calculate_state_root,
+  create_proof,
+  decode_proof,
+  get_metadata,
+  get_runtime_version,
+  run_task,
+} from '../executor/pkg'
 import { compactHex } from './utils'
 
 export type RuntimeVersion = {
@@ -31,6 +46,24 @@ export const getMetadata = async (code: HexString): Promise<HexString> => {
 
 export const calculateStateRoot = async (entries: [HexString, HexString][]): Promise<HexString> => {
   return calculate_state_root(entries)
+}
+
+const nodesAddLength = (nodes: HexString[]): HexString => {
+  const nodesWithLength = nodes.map((x) => compactAddLength(hexToU8a(x)))
+  return u8aToHex(u8aConcatStrict([compactToU8a(nodesWithLength.length), u8aConcat(...nodesWithLength)]))
+}
+
+export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
+  const decoded: [HexString, HexString | null][] = await decode_proof(trieRootHash, keys, nodesAddLength(nodes))
+  return decoded.reduce((accum, [key, value]) => {
+    accum[key] = value
+    return accum
+  }, {} as Record<HexString, HexString | null>)
+}
+
+export const createProof = async (trieRootHash: HexString, nodes: HexString[], entries: [HexString, HexString][]) => {
+  const result = await create_proof(trieRootHash, nodesAddLength(nodes), entries)
+  return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }
 
 export { run_task as runTask }

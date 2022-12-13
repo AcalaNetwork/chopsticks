@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 getrandom = { version = "0.2", default-features = false, features = ["js"] }
-jsonrpsee = { version = "0.15.1", default-features = false, features = ["wasm-client", "macros"] }
+jsonrpsee = { version = "0.16.2", default-features = false, features = ["wasm-client", "macros"] }
 serde = { version = "1.0.136", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 hex = { version = "0.4.3", default-features = false }
@@ -28,10 +28,17 @@ tokio = { version = "1.21.2", features = ["full"], optional = true }
 
 smoldot = { path = '../vendor/smoldot', default-features = false }
 
+[dev-dependencies]
+arrayvec = { version = "0.7.2", default-features = false }
+
 [features]
 default = ["std"]
 std = [
     "clap",
     "tokio",
-    "jsonrpsee/ws-client"
+    "jsonrpsee/ws-client",
+    "smoldot/std"
 ]
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
