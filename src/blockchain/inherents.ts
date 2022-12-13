@@ -13,13 +13,13 @@ export interface CreateInherents {
 }
 
 export interface InherentProvider extends CreateInherents {
-  getTimestamp(): number
+  getTimestamp(blockNumber: number): number
 }
 
 export class SetTimestamp implements InherentProvider {
-  readonly #getTimestamp: () => number
+  readonly #getTimestamp: (blockNumber: number) => number
 
-  constructor(getTimestamp: () => number = Date.now) {
+  constructor(getTimestamp: (blockNumber: number) => number = Date.now) {
     this.#getTimestamp = getTimestamp
   }
 
@@ -27,8 +27,8 @@ export class SetTimestamp implements InherentProvider {
     return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(timestamp)).toHex()]
   }
 
-  getTimestamp(): number {
-    return this.#getTimestamp()
+  getTimestamp(blockNumber: number): number {
+    return this.#getTimestamp(blockNumber)
   }
 }
 
@@ -74,8 +74,8 @@ export class InherentProviders implements InherentProvider {
     return [...base, ...extra.flat()]
   }
 
-  getTimestamp(): number {
-    return this.#base.getTimestamp()
+  getTimestamp(blockNumber: number): number {
+    return this.#base.getTimestamp(blockNumber)
   }
 }
 

@@ -26,6 +26,7 @@ export const configSchema = z
     db: z.string().optional(),
     'wasm-override': z.string().optional(),
     genesis: z.union([z.string(), genesisSchema]).optional(),
+    timestamp: z.number().optional(),
   })
   .strict()
 

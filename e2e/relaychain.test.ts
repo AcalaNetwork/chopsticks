@@ -7,10 +7,13 @@ setupApi(env.rococo)
 describe('relaychain dev rpc', () => {
   it('build blocks', async () => {
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0xd770603e727fea3ee5de4863767d9fa961a715cf1b8c2cae704dc9dc616ea27b"'
+      '"0x772a2a7343fd18168fba785166d4eaacbc868c93fcb59defbeb17d879beec7b7"'
     )
-    // TODO somehow keep building blocks took too long
-    // expect(await dev.newBlock()).toMatchInlineSnapshot()
-    // expect(await dev.newBlock()).toMatchInlineSnapshot()
+    expect(await dev.newBlock()).toMatchInlineSnapshot(
+      '"0x6445b65747e435eba97050cc38939d943ceb6bdd9c584160be9f7388b1f27f8f"'
+    )
+    expect(await dev.newBlock()).toMatchInlineSnapshot(
+      '"0xc2f4c8a21cc7d34bf4938cac5ee75ff6607ddbd626ef2b6b6cdad63be90568ea"'
+    )
   })
 })

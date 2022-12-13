@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import path from 'path'
 
-import { chain, setupApi } from '../helper'
+import { api, chain, setupApi } from '../helper'
 import { importStorage, overrideWasm } from '../../src/utils/import-storage'
 
 setupApi({
@@ -19,7 +19,7 @@ describe('import-storage', () => {
 
     await importStorage(chain, path.join(__dirname, './storage.ok.yml'))
 
-    expect(await block?.get(sudoKey)).toBeUndefined
+    expect(await block?.get(sudoKey)).toBeUndefined()
   })
 
   it('handle errors', async () => {
@@ -42,5 +42,35 @@ describe('import-storage', () => {
     const blockNumber = chain.head.number
     // can produce blocks
     await expect(chain.newBlock()).resolves.toContain({ number: blockNumber + 1 })
+  })
+
+  it('able to reset storage map', async () => {
+    await importStorage(chain, {
+      Tokens: {
+        $removePrefix: ['Accounts'],
+        Accounts: [
+          [
+            ['5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY', { Token: 'ACA' }],
+            {
+              free: 1000000000000000,
+            },
+          ],
+        ],
+      },
+    })
+
+    const entries = await api.query.tokens.accounts.entries()
+    expect(entries).toMatchInlineSnapshot(`
+      [
+        [
+          "0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51de1e86a9a8c739864cf3cc5ec2bea59fd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d01a12dfa1fa4ab9a0000",
+          {
+            "free": 1000000000000000,
+            "frozen": 0,
+            "reserved": 0,
+          },
+        ],
+      ]
+    `)
   })
 })

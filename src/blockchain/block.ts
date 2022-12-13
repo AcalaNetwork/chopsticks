@@ -1,5 +1,5 @@
+import { ChainProperties, Header } from '@polkadot/types/interfaces'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
-import { Header } from '@polkadot/types/interfaces'
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { expandMetadata } from '@polkadot/types/metadata'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
@@ -48,8 +48,8 @@ export class Block {
 
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(([registry, header]) =>
-        registry.createType('Header', header)
+      this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(
+        ([registry, header]) => registry.createType('Header', header) as Header
       )
     }
     return this.#header
@@ -153,7 +153,7 @@ export class Block {
         this.runtimeVersion,
       ]).then(([data, properties, chain, version]) => {
         const registry = new TypeRegistry(this.hash)
-        registry.setChainProperties(registry.createType('ChainProperties', properties))
+        registry.setChainProperties(registry.createType('ChainProperties', properties) as ChainProperties)
         registry.register(getSpecTypes(registry, chain, version.specName, version.specVersion))
         registry.setHasher(getSpecHasher(registry, chain, version.specName))
         registry.setMetadata(

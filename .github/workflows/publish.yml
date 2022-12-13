@@ -1,13 +1,11 @@
-name: CI
+name: Publish
 
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
-  tests:
+  publish:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -35,10 +33,22 @@ jobs:
       with:
         node-version: 18.x
         cache: 'yarn'
+        registry-url: https://registry.npmjs.org/
     - run: yarn --immutable
     - run: yarn check
     - run: yarn build-wasm
-    - run: yarn lint
-    - run: yarn test
     - run: yarn build
-
+    # Writes token to .yarnrc.yml. If written directly in .yarnrc.yml, it will cause an error
+    - run: |
+          echo npmAuthToken: "\${NPM_AUTH_TOKEN}" >> ./.yarnrc.yml
+    - name: Publish @acala-network/chopsticks
+      run: yarn workspace @acala-network/chopsticks npm publish --tolerate-republish --access public
+      env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Publish @acala-network/chopsticks-executor
+      run: yarn workspace @acala-network/chopsticks-executor npm publish --tolerate-republish --access public
+      env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - run: |
+          git checkout ./.yarnrc.yml
+      

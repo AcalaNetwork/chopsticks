@@ -3,8 +3,8 @@ import { Metadata } from '@polkadot/types/metadata'
 import { TypeRegistry } from '@polkadot/types'
 import { decorateStorage } from '@polkadot/types/metadata/decorate'
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'fs'
-import path from 'path'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 
 import {
   WELL_KNOWN_KEYS,

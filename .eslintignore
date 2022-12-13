@@ -3,3 +3,5 @@ vitest.config.ts
 node_modules/
 executor/
 vendor/
+dist/
+chopsticks.js

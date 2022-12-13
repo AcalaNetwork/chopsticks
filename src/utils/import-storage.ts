@@ -1,5 +1,5 @@
 import { HexString } from '@polkadot/util/types'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 
 import { Blockchain } from '../blockchain'
