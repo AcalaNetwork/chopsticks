@@ -104,6 +104,8 @@ export class TxPool {
         number: head.number,
         extrinsicsCount: extrinsics.length,
         tempHash: newBlock.hash,
+        timeValue: time,
+        expectedSlot,
       },
       'Building block'
     )

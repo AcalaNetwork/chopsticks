@@ -29,7 +29,7 @@ export const env = {
   },
   rococo: {
     endpoint: 'wss://rococo-rpc.polkadot.io',
-    blockHash: '0x5269cf7f5b15fbc3a881987f014d5ecee5cfcc5c05a4b7c1cb8db550f22147e9',
+    blockHash: '0xd7fef00504decd41d5d2e9a04346f6bc639fd428083e3ca941f636a8f88d456a',
   },
   mandalaGenesis: {
     genesis: 'https://raw.githubusercontent.com/AcalaNetwork/Acala/master/resources/mandala-dist.json',
