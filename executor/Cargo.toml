@@ -39,3 +39,6 @@ std = [
     "jsonrpsee/ws-client",
     "smoldot/std"
 ]
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-Oz", "--enable-mutable-globals"]
