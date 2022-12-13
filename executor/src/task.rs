@@ -248,7 +248,11 @@ impl Task {
                 RuntimeHostVm::StorageGet(req) => req.inject_value(Some(iter::empty::<Vec<u8>>())),
                 RuntimeHostVm::PrefixKeys(req) => req.inject_keys_ordered(iter::empty::<Vec<u8>>()),
                 RuntimeHostVm::NextKey(req) => req.inject_key(Some(Vec::<u8>::new())),
-                RuntimeHostVm::SignatureVerification(req) => req.resume_success(),
+                RuntimeHostVm::SignatureVerification(req) => {
+                    return Err(jsonrpsee::core::Error::Custom(
+                        "SignatureVerification not supported".into(),
+                    ))
+                }
             }
         };
 

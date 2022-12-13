@@ -3,7 +3,7 @@ import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { expandMetadata } from '@polkadot/types/metadata'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
-import { objectSpread, stringToHex } from '@polkadot/util'
+import { hexToU8a, objectSpread, stringToHex } from '@polkadot/util'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { HexString } from '@polkadot/util/types'
 
@@ -11,6 +11,7 @@ import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
 import { ResponseError } from '../rpc/shared'
 import { TaskResponseCall } from '../task'
+import { compactHex } from '../utils'
 import { getMetadata, getRuntimeVersion } from '../executor'
 import type { RuntimeVersion } from '../executor'
 
@@ -29,6 +30,8 @@ export class Block {
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
+
+  #avoidTasks = false
 
   constructor(
     chain: Blockchain,
@@ -180,9 +183,50 @@ export class Block {
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.wasm.then(getMetadata)
+      if (this.#avoidTasks) {
+        this.#metadata = this.wasm.then(getMetadata)
+      } else {
+        this.#metadata = this.wasm.then(async (wasm) => {
+          const res = await new Promise<`0x${string}`>((resolve, reject) => {
+            this.#chain.tasks.addAndRunTask(
+              {
+                Call: {
+                  blockHash: this.hash,
+                  wasm,
+                  calls: [['Metadata_metadata', '0x']],
+                },
+              },
+              (r) => {
+                if ('Call' in r) {
+                  resolve(compactHex(hexToU8a(r.Call.result)))
+                } else if ('Error' in r) {
+                  reject(new ResponseError(1, r.Error))
+                } else {
+                  reject(new ResponseError(1, 'Unexpected response'))
+                }
+              }
+            )
+          })
+          return res
+        })
+      }
     }
     return this.#metadata
+  }
+
+  // TODO: avoid this hack
+  // we cannot use this.#chain.tasks during initialization phase
+  // but we want to use it after initialization
+  async withAvoidTasks<T>(fn: () => Promise<T>): Promise<T> {
+    const old = this.#avoidTasks
+    this.#avoidTasks = true
+    try {
+      return await fn()
+    } finally {
+      this.#avoidTasks = old
+      this.#meta = undefined
+      this.#metadata = undefined
+    }
   }
 
   get meta(): Promise<DecoratedMeta> {

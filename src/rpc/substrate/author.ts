@@ -43,6 +43,7 @@ const handlers: Handlers = {
   author_unwatchExtrinsic: async (_context, [subid], { unsubscribe }) => {
     unsubscribe(subid)
   },
+  author_pendingExtrinsics: async (_context) => [],
 }
 
 export default handlers

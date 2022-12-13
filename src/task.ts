@@ -7,8 +7,8 @@ const logger = defaultLogger.child({ name: 'task' })
 
 export interface TaskResponseCall {
   Call: {
-    result: string
-    storageDiff: [string, string | null][]
+    result: `0x${string}}`
+    storageDiff: [`0x${string}}`, `0x${string}}` | null][]
   }
 }
 
@@ -62,6 +62,7 @@ export class TaskManager {
     logger.debug(
       {
         kind: Object.keys(task)[0],
+        port: this.#listeningPort,
       },
       'AddTask'
     )
