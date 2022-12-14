@@ -58,11 +58,9 @@ export const setup = async (argv: Config) => {
   const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
 
   const blockNumber = +header.number
+  const timestamp = argv.timestamp ?? Date.now()
   const setTimestamp = new SetTimestamp((newBlockNumber) => {
-    if (argv.timestamp) {
-      return argv.timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
-    }
-    return Date.now()
+    return timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
   })
   const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
 
