@@ -10,7 +10,7 @@ import type { HexString } from '@polkadot/util/types'
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
-import { getMetadata, getRuntimeVersion, runTask } from '../executor'
+import { getRuntimeVersion, runTask } from '../executor'
 import type { RuntimeVersion } from '../executor'
 
 export type TaskCallResponse = {
@@ -33,8 +33,6 @@ export class Block {
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
-
-  #avoidTasks = false
 
   constructor(
     chain: Blockchain,
@@ -186,37 +184,18 @@ export class Block {
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      if (this.#avoidTasks) {
-        this.#metadata = this.wasm.then(getMetadata)
-      } else {
-        this.#metadata = this.wasm.then(async (wasm) => {
-          const response = await runTask({
-            blockHash: this.hash as HexString,
-            wasm,
-            calls: [['Metadata_metadata', '0x']],
-            mockSignatureHost: this.#chain.mockSignatureHost,
-            allowUnresolvedImports: this.#chain.allowUnresolvedImports,
-          })
-          return compactHex(hexToU8a(response.Call.result))
+      this.#metadata = this.wasm.then(async (wasm) => {
+        const response = await runTask({
+          blockHash: this.hash as HexString,
+          wasm,
+          calls: [['Metadata_metadata', '0x']],
+          mockSignatureHost: this.#chain.mockSignatureHost,
+          allowUnresolvedImports: this.#chain.allowUnresolvedImports,
         })
-      }
+        return compactHex(hexToU8a(response.Call.result))
+      })
     }
     return this.#metadata
-  }
-
-  // TODO: avoid this hack
-  // we cannot use this.#chain.tasks during initialization phase
-  // but we want to use it after initialization
-  async withAvoidTasks<T>(fn: () => Promise<T>): Promise<T> {
-    const old = this.#avoidTasks
-    this.#avoidTasks = true
-    try {
-      return await fn()
-    } finally {
-      this.#avoidTasks = old
-      this.#meta = undefined
-      this.#metadata = undefined
-    }
   }
 
   get meta(): Promise<DecoratedMeta> {

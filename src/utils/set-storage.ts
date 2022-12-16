@@ -57,7 +57,7 @@ export const setStorage = async (chain: Blockchain, storage: StorageValues, bloc
   if (Array.isArray(storage)) {
     storageItems = storage
   } else {
-    storageItems = objectToStorageItems(await block.withAvoidTasks(() => block.meta), storage)
+    storageItems = objectToStorageItems(await block.meta, storage)
   }
   block.pushStorageLayer().setAll(storageItems)
   return block.hash

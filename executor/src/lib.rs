@@ -9,20 +9,6 @@ mod proof;
 mod task;
 
 #[wasm_bindgen]
-pub async fn get_metadata(code: JsValue) -> Result<JsValue, JsError> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    _ = console_log::init_with_level(log::Level::Debug);
-
-    let code = serde_wasm_bindgen::from_value::<HexString>(code)?;
-    let metadata = task::get_metadata(code)
-        .await
-        .map_err(|e| JsError::new(e.as_str()))?;
-    let result = serde_wasm_bindgen::to_value(&metadata)?;
-
-    Ok(result)
-}
-
-#[wasm_bindgen]
 pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsError> {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     _ = console_log::init_with_level(log::Level::Debug);
@@ -93,7 +79,9 @@ pub async fn run_task(task: JsValue) -> Result<JsValue, JsError> {
     _ = console_log::init_with_level(log::Level::Debug);
 
     let task = serde_wasm_bindgen::from_value::<task::TaskCall>(task)?;
-    let result = task::run_task(task).await.map_err(|e| JsError::new(e.as_str()))?;
+    let result = task::run_task(task)
+        .await
+        .map_err(|e| JsError::new(e.as_str()))?;
     let result = serde_wasm_bindgen::to_value(&result)?;
 
     Ok(result)
