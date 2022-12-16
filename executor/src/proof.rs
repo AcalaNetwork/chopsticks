@@ -1,10 +1,11 @@
-use jsonrpsee::core::Error;
-use smoldot::json_rpc::methods::{HashHexString, HexString};
-use smoldot::trie::{
-    bytes_to_nibbles,
-    proof_decode::{decode_and_verify_proof, Config},
-    proof_encode::ProofBuilder,
-    proof_node_codec, trie_structure, Nibble,
+use smoldot::{
+    json_rpc::methods::{HashHexString, HexString},
+    trie::{
+        bytes_to_nibbles,
+        proof_decode::{decode_and_verify_proof, Config},
+        proof_encode::ProofBuilder,
+        proof_node_codec, trie_structure, Nibble,
+    },
 };
 use std::collections::BTreeMap;
 
@@ -12,12 +13,12 @@ pub fn decode_proof(
     hash: HashHexString,
     keys: Vec<HexString>,
     proof: Vec<u8>,
-) -> Result<Vec<(HexString, Option<HexString>)>, Error> {
+) -> Result<Vec<(HexString, Option<HexString>)>, String> {
     let config = Config::<Vec<u8>> {
         trie_root_hash: &hash.0,
         proof,
     };
-    let decoded = decode_and_verify_proof(config).map_err(|e| Error::Custom(e.to_string()))?;
+    let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
 
     let entries = keys
         .into_iter()
@@ -37,12 +38,12 @@ pub fn create_proof(
     hash: HashHexString,
     proof: Vec<u8>,
     entries: BTreeMap<Vec<u8>, Vec<u8>>,
-) -> Result<(HashHexString, Vec<HexString>), Error> {
+) -> Result<(HashHexString, Vec<HexString>), String> {
     let config = Config::<Vec<u8>> {
         trie_root_hash: &hash.0,
         proof,
     };
-    let decoded = decode_and_verify_proof(config).map_err(|e| Error::Custom(e.to_string()))?;
+    let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
     let mut proof_builder = ProofBuilder::new();
 
     let mut trie = trie_structure::TrieStructure::new();

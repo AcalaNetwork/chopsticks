@@ -2,7 +2,6 @@ import { ProviderInterface } from '@polkadot/rpc-provider/types'
 
 import { Api } from '../api'
 import { Blockchain } from '../blockchain'
-import { TaskManager } from '../task'
 import { defaultLogger } from '../logger'
 
 export const logger = defaultLogger.child({ name: 'rpc' })
@@ -28,7 +27,6 @@ export interface Context {
   chain: Blockchain
   api: Api
   ws: ProviderInterface
-  tasks: TaskManager
 }
 
 export interface SubscriptionManager {

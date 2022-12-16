@@ -20,6 +20,9 @@ import {
   run_task,
 } from '../executor/pkg'
 import { compactHex } from './utils'
+import { defaultLogger } from './logger'
+
+const logger = defaultLogger.child({ name: 'executor' })
 
 export type RuntimeVersion = {
   specName: string
@@ -66,4 +69,15 @@ export const createProof = async (trieRootHash: HexString, nodes: HexString[], e
   return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }
 
-export { run_task as runTask }
+export const runTask = async (task: {
+  blockHash: HexString
+  wasm: HexString
+  calls: [string, HexString][]
+  mockSignatureHost: boolean
+  allowUnresolvedImports: boolean
+}) => {
+  logger.trace({ task }, 'taskRun')
+  const response = await run_task(task)
+  logger.trace({ response }, 'taskResponse')
+  return response
+}

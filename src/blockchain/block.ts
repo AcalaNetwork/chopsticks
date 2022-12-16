@@ -9,18 +9,21 @@ import type { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
-import { ResponseError } from '../rpc/shared'
-import { TaskResponseCall } from '../task'
 import { compactHex } from '../utils'
-import { getMetadata, getRuntimeVersion } from '../executor'
+import { getMetadata, getRuntimeVersion, runTask } from '../executor'
 import type { RuntimeVersion } from '../executor'
+
+export type TaskCallResponse = {
+  result: HexString
+  storageDiff: [HexString, HexString | null][]
+}
 
 export class Block {
   #chain: Blockchain
 
   #header?: Header | Promise<Header>
   #parentBlock?: Block | Promise<Block | undefined>
-  #extrinsics?: string[] | Promise<string[]>
+  #extrinsics?: HexString[] | Promise<HexString[]>
 
   #wasm?: Promise<HexString>
   #runtimeVersion?: Promise<RuntimeVersion>
@@ -38,7 +41,7 @@ export class Block {
     public readonly number: number,
     public readonly hash: string,
     parentBlock?: Block,
-    block?: { header: Header; extrinsics: string[]; storage?: StorageLayerProvider }
+    block?: { header: Header; extrinsics: HexString[]; storage?: StorageLayerProvider }
   ) {
     this.#chain = chain
     this.#parentBlock = parentBlock
@@ -58,7 +61,7 @@ export class Block {
     return this.#header
   }
 
-  get extrinsics(): string[] | Promise<string[]> {
+  get extrinsics(): HexString[] | Promise<HexString[]> {
     if (!this.#extrinsics) {
       this.#extrinsics = this.#chain.api.getBlock(this.hash).then((b) => b.block.extrinsics)
     }
@@ -187,27 +190,14 @@ export class Block {
         this.#metadata = this.wasm.then(getMetadata)
       } else {
         this.#metadata = this.wasm.then(async (wasm) => {
-          const res = await new Promise<`0x${string}`>((resolve, reject) => {
-            this.#chain.tasks.addAndRunTask(
-              {
-                Call: {
-                  blockHash: this.hash,
-                  wasm,
-                  calls: [['Metadata_metadata', '0x']],
-                },
-              },
-              (r) => {
-                if ('Call' in r) {
-                  resolve(compactHex(hexToU8a(r.Call.result)))
-                } else if ('Error' in r) {
-                  reject(new ResponseError(1, r.Error))
-                } else {
-                  reject(new ResponseError(1, 'Unexpected response'))
-                }
-              }
-            )
+          const response = await runTask({
+            blockHash: this.hash as HexString,
+            wasm,
+            calls: [['Metadata_metadata', '0x']],
+            mockSignatureHost: this.#chain.mockSignatureHost,
+            allowUnresolvedImports: this.#chain.allowUnresolvedImports,
           })
-          return res
+          return compactHex(hexToU8a(response.Call.result))
         })
       }
     }
@@ -239,28 +229,17 @@ export class Block {
     return this.#meta
   }
 
-  async call(method: string, args: string): Promise<TaskResponseCall['Call']> {
+  async call(method: string, args: HexString): Promise<TaskCallResponse> {
     const wasm = await this.wasm
-    const res = await new Promise<TaskResponseCall['Call']>((resolve, reject) => {
-      this.#chain.tasks.addAndRunTask(
-        {
-          Call: {
-            blockHash: this.hash,
-            wasm,
-            calls: [[method, args]],
-          },
-        },
-        (r) => {
-          if ('Call' in r) {
-            resolve(r.Call)
-          } else if ('Error' in r) {
-            reject(new ResponseError(1, r.Error))
-          } else {
-            reject(new ResponseError(1, 'Unexpected response'))
-          }
-        }
-      )
+    const response = await runTask({
+      blockHash: this.hash as HexString,
+      wasm,
+      calls: [[method, args]],
+      mockSignatureHost: this.#chain.mockSignatureHost,
+      allowUnresolvedImports: this.#chain.allowUnresolvedImports,
     })
-    return res
+    if (response.Call) return response.Call
+    if (response.Error) throw Error(response.Error)
+    throw Error('Unexpected response')
   }
 }
