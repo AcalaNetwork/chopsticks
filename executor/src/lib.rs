@@ -8,10 +8,17 @@ mod bindings;
 mod proof;
 mod task;
 
+fn setup_console() {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    #[cfg(feature = "logging")]
+    {
+        let _ = console_log::init_with_level(log::Level::Trace);
+    }
+}
+
 #[wasm_bindgen]
 pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsError> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    _ = console_log::init_with_level(log::Level::Debug);
+    setup_console();
 
     let code = serde_wasm_bindgen::from_value::<HexString>(code)?;
     let runtime_version = task::runtime_version(code)
@@ -24,8 +31,7 @@ pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsError> {
 
 #[wasm_bindgen]
 pub async fn calculate_state_root(entries: JsValue) -> Result<JsValue, JsError> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    _ = console_log::init_with_level(log::Level::Debug);
+    setup_console();
 
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
     let hash = task::calculate_state_root(entries);
@@ -40,8 +46,7 @@ pub async fn decode_proof(
     keys: JsValue,
     nodes: JsValue,
 ) -> Result<JsValue, JsError> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    _ = console_log::init_with_level(log::Level::Debug);
+    setup_console();
 
     let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
     let keys = serde_wasm_bindgen::from_value::<Vec<HexString>>(keys)?;
@@ -59,8 +64,7 @@ pub async fn create_proof(
     nodes: JsValue,
     entries: JsValue,
 ) -> Result<JsValue, JsError> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    _ = console_log::init_with_level(log::Level::Debug);
+    setup_console();
 
     let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
     let proof = serde_wasm_bindgen::from_value::<HexString>(nodes)?;
@@ -75,8 +79,7 @@ pub async fn create_proof(
 
 #[wasm_bindgen]
 pub async fn run_task(task: JsValue) -> Result<JsValue, JsError> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    _ = console_log::init_with_level(log::Level::Debug);
+    setup_console();
 
     let task = serde_wasm_bindgen::from_value::<task::TaskCall>(task)?;
     let result = task::run_task(task)

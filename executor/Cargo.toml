@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 getrandom = { version = "0.2", default-features = false, features = ["js"] }
-serde = { version = "1.0.136", default-features = false }
+serde = { version = "1.0.151", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 hex = { version = "0.4.3", default-features = false }
 hex-literal = "0.3.4"
@@ -21,19 +21,22 @@ wasm-bindgen = "0.2.83"
 serde-wasm-bindgen = "0.4.5"
 wasm-bindgen-futures = "0.4.33"
 js-sys = "0.3.60"
-log = { version = "0.4.17", features = ["std"] }
+log = "0.4.17"
 console_error_panic_hook = "0.1.7"
-console_log = "0.2.0"
+console_log = { version = "0.2.0", optional = true }
 
 smoldot = { path = '../vendor/smoldot', default-features = false }
 
 [dev-dependencies]
-arrayvec = { version = "0.7.2", default-features = false }
+arrayvec = "0.7.2"
 
 [features]
 default = []
 std = [
     "smoldot/std"
+]
+logging = [
+	"console_log"
 ]
 
 [package.metadata.wasm-pack.profile.release]
