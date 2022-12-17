@@ -1,5 +1,5 @@
 import { Header } from '@polkadot/types/interfaces'
-import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
+import { bnToHex, bnToU8a, compactAddLength, hexToU8a, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -83,6 +83,14 @@ export class TxPool {
       // trying to make a SecondaryPlainPreDigest
       const newSlot = compactAddLength(u8aConcat('0x0200000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
       newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
+    } else if (consensus?.consensusEngine?.toString() == 'nmbs') {
+      newLogs = [
+        {
+          // Foundation Session Key: TODO, support getting dynamic value
+          PreRuntime: [consensus.consensusEngine, '0x188cb000c37ea61861acd77cba4ad23b2a97b8069cea6227716c75c71b75bd6a'],
+        },
+        ...consensus.rest,
+      ]
     }
 
     const registry = await head.registry

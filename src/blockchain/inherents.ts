@@ -143,3 +143,25 @@ export class SetValidationData implements CreateInherents {
     return [inherent.toHex()]
   }
 }
+
+// Support for Nimbus Author Inherent
+export class SetNimbusAuthorInherent implements CreateInherents {
+  async createInherents(meta: DecoratedMeta, _timestamp: number, _parent: Block): Promise<string[]> {
+    if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
+      return []
+    }
+    console.log('createInherents kickOffAuthorshipValidation', _parent.number)
+    return [new GenericExtrinsic(meta.registry, meta.tx.authorInherent.kickOffAuthorshipValidation()).toHex()]
+  }
+}
+
+// Support for Moonbeam pallet-randomness mandatory inherent
+export class SetBabeRandomness implements CreateInherents {
+  async createInherents(meta: DecoratedMeta, _timestamp: number, _parent: Block): Promise<string[]> {
+    if (!meta.tx.randomness?.setBabeRandomnessResults) {
+      return []
+    }
+    console.log('createInherents SetBabeRandomness', _parent.number)
+    return [new GenericExtrinsic(meta.registry, meta.tx.randomness.setBabeRandomnessResults()).toHex()]
+  }
+}

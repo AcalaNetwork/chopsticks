@@ -14,7 +14,13 @@ import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { Config, configSchema } from './schema'
 import { GenesisProvider } from './genesis-provider'
-import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherents'
+import {
+  InherentProviders,
+  SetBabeRandomness,
+  SetNimbusAuthorInherent,
+  SetTimestamp,
+  SetValidationData,
+} from './blockchain/inherents'
 import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
@@ -62,7 +68,11 @@ export const setup = async (argv: Config) => {
   const setTimestamp = new SetTimestamp((newBlockNumber) => {
     return timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
   })
-  const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
+  const inherents = new InherentProviders(setTimestamp, [
+    new SetValidationData(tasks, 0),
+    new SetNimbusAuthorInherent(),
+    new SetBabeRandomness(),
+  ])
 
   const chain = new Blockchain({
     api,

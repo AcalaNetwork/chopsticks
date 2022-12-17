@@ -1,0 +1,25 @@
+endpoint: wss://moonriver.kaki.dev
+mock-signature-host: true
+block: 3202514
+db: ./db.sqlite
+
+import-storage:
+  System:
+    Account:
+      -
+        -
+          - f24FF3a9CF04c71Dbc94D0b566f7A27B94566cac
+        - data:
+            free: "100000000000000000000000"
+  TechCommitteeCollective:
+    Members: [f24FF3a9CF04c71Dbc94D0b566f7A27B94566cac]
+  CouncilCollective:
+    Members: [f24FF3a9CF04c71Dbc94D0b566f7A27B94566cac]
+  TreasuryCouncilCollective:
+    Members: [f24FF3a9CF04c71Dbc94D0b566f7A27B94566cac]
+  AuthorFilter:
+    EligibleRatio: 100
+    EligibleCount: 100
+
+
+

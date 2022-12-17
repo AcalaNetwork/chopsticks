@@ -7,7 +7,13 @@ import { Api } from '../src/api'
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
 import { GenesisProvider } from '../src/genesis-provider'
-import { InherentProviders, SetTimestamp, SetValidationData } from '../src/blockchain/inherents'
+import {
+  InherentProviders,
+  SetBabeRandomness,
+  SetNimbusAuthorInherent,
+  SetTimestamp,
+  SetValidationData,
+} from '../src/blockchain/inherents'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { StorageValues } from '../src/utils/set-storage'
 import { TaskManager } from '../src/task'
@@ -58,7 +64,11 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
         now += 20000
         return now
       })
-      const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks, 1)])
+      const inherents = new InherentProviders(setTimestamp, [
+        new SetValidationData(tasks, 0),
+        new SetNimbusAuthorInherent(),
+        new SetBabeRandomness(),
+      ])
 
       const chain = new Blockchain({
         api,
