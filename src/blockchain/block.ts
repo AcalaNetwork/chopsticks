@@ -189,6 +189,7 @@ export class Block {
           blockHash: this.hash as HexString,
           wasm,
           calls: [['Metadata_metadata', '0x']],
+          storage: [],
           mockSignatureHost: this.#chain.mockSignatureHost,
           allowUnresolvedImports: this.#chain.allowUnresolvedImports,
         })
@@ -208,12 +209,13 @@ export class Block {
     return this.#meta
   }
 
-  async call(method: string, args: HexString): Promise<TaskCallResponse> {
+  async call(method: string, args: HexString, storage: [HexString, HexString | null][] = []): Promise<TaskCallResponse> {
     const wasm = await this.wasm
     const response = await runTask({
       blockHash: this.hash as HexString,
       wasm,
       calls: [[method, args]],
+      storage,
       mockSignatureHost: this.#chain.mockSignatureHost,
       allowUnresolvedImports: this.#chain.allowUnresolvedImports,
     })

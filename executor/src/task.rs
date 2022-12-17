@@ -64,6 +64,7 @@ pub struct TaskCall {
     wasm: HexString,
     block_hash: HexString,
     calls: Option<Vec<(String, HexString)>>,
+    storage: Vec<(HexString, Option<HexString>)>,
     mock_signature_host: bool,
     allow_unresolved_imports: bool,
 }
@@ -87,7 +88,11 @@ fn is_magic_signature(signature: &[u8]) -> bool {
 }
 
 pub async fn run_task(task: TaskCall) -> Result<TaskResponse, String> {
-    let mut storage_top_trie_changes = StorageDiff::empty();
+    let mut storage_top_trie_changes = StorageDiff::from_iter(
+        task.storage
+            .into_iter()
+            .map(|(key, value)| (key.0, value.map(|x| x.0))),
+    );
     let mut offchain_storage_changes = StorageDiff::empty();
 
     let vm_proto = HostVmPrototype::new(Config {

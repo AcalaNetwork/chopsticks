@@ -61,6 +61,7 @@ export const runTask = async (task: {
   blockHash: HexString
   wasm: HexString
   calls: [string, HexString][]
+  storage: [HexString, HexString | null][]
   mockSignatureHost: boolean
   allowUnresolvedImports: boolean
 }) => {
