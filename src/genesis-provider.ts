@@ -143,6 +143,7 @@ export class GenesisProvider implements ProviderInterface {
           blockHash: this.blockHash,
           wasm: code,
           calls: [['Metadata_metadata', '0x']],
+          storage: [],
           mockSignatureHost: false,
           allowUnresolvedImports: true,
         })

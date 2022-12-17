@@ -118,6 +118,7 @@ export const runBlock = async (argv: Config) => {
     blockHash: parent,
     wasm,
     calls,
+    storage: [],
     mockSignatureHost: false,
     allowUnresolvedImports: false,
   })

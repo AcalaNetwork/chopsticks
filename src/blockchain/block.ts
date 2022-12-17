@@ -209,7 +209,11 @@ export class Block {
     return this.#meta
   }
 
-  async call(method: string, args: HexString, storage: [HexString, HexString | null][] = []): Promise<TaskCallResponse> {
+  async call(
+    method: string,
+    args: HexString,
+    storage: [HexString, HexString | null][] = []
+  ): Promise<TaskCallResponse> {
     const wasm = await this.wasm
     const response = await runTask({
       blockHash: this.hash as HexString,
