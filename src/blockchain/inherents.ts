@@ -104,15 +104,16 @@ export class SetValidationData implements CreateInherents {
       // chain started with genesis, mock 1st validationData
       newData = MOCK_VALIDATION_DATA
     } else {
-      const methods = extrinsics.map((extrinsic) =>
-        meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)
+      const validationDataExtrinsic = extrinsics.find(
+        (extrinsic) =>
+          'validationData' in meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic).args?.[0]
       )
-
-      const method = methods.find((method) => 'validationData' in method.args?.[0])
-      if (!method) {
+      if (!validationDataExtrinsic) {
         throw new Error('Missing validation data from block')
       }
-      const extrinsic = method.args[0].toJSON() as typeof MOCK_VALIDATION_DATA
+      const extrinsic = meta.registry
+        .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
+        .args[0].toJSON() as typeof MOCK_VALIDATION_DATA
 
       const newEntries: [HexString, HexString][] = []
       const upgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
