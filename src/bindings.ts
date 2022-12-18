@@ -11,7 +11,7 @@ export const setupBindings = (chain: Blockchain) => {
       const block = await chain.getBlock(blockHash)
       if (!block) throw Error(`Block not found ${blockHash}`)
       const value = await block.get(key)
-      logger.info({ blockHash, key, value: value && truncate(value) }, 'exec_storageGet')
+      logger.trace({ blockHash, key, value: value && truncate(value) }, 'exec_storageGet')
       return value
     },
     getPrefixKeys: async function (blockHash: HexString, key: HexString) {
