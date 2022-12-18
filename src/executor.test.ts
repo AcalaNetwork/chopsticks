@@ -1,7 +1,5 @@
 import { HexString } from '@polkadot/util/types'
-import { Metadata } from '@polkadot/types/metadata'
 import { TypeRegistry } from '@polkadot/types'
-import { decorateStorage } from '@polkadot/types/metadata/decorate'
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -13,20 +11,9 @@ import {
   hrmpIngressChannelIndex,
   upgradeGoAheadSignal,
 } from './utils/proof'
-import { calculateStateRoot, createProof, decodeProof, getMetadata, getRuntimeVersion } from './executor'
+import { calculateStateRoot, createProof, decodeProof, getRuntimeVersion } from './executor'
 
 describe('wasm', () => {
-  it('get metadata from wasm runtime', async () => {
-    const code = String(readFileSync(path.join(__dirname, 'runtime.example'))).trim()
-    expect(code.length).toBeGreaterThan(2)
-    const registry = new TypeRegistry()
-    const metadata = new Metadata(registry, await getMetadata(code as HexString))
-    registry.setMetadata(metadata)
-    expect(registry.metadata.pallets.length).toBeGreaterThan(0)
-    const storage = decorateStorage(registry, metadata.asLatest, metadata.version)
-    expect(storage.system).toBeTruthy
-  })
-
   it('get runtime version from wasm runtime', async () => {
     const code = String(readFileSync(path.join(__dirname, 'runtime.example'))).trim()
     expect(code.length).toBeGreaterThan(2)

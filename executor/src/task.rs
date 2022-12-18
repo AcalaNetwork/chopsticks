@@ -1,5 +1,4 @@
 use core::iter;
-use jsonrpsee::core::client::Client;
 use serde::{Deserialize, Serialize};
 use smoldot::{
     executor::{
@@ -16,7 +15,7 @@ use smoldot::{
 };
 use std::collections::BTreeMap;
 
-use crate::runner_api::RpcApiClient;
+use crate::bindings::{get_next_key, get_prefix_keys, get_storage};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -65,13 +64,9 @@ pub struct TaskCall {
     wasm: HexString,
     block_hash: HexString,
     calls: Option<Vec<(String, HexString)>>,
+    storage: Vec<(HexString, Option<HexString>)>,
     mock_signature_host: bool,
     allow_unresolved_imports: bool,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum Task {
-    Call(TaskCall),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -92,208 +87,154 @@ fn is_magic_signature(signature: &[u8]) -> bool {
     signature.starts_with(&[0xde, 0xad, 0xbe, 0xef]) && signature[4..].iter().all(|&b| b == 0xcd)
 }
 
-impl Task {
-    pub async fn run(
-        self,
-        task_id: u32,
-        client: &Client,
-    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
-        let resp = match self {
-            Task::Call(call) => Task::call(task_id, client, call).await,
-        }?;
+pub async fn run_task(task: TaskCall) -> Result<TaskResponse, String> {
+    let mut storage_top_trie_changes = StorageDiff::from_iter(
+        task.storage
+            .into_iter()
+            .map(|(key, value)| (key.0, value.map(|x| x.0))),
+    );
+    let mut offchain_storage_changes = StorageDiff::empty();
 
-        client.task_result(task_id, &resp).await?;
+    let vm_proto = HostVmPrototype::new(Config {
+        module: &task.wasm,
+        heap_pages: HeapPages::from(2048),
+        exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+        allow_unresolved_imports: task.allow_unresolved_imports,
+    })
+    .unwrap();
+    let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
 
-        Ok(resp)
-    }
-
-    async fn call(
-        task_id: u32,
-        client: &Client,
-        task_params: TaskCall,
-    ) -> Result<TaskResponse, jsonrpsee::core::Error> {
-        let mut storage_top_trie_changes = StorageDiff::empty();
-        let mut offchain_storage_changes = StorageDiff::empty();
-
-        let vm_proto = HostVmPrototype::new(Config {
-            module: &task_params.wasm,
-            heap_pages: HeapPages::from(2048),
-            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: task_params.allow_unresolved_imports,
-        })
-        .unwrap();
-        let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
-
-        for (call, params) in task_params.calls.as_ref().unwrap() {
-            let mut vm = runtime_host::run(runtime_host::Config {
-                virtual_machine: vm_proto.clone(),
-                function_to_call: call,
-                parameter: iter::once(params.as_ref()),
-                top_trie_root_calculation_cache: None,
-                storage_top_trie_changes,
-                offchain_storage_changes,
-            })
-            .unwrap();
-
-            println!("Calling {}", call);
-
-            let res = loop {
-                vm = match vm {
-                    RuntimeHostVm::Finished(res) => {
-                        break res;
-                    }
-                    RuntimeHostVm::StorageGet(req) => {
-                        let key = req.key().as_ref().to_vec();
-                        let mut value = client
-                            .storage_get(task_id, &task_params.block_hash, HexString(key))
-                            .await?;
-                        if let Some(val) = &value {
-                            if val.0.is_empty() {
-                                value = None;
-                            }
-                        }
-                        req.inject_value(value.map(|v| iter::once(v.0)))
-                    }
-                    RuntimeHostVm::PrefixKeys(req) => {
-                        let prefix = req.prefix().as_ref().to_vec();
-                        if prefix.is_empty() {
-                            // this must be coming from `ExternalStorageRoot` trying to get all keys in order to calculate storage root digest
-                            // we are not going to fetch all the storages for that, so a dummy value is returned
-                            // this means the storage root digest will be wrong, and failed the final check
-                            // so we should just avoid doing final check by not supporting execute_block
-                            req.inject_keys_ordered(iter::empty::<Vec<u8>>())
-                        } else {
-                            let keys = client
-                                .prefix_keys(task_id, &task_params.block_hash, HexString(prefix))
-                                .await?;
-                            req.inject_keys_ordered(keys.into_iter().map(|v| v.0))
-                        }
-                    }
-                    RuntimeHostVm::NextKey(req) => {
-                        let key = req.key().as_ref().to_vec();
-                        let next_key = client
-                            .next_key(task_id, &task_params.block_hash, HexString(key))
-                            .await?;
-                        req.inject_key(next_key.map(|k| k.0))
-                    }
-                    RuntimeHostVm::SignatureVerification(req) => {
-                        let bypass = task_params.mock_signature_host
-                            && is_magic_signature(req.signature().as_ref());
-                        if bypass {
-                            req.resume_success()
-                        } else {
-                            req.verify_and_resume()
-                        }
-                    }
-                }
-            };
-
-            println!("Completed {}", call);
-
-            match res {
-                Ok(success) => {
-                    ret = Ok(success.virtual_machine.value().as_ref().to_vec());
-
-                    storage_top_trie_changes = success.storage_top_trie_changes;
-                    offchain_storage_changes = success.offchain_storage_changes;
-                }
-                Err(err) => {
-                    ret = Err(err.to_string());
-                    storage_top_trie_changes = StorageDiff::empty();
-                    break;
-                }
-            }
-        }
-
-        Ok(ret.map_or_else(TaskResponse::Error, move |ret| {
-            let diff = storage_top_trie_changes
-                .diff_into_iter_unordered()
-                .map(|(k, v)| (HexString(k), v.map(HexString)))
-                .collect();
-
-            TaskResponse::Call(CallResponse {
-                result: HexString(ret),
-                storage_diff: diff,
-            })
-        }))
-    }
-}
-
-#[allow(unused)]
-impl Task {
-    pub async fn get_metadata(wasm: HexString) -> Result<HexString, jsonrpsee::core::Error> {
-        let vm_proto = HostVmPrototype::new(Config {
-            module: &wasm,
-            heap_pages: HeapPages::from(2048),
-            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: true, // we do not care here - just reading metadata
-        })
-        .unwrap();
-
+    for (call, params) in task.calls.as_ref().unwrap() {
         let mut vm = runtime_host::run(runtime_host::Config {
-            virtual_machine: vm_proto,
-            function_to_call: "Metadata_metadata",
-            parameter: iter::empty::<Vec<u8>>(),
+            virtual_machine: vm_proto.clone(),
+            function_to_call: call,
+            parameter: iter::once(params.as_ref()),
             top_trie_root_calculation_cache: None,
-            storage_top_trie_changes: StorageDiff::empty(),
-            offchain_storage_changes: StorageDiff::empty(),
+            storage_top_trie_changes,
+            offchain_storage_changes,
         })
         .unwrap();
+
+        log::trace!("Calling {}", call);
+
+        let hash = serde_wasm_bindgen::to_value(&task.block_hash).map_err(|e| e.to_string())?;
 
         let res = loop {
             vm = match vm {
                 RuntimeHostVm::Finished(res) => {
                     break res;
                 }
-                RuntimeHostVm::StorageGet(req) => req.inject_value(Some(iter::empty::<Vec<u8>>())),
-                RuntimeHostVm::PrefixKeys(req) => req.inject_keys_ordered(iter::empty::<Vec<u8>>()),
-                RuntimeHostVm::NextKey(req) => req.inject_key(Some(Vec::<u8>::new())),
+                RuntimeHostVm::StorageGet(req) => {
+                    let key = HexString(req.key().as_ref().to_vec());
+                    let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
+                    let value = get_storage(hash.clone(), key).await;
+                    let value = serde_wasm_bindgen::from_value::<HexString>(value)
+                        .map(|x| x.0)
+                        .map_err(|e| e.to_string())?;
+                    let value = if value.is_empty() { None } else { Some(value) };
+                    req.inject_value(value.map(iter::once))
+                }
+                RuntimeHostVm::PrefixKeys(req) => {
+                    let prefix = req.prefix().as_ref().to_vec();
+                    if prefix.is_empty() {
+                        // this must be coming from `ExternalStorageRoot` trying to get all keys in order to calculate storage root digest
+                        // we are not going to fetch all the storages for that, so a dummy value is returned
+                        // this means the storage root digest will be wrong, and failed the final check
+                        // so we should just avoid doing final check by not supporting execute_block
+                        req.inject_keys_ordered(iter::empty::<Vec<u8>>())
+                    } else {
+                        let key = serde_wasm_bindgen::to_value(&HexString(prefix))
+                            .map_err(|e| e.to_string())?;
+                        let keys = get_prefix_keys(hash.clone(), key).await;
+                        let keys = serde_wasm_bindgen::from_value::<Vec<HexString>>(keys)
+                            .map(|x| x.into_iter().map(|x| x.0))
+                            .map_err(|e| e.to_string())?;
+                        req.inject_keys_ordered(keys)
+                    }
+                }
+                RuntimeHostVm::NextKey(req) => {
+                    let key = HexString(req.key().as_ref().to_vec());
+                    let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
+                    let value = get_next_key(hash.clone(), key).await;
+                    let value = serde_wasm_bindgen::from_value::<HexString>(value)
+                        .map(|x| x.0)
+                        .map_err(|e| e.to_string())?;
+                    let value = if value.is_empty() { None } else { Some(value) };
+                    req.inject_key(value)
+                }
                 RuntimeHostVm::SignatureVerification(req) => {
-                    return Err(jsonrpsee::core::Error::Custom(
-                        "SignatureVerification not supported".into(),
-                    ))
+                    let bypass =
+                        task.mock_signature_host && is_magic_signature(req.signature().as_ref());
+                    if bypass {
+                        req.resume_success()
+                    } else {
+                        req.verify_and_resume()
+                    }
                 }
             }
         };
 
-        res.map(|success| HexString(success.virtual_machine.value().as_ref().to_vec()))
-            .map_err(|e| jsonrpsee::core::Error::Custom(e.to_string()))
+        log::trace!("Completed {}", call);
+
+        match res {
+            Ok(success) => {
+                ret = Ok(success.virtual_machine.value().as_ref().to_vec());
+
+                storage_top_trie_changes = success.storage_top_trie_changes;
+                offchain_storage_changes = success.offchain_storage_changes;
+            }
+            Err(err) => {
+                ret = Err(err.to_string());
+                storage_top_trie_changes = StorageDiff::empty();
+                break;
+            }
+        }
     }
 
-    pub async fn runtime_version(
-        wasm: HexString,
-    ) -> Result<RuntimeVersion, jsonrpsee::core::Error> {
-        let vm_proto = HostVmPrototype::new(Config {
-            module: &wasm,
-            heap_pages: HeapPages::from(2048),
-            exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-            allow_unresolved_imports: true, // we do not care to get just version
+    Ok(ret.map_or_else(TaskResponse::Error, move |ret| {
+        let diff = storage_top_trie_changes
+            .diff_into_iter_unordered()
+            .map(|(k, v)| (HexString(k), v.map(HexString)))
+            .collect();
+
+        TaskResponse::Call(CallResponse {
+            result: HexString(ret),
+            storage_diff: diff,
         })
-        .unwrap();
+    }))
+}
 
-        let core_version = vm_proto.runtime_version().decode();
+pub async fn runtime_version(wasm: HexString) -> Result<RuntimeVersion, String> {
+    let vm_proto = HostVmPrototype::new(Config {
+        module: &wasm,
+        heap_pages: HeapPages::from(2048),
+        exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+        allow_unresolved_imports: true, // we do not care to get just version
+    })
+    .unwrap();
 
-        Ok(RuntimeVersion::new(core_version))
-    }
+    let core_version = vm_proto.runtime_version().decode();
 
-    pub fn calculate_state_root(entries: Vec<(HexString, HexString)>) -> HexString {
-        let mut calc = root_merkle_value(None);
-        let map = entries
-            .into_iter()
-            .map(|(k, v)| (k.0, v.0))
-            .collect::<BTreeMap<Vec<u8>, Vec<u8>>>();
-        loop {
-            match calc {
-                RootMerkleValueCalculation::Finished { hash, .. } => {
-                    return HexString(hash.to_vec());
-                }
-                RootMerkleValueCalculation::AllKeys(req) => {
-                    calc = req.inject(map.keys().map(|k| k.iter().cloned()));
-                }
-                RootMerkleValueCalculation::StorageValue(req) => {
-                    let key = req.key().collect::<Vec<u8>>();
-                    calc = req.inject(TrieEntryVersion::V0, map.get(&key));
-                }
+    Ok(RuntimeVersion::new(core_version))
+}
+
+pub fn calculate_state_root(entries: Vec<(HexString, HexString)>) -> HexString {
+    let mut calc = root_merkle_value(None);
+    let map = entries
+        .into_iter()
+        .map(|(k, v)| (k.0, v.0))
+        .collect::<BTreeMap<Vec<u8>, Vec<u8>>>();
+    loop {
+        match calc {
+            RootMerkleValueCalculation::Finished { hash, .. } => {
+                return HexString(hash.to_vec());
+            }
+            RootMerkleValueCalculation::AllKeys(req) => {
+                calc = req.inject(map.keys().map(|k| k.iter().cloned()));
+            }
+            RootMerkleValueCalculation::StorageValue(req) => {
+                let key = req.key().collect::<Vec<u8>>();
+                calc = req.inject(TrieEntryVersion::V0, map.get(&key));
             }
         }
     }

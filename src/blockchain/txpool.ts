@@ -1,5 +1,6 @@
 import { Header } from '@polkadot/types/interfaces'
-import { bnToHex, bnToU8a, compactAddLength, hexToU8a, u8aConcat } from '@polkadot/util'
+import { HexString } from '@polkadot/util/types'
+import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -7,7 +8,7 @@ import { Blockchain } from '.'
 import { InherentProvider } from './inherents'
 import { ResponseError } from '../rpc/shared'
 import { compactHex } from '../utils'
-import { defaultLogger } from '../logger'
+import { defaultLogger, truncateStorageDiff } from '../logger'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
@@ -26,7 +27,7 @@ const getConsensus = (header: Header) => {
 
 export class TxPool {
   readonly #chain: Blockchain
-  readonly #pool: string[] = []
+  readonly #pool: HexString[] = []
   readonly #mode: BuildBlockMode
   readonly #inherentProvider: InherentProvider
 
@@ -38,7 +39,7 @@ export class TxPool {
     this.#inherentProvider = inherentProvider
   }
 
-  submitExtrinsic(extrinsic: string) {
+  submitExtrinsic(extrinsic: HexString) {
     this.#pool.push(extrinsic)
 
     switch (this.#mode) {
@@ -119,7 +120,7 @@ export class TxPool {
     )
 
     const resp = await newBlock.call('Core_initialize_block', header.toHex())
-    logger.trace(resp.storageDiff, 'Initialize block')
+    logger.trace(truncateStorageDiff(resp.storageDiff), 'Initialize block')
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
@@ -135,7 +136,7 @@ export class TxPool {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
         newBlock.pushStorageLayer().setAll(resp.storageDiff)
-        logger.trace(resp.storageDiff, 'Applied inherent')
+        logger.trace(truncateStorageDiff(resp.storageDiff), 'Applied inherent')
       } catch (e) {
         logger.warn('Failed to apply inherents %o %s', e, e)
         throw new ResponseError(1, 'Failed to apply inherents')
@@ -146,7 +147,7 @@ export class TxPool {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
         newBlock.pushStorageLayer().setAll(resp.storageDiff)
-        logger.trace(resp.storageDiff, 'Applied extrinsic')
+        logger.trace(truncateStorageDiff(resp.storageDiff), 'Applied extrinsic')
       } catch (e) {
         logger.info('Failed to apply extrinsic %o %s', e, e)
         this.#pool.push(extrinsic)

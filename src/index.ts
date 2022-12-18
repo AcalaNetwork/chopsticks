@@ -1,4 +1,5 @@
 import '@polkadot/types-codec'
+import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { WsProvider } from '@polkadot/api'
 import { u8aToHex } from '@polkadot/util'
@@ -21,12 +22,12 @@ import {
   SetTimestamp,
   SetValidationData,
 } from './blockchain/inherents'
-import { TaskManager } from './task'
 import { createServer } from './server'
 import { defaultLogger } from './logger'
 import { handler } from './rpc'
 import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
+import { runTask } from './executor'
 
 export const setup = async (argv: Config) => {
   let provider: ProviderInterface
@@ -59,9 +60,6 @@ export const setup = async (argv: Config) => {
   }
 
   const header = await api.getHeader(blockHash)
-  const port = argv.port || Number(process.env.PORT) || 8000
-
-  const tasks = new TaskManager(port, argv['mock-signature-host'], argv['executor-cmd'])
 
   const blockNumber = +header.number
   const timestamp = argv.timestamp ?? Date.now()
@@ -69,14 +67,13 @@ export const setup = async (argv: Config) => {
     return timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
   })
   const inherents = new InherentProviders(setTimestamp, [
-    new SetValidationData(tasks),
+    new SetValidationData(),
     new SetNimbusAuthorInherent(),
     new SetBabeRandomness(),
   ])
 
   const chain = new Blockchain({
     api,
-    tasks,
     buildBlockMode: argv['build-block-mode'],
     inherentProvider: inherents,
     db,
@@ -86,7 +83,7 @@ export const setup = async (argv: Config) => {
     },
   })
 
-  const context = { chain, api, ws: provider, tasks }
+  const context = { chain, api, ws: provider }
 
   await importStorage(chain, argv['import-storage'])
   await overrideWasm(chain, argv['wasm-override'])
@@ -98,9 +95,7 @@ export const setupWithServer = async (argv: Config) => {
   const context = await setup(argv)
   const port = argv.port || Number(process.env.PORT) || 8000
 
-  const { port: listeningPort, close } = createServer(port, handler(context))
-
-  context.tasks.updateListeningPort(await listeningPort)
+  const { close } = createServer(port, handler(context))
 
   if (argv.genesis) {
     // mine 1st block when starting from genesis to set some mock validation data
@@ -121,30 +116,28 @@ export const runBlock = async (argv: Config) => {
   const wasm = await context.chain.head.wasm
   const block = context.chain.head
 
-  const calls: [string, string][] = [['Core_initialize_block', header.toHex()]]
+  const calls: [string, HexString][] = [['Core_initialize_block', header.toHex()]]
 
   for (const extrinsic of await block.extrinsics) {
     calls.push(['BlockBuilder_apply_extrinsic', extrinsic])
   }
 
-  calls.push(['BlockBuilder_finalize_block', '0x'])
+  calls.push(['BlockBuilder_finalize_block', '0x' as HexString])
 
-  await context.tasks.addAndRunTask(
-    {
-      Call: {
-        blockHash: parent,
-        wasm,
-        calls,
-      },
-    },
-    (output) => {
-      if (argv['output-path']) {
-        writeFileSync(argv['output-path'], JSON.stringify(output, null, 2))
-      } else {
-        console.dir(output, { depth: null, colors: false })
-      }
-    }
-  )
+  const result = await runTask({
+    blockHash: parent,
+    wasm,
+    calls,
+    storage: [],
+    mockSignatureHost: false,
+    allowUnresolvedImports: false,
+  })
+
+  if (argv['output-path']) {
+    writeFileSync(argv['output-path'], JSON.stringify(result, null, 2))
+  } else {
+    console.dir(result, { depth: null, colors: false })
+  }
 
   await context.close()
   setTimeout(() => process.exit(0), 50)
@@ -215,10 +208,6 @@ yargs(hideBin(process.argv))
           desc: 'Port to listen on',
           number: true,
         },
-        'executor-cmd': {
-          desc: 'Command to execute the executor',
-          string: true,
-        },
         'output-path': {
           desc: 'File path to print output',
           string: true,
@@ -240,10 +229,6 @@ yargs(hideBin(process.argv))
         port: {
           desc: 'Port to listen on',
           number: true,
-        },
-        'executor-cmd': {
-          desc: 'Command to execute the executor',
-          string: true,
         },
         'build-block-mode': {
           desc: 'Build block mode. Default to Batch',
