@@ -1,4 +1,6 @@
+import { HexString } from '@polkadot/util/types'
 import pino from 'pino'
+
 export const defaultLogger = pino({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
@@ -6,7 +8,7 @@ export const defaultLogger = pino({
   },
 })
 
-export const truncate = (str?: string) => {
+export const truncate = (str: string | null) => {
   if (str == null) {
     return str
   }
@@ -15,4 +17,8 @@ export const truncate = (str?: string) => {
   } else {
     return str
   }
+}
+
+export const truncateStorageDiff = (diff: [HexString, HexString | null][]): [HexString, string | null][] => {
+  return diff.map(([key, value]) => [key, truncate(value)])
 }
