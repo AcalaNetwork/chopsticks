@@ -104,10 +104,10 @@ export class SetValidationData implements CreateInherents {
       // chain started with genesis, mock 1st validationData
       newData = MOCK_VALIDATION_DATA
     } else {
-      const validationDataExtrinsic = extrinsics.find(
-        (extrinsic) =>
-          'validationData' in meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic).args?.[0]
-      )
+      const validationDataExtrinsic = extrinsics.find((extrinsic) => {
+        const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
+        return firstArg && 'validationData' in firstArg
+      })
       if (!validationDataExtrinsic) {
         throw new Error('Missing validation data from block')
       }
