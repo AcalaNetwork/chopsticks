@@ -7,14 +7,14 @@ const logger = defaultLogger.child({ name: 'binding' })
 
 export const setupBindings = (chain: Blockchain) => {
   global._chopsticks_binding_ = {
-      getStorage: async function (blockHash: HexString, key: HexString) {
+    getStorage: async function (blockHash: HexString, key: HexString) {
       const block = await chain.getBlock(blockHash)
       if (!block) throw Error(`Block not found ${blockHash}`)
       const value = await block.get(key).then((x) => (x ? x : '0x'))
       logger.trace({ blockHash, key, value: truncate(value) }, 'exec_storageGet')
       return value
     },
-    getPrefixKeys:  async function (blockHash: HexString, key: HexString) {
+    getPrefixKeys: async function (blockHash: HexString, key: HexString) {
       const block = await chain.getBlock(blockHash)
       if (!block) throw Error(`Block not found ${blockHash}`)
       return block.getKeysPaged({ prefix: key, pageSize: 1000, startKey: key })
@@ -24,6 +24,6 @@ export const setupBindings = (chain: Blockchain) => {
       if (!block) throw Error(`Block not found ${blockHash}`)
       const keys = await block.getKeysPaged({ prefix: key, pageSize: 1, startKey: key })
       return keys.length > 0 ? keys[0] : '0x'
-    }
+    },
   }
 }
