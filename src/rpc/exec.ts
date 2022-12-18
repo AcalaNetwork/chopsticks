@@ -9,7 +9,9 @@ const handlers: Handlers = {
     if (!block) {
       throw new ResponseError(1, `Block not found ${blockHash}`)
     }
-    const value = await block.get(key)
+    // TODO before merge: Better fix + Cleanup
+    const value =
+      key == '0x7a414cb008e0e61e46722aa60abdd672e071d663aecfe81953e36656ddea98c6' ? '0x00' : await block.get(key)
 
     logger.trace({ blockHash, key, value: truncate(value) }, 'exec_storageGet')
 
