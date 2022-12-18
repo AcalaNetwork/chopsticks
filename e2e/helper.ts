@@ -55,7 +55,8 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
         now += 20000
         return now
       })
-      const inherents = new InherentProviders(setTimestamp, [new SetValidationData(1)])
+
+      const inherents = new InherentProviders(setTimestamp, [new SetValidationData()])
 
       const chain = new Blockchain({
         api,

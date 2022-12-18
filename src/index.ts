@@ -60,7 +60,8 @@ export const setup = async (argv: Config) => {
   const setTimestamp = new SetTimestamp((newBlockNumber) => {
     return timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
   })
-  const inherents = new InherentProviders(setTimestamp, [new SetValidationData(1)])
+
+  const inherents = new InherentProviders(setTimestamp, [new SetValidationData()])
 
   const chain = new Blockchain({
     api,
