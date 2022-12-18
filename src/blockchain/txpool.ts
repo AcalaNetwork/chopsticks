@@ -1,4 +1,5 @@
 import { Header } from '@polkadot/types/interfaces'
+import { HexString } from '@polkadot/util/types'
 import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
@@ -26,7 +27,7 @@ const getConsensus = (header: Header) => {
 
 export class TxPool {
   readonly #chain: Blockchain
-  readonly #pool: string[] = []
+  readonly #pool: HexString[] = []
   readonly #mode: BuildBlockMode
   readonly #inherentProvider: InherentProvider
 
@@ -38,7 +39,7 @@ export class TxPool {
     this.#inherentProvider = inherentProvider
   }
 
-  submitExtrinsic(extrinsic: string) {
+  submitExtrinsic(extrinsic: HexString) {
     this.#pool.push(extrinsic)
 
     switch (this.#mode) {

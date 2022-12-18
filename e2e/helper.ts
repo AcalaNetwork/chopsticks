@@ -10,7 +10,6 @@ import { GenesisProvider } from '../src/genesis-provider'
 import { InherentProviders, SetTimestamp, SetValidationData } from '../src/blockchain/inherents'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { StorageValues } from '../src/utils/set-storage'
-import { TaskManager } from '../src/task'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'
 
@@ -51,32 +50,30 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
 
   return {
     async setup() {
-      const tasks = new TaskManager(8000, mockSignatureHost, process.env.EXECUTOR_CMD, allowUnresolvedImports)
-
       let now = new Date('2022-10-30T00:00:00.000Z').getTime()
       const setTimestamp = new SetTimestamp(() => {
         now += 20000
         return now
       })
-      const inherents = new InherentProviders(setTimestamp, [new SetValidationData(tasks)])
+
+      const inherents = new InherentProviders(setTimestamp, [new SetValidationData()])
 
       const chain = new Blockchain({
         api,
-        tasks,
         buildBlockMode: BuildBlockMode.Manual,
         inherentProvider: inherents,
         header: {
           hash: blockHash || (await api.getBlockHash(0)),
           number: Number(header.number),
         },
+        mockSignatureHost,
+        allowUnresolvedImports,
       })
 
-      const context = { chain, api, ws: wsProvider, tasks }
+      const context = { chain, api, ws: wsProvider }
 
       const { port: listeningPortPromise, close } = createServer(0, handler(context))
       const listeningPort = await listeningPortPromise
-
-      tasks.updateListeningPort(listeningPort)
 
       const wsProvider2 = new WsProvider(`ws://localhost:${listeningPort}`)
       const api2 = await ApiPromise.create({

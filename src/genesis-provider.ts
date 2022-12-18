@@ -12,7 +12,7 @@ import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
-import { calculateStateRoot, getMetadata } from './executor'
+import { calculateStateRoot, runTask } from './executor'
 
 export class GenesisProvider implements ProviderInterface {
   #isConnected = false
@@ -138,8 +138,15 @@ export class GenesisProvider implements ProviderInterface {
       case 'system_name':
         return this.#genesis.name
       case 'state_getMetadata': {
-        const code = this.#genesis.genesis.raw.top[stringToHex(':code')]
-        return getMetadata(code as HexString)
+        const code = this.#genesis.genesis.raw.top[stringToHex(':code')] as HexString
+        return runTask({
+          blockHash: this.blockHash,
+          wasm: code,
+          calls: [['Metadata_metadata', '0x']],
+          storage: [],
+          mockSignatureHost: false,
+          allowUnresolvedImports: true,
+        })
       }
       case 'chain_getHeader':
         return this.getHeader()

@@ -2,14 +2,13 @@ import { Block } from './block'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { TaskManager } from '../task'
 import { compactHex } from '../utils'
 import { createProof } from '../executor'
 import { hexToU8a } from '@polkadot/util'
 import { upgradeGoAheadSignal } from '../utils/proof'
 
 export interface CreateInherents {
-  createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<string[]>
+  createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]>
 }
 
 export interface InherentProvider extends CreateInherents {
@@ -23,7 +22,7 @@ export class SetTimestamp implements InherentProvider {
     this.#getTimestamp = getTimestamp
   }
 
-  async createInherents(meta: DecoratedMeta, timestamp: number, _parent: Block): Promise<string[]> {
+  async createInherents(meta: DecoratedMeta, timestamp: number, _parent: Block): Promise<HexString[]> {
     return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(timestamp)).toHex()]
   }
 
@@ -66,7 +65,7 @@ export class InherentProviders implements InherentProvider {
     this.#providers = providers
   }
 
-  async createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<string[]> {
+  async createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]> {
     const base = await this.#base.createInherents(meta, timestamp, parent)
     const extra = await Promise.all(
       this.#providers.map((provider) => provider.createInherents(meta, timestamp, parent))
@@ -80,17 +79,10 @@ export class InherentProviders implements InherentProvider {
 }
 
 export class SetValidationData implements CreateInherents {
-  readonly #tasks: TaskManager
-
-  constructor(tasks: TaskManager) {
-    this.#tasks = tasks
-  }
-
-  async createInherents(meta: DecoratedMeta, _timestamp: number, parent: Block): Promise<string[]> {
+  async createInherents(meta: DecoratedMeta, _timestamp: number, parent: Block): Promise<HexString[]> {
     if (!meta.tx.parachainSystem?.setValidationData) {
       return []
     }
-    void this.#tasks // TODO
 
     const parentBlock = await parent.parentBlock
     if (!parentBlock) {

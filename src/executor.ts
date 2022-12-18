@@ -11,15 +11,10 @@ import {
 } from '@polkadot/util'
 global.WebSocket = WebSocket
 
-import {
-  calculate_state_root,
-  create_proof,
-  decode_proof,
-  get_metadata,
-  get_runtime_version,
-  run_task,
-} from '../executor/pkg'
-import { compactHex } from './utils'
+import { calculate_state_root, create_proof, decode_proof, get_runtime_version, run_task } from '../executor/pkg'
+import { defaultLogger } from './logger'
+
+const logger = defaultLogger.child({ name: 'executor' })
 
 export type RuntimeVersion = {
   specName: string
@@ -38,10 +33,6 @@ export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion
     version.implName = hexToString(version.implName)
     return version
   })
-}
-
-export const getMetadata = async (code: HexString): Promise<HexString> => {
-  return compactHex(hexToU8a(await get_metadata(code)))
 }
 
 export const calculateStateRoot = async (entries: [HexString, HexString][]): Promise<HexString> => {
@@ -66,4 +57,16 @@ export const createProof = async (trieRootHash: HexString, nodes: HexString[], e
   return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }
 
-export { run_task as runTask }
+export const runTask = async (task: {
+  blockHash: HexString
+  wasm: HexString
+  calls: [string, HexString][]
+  storage: [HexString, HexString | null][]
+  mockSignatureHost: boolean
+  allowUnresolvedImports: boolean
+}) => {
+  logger.trace({ task }, 'taskRun')
+  const response = await run_task(task)
+  logger.trace({ response }, 'taskResponse')
+  return response
+}

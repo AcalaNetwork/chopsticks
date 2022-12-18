@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm'
 import { Header } from '@polkadot/types/interfaces'
+import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
@@ -10,24 +11,26 @@ import { BuildBlockMode, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherents'
 import { ResponseError } from '../rpc/shared'
-import { TaskManager } from '../task'
 import { defaultLogger } from '../logger'
+import { setupBindings } from '../bindings'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
 export interface Options {
   api: Api
-  tasks: TaskManager
   buildBlockMode?: BuildBlockMode
   inherentProvider: InherentProvider
   db?: DataSource
   header: { number: number; hash: string }
+  mockSignatureHost?: boolean
+  allowUnresolvedImports?: boolean
 }
 
 export class Blockchain {
   readonly api: Api
-  readonly tasks: TaskManager
   readonly db: DataSource | undefined
+  readonly mockSignatureHost: boolean
+  readonly allowUnresolvedImports: boolean
 
   readonly #txpool: TxPool
 
@@ -37,13 +40,24 @@ export class Blockchain {
 
   readonly headState: HeadState
 
-  constructor({ api, tasks, buildBlockMode, inherentProvider, db, header }: Options) {
+  constructor({
+    api,
+    buildBlockMode,
+    inherentProvider,
+    db,
+    header,
+    mockSignatureHost = false,
+    allowUnresolvedImports = false,
+  }: Options) {
     this.api = api
-    this.tasks = tasks
     this.db = db
+    this.mockSignatureHost = mockSignatureHost
+    this.allowUnresolvedImports = allowUnresolvedImports
 
     this.#head = new Block(this, header.number, header.hash)
     this.#registerBlock(this.#head)
+
+    setupBindings(this)
 
     this.#txpool = new TxPool(this, inherentProvider, buildBlockMode)
 
@@ -128,7 +142,7 @@ export class Blockchain {
     this.headState.setHead(block)
   }
 
-  async submitExtrinsic(extrinsic: string): Promise<string> {
+  async submitExtrinsic(extrinsic: HexString): Promise<HexString> {
     const source = '0x02' // External
     const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
     const res = await this.head.call('TaggedTransactionQueue_validate_transaction', args)
