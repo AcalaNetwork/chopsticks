@@ -65,7 +65,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
         return now
       })
       const inherents = new InherentProviders(setTimestamp, [
-        new SetValidationData(tasks, 0),
+        new SetValidationData(tasks),
         new SetNimbusAuthorInherent(),
         new SetBabeRandomness(),
       ])

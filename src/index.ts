@@ -69,7 +69,7 @@ export const setup = async (argv: Config) => {
     return timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
   })
   const inherents = new InherentProviders(setTimestamp, [
-    new SetValidationData(tasks, 0),
+    new SetValidationData(tasks),
     new SetNimbusAuthorInherent(),
     new SetBabeRandomness(),
   ])

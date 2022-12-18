@@ -81,11 +81,9 @@ export class InherentProviders implements InherentProvider {
 
 export class SetValidationData implements CreateInherents {
   readonly #tasks: TaskManager
-  readonly #expectedIndex: number
 
-  constructor(tasks: TaskManager, expectedIndex: number) {
+  constructor(tasks: TaskManager) {
     this.#tasks = tasks
-    this.#expectedIndex = expectedIndex
   }
 
   async createInherents(meta: DecoratedMeta, _timestamp: number, parent: Block): Promise<string[]> {
@@ -106,8 +104,16 @@ export class SetValidationData implements CreateInherents {
       // chain started with genesis, mock 1st validationData
       newData = MOCK_VALIDATION_DATA
     } else {
-      const method = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsics[this.#expectedIndex])
-      const extrinsic = method.args[0].toJSON() as typeof MOCK_VALIDATION_DATA
+      const validationDataExtrinsic = extrinsics.find((extrinsic) => {
+        const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
+        return firstArg && 'validationData' in firstArg
+      })
+      if (!validationDataExtrinsic) {
+        throw new Error('Missing validation data from block')
+      }
+      const extrinsic = meta.registry
+        .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
+        .args[0].toJSON() as typeof MOCK_VALIDATION_DATA
 
       const newEntries: [HexString, HexString][] = []
       const upgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
