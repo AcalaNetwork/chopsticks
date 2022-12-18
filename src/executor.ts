@@ -12,7 +12,7 @@ import {
 global.WebSocket = WebSocket
 
 import { calculate_state_root, create_proof, decode_proof, get_runtime_version, run_task } from '../executor/pkg'
-import { defaultLogger } from './logger'
+import { defaultLogger, truncate, truncateStorageDiff } from './logger'
 
 const logger = defaultLogger.child({ name: 'executor' })
 
@@ -65,8 +65,15 @@ export const runTask = async (task: {
   mockSignatureHost: boolean
   allowUnresolvedImports: boolean
 }) => {
-  logger.trace({ task }, 'taskRun')
+  logger.trace({ task: { ...task, wasm: truncate(task.wasm) } }, 'taskRun')
   const response = await run_task(task)
-  logger.trace({ response }, 'taskResponse')
+  if (response.Call) {
+    logger.trace(
+      { result: truncate(response.Call.result), storageDiff: truncateStorageDiff(response.Call.storageDiff) },
+      'taskResponse'
+    )
+  } else {
+    logger.trace({ response }, 'taskResponse')
+  }
   return response
 }
