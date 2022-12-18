@@ -4,7 +4,7 @@
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
-	"license": "MIT",
+	"license": "Apache-2.0",
 	"packageManager": "yarn@3.2.4",
 	"workspaces": [
 		".",
