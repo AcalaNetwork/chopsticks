@@ -59,7 +59,11 @@ export const decodeProof = async (trieRootHash: HexString, keys: HexString[], no
   }, {} as Record<HexString, HexString | null>)
 }
 
-export const createProof = async (trieRootHash: HexString, nodes: HexString[], entries: [HexString, HexString][]) => {
+export const createProof = async (
+  trieRootHash: HexString,
+  nodes: HexString[],
+  entries: [HexString, HexString | null][]
+) => {
   const result = await create_proof(trieRootHash, nodesAddLength(nodes), entries)
   return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }

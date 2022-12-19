@@ -78,8 +78,12 @@ pub async fn create_proof(
 
     let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
     let proof = serde_wasm_bindgen::from_value::<HexString>(nodes)?;
-    let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
-    let entries = BTreeMap::from_iter(entries.into_iter().map(|(key, value)| (key.0, value.0)));
+    let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, Option<HexString>)>>(entries)?;
+    let entries = BTreeMap::from_iter(
+        entries
+            .into_iter()
+            .map(|(key, value)| (key.0, value.map(|x| x.0))),
+    );
     let proof = proof::create_proof(root_trie_hash, proof.0, entries)?;
     let result = serde_wasm_bindgen::to_value(&proof)?;
 

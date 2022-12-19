@@ -1,3 +1,4 @@
+import { stringToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -40,15 +41,16 @@ export class HeadState {
     delete this.#storageListeners[id]
   }
 
-  subscrubeRuntimeVersion(cb: (block: Block) => void) {
-    // TODO: actually subscribe
-    void cb
-    return randomId()
+  async subscrubeRuntimeVersion(cb: (block: Block) => void) {
+    const id = randomId()
+    const codeKey = stringToHex(':code')
+    this.#storageListeners[id] = [[codeKey], cb]
+    this.#oldValues[codeKey] = await this.#head.get(codeKey)
+    return id
   }
 
   unsubscribeRuntimeVersion(id: string) {
-    // TODO: actually unsubscribe
-    void id
+    delete this.#storageListeners[id]
   }
 
   async setHead(head: Block) {

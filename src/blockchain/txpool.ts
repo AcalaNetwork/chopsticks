@@ -178,7 +178,7 @@ export class TxPool {
     finalBlock.pushStorageLayer().setAll(diff)
 
     this.#chain.unregisterBlock(newBlock)
-    this.#chain.setHead(finalBlock)
+    await this.#chain.setHead(finalBlock)
 
     logger.info({ hash: finalBlock.hash, number: finalBlock.number, prevHash: newBlock.hash }, 'Block built')
   }
