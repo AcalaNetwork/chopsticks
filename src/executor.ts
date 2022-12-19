@@ -11,6 +11,7 @@ import {
 } from '@polkadot/util'
 global.WebSocket = WebSocket
 
+import { Block } from './blockchain/block'
 import {
   calculate_state_root,
   create_proof,
@@ -58,21 +59,27 @@ export const decodeProof = async (trieRootHash: HexString, keys: HexString[], no
   }, {} as Record<HexString, HexString | null>)
 }
 
-export const createProof = async (trieRootHash: HexString, nodes: HexString[], entries: [HexString, HexString][]) => {
+export const createProof = async (
+  trieRootHash: HexString,
+  nodes: HexString[],
+  entries: [HexString, HexString | null][]
+) => {
   const result = await create_proof(trieRootHash, nodesAddLength(nodes), entries)
   return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }
 
-export const runTask = async (task: {
-  blockHash: HexString
-  wasm: HexString
-  calls: [string, HexString][]
-  storage: [HexString, HexString | null][]
-  mockSignatureHost: boolean
-  allowUnresolvedImports: boolean
-}) => {
+export const runTask = async (
+  task: {
+    wasm: HexString
+    calls: [string, HexString][]
+    storage: [HexString, HexString | null][]
+    mockSignatureHost: boolean
+    allowUnresolvedImports: boolean
+  },
+  callback: JsCallback
+) => {
   logger.trace({ task: { ...task, wasm: truncate(task.wasm) } }, 'taskRun')
-  const response = await run_task(task)
+  const response = await run_task(task, callback)
   if (response.Call) {
     logger.trace(
       { result: truncate(response.Call.result), storageDiff: truncateStorageDiff(response.Call.storageDiff) },
@@ -82,4 +89,25 @@ export const runTask = async (task: {
     logger.trace({ response }, 'taskResponse')
   }
   return response
+}
+
+interface JsCallback {
+  getStorage: (key: HexString) => Promise<string | undefined>
+  getPrefixKeys: (key: HexString) => Promise<string[]>
+  getNextKey: (key: HexString) => Promise<string | undefined>
+}
+
+export const taskHandler = (block: Block): JsCallback => {
+  return {
+    getStorage: async function (key: HexString) {
+      return block.get(key)
+    },
+    getPrefixKeys: async function (key: HexString) {
+      return block.getKeysPaged({ prefix: key, pageSize: 1000, startKey: key })
+    },
+    getNextKey: async function (key: HexString) {
+      const keys = await block.getKeysPaged({ prefix: key, pageSize: 1, startKey: key })
+      return keys[0]
+    },
+  }
 }
