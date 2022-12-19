@@ -19,6 +19,8 @@ import-storage:
   AuthorFilter:
     EligibleRatio: 100
     EligibleCount: 100
+  ParachainSystem:
+    AuthorizedUpgrade: "0x39040f31cd44fe97fbda9ffce5dff5ac32b47b760577304e005d2c225d033a67"
 
 
 
