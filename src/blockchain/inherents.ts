@@ -107,14 +107,18 @@ export class SetValidationData implements CreateInherents {
         .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
         .args[0].toJSON() as typeof MOCK_VALIDATION_DATA
 
-      const newEntries: [HexString, HexString][] = []
-      const upgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
-      if (upgrade) {
-        const paraIdStorage = await parentBlock.get(compactHex(meta.query.parachainInfo.parachainId()))
-        const paraId = meta.registry.createType('u32', hexToU8a(paraIdStorage as any))
-        const upgradeKey = upgradeGoAheadSignal(paraId)
+      const newEntries: [HexString, HexString | null][] = []
+      const pendingUpgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
+      const paraIdStorage = await parentBlock.get(compactHex(meta.query.parachainInfo.parachainId()))
+      const paraId = meta.registry.createType('u32', hexToU8a(paraIdStorage as any))
+      const upgradeKey = upgradeGoAheadSignal(paraId)
+      if (pendingUpgrade) {
+        // send goAhead signal
         const goAhead = meta.registry.createType('UpgradeGoAhead', 'GoAhead')
         newEntries.push([upgradeKey, goAhead.toHex()])
+      } else {
+        // make sure previous goAhead is removed
+        newEntries.push([upgradeKey, null])
       }
 
       const { trieRootHash, nodes } = await createProof(

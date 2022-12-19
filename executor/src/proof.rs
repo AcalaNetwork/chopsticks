@@ -37,7 +37,7 @@ pub fn decode_proof(
 pub fn create_proof(
     hash: HashHexString,
     proof: Vec<u8>,
-    entries: BTreeMap<Vec<u8>, Vec<u8>>,
+    entries: BTreeMap<Vec<u8>, Option<Vec<u8>>>,
 ) -> Result<(HashHexString, Vec<HexString>), String> {
     let config = Config::<Vec<u8>> {
         trie_root_hash: &hash.0,
@@ -48,12 +48,18 @@ pub fn create_proof(
 
     let mut trie = trie_structure::TrieStructure::new();
 
+    let mut deletes: Vec<Vec<u8>> = vec![];
+
     for (key, value) in entries {
-        trie.node(bytes_to_nibbles(key.iter().cloned()))
-            .into_vacant()
-            .unwrap()
-            .insert_storage_value()
-            .insert(value.to_vec(), vec![]);
+        if let Some(value) = value {
+            trie.node(bytes_to_nibbles(key.iter().cloned()))
+                .into_vacant()
+                .unwrap()
+                .insert_storage_value()
+                .insert(value.to_vec(), vec![]);
+        } else {
+            deletes.push(key);
+        }
     }
 
     for (key, value) in decoded.iter_ordered() {
@@ -62,6 +68,16 @@ pub fn create_proof(
         if let trie_structure::Entry::Vacant(vacant) = trie.node(key.iter().map(|x| x.to_owned())) {
             if let proof_node_codec::StorageValue::Unhashed(value) = decoded_value.storage_value {
                 vacant.insert_storage_value().insert(value.to_vec(), vec![]);
+            }
+        }
+    }
+
+    for key in deletes {
+        if let trie_structure::Entry::Occupied(occupied) =
+            trie.node(bytes_to_nibbles(key.iter().cloned()))
+        {
+            if occupied.has_storage_value() {
+                occupied.into_storage().unwrap().remove();
             }
         }
     }
@@ -139,18 +155,18 @@ fn create_proof_works() {
         "4a8902b29241020b24b4a1620d0154f756b81ffbcf739a9f06d3447df8123ebd"
     ));
 
-    let entries = BTreeMap::<Vec<u8>, Vec<u8>>::from([
+    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
         (
             hex!("06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385").to_vec(),
-            hex!("000030000080000008000000000010000000100005000000050000000a0000000a000000000050000000100000e8764817000000040000000400000000000000000000000000000000000000000000000000000000000000000000000800000000200000040000000400000000001000b0040000000000000000000014000000040000000400000000000000010100000000060000006400000002000000c8000000020000001900000000000000020000000200000000c817a804000000").to_vec()
+            Some(hex!("000030000080000008000000000010000000100005000000050000000a0000000a000000000050000000100000e8764817000000040000000400000000000000000000000000000000000000000000000000000000000000000000000800000000200000040000000400000000001000b0040000000000000000000014000000040000000400000000000000010100000000060000006400000002000000c8000000020000001900000000000000020000000200000000c817a804000000").to_vec())
         ),
         (
             hex!("cd710b30bd2eab0352ddcc26417aa1949e94c040f5e73d9b7addd6cb603d15d363f5a4efb16ffa83d0070000").to_vec(),
-            hex!("01").to_vec()
+            Some(hex!("01").to_vec())
         )
     ]);
 
-    let (hash, nodes) = create_proof(root, get_proof(), entries).unwrap();
+    let (hash, nodes) = create_proof(root.clone(), get_proof(), entries).unwrap();
 
     let keys = vec![
 		HexString(
@@ -177,6 +193,36 @@ fn create_proof_works() {
             hex!("d205bfd64a59c64fe84480fda7dafd773cb029530c4efe8441bf1f4332bfa48a").to_vec()
         ))
     );
+
+    // delete entries
+    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
+        (
+            hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec(),
+            None
+        ),
+    ]);
+
+    let (hash, nodes) = create_proof(root, get_proof(), entries).unwrap();
+    let keys = vec![
+		HexString(
+			hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec(),
+		),
+		HexString(
+        	hex!("06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385").to_vec(),
+    	),
+		HexString(
+			hex!("cd710b30bd2eab0352ddcc26417aa1949e94c040f5e73d9b7addd6cb603d15d363f5a4efb16ffa83d0070000").to_vec()
+		)
+	];
+    let decoded = decode_proof(
+        hash,
+        keys,
+        encode_proofs(nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>()),
+    )
+    .unwrap();
+    let (key, value) = decoded[0].to_owned();
+    assert_eq!(key, HexString(hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec()));
+    assert_eq!(value, None);
 }
 
 #[cfg(test)]

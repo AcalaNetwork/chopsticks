@@ -43,7 +43,7 @@ const handlers: Handlers = {
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     let update = (_block: Block) => {}
-    const id = context.chain.headState.subscrubeRuntimeVersion((block) => update(block))
+    const id = await context.chain.headState.subscrubeRuntimeVersion((block) => update(block))
     const callback = subscribe('state_runtimeVersion', id)
     update = async (block) => callback(await block.runtimeVersion)
     context.chain.head.runtimeVersion.then(callback)

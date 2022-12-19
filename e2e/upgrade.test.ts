@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { api, chain, dev, setupApi, testingPairs } from './helper'
+import { api, chain, dev, expectJson, setupApi, testingPairs } from './helper'
 
 setupApi({
   endpoint: 'wss://acala-rpc-1.aca-api.network',
@@ -11,7 +11,7 @@ setupApi({
 })
 
 describe('upgrade', () => {
-  const { alice } = testingPairs()
+  const { alice, bob } = testingPairs()
   it('setCode works', async () => {
     await dev.setStorages({
       Sudo: {
@@ -31,5 +31,13 @@ describe('upgrade', () => {
     await dev.newBlock()
     await dev.newBlock()
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
+
+    await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
+    await dev.newBlock()
+    await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
+
+    await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
+    await dev.newBlock()
+    await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
   })
 })
