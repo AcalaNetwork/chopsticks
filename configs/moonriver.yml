@@ -1,6 +1,5 @@
 endpoint: wss://moonriver.kaki.dev
 mock-signature-host: true
-block: 3202514
 db: ./db.sqlite
 
 import-storage:
