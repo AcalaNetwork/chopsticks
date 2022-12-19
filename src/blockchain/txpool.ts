@@ -9,6 +9,7 @@ import { InherentProvider } from './inherents'
 import { ResponseError } from '../rpc/shared'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
+import { StorageValueKind } from './storage-layer'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
@@ -105,6 +106,7 @@ export class TxPool {
       },
     })
 
+    head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
     const newBlock = this.#chain.newTempBlock(head, header)
 
     logger.info(
@@ -163,6 +165,10 @@ export class TxPool {
     }
 
     const resp2 = await newBlock.call('BlockBuilder_finalize_block', '0x')
+
+    if (meta.query.randomness?.notFirstBlock) {
+      newBlock.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
+    }
 
     newBlock.pushStorageLayer().setAll(resp2.storageDiff)
     logger.trace(truncateStorageDiff(resp2.storageDiff), 'Finalize block')
