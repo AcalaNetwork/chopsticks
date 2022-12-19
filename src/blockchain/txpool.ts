@@ -8,7 +8,7 @@ import { Blockchain } from '.'
 import { InherentProvider } from './inherents'
 import { ResponseError } from '../rpc/shared'
 import { compactHex } from '../utils'
-import { defaultLogger, truncateStorageDiff } from '../logger'
+import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
@@ -157,7 +157,7 @@ export class TxPool {
     const resp2 = await newBlock.call('BlockBuilder_finalize_block', '0x')
 
     newBlock.pushStorageLayer().setAll(resp2.storageDiff)
-    logger.trace(resp2.storageDiff, 'Finalize block')
+    logger.trace(truncateStorageDiff(resp2.storageDiff), 'Finalize block')
 
     const blockData = registry.createType('Block', {
       header,
@@ -171,7 +171,10 @@ export class TxPool {
     })
 
     const diff = await newBlock.storageDiff()
-    logger.trace(diff, 'Final block')
+    logger.trace(
+      Object.entries(diff).map(([key, value]) => [key, truncate(value)]),
+      'Final block'
+    )
     finalBlock.pushStorageLayer().setAll(diff)
 
     this.#chain.unregisterBlock(newBlock)
