@@ -12,7 +12,6 @@ import { HeadState } from './head-state'
 import { InherentProvider } from './inherents'
 import { ResponseError } from '../rpc/shared'
 import { defaultLogger } from '../logger'
-import { setupBindings } from '../bindings'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -56,8 +55,6 @@ export class Blockchain {
 
     this.#head = new Block(this, header.number, header.hash)
     this.#registerBlock(this.#head)
-
-    setupBindings(this)
 
     this.#txpool = new TxPool(this, inherentProvider, buildBlockMode)
 
