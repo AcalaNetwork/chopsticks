@@ -155,10 +155,13 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     let key = HexString(req.key().as_ref().to_vec());
                     let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
                     let value = js.get_next_key(key).await;
-                    let value = serde_wasm_bindgen::from_value::<HexString>(value)
-                        .map(|x| x.0)
-                        .map_err(|e| e.to_string())?;
-                    let value = if value.is_empty() { None } else { Some(value) };
+                    let value = if value.is_string() {
+                        serde_wasm_bindgen::from_value::<HexString>(value)
+                            .map(|x| Some(x.0))
+                            .map_err(|e| e.to_string())?
+                    } else {
+                        None
+                    };
                     req.inject_key(value)
                 }
                 RuntimeHostVm::SignatureVerification(req) => {

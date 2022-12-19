@@ -90,7 +90,7 @@ export const runTask = async (
 interface JsCallback {
   getStorage: (key: HexString) => Promise<string | undefined>
   getPrefixKeys: (key: HexString) => Promise<string[]>
-  getNextKey: (key: HexString) => Promise<string>
+  getNextKey: (key: HexString) => Promise<string | undefined>
 }
 
 export const taskHandler = (block: Block): JsCallback => {
@@ -103,7 +103,7 @@ export const taskHandler = (block: Block): JsCallback => {
     },
     getNextKey: async function (key: HexString) {
       const keys = await block.getKeysPaged({ prefix: key, pageSize: 1, startKey: key })
-      return keys.length > 0 ? keys[0] : '0x'
+      return keys[0]
     },
   }
 }
