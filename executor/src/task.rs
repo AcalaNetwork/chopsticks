@@ -15,8 +15,6 @@ use smoldot::{
 };
 use std::collections::BTreeMap;
 
-use crate::bindings::{get_next_key, get_prefix_keys, get_storage};
-
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RuntimeVersion {
@@ -62,7 +60,6 @@ impl RuntimeVersion {
 #[serde(rename_all = "camelCase")]
 pub struct TaskCall {
     wasm: HexString,
-    block_hash: HexString,
     calls: Option<Vec<(String, HexString)>>,
     storage: Vec<(HexString, Option<HexString>)>,
     mock_signature_host: bool,
@@ -87,7 +84,7 @@ fn is_magic_signature(signature: &[u8]) -> bool {
     signature.starts_with(&[0xde, 0xad, 0xbe, 0xef]) && signature[4..].iter().all(|&b| b == 0xcd)
 }
 
-pub async fn run_task(task: TaskCall) -> Result<TaskResponse, String> {
+pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, String> {
     let mut storage_top_trie_changes = StorageDiff::from_iter(
         task.storage
             .into_iter()
@@ -117,8 +114,6 @@ pub async fn run_task(task: TaskCall) -> Result<TaskResponse, String> {
 
         log::trace!("Calling {}", call);
 
-        let hash = serde_wasm_bindgen::to_value(&task.block_hash).map_err(|e| e.to_string())?;
-
         let res = loop {
             vm = match vm {
                 RuntimeHostVm::Finished(res) => {
@@ -127,7 +122,7 @@ pub async fn run_task(task: TaskCall) -> Result<TaskResponse, String> {
                 RuntimeHostVm::StorageGet(req) => {
                     let key = HexString(req.key().as_ref().to_vec());
                     let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
-                    let value = get_storage(hash.clone(), key).await;
+                    let value = js.get_storage(key).await;
                     let value = if value.is_string() {
                         let encoded = serde_wasm_bindgen::from_value::<HexString>(value)
                             .map(|x| x.0)
@@ -149,7 +144,7 @@ pub async fn run_task(task: TaskCall) -> Result<TaskResponse, String> {
                     } else {
                         let key = serde_wasm_bindgen::to_value(&HexString(prefix))
                             .map_err(|e| e.to_string())?;
-                        let keys = get_prefix_keys(hash.clone(), key).await;
+                        let keys = js.get_prefix_keys(key).await;
                         let keys = serde_wasm_bindgen::from_value::<Vec<HexString>>(keys)
                             .map(|x| x.into_iter().map(|x| x.0))
                             .map_err(|e| e.to_string())?;
@@ -159,7 +154,7 @@ pub async fn run_task(task: TaskCall) -> Result<TaskResponse, String> {
                 RuntimeHostVm::NextKey(req) => {
                     let key = HexString(req.key().as_ref().to_vec());
                     let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
-                    let value = get_next_key(hash.clone(), key).await;
+                    let value = js.get_next_key(key).await;
                     let value = serde_wasm_bindgen::from_value::<HexString>(value)
                         .map(|x| x.0)
                         .map_err(|e| e.to_string())?;

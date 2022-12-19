@@ -21,7 +21,7 @@ import { defaultLogger } from './logger'
 import { handler } from './rpc'
 import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
-import { runTask } from './executor'
+import { runTask, taskHandler } from './executor'
 
 export const setup = async (argv: Config) => {
   let provider: ProviderInterface
@@ -103,9 +103,10 @@ export const runBlock = async (argv: Config) => {
   const context = await setupWithServer(argv)
 
   const header = await context.chain.head.header
-  const parent = header.parentHash.toHex()
   const wasm = await context.chain.head.wasm
   const block = context.chain.head
+  const parent = await block.parentBlock
+  if (!parent) throw Error('cant find parent block')
 
   const calls: [string, HexString][] = [['Core_initialize_block', header.toHex()]]
 
@@ -115,14 +116,16 @@ export const runBlock = async (argv: Config) => {
 
   calls.push(['BlockBuilder_finalize_block', '0x' as HexString])
 
-  const result = await runTask({
-    blockHash: parent,
-    wasm,
-    calls,
-    storage: [],
-    mockSignatureHost: false,
-    allowUnresolvedImports: false,
-  })
+  const result = await runTask(
+    {
+      wasm,
+      calls,
+      storage: [],
+      mockSignatureHost: false,
+      allowUnresolvedImports: false,
+    },
+    taskHandler(parent)
+  )
 
   if (argv['output-path']) {
     writeFileSync(argv['output-path'], JSON.stringify(result, null, 2))

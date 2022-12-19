@@ -10,7 +10,7 @@ import type { HexString } from '@polkadot/util/types'
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
-import { getRuntimeVersion, runTask } from '../executor'
+import { getRuntimeVersion, runTask, taskHandler } from '../executor'
 import type { RuntimeVersion } from '../executor'
 
 export type TaskCallResponse = {
@@ -185,14 +185,16 @@ export class Block {
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
       this.#metadata = this.wasm.then(async (wasm) => {
-        const response = await runTask({
-          blockHash: this.hash as HexString,
-          wasm,
-          calls: [['Metadata_metadata', '0x']],
-          storage: [],
-          mockSignatureHost: this.#chain.mockSignatureHost,
-          allowUnresolvedImports: this.#chain.allowUnresolvedImports,
-        })
+        const response = await runTask(
+          {
+            wasm,
+            calls: [['Metadata_metadata', '0x']],
+            storage: [],
+            mockSignatureHost: this.#chain.mockSignatureHost,
+            allowUnresolvedImports: this.#chain.allowUnresolvedImports,
+          },
+          taskHandler(this)
+        )
         return compactHex(hexToU8a(response.Call.result))
       })
     }
@@ -215,14 +217,16 @@ export class Block {
     storage: [HexString, HexString | null][] = []
   ): Promise<TaskCallResponse> {
     const wasm = await this.wasm
-    const response = await runTask({
-      blockHash: this.hash as HexString,
-      wasm,
-      calls: [[method, args]],
-      storage,
-      mockSignatureHost: this.#chain.mockSignatureHost,
-      allowUnresolvedImports: this.#chain.allowUnresolvedImports,
-    })
+    const response = await runTask(
+      {
+        wasm,
+        calls: [[method, args]],
+        storage,
+        mockSignatureHost: this.#chain.mockSignatureHost,
+        allowUnresolvedImports: this.#chain.allowUnresolvedImports,
+      },
+      taskHandler(this)
+    )
     if (response.Call) return response.Call
     if (response.Error) throw Error(response.Error)
     throw Error('Unexpected response')

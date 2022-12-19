@@ -128,6 +128,21 @@ export class GenesisProvider implements ProviderInterface {
     }
   }
 
+  get _jsCallback() {
+    const storage = this.#genesis.genesis.raw.top
+    return {
+      getStorage: async function (key: HexString) {
+        return storage[key]
+      },
+      getNextKey: async function (_key: HexString) {
+        return '0x'
+      },
+      getPrefixKeys: async function (_key: HexString) {
+        return []
+      },
+    }
+  }
+
   send = async (method: string, params: unknown[], _isCacheable?: boolean): Promise<any> => {
     await this.isReady
     switch (method) {
@@ -139,14 +154,16 @@ export class GenesisProvider implements ProviderInterface {
         return this.#genesis.name
       case 'state_getMetadata': {
         const code = this.#genesis.genesis.raw.top[stringToHex(':code')] as HexString
-        return runTask({
-          blockHash: this.blockHash,
-          wasm: code,
-          calls: [['Metadata_metadata', '0x']],
-          storage: [],
-          mockSignatureHost: false,
-          allowUnresolvedImports: true,
-        })
+        return runTask(
+          {
+            wasm: code,
+            calls: [['Metadata_metadata', '0x']],
+            storage: [],
+            mockSignatureHost: false,
+            allowUnresolvedImports: true,
+          },
+          this._jsCallback
+        )
       }
       case 'chain_getHeader':
         return this.getHeader()
