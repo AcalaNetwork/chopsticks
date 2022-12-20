@@ -70,6 +70,10 @@ export class Blockchain {
     return this.#head
   }
 
+  get pendingExtrinsics(): HexString[] {
+    return this.#txpool.pendingExtrinsics
+  }
+
   async getBlockAt(number?: number): Promise<Block | undefined> {
     if (number === undefined) {
       return this.head

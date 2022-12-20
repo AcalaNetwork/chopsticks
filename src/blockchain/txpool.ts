@@ -39,6 +39,10 @@ export class TxPool {
     this.#inherentProvider = inherentProvider
   }
 
+  get pendingExtrinsics(): HexString[] {
+    return this.#pool
+  }
+
   submitExtrinsic(extrinsic: HexString) {
     this.#pool.push(extrinsic)
 
