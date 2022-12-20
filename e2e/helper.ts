@@ -1,17 +1,17 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Codec } from '@polkadot/types/types'
 import { Keyring } from '@polkadot/keyring'
+import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
-import { Api } from '../src/api'
-import { Blockchain } from '../src/blockchain'
-import { BuildBlockMode } from '../src/blockchain/txpool'
-import { GenesisProvider } from '../src/genesis-provider'
-import { InherentProviders, SetTimestamp, SetValidationData } from '../src/blockchain/inherents'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
-import { StorageValues } from '../src/utils/set-storage'
-import { createServer } from '../src/server'
-import { handler } from '../src/rpc'
+import { Api } from '@chopsticks/api'
+import { Blockchain } from '@chopsticks/blockchain'
+import { BuildBlockMode } from '@chopsticks/blockchain/txpool'
+import { GenesisProvider } from '@chopsticks/genesis-provider'
+import { InherentProviders, SetTimestamp, SetValidationData } from '@chopsticks/blockchain/inherent'
+import { StorageValues } from '@chopsticks/utils/set-storage'
+import { createServer } from '@chopsticks/server'
+import { handler } from '@chopsticks/rpc'
 
 export type SetupOption = {
   endpoint?: string

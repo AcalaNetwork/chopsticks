@@ -1,6 +1,6 @@
-import { Block } from '../../blockchain/block'
+import { Block } from '@chopsticks/blockchain/block'
 import { Handlers } from '../shared'
-import { defaultLogger } from '../../logger'
+import { defaultLogger } from '@chopsticks/logger'
 
 const logger = defaultLogger.child({ name: 'rpc-state' })
 
