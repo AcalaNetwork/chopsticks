@@ -15,16 +15,16 @@
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
-		"start": "ts-node --transpile-only src/index.ts",
+		"start": "ts-node -r tsconfig-paths/register --transpile-only src/index.ts",
 		"build": "rimraf dist && tsc -p tsconfig.prod.json",
 		"build-wasm": "wasm-pack build executor --target nodejs --scope acala-network",
 		"build-wasm-logging": "yarn build-wasm --features=logging",
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest --silent",
 		"test:dev": "LOG_LEVEL=trace vitest --inspect",
-		"dev": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
-		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml",
-		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml"
+		"dev": "LOG_LEVEL=trace ts-node-dev -r tsconfig-paths/register --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/dev.yml",
+		"dev:karura": "ts-node-dev -r tsconfig-paths/register --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/karura.yml",
+		"dev:acala": "ts-node-dev  -r tsconfig-paths/register --transpile-only --inspect --notify=false src/index.ts -- dev --config=configs/acala.yml"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
