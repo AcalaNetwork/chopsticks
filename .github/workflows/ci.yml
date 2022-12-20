@@ -23,13 +23,11 @@ jobs:
           executor/target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Install toolchain
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@nightly
       with:
-        profile: minimal
         toolchain: nightly-2022-10-16
         components: rustfmt
         target: wasm32-unknown-unknown
-        default: true
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
@@ -41,4 +39,3 @@ jobs:
     - run: yarn lint
     - run: yarn test
     - run: yarn build
-
