@@ -1,7 +1,7 @@
 import { HexString } from '@polkadot/util/types'
-import pino from 'pino'
+import createLogger from 'pino'
 
-export const defaultLogger = pino({
+export const defaultLogger = createLogger({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
     target: 'pino-pretty',

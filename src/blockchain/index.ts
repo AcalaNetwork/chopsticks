@@ -5,13 +5,13 @@ import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
-import { Api } from '../api'
+import { Api } from '@chopsticks/api'
 import { Block } from './block'
 import { BuildBlockMode, TxPool } from './txpool'
 import { HeadState } from './head-state'
-import { InherentProvider } from './inherents'
-import { ResponseError } from '../rpc/shared'
-import { defaultLogger } from '../logger'
+import { InherentProvider } from './inherent'
+import { ResponseError } from '@chopsticks/rpc/shared'
+import { defaultLogger } from '@chopsticks/logger'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 

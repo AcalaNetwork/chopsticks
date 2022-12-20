@@ -2,9 +2,9 @@ import { HexString } from '@polkadot/util/types'
 import { existsSync, readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 
-import { Blockchain } from '../blockchain'
+import { Blockchain } from '@chopsticks/blockchain'
 import { StorageValues, setStorage } from './set-storage'
-import { defaultLogger } from '../logger'
+import { defaultLogger } from '@chopsticks/logger'
 
 export const importStorage = async (chain: Blockchain, storage?: string | StorageValues) => {
   if (storage == null) {

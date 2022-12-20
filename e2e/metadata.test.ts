@@ -1,4 +1,4 @@
-import { chain, setupApi } from '../e2e/helper'
+import { chain, setupApi } from './helper'
 import { describe, expect, it } from 'vitest'
 
 setupApi({
