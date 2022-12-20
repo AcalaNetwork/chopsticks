@@ -9,6 +9,7 @@ import { InherentProvider } from './inherent'
 import { ResponseError } from '@chopsticks/rpc/shared'
 import { compactHex } from '@chopsticks/utils'
 import { defaultLogger, truncate, truncateStorageDiff } from '@chopsticks/logger'
+import { StorageValueKind } from './storage-layer'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
