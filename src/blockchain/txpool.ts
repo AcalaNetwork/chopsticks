@@ -1,6 +1,6 @@
 import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
-import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
+import { bnToHex, bnToU8a, compactAddLength, stringToHex, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -86,10 +86,16 @@ export class TxPool {
       const newSlot = compactAddLength(u8aConcat('0x0200000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
       newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     } else if (consensus?.consensusEngine?.toString() == 'nmbs') {
+      const nmbsKey = stringToHex('nmbs')
       newLogs = [
         {
-          // Foundation Session Key: TODO, support getting dynamic value
-          PreRuntime: [consensus.consensusEngine, '0x188cb000c37ea61861acd77cba4ad23b2a97b8069cea6227716c75c71b75bd6a'],
+          // Using previous block author
+          PreRuntime: [
+            consensus.consensusEngine,
+            parentHeader.digest.logs
+              .find((log) => log.isPreRuntime && log.asPreRuntime[0].toHex() == nmbsKey)
+              ?.asPreRuntime[1].toHex(),
+          ],
         },
         ...consensus.rest,
       ]
