@@ -1,35 +1,13 @@
-import { Block } from './block'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { compactHex } from '../utils'
-import { createProof } from '../executor'
 import { hexToU8a } from '@polkadot/util'
-import { upgradeGoAheadSignal } from '../utils/proof'
 
-export interface CreateInherents {
-  createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]>
-}
-
-export interface InherentProvider extends CreateInherents {
-  getTimestamp(blockNumber: number): number
-}
-
-export class SetTimestamp implements InherentProvider {
-  readonly #getTimestamp: (blockNumber: number) => number
-
-  constructor(getTimestamp: (blockNumber: number) => number = Date.now) {
-    this.#getTimestamp = getTimestamp
-  }
-
-  async createInherents(meta: DecoratedMeta, timestamp: number, _parent: Block): Promise<HexString[]> {
-    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(timestamp)).toHex()]
-  }
-
-  getTimestamp(blockNumber: number): number {
-    return this.#getTimestamp(blockNumber)
-  }
-}
+import { Block } from '@chopsticks/blockchain/block'
+import { CreateInherents } from '..'
+import { compactHex } from '@chopsticks/utils'
+import { createProof } from '@chopsticks/executor'
+import { upgradeGoAheadSignal } from '@chopsticks/utils/proof'
 
 const MOCK_VALIDATION_DATA = {
   validationData: {
@@ -54,28 +32,6 @@ const MOCK_VALIDATION_DATA = {
       '0x9ef78c98723ddc9073523ef3beefda0c1004505f0e7b9012096b41c4eb3aaf947f6ea4290800007c77095dac46c07a40d91506e7637ec4ba5763f5a4efb16ffa83d00700000400',
     ],
   },
-}
-
-export class InherentProviders implements InherentProvider {
-  readonly #base: InherentProvider
-  readonly #providers: CreateInherents[]
-
-  constructor(base: InherentProvider, providers: CreateInherents[]) {
-    this.#base = base
-    this.#providers = providers
-  }
-
-  async createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]> {
-    const base = await this.#base.createInherents(meta, timestamp, parent)
-    const extra = await Promise.all(
-      this.#providers.map((provider) => provider.createInherents(meta, timestamp, parent))
-    )
-    return [...base, ...extra.flat()]
-  }
-
-  getTimestamp(blockNumber: number): number {
-    return this.#base.getTimestamp(blockNumber)
-  }
 }
 
 export class SetValidationData implements CreateInherents {

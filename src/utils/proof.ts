@@ -3,13 +3,13 @@ import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import { u32 } from '@polkadot/types'
 import { xxhashAsU8a } from '@polkadot/util-crypto'
 
-export const WELL_KNOWN_KEYS: Record<string, HexString> = {
-  EPOCH_INDEX: '0x1cb6f36e027abb2091cfb5110ab5087f38316cbf8fa0da822a20ac1c55bf1be3',
-  CURRENT_BLOCK_RANDOMNESS: '0x1cb6f36e027abb2091cfb5110ab5087fd077dfdb8adb10f78f10a5df8742c545',
-  ONE_EPOCH_AGO_RANDOMNESS: '0x1cb6f36e027abb2091cfb5110ab5087f7ce678799d3eff024253b90e84927cc6',
-  TWO_EPOCHS_AGO_RANDOMNESS: '0x1cb6f36e027abb2091cfb5110ab5087f7a414cb008e0e61e46722aa60abdd672',
-  CURRENT_SLOT: '0x1cb6f36e027abb2091cfb5110ab5087f06155b3cd9a8c9e5e9a23fd5dc13a5ed',
-  ACTIVE_CONFIG: '0x06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385',
+export const WELL_KNOWN_KEYS = {
+  EPOCH_INDEX: '0x1cb6f36e027abb2091cfb5110ab5087f38316cbf8fa0da822a20ac1c55bf1be3' as HexString,
+  CURRENT_BLOCK_RANDOMNESS: '0x1cb6f36e027abb2091cfb5110ab5087fd077dfdb8adb10f78f10a5df8742c545' as HexString,
+  ONE_EPOCH_AGO_RANDOMNESS: '0x1cb6f36e027abb2091cfb5110ab5087f7ce678799d3eff024253b90e84927cc6' as HexString,
+  TWO_EPOCHS_AGO_RANDOMNESS: '0x1cb6f36e027abb2091cfb5110ab5087f7a414cb008e0e61e46722aa60abdd672' as HexString,
+  CURRENT_SLOT: '0x1cb6f36e027abb2091cfb5110ab5087f06155b3cd9a8c9e5e9a23fd5dc13a5ed' as HexString,
+  ACTIVE_CONFIG: '0x06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385' as HexString,
 }
 
 const prefixWithParaId = (prefix: HexString, paraId: u32) => {
