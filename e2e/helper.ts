@@ -34,7 +34,13 @@ export const env = {
   },
 }
 
-const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolvedImports, genesis }: SetupOption) => {
+export const setupAll = async ({
+  endpoint,
+  blockHash,
+  mockSignatureHost,
+  allowUnresolvedImports,
+  genesis,
+}: SetupOption) => {
   const api = new Api(genesis ? await GenesisProvider.fromUrl(genesis) : new WsProvider(endpoint), {
     SetEvmOrigin: { payload: {}, extrinsic: {} },
   })
@@ -73,6 +79,8 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
           },
         },
       })
+
+      await apiPromise.isReady
 
       return {
         chain,
