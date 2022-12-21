@@ -1,7 +1,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Codec } from '@polkadot/types/types'
 import { Keyring } from '@polkadot/keyring'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '../src/api'
@@ -35,14 +34,16 @@ export const env = {
   },
 }
 
-const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolvedImports, genesis }: SetupOption) => {
-  let wsProvider: ProviderInterface
-  if (genesis) {
-    wsProvider = await GenesisProvider.fromUrl(genesis)
-  } else {
-    wsProvider = new WsProvider(endpoint)
-  }
-  const api = new Api(wsProvider, { SetEvmOrigin: { payload: {}, extrinsic: {} } })
+export const setupAll = async ({
+  endpoint,
+  blockHash,
+  mockSignatureHost,
+  allowUnresolvedImports,
+  genesis,
+}: SetupOption) => {
+  const api = new Api(genesis ? await GenesisProvider.fromUrl(genesis) : new WsProvider(endpoint), {
+    SetEvmOrigin: { payload: {}, extrinsic: {} },
+  })
 
   await api.isReady
 
@@ -50,12 +51,7 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
 
   return {
     async setup() {
-      let now = new Date('2022-10-30T00:00:00.000Z').getTime()
-      const setTimestamp = new SetTimestamp(() => {
-        now += 20000
-        return now
-      })
-
+      const setTimestamp = new SetTimestamp()
       const inherents = new InherentProviders(setTimestamp, [new SetValidationData()])
 
       const chain = new Blockchain({
@@ -63,21 +59,19 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
         buildBlockMode: BuildBlockMode.Manual,
         inherentProvider: inherents,
         header: {
-          hash: blockHash || (await api.getBlockHash(0)),
+          hash: blockHash || (await api.getBlockHash()),
           number: Number(header.number),
         },
         mockSignatureHost,
         allowUnresolvedImports,
       })
 
-      const context = { chain, api, ws: wsProvider }
-
-      const { port: listeningPortPromise, close } = createServer(0, handler(context))
+      const { port: listeningPortPromise, close } = createServer(handler({ chain }))
       const listeningPort = await listeningPortPromise
 
-      const wsProvider2 = new WsProvider(`ws://localhost:${listeningPort}`)
-      const api2 = await ApiPromise.create({
-        provider: wsProvider2,
+      const ws = new WsProvider(`ws://localhost:${listeningPort}`)
+      const apiPromise = await ApiPromise.create({
+        provider: ws,
         signedExtensions: {
           SetEvmOrigin: {
             extrinsic: {},
@@ -86,12 +80,14 @@ const setupAll = async ({ endpoint, blockHash, mockSignatureHost, allowUnresolve
         },
       })
 
+      await apiPromise.isReady
+
       return {
         chain,
-        ws: wsProvider2,
-        api: api2,
+        ws,
+        api: apiPromise,
         async teardown() {
-          await api2.disconnect()
+          await apiPromise.disconnect()
           await new Promise((resolve) => setTimeout(resolve, 1000))
           await close()
         },

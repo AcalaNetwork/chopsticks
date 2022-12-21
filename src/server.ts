@@ -18,9 +18,9 @@ const parseRequest = (request: string) => {
   }
 }
 
-export const createServer = (port: number, handler: Handler) => {
+export const createServer = (handler: Handler, port?: number) => {
   logger.debug('Starting on port %d', port)
-  const wss = new WebSocketServer({ port, maxPayload: 1024 * 1024 * 100 })
+  const wss = new WebSocketServer({ port: port || 0, maxPayload: 1024 * 1024 * 100 })
 
   const promise = new Promise<number>((resolve, reject) => {
     wss.on('listening', () => {

@@ -1,4 +1,3 @@
-import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { hexToU8a } from '@polkadot/util'
@@ -35,7 +34,8 @@ const MOCK_VALIDATION_DATA = {
 }
 
 export class SetValidationData implements CreateInherents {
-  async createInherents(meta: DecoratedMeta, _timestamp: number, parent: Block): Promise<HexString[]> {
+  async createInherents(parent: Block): Promise<HexString[]> {
+    const meta = await parent.meta
     if (!meta.tx.parachainSystem?.setValidationData) {
       return []
     }

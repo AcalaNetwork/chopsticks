@@ -72,7 +72,7 @@ describe('storage', () => {
     callback.mockClear()
 
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0xeefde1ec4bb9834c9282bdaa2034a1f603ef931b70c25caaa5a97f1fb2720fd5"'
+      '"0xec771ba3da1ba2af1dd61e78d6ec510696c2aa857dabd11d9f165f7919fa614f"'
     )
 
     await next()
@@ -83,7 +83,7 @@ describe('storage', () => {
     unsub()
 
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0x0a88e86168da4aa27a33f9273b34bba3dbef86bd7b246e831333c83a8d38f975"'
+      '"0x1e4d7e624014418ad8b5fe082739be4aa662c40a42e1c768413382897252e428"'
     )
 
     await delay(100)

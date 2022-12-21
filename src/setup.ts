@@ -45,12 +45,10 @@ export const setup = async (argv: Config) => {
 
   const header = await api.getHeader(blockHash)
 
-  const blockNumber = +header.number
-  const timestamp = argv.timestamp ?? Date.now()
-  const setTimestamp = new SetTimestamp((newBlockNumber) => {
-    return timestamp + (newBlockNumber - blockNumber) * 12000 // TODO: make this more flexible
-  })
+  // TODO: do we really need to set a custom timestamp?
+  // const timestamp = argv.timestamp
 
+  const setTimestamp = new SetTimestamp()
   const inherents = new InherentProviders(setTimestamp, [new SetValidationData()])
 
   const chain = new Blockchain({

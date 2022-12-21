@@ -1,6 +1,6 @@
-import { Header } from '@polkadot/types/interfaces'
+import { Header, RawBabePreDigest, Slot } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
-import { bnToHex, bnToU8a, compactAddLength, u8aConcat } from '@polkadot/util'
+import { compactAddLength } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -21,8 +21,39 @@ export enum BuildBlockMode {
 const getConsensus = (header: Header) => {
   if (header.digest.logs.length === 0) return
   const preRuntime = header.digest.logs[0].asPreRuntime
-  const [consensusEngine] = preRuntime
-  return { consensusEngine, rest: header.digest.logs.slice(1) }
+  const [consensusEngine, slot] = preRuntime
+  return { consensusEngine, slot, rest: header.digest.logs.slice(1) }
+}
+
+const getNewSlot = (slot: RawBabePreDigest) => {
+  if (slot.isPrimary) {
+    const primary = slot.asPrimary.toJSON()
+    return {
+      primary: {
+        ...primary,
+        slotNumber: (primary.slotNumber as number) + 1,
+      },
+    }
+  }
+  if (slot.isSecondaryPlain) {
+    const secondaryPlain = slot.asSecondaryPlain.toJSON()
+    return {
+      secondaryPlain: {
+        ...secondaryPlain,
+        slotNumber: (secondaryPlain.slotNumber as number) + 1,
+      },
+    }
+  }
+  if (slot.isSecondaryVRF) {
+    const secondaryVRF = slot.asSecondaryVRF.toJSON()
+    return {
+      secondaryVRF: {
+        ...secondaryVRF,
+        slotNumber: (secondaryVRF.slotNumber as number) + 1,
+      },
+    }
+  }
+  return slot.toJSON()
 }
 
 export class TxPool {
@@ -76,18 +107,16 @@ export class TxPool {
     const meta = await head.meta
     const parentHeader = await head.header
 
-    const time = this.#inherentProvider.getTimestamp(head.number + 1)
-
     let newLogs = parentHeader.digest.logs as any
-    const expectedSlot = Math.floor(time / ((meta.consts.timestamp.minimumPeriod as any).toNumber() * 2))
     const consensus = getConsensus(parentHeader)
     if (consensus?.consensusEngine.isAura) {
-      const newSlot = compactAddLength(bnToU8a(expectedSlot, { isLe: true, bitLength: 64 }))
-      newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
+      const slot = meta.registry.createType<Slot>('Slot', consensus.slot).toNumber()
+      const newSlot = meta.registry.createType('Slot', slot + 1).toU8a()
+      newLogs = [{ PreRuntime: [consensus.consensusEngine, compactAddLength(newSlot)] }, ...consensus.rest]
     } else if (consensus?.consensusEngine.isBabe) {
-      // trying to make a SecondaryPlainPreDigest
-      const newSlot = compactAddLength(u8aConcat('0x0200000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
-      newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
+      const slot = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.slot)
+      const newSlot = meta.registry.createType('RawBabePreDigest', getNewSlot(slot)).toU8a()
+      newLogs = [{ PreRuntime: [consensus.consensusEngine, compactAddLength(newSlot)] }, ...consensus.rest]
     }
 
     const registry = await head.registry
@@ -109,8 +138,6 @@ export class TxPool {
         number: head.number,
         extrinsicsCount: extrinsics.length,
         tempHash: newBlock.hash,
-        timeValue: time,
-        expectedSlot,
       },
       'Building block'
     )
@@ -120,14 +147,7 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    if (meta.query.babe?.currentSlot) {
-      // TODO: figure out how to generate a valid babe slot digest instead of just modify the data
-      // but hey, we can get it working without a valid digest
-      const key = compactHex(meta.query.babe.currentSlot())
-      newBlock.pushStorageLayer().set(key, bnToHex(expectedSlot, { isLe: true, bitLength: 64 }))
-    }
-
-    const inherents = await this.#inherentProvider.createInherents(meta, time, newBlock)
+    const inherents = await this.#inherentProvider.createInherents(newBlock)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
