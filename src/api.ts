@@ -9,6 +9,11 @@ type ChainProperties = {
   tokenSymbol?: string[]
 }
 
+type ShufflingSeed = {
+  seed: HexString
+  proof: HexString
+}
+
 type Header = {
   parentHash: HexString
   number: HexString
@@ -17,6 +22,8 @@ type Header = {
   digest: {
     logs: HexString[]
   }
+  seed: ShufflingSeed
+  count: number
 }
 
 type SignedBlock = {

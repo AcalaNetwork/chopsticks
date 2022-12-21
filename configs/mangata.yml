@@ -1,0 +1,17 @@
+endpoint: wss://mangata-x.api.onfinality.io/public-ws
+# endpoint: ws://127.0.0.1:9946
+mock-signature-host: true
+db: ./db.sqlite
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+  Tokens:
+    Accounts:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: 0
+        - free: '1000000000000000000000000' # 1M MG
+  Council:
+    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
