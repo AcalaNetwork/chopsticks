@@ -1,4 +1,4 @@
-import { Header, RawBabePreDigest } from '@polkadot/types/interfaces'
+import { Header, RawBabePreDigest, Slot } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import { compactAddLength } from '@polkadot/util'
 import _ from 'lodash'
@@ -110,11 +110,11 @@ export class TxPool {
     let newLogs = parentHeader.digest.logs as any
     const consensus = getConsensus(parentHeader)
     if (consensus?.consensusEngine.isAura) {
-      const slot = meta.registry.createType('Slot', consensus.slot).toNumber()
+      const slot = meta.registry.createType<Slot>('Slot', consensus.slot).toNumber()
       const newSlot = meta.registry.createType('Slot', slot + 1).toU8a()
       newLogs = [{ PreRuntime: [consensus.consensusEngine, compactAddLength(newSlot)] }, ...consensus.rest]
     } else if (consensus?.consensusEngine.isBabe) {
-      const slot = meta.registry.createType('RawBabePreDigest', consensus.slot)
+      const slot = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.slot)
       const newSlot = meta.registry.createType('RawBabePreDigest', getNewSlot(slot)).toU8a()
       newLogs = [{ PreRuntime: [consensus.consensusEngine, compactAddLength(newSlot)] }, ...consensus.rest]
     }
