@@ -11,8 +11,8 @@ import { lstatSync, readFileSync } from 'node:fs'
 import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
-import { Genesis, genesisSchema } from '@chopsticks/schema'
-import { calculateStateRoot, runTask } from '@chopsticks/executor'
+import { Genesis, genesisSchema } from './schema'
+import { calculateStateRoot, runTask } from './executor'
 
 export class GenesisProvider implements ProviderInterface {
   #isConnected = false

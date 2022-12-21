@@ -1,4 +1,4 @@
-import { BuildBlockMode } from '@chopsticks/blockchain/txpool'
+import { BuildBlockMode } from '../blockchain/txpool'
 import { z } from 'zod'
 
 export const genesisSchema = z.object({

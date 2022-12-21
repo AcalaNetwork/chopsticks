@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm'
 import _ from 'lodash'
 
-import { Api } from '@chopsticks/api'
-import { defaultLogger } from '@chopsticks/logger'
+import { Api } from '../api'
+import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'layer' })
 

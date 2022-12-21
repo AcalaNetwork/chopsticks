@@ -3,11 +3,11 @@ import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { hexToU8a } from '@polkadot/util'
 
-import { Block } from '@chopsticks/blockchain/block'
+import { Block } from '../../../blockchain/block'
 import { CreateInherents } from '..'
-import { compactHex } from '@chopsticks/utils'
-import { createProof } from '@chopsticks/executor'
-import { upgradeGoAheadSignal } from '@chopsticks/utils/proof'
+import { compactHex } from '../../../utils'
+import { createProof } from '../../../executor'
+import { upgradeGoAheadSignal } from '../../../utils/proof'
 
 const MOCK_VALIDATION_DATA = {
   validationData: {

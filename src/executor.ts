@@ -11,7 +11,7 @@ import {
 } from '@polkadot/util'
 global.WebSocket = WebSocket
 
-import { Block } from '@chopsticks/blockchain/block'
+import { Block } from './blockchain/block'
 import {
   calculate_state_root,
   create_proof,
@@ -19,7 +19,7 @@ import {
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
-import { defaultLogger, truncate, truncateStorageDiff } from '@chopsticks/logger'
+import { defaultLogger, truncate, truncateStorageDiff } from './logger'
 
 const logger = defaultLogger.child({ name: 'executor' })
 

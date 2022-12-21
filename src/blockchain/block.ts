@@ -9,9 +9,9 @@ import type { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
-import { compactHex } from '@chopsticks/utils'
-import { getRuntimeVersion, runTask, taskHandler } from '@chopsticks/executor'
-import type { RuntimeVersion } from '@chopsticks/executor'
+import { compactHex } from '../utils'
+import { getRuntimeVersion, runTask, taskHandler } from '../executor'
+import type { RuntimeVersion } from '../executor'
 
 export type TaskCallResponse = {
   result: HexString

@@ -16,12 +16,7 @@
 		"experimentalDecorators": true,
 		"declaration": true,
 		"resolveJsonModule": true,
-		"types": ["node", "@polkadot/types-known", "@polkadot/types-codec"],
-		"baseUrl": ".",
-		"paths": {
-			"@chopsticks": ["src"],
-			"@chopsticks/*": ["src/*"]
-		}
+		"types": ["node", "@polkadot/types-known", "@polkadot/types-codec"]
 	},
 	"exclude": ["node_modules", "vendor", "executor"]
 }

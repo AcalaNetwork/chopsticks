@@ -1,8 +1,8 @@
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 
-import { Api } from '@chopsticks/api'
-import { Blockchain } from '@chopsticks/blockchain'
-import { defaultLogger } from '@chopsticks/logger'
+import { Api } from '../api'
+import { Blockchain } from '../blockchain'
+import { defaultLogger } from '../logger'
 
 export const logger = defaultLogger.child({ name: 'rpc' })
 
