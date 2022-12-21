@@ -130,7 +130,7 @@ export class Blockchain {
     delete this.#blocksByHash[block.hash]
   }
 
-  setHead(block: Block): void {
+  async setHead(block: Block): Promise<void> {
     logger.debug(
       {
         number: block.number,
@@ -140,7 +140,7 @@ export class Blockchain {
     )
     this.#head = block
     this.#registerBlock(block)
-    this.headState.setHead(block)
+    await this.headState.setHead(block)
   }
 
   async submitExtrinsic(extrinsic: HexString): Promise<HexString> {

@@ -1,31 +1,27 @@
 import { Block } from '../block'
-import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
+import { compactHex } from '../../utils'
+import { hexToU8a } from '@polkadot/util'
 
 export { SetValidationData } from './parachain/validation-data'
 
 export interface CreateInherents {
-  createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]>
+  createInherents(parent: Block): Promise<HexString[]>
 }
 
-export interface InherentProvider extends CreateInherents {
-  getTimestamp(blockNumber: number): number
-}
+export type InherentProvider = CreateInherents
 
 export class SetTimestamp implements InherentProvider {
-  readonly #getTimestamp: (blockNumber: number) => number
-
-  constructor(getTimestamp: (blockNumber: number) => number = Date.now) {
-    this.#getTimestamp = getTimestamp
-  }
-
-  async createInherents(meta: DecoratedMeta, timestamp: number, _parent: Block): Promise<HexString[]> {
-    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(timestamp)).toHex()]
-  }
-
-  getTimestamp(blockNumber: number): number {
-    return this.#getTimestamp(blockNumber)
+  async createInherents(parent: Block): Promise<HexString[]> {
+    const meta = await parent.meta
+    const timestampRaw = (await parent.get(compactHex(meta.query.timestamp.now()))) || '0x'
+    const currentTimestamp = meta.registry.createType('u64', hexToU8a(timestampRaw)).toNumber()
+    const period = meta.consts.babe
+      ? (meta.consts.babe.expectedBlockTime.toJSON() as number)
+      : (meta.consts.timestamp.minimumPeriod.toJSON() as number) * 2
+    const newTimestamp = currentTimestamp + period
+    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(newTimestamp)).toHex()]
   }
 }
 
@@ -38,15 +34,9 @@ export class InherentProviders implements InherentProvider {
     this.#providers = providers
   }
 
-  async createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]> {
-    const base = await this.#base.createInherents(meta, timestamp, parent)
-    const extra = await Promise.all(
-      this.#providers.map((provider) => provider.createInherents(meta, timestamp, parent))
-    )
+  async createInherents(parent: Block): Promise<HexString[]> {
+    const base = await this.#base.createInherents(parent)
+    const extra = await Promise.all(this.#providers.map((provider) => provider.createInherents(parent)))
     return [...base, ...extra.flat()]
-  }
-
-  getTimestamp(blockNumber: number): number {
-    return this.#base.getTimestamp(blockNumber)
   }
 }

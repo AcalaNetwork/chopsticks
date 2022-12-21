@@ -1,6 +1,3 @@
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
-
-import { Api } from '../api'
 import { Blockchain } from '../blockchain'
 import { defaultLogger } from '../logger'
 
@@ -25,8 +22,6 @@ export class ResponseError extends Error {
 
 export interface Context {
   chain: Blockchain
-  api: Api
-  ws: ProviderInterface
 }
 
 export interface SubscriptionManager {
