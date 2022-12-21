@@ -6,9 +6,9 @@ import _ from 'lodash'
 import { Block } from './block'
 import { Blockchain } from '.'
 import { InherentProvider } from './inherent'
-import { ResponseError } from '@chopsticks/rpc/shared'
-import { compactHex } from '@chopsticks/utils'
-import { defaultLogger, truncate, truncateStorageDiff } from '@chopsticks/logger'
+import { ResponseError } from '../rpc/shared'
+import { compactHex } from '../utils'
+import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
