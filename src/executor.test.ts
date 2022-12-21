@@ -10,8 +10,8 @@ import {
   hrmpEgressChannelIndex,
   hrmpIngressChannelIndex,
   upgradeGoAheadSignal,
-} from '@chopsticks/utils/proof'
-import { calculateStateRoot, createProof, decodeProof, getRuntimeVersion } from '@chopsticks/executor'
+} from './utils/proof'
+import { calculateStateRoot, createProof, decodeProof, getRuntimeVersion } from './executor'
 
 describe('wasm', () => {
   it('get runtime version from wasm runtime', async () => {

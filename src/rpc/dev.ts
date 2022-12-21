@@ -1,6 +1,6 @@
 import { Handlers, ResponseError } from './shared'
-import { StorageValues, setStorage } from '@chopsticks/utils/set-storage'
-import { defaultLogger } from '@chopsticks/logger'
+import { StorageValues, setStorage } from '../utils/set-storage'
+import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'rpc-dev' })
 
