@@ -1,8 +1,7 @@
 import { Block } from '../block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { compactHex } from '../../utils'
-import { hexToU8a } from '@polkadot/util'
+import { getCurrentTimestamp, getSlotDuration } from '../../utils/time-travel'
 
 export { SetValidationData } from './parachain/validation-data'
 
@@ -15,13 +14,9 @@ export type InherentProvider = CreateInherents
 export class SetTimestamp implements InherentProvider {
   async createInherents(parent: Block): Promise<HexString[]> {
     const meta = await parent.meta
-    const timestampRaw = (await parent.get(compactHex(meta.query.timestamp.now()))) || '0x'
-    const currentTimestamp = meta.registry.createType('u64', hexToU8a(timestampRaw)).toNumber()
-    const period = meta.consts.babe
-      ? (meta.consts.babe.expectedBlockTime.toJSON() as number)
-      : (meta.consts.timestamp.minimumPeriod.toJSON() as number) * 2
-    const newTimestamp = currentTimestamp + period
-    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(newTimestamp)).toHex()]
+    const slotDuration = await getSlotDuration(parent.chain)
+    const currentTimestamp = await getCurrentTimestamp(parent.chain)
+    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(currentTimestamp + slotDuration)).toHex()]
   }
 }
 

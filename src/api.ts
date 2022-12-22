@@ -45,7 +45,7 @@ export class Api {
           setTimeout(resolve, 500)
         })
       }
-      this.#provider.on('error', reject)
+      this.#provider.on('error', (error) => reject(error))
     })
 
     this.#provider.on('disconnected', () => {
