@@ -51,8 +51,7 @@ export const setupAll = async ({
 
   return {
     async setup() {
-      const setTimestamp = new SetTimestamp()
-      const inherents = new InherentProviders(setTimestamp, [new SetValidationData()])
+      const inherents = new InherentProviders(new SetTimestamp(), [new SetValidationData()])
 
       const chain = new Blockchain({
         api,
@@ -139,6 +138,9 @@ export const dev = {
   },
   setStorages: (values: StorageValues, blockHash?: string) => {
     return ws.send('dev_setStorages', [values, blockHash])
+  },
+  timeTravel: (date: string | number) => {
+    return ws.send<number>('dev_timeTravel', [date])
   },
 }
 

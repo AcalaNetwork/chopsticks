@@ -42,8 +42,6 @@ export class GenesisProvider implements ProviderInterface {
       })
       this.#eventemitter.once('error', reject)
     })
-
-    this.connect()
   }
 
   static fromUrl = async (url: string) => {

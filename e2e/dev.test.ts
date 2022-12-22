@@ -57,4 +57,10 @@ describe('dev rpc', () => {
     const newBlockNumber2 = (await api.rpc.chain.getHeader()).number.toNumber()
     expect(newBlockNumber2).toBe(blockNumber + 5)
   })
+
+  it('timeTravel', async () => {
+    const date = 'Jan 1, 2023'
+    const timestamp = await dev.timeTravel(date)
+    expect(timestamp).eq(Date.parse(date))
+  })
 })

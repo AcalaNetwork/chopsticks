@@ -1,6 +1,7 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { WsProvider } from '@polkadot/rpc-provider'
 
 type ChainProperties = {
   ss58Format?: number
@@ -28,35 +29,15 @@ type SignedBlock = {
 
 export class Api {
   #provider: ProviderInterface
-  #isReady: Promise<void>
-  #chain: Promise<string>
-  #chainProperties: Promise<ChainProperties>
+  #ready: Promise<void> | undefined
+  #chain: Promise<string> | undefined
+  #chainProperties: Promise<ChainProperties> | undefined
 
   readonly signedExtensions: ExtDef
 
   constructor(provider: ProviderInterface, signedExtensions?: ExtDef) {
     this.#provider = provider
     this.signedExtensions = signedExtensions || {}
-    this.#isReady = new Promise((resolve, reject) => {
-      if (this.#provider.isConnected) {
-        setTimeout(resolve, 500)
-      } else {
-        this.#provider.on('connected', () => {
-          setTimeout(resolve, 500)
-        })
-      }
-      this.#provider.on('error', reject)
-    })
-
-    this.#provider.on('disconnected', () => {
-      // TODO: reconnect
-      console.warn('Api disconnected')
-    })
-
-    this.#chain = this.#isReady.then(() => this.getSystemChain())
-    this.#chainProperties = this.#isReady.then(() => this.getSystemProperties())
-
-    this.#provider.connect()
   }
 
   async disconnect() {
@@ -64,14 +45,28 @@ export class Api {
   }
 
   get isReady() {
-    return this.#isReady
+    if (this.#provider instanceof WsProvider) {
+      return this.#provider.isReady
+    }
+
+    if (!this.#ready) {
+      this.#ready = this.#provider.connect()
+    }
+
+    return this.#ready
   }
 
   get chain(): Promise<string> {
+    if (!this.#chain) {
+      this.#chain = this.getSystemChain()
+    }
     return this.#chain
   }
 
   get chainProperties(): Promise<ChainProperties> {
+    if (!this.#chainProperties) {
+      this.#chainProperties = this.getSystemProperties()
+    }
     return this.#chainProperties
   }
 

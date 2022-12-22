@@ -1,4 +1,4 @@
-import { Header, RawBabePreDigest, Slot } from '@polkadot/types/interfaces'
+import { Header, RawBabePreDigest } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import { compactAddLength } from '@polkadot/util'
 import _ from 'lodash'
@@ -9,6 +9,7 @@ import { InherentProvider } from './inherent'
 import { ResponseError } from '../rpc/shared'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
+import { getCurrentSlot } from '../utils/time-travel'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
@@ -25,35 +26,32 @@ const getConsensus = (header: Header) => {
   return { consensusEngine, slot, rest: header.digest.logs.slice(1) }
 }
 
-const getNewSlot = (slot: RawBabePreDigest) => {
-  if (slot.isPrimary) {
-    const primary = slot.asPrimary.toJSON()
+const getNewSlot = (digest: RawBabePreDigest, slotNumber: number) => {
+  if (digest.isPrimary) {
     return {
       primary: {
-        ...primary,
-        slotNumber: (primary.slotNumber as number) + 1,
+        ...digest.asPrimary.toJSON(),
+        slotNumber,
       },
     }
   }
-  if (slot.isSecondaryPlain) {
-    const secondaryPlain = slot.asSecondaryPlain.toJSON()
+  if (digest.isSecondaryPlain) {
     return {
       secondaryPlain: {
-        ...secondaryPlain,
-        slotNumber: (secondaryPlain.slotNumber as number) + 1,
+        ...digest.asSecondaryPlain.toJSON(),
+        slotNumber,
       },
     }
   }
-  if (slot.isSecondaryVRF) {
-    const secondaryVRF = slot.asSecondaryVRF.toJSON()
+  if (digest.isSecondaryVRF) {
     return {
       secondaryVRF: {
-        ...secondaryVRF,
-        slotNumber: (secondaryVRF.slotNumber as number) + 1,
+        ...digest.asSecondaryVRF.toJSON(),
+        slotNumber,
       },
     }
   }
-  return slot.toJSON()
+  return digest.toJSON()
 }
 
 export class TxPool {
@@ -110,13 +108,16 @@ export class TxPool {
     let newLogs = parentHeader.digest.logs as any
     const consensus = getConsensus(parentHeader)
     if (consensus?.consensusEngine.isAura) {
-      const slot = meta.registry.createType<Slot>('Slot', consensus.slot).toNumber()
-      const newSlot = meta.registry.createType('Slot', slot + 1).toU8a()
-      newLogs = [{ PreRuntime: [consensus.consensusEngine, compactAddLength(newSlot)] }, ...consensus.rest]
+      const slot = await getCurrentSlot(this.#chain)
+      const newSlot = compactAddLength(meta.registry.createType('Slot', slot + 1).toU8a())
+      newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     } else if (consensus?.consensusEngine.isBabe) {
-      const slot = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.slot)
-      const newSlot = meta.registry.createType('RawBabePreDigest', getNewSlot(slot)).toU8a()
-      newLogs = [{ PreRuntime: [consensus.consensusEngine, compactAddLength(newSlot)] }, ...consensus.rest]
+      const slot = await getCurrentSlot(this.#chain)
+      const digest = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.slot)
+      const newSlot = compactAddLength(
+        meta.registry.createType('RawBabePreDigest', getNewSlot(digest, slot + 1)).toU8a()
+      )
+      newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     }
 
     const registry = await head.registry
