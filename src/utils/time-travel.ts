@@ -1,5 +1,6 @@
 import { BN, hexToU8a, u8aToHex } from '@polkadot/util'
 import { HexString } from '@polkadot/util/types'
+import { Slot } from '@polkadot/types/interfaces'
 
 import { Blockchain } from '../blockchain'
 import { compactHex } from '.'
@@ -11,7 +12,7 @@ export const getCurrentSlot = async (chain: Blockchain) => {
     ? await chain.head.get(compactHex(meta.query.babe.currentSlot()))
     : await chain.head.get(compactHex(meta.query.aura.currentSlot()))
   if (!slotRaw) throw new Error('Cannot find current slot')
-  return meta.registry.createType('Slot', hexToU8a(slotRaw)).toNumber()
+  return meta.registry.createType<Slot>('Slot', hexToU8a(slotRaw)).toNumber()
 }
 
 export const getCurrentTimestamp = async (chain: Blockchain) => {
