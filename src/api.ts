@@ -1,6 +1,7 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { WsProvider } from '@polkadot/rpc-provider'
 
 type ChainProperties = {
   ss58Format?: number
@@ -49,18 +50,14 @@ export class Api {
   }
 
   get isReady() {
-    if (!this.#ready) {
-      this.#ready = new Promise((resolve, reject) => {
-        this.#provider
-          .connect()
-          .then(() => {
-            setTimeout(resolve, 1000)
-          })
-          .catch((error) => {
-            reject(error)
-          })
-      })
+    if (this.#provider instanceof WsProvider) {
+      return this.#provider.isReady
     }
+
+    if (!this.#ready) {
+      this.#ready = this.#provider.connect()
+    }
+
     return this.#ready
   }
 
