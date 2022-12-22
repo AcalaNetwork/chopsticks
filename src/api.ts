@@ -38,11 +38,6 @@ export class Api {
   constructor(provider: ProviderInterface, signedExtensions?: ExtDef) {
     this.#provider = provider
     this.signedExtensions = signedExtensions || {}
-
-    this.#provider.on('disconnected', () => {
-      // TODO: reconnect
-      console.warn('Api disconnected')
-    })
   }
 
   async disconnect() {
