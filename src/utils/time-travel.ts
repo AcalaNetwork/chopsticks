@@ -4,6 +4,7 @@ import { Slot } from '@polkadot/types/interfaces'
 
 import { Blockchain } from '../blockchain'
 import { compactHex } from '.'
+import { getAuraSlotDuration } from '../executor'
 import { setStorage } from './set-storage'
 
 export const getCurrentSlot = async (chain: Blockchain) => {
@@ -25,7 +26,7 @@ export const getSlotDuration = async (chain: Blockchain) => {
   const meta = await chain.head.meta
   return meta.consts.babe
     ? (meta.consts.babe.expectedBlockTime as any as BN).toNumber()
-    : (meta.consts.timestamp.minimumPeriod as any as BN).toNumber() * 2
+    : getAuraSlotDuration(await chain.head.wasm, meta.registry)
 }
 
 export const timeTravel = async (chain: Blockchain, timestamp: number) => {

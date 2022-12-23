@@ -11,13 +11,16 @@ import {
   hrmpIngressChannelIndex,
   upgradeGoAheadSignal,
 } from './utils/proof'
-import { calculateStateRoot, createProof, decodeProof, getRuntimeVersion } from './executor'
+import { calculateStateRoot, createProof, decodeProof, getAuraSlotDuration, getRuntimeVersion } from './executor'
+
+const getCode = () => {
+  const code = String(readFileSync(path.join(__dirname, '../e2e/blobs/acala-runtime-2101.txt'))).trim()
+  expect(code.length).toBeGreaterThan(2)
+  return code as HexString
+}
 
 describe('wasm', () => {
   it('get runtime version from wasm runtime', async () => {
-    const code = String(readFileSync(path.join(__dirname, '../e2e/blobs/acala-runtime-2101.txt'))).trim()
-    expect(code.length).toBeGreaterThan(2)
-
     const expectedRuntimeVersion = {
       specName: 'acala',
       implName: 'acala',
@@ -43,7 +46,7 @@ describe('wasm', () => {
       stateVersion: 0,
     }
 
-    expect(await getRuntimeVersion(code as HexString)).toMatchObject(expectedRuntimeVersion)
+    expect(await getRuntimeVersion(getCode())).toMatchObject(expectedRuntimeVersion)
   })
 
   it('calculate state root', async () => {
@@ -148,5 +151,10 @@ describe('wasm', () => {
     )
     expect(decoded).toMatchSnapshot()
     expect(decoded[upgradeKey]).toBe('0x01')
+  })
+
+  it('get aura slot duration', async () => {
+    const slotDuration = await getAuraSlotDuration(getCode(), new TypeRegistry())
+    expect(slotDuration).eq(12000)
   })
 })
