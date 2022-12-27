@@ -1,3 +1,4 @@
+import { AbridgedHrmpChannel, HrmpChannelId } from '@polkadot/types/interfaces'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { hexToU8a, u8aConcat } from '@polkadot/util'
@@ -119,14 +120,17 @@ export class SetValidationData implements CreateInherents {
 
       const hrmpIngressChannels = meta.registry
         .createType('Vec<ParaId>', decoded[hrmpIngressChannelIndexKey])
-        .map((x) => x.toNumber())
+        .toJSON() as number[]
 
       // inject horizontal messages
       if (params?.horizontalMessages) {
         for (const [id, messages] of Object.entries(params.horizontalMessages)) {
           const sender = Number(id)
           if (hrmpIngressChannels.includes(sender)) {
-            const channelId = meta.registry.createType('HrmpChannelId', { sender, receiver: paraId.toNumber() })
+            const channelId = meta.registry.createType<HrmpChannelId>('HrmpChannelId', {
+              sender,
+              receiver: paraId.toNumber(),
+            })
             const hrmpChannelKey = hrmpChannels(channelId)
             const decoded = await decodeProof(
               extrinsic.validationData.relayParentStorageRoot,
@@ -136,7 +140,9 @@ export class SetValidationData implements CreateInherents {
             const abridgedHrmpRaw = decoded[hrmpChannelKey]
             if (!abridgedHrmpRaw) throw new Error('Canoot find hrmp channels from validation data')
 
-            const abridgedHrmp = meta.registry.createType('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw)).toJSON()
+            const abridgedHrmp = meta.registry
+              .createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw))
+              .toJSON()
             const paraMessages: { data: HexString; sent_at: number }[] = []
 
             for (const { data, sentAt } of messages) {
