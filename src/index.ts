@@ -5,16 +5,20 @@ import yargs from 'yargs'
 
 import { BuildBlockMode } from './blockchain/txpool'
 import { configSchema } from './schema'
+import { connectDownward } from './xcm'
 import { decodeKey } from './decode-key'
 import { runBlock } from './run-block'
 import { setupWithServer } from './setup-with-server'
 
-const processConfig = (argv: any) => {
+const processConfig = (path: string) => {
+  const configFile = readFileSync(path, 'utf8')
+  const config = yaml.load(configFile) as any
+  return configSchema.parse(config)
+}
+
+const processArgv = (argv: any) => {
   if (argv.config) {
-    const configFile = readFileSync(argv.config, 'utf8')
-    const config = yaml.load(configFile) as any
-    const parsed = configSchema.parse(config)
-    return { ...parsed, ...argv }
+    return { ...processConfig(argv.config), ...argv }
   }
   return argv
 }
@@ -59,11 +63,8 @@ yargs(hideBin(process.argv))
           string: true,
         },
       }),
-    (argv) => {
-      runBlock(processConfig(argv)).catch((err) => {
-        console.error(err)
-        process.exit(1)
-      })
+    async (argv) => {
+      await runBlock(processArgv(argv))
     }
   )
   .command(
@@ -89,11 +90,8 @@ yargs(hideBin(process.argv))
           boolean: true,
         },
       }),
-    (argv) => {
-      setupWithServer(processConfig(argv)).catch((err) => {
-        console.error(err)
-        process.exit(1)
-      })
+    async (argv) => {
+      await setupWithServer(processArgv(argv))
     }
   )
   .command(
@@ -108,11 +106,34 @@ yargs(hideBin(process.argv))
         .options({
           ...defaultOptions,
         }),
-    (argv) => {
-      decodeKey(processConfig(argv)).catch((err) => {
-        console.error(err)
-        process.exit(1)
-      })
+    async (argv) => {
+      await decodeKey(processArgv(argv))
+    }
+  )
+  .command(
+    'xcm',
+    'XCM setup with relaychain and parachains',
+    (yargs) =>
+      yargs.options({
+        relaychain: {
+          desc: 'Relaychain config file path',
+          string: true,
+          required: true,
+        },
+        parachain: {
+          desc: 'Parachain config file path',
+          type: 'array',
+          string: true,
+          required: true,
+        },
+      }),
+    async (argv) => {
+      const { chain: relaychain } = await setupWithServer(processConfig(argv.relaychain))
+      const parachains = await Promise.all(argv.parachain.map(processConfig).map(setupWithServer))
+      for (const { chain: parachain } of parachains) {
+        await connectDownward(relaychain, parachain)
+      }
+      // TODO: connect parachains horizontal
     }
   )
   .strict()

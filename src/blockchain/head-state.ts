@@ -3,11 +3,13 @@ import _ from 'lodash'
 
 import { Block } from './block'
 
+type Callback = (block: Block, pairs: [string, string][]) => void | Promise<void>
+
 export const randomId = () => Math.random().toString(36).substring(2)
 
 export class HeadState {
   #headListeners: Record<string, (block: Block) => void> = {}
-  #storageListeners: Record<string, [string[], (block: Block, pairs: [string, string][]) => void]> = {}
+  #storageListeners: Record<string, [string[], Callback]> = {}
   #oldValues: Record<string, string | undefined> = {}
 
   #head: Block
@@ -26,7 +28,7 @@ export class HeadState {
     delete this.#headListeners[id]
   }
 
-  async subscribeStorage(keys: string[], cb: (block: Block, pairs: [string, string][]) => void) {
+  async subscribeStorage(keys: string[], cb: Callback) {
     const id = randomId()
     this.#storageListeners[id] = [keys, cb]
 
@@ -65,7 +67,7 @@ export class HeadState {
     for (const [keys, cb] of Object.values(this.#storageListeners)) {
       const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string])
       if (changed.length > 0) {
-        cb(head, changed)
+        await cb(head, changed)
       }
     }
 

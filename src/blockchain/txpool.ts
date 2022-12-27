@@ -19,6 +19,23 @@ export enum BuildBlockMode {
   Manual, // only build when triggered
 }
 
+export interface DownwardMessage {
+  sentAt: number
+  msg: HexString
+}
+
+export interface HorizontalMessage {
+  sentAt: number
+  data: HexString
+}
+
+export interface BuildBlockParams {
+  inherent?: {
+    downwardMessages?: DownwardMessage[]
+    horizontalMessages?: Record<number, HorizontalMessage[]>
+  }
+}
+
 const getConsensus = (header: Header) => {
   if (header.digest.logs.length === 0) return
   const preRuntime = header.digest.logs[0].asPreRuntime
@@ -90,13 +107,13 @@ export class TxPool {
 
   #batchBuildBlock = _.debounce(this.buildBlock, 100, { maxWait: 1000 })
 
-  async buildBlock() {
+  async buildBlock(params?: BuildBlockParams) {
     const last = this.#lastBuildBlockPromise
-    this.#lastBuildBlockPromise = this.#buildBlock(last)
+    this.#lastBuildBlockPromise = this.#buildBlock(last, params)
     await this.#lastBuildBlockPromise
   }
 
-  async #buildBlock(wait: Promise<void>) {
+  async #buildBlock(wait: Promise<void>, params?: BuildBlockParams) {
     await this.#chain.api.isReady
     await wait.catch(() => {}) // ignore error
     const head = this.#chain.head
@@ -148,7 +165,7 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    const inherents = await this.#inherentProvider.createInherents(newBlock)
+    const inherents = await this.#inherentProvider.createInherents(newBlock, params?.inherent)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)

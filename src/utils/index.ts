@@ -1,6 +1,8 @@
 import { HexString } from '@polkadot/util/types'
 import { StorageKey } from '@polkadot/types'
-import { compactStripLength, u8aToHex } from '@polkadot/util'
+import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
+
+import { Blockchain } from '../blockchain'
 
 export type GetKeys = (startKey?: string) => Promise<StorageKey<any>[]>
 
@@ -35,4 +37,11 @@ export async function fetchKeysToArray(getKeys: GetKeys) {
 
 export const compactHex = (value: Uint8Array): HexString => {
   return u8aToHex(compactStripLength(value)[1])
+}
+
+export const getParaId = async (chain: Blockchain) => {
+  const meta = await chain.head.meta
+  const raw = await chain.head.get(compactHex(meta.query.parachainInfo.parachainId()))
+  if (!raw) throw new Error('Cannot find parachain id')
+  return meta.registry.createType('u32', hexToU8a(raw))
 }

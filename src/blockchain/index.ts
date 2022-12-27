@@ -7,7 +7,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
-import { BuildBlockMode, TxPool } from './txpool'
+import { BuildBlockMode, BuildBlockParams, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { ResponseError } from '../rpc/shared'
@@ -156,8 +156,8 @@ export class Blockchain {
     throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toString()}`)
   }
 
-  async newBlock(): Promise<Block> {
-    await this.#txpool.buildBlock()
+  async newBlock(params?: BuildBlockParams): Promise<Block> {
+    await this.#txpool.buildBlock(params)
     return this.#head
   }
 }

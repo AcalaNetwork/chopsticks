@@ -65,10 +65,9 @@ export const setupAll = async ({
         allowUnresolvedImports,
       })
 
-      const { port: listeningPortPromise, close } = createServer(handler({ chain }))
-      const listeningPort = await listeningPortPromise
+      const { port, close } = await createServer(handler({ chain }))
 
-      const ws = new WsProvider(`ws://localhost:${listeningPort}`)
+      const ws = new WsProvider(`ws://localhost:${port}`)
       const apiPromise = await ApiPromise.create({
         provider: ws,
         signedExtensions: {
@@ -130,6 +129,12 @@ export const expectJson = (codec: CodecOrArray | Promise<CodecOrArray>) => {
 
 export const expectHex = (codec: CodecOrArray | Promise<CodecOrArray>) => {
   return expect(Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toHex()) : x.toHex()))).resolves
+}
+
+export const matchSnapshot = (codec: CodecOrArray | Promise<CodecOrArray>) => {
+  return expect(
+    Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toHuman()) : x.toHuman()))
+  ).resolves.toMatchSnapshot()
 }
 
 export const dev = {

@@ -36,7 +36,7 @@ export const setup = async (argv: Config) => {
     blockHash = argv.block as string
   }
 
-  defaultLogger.info({ ...argv, blockHash }, 'Args')
+  defaultLogger.debug({ ...argv, blockHash }, 'Args')
 
   let db: DataSource | undefined
   if (argv.db) {

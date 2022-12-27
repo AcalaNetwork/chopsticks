@@ -18,21 +18,39 @@ const parseRequest = (request: string) => {
   }
 }
 
-export const createServer = (handler: Handler, port?: number) => {
-  logger.debug('Starting on port %d', port)
-  const wss = new WebSocketServer({ port: port || 0, maxPayload: 1024 * 1024 * 100 })
+const createWS = async (port: number) => {
+  const wss = new WebSocketServer({ port, maxPayload: 1024 * 1024 * 100 })
 
-  const promise = new Promise<number>((resolve, reject) => {
+  const promise = new Promise<[WebSocketServer?, number?]>((resolve) => {
     wss.on('listening', () => {
-      logger.debug(wss.address(), 'Listening')
-      resolve((wss.address() as AddressInfo).port)
+      resolve([wss, (wss.address() as AddressInfo).port])
     })
 
-    wss.on('error', (err) => {
-      logger.error(err, 'Error')
-      reject(err)
+    wss.on('error', (_) => {
+      resolve([])
     })
   })
+
+  return promise
+}
+
+export const createServer = async (handler: Handler, port?: number) => {
+  let wss: WebSocketServer | undefined
+  let listenPort: number | undefined
+  for (let i = 0; i < 5; i++) {
+    const preferPort = (port || 0) + i
+    logger.debug('Try starting on port %d', preferPort)
+    const [maybeWss, maybeListenPort] = await createWS(preferPort)
+    if (maybeWss && maybeListenPort) {
+      wss = maybeWss
+      listenPort = maybeListenPort
+      break
+    }
+  }
+
+  if (!wss || !listenPort) {
+    throw new Error(`Failed to create WebsocketServer at port ${port}`)
+  }
 
   wss.on('connection', (ws) => {
     logger.debug('New connection')
@@ -126,11 +144,11 @@ export const createServer = (handler: Handler, port?: number) => {
   })
 
   return {
-    port: promise,
+    port: listenPort,
     close: () =>
       new Promise<void>((resolve, reject) => {
-        wss.clients.forEach((socket) => socket.close())
-        wss.close((err) => {
+        wss?.clients.forEach((socket) => socket.close())
+        wss?.close((err) => {
           if (err) {
             reject(err)
           } else {

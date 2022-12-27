@@ -1,12 +1,14 @@
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { hexToU8a } from '@polkadot/util'
+import { hexToU8a, u8aConcat } from '@polkadot/util'
 
 import { Block } from '../../../blockchain/block'
+import { BuildBlockParams } from '../../txpool'
 import { CreateInherents } from '..'
-import { compactHex } from '../../../utils'
-import { createProof } from '../../../executor'
-import { upgradeGoAheadSignal } from '../../../utils/proof'
+import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
+import { compactHex, getParaId } from '../../../utils'
+import { createProof, decodeProof } from '../../../executor'
+import { dmqMqcHead, hrmpChannels, hrmpIngressChannelIndex, upgradeGoAheadSignal } from '../../../utils/proof'
 
 const MOCK_VALIDATION_DATA = {
   validationData: {
@@ -33,8 +35,21 @@ const MOCK_VALIDATION_DATA = {
   },
 }
 
+export type ValidationData = {
+  downwardMessages: { sent_at: number; msg: HexString }[]
+  horizontalMessages: Record<number, { sent_at: number; data: HexString }[]>
+  validationData: {
+    relayParentNumber: number
+    relayParentStorageRoot: HexString
+    maxPovSize: number
+  }
+  relayChainState: {
+    trieNodes: HexString[]
+  }
+}
+
 export class SetValidationData implements CreateInherents {
-  async createInherents(parent: Block): Promise<HexString[]> {
+  async createInherents(parent: Block, params?: BuildBlockParams['inherent']): Promise<HexString[]> {
     const meta = await parent.meta
     if (!meta.tx.parachainSystem?.setValidationData) {
       return []
@@ -46,11 +61,11 @@ export class SetValidationData implements CreateInherents {
     }
     const extrinsics = await parentBlock.extrinsics
 
-    let newData: typeof MOCK_VALIDATION_DATA
+    let newData: ValidationData
 
     if (parentBlock.number === 0) {
       // chain started with genesis, mock 1st validationData
-      newData = MOCK_VALIDATION_DATA
+      newData = MOCK_VALIDATION_DATA as ValidationData
     } else {
       const validationDataExtrinsic = extrinsics.find((extrinsic) => {
         const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
@@ -61,13 +76,98 @@ export class SetValidationData implements CreateInherents {
       }
       const extrinsic = meta.registry
         .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
-        .args[0].toJSON() as typeof MOCK_VALIDATION_DATA
+        .args[0].toJSON() as ValidationData
 
       const newEntries: [HexString, HexString | null][] = []
-      const pendingUpgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
-      const paraIdStorage = await parentBlock.get(compactHex(meta.query.parachainInfo.parachainId()))
-      const paraId = meta.registry.createType('u32', hexToU8a(paraIdStorage as any))
+      const downwardMessages: { msg: HexString; sent_at: number }[] = []
+      const horizontalMessages: Record<number, { data: HexString; sent_at: number }[]> = {}
+
+      const paraId = await getParaId(parentBlock.chain)
+
+      const dmqMqcHeadKey = dmqMqcHead(paraId)
+      const hrmpIngressChannelIndexKey = hrmpIngressChannelIndex(paraId)
+
+      const decoded = await decodeProof(
+        extrinsic.validationData.relayParentStorageRoot,
+        [dmqMqcHeadKey, hrmpIngressChannelIndexKey],
+        extrinsic.relayChainState.trieNodes
+      )
+
+      // inject downward messages
+      if (params?.downwardMessages) {
+        let dmqMqcHeadHash = decoded[dmqMqcHeadKey]
+        if (!dmqMqcHeadHash) throw new Error('Canoot find dmqMqcHead from validation data')
+
+        for (const { msg, sentAt } of params.downwardMessages) {
+          // calculate new hash
+          dmqMqcHeadHash = blake2AsHex(
+            u8aConcat(
+              meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
+              meta.registry.createType('BlockNumber', sentAt).toU8a(),
+              blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256)
+            ),
+            256
+          )
+
+          downwardMessages.push({
+            msg,
+            sent_at: sentAt,
+          })
+        }
+        newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
+      }
+
+      const hrmpIngressChannels = meta.registry
+        .createType('Vec<ParaId>', decoded[hrmpIngressChannelIndexKey])
+        .map((x) => x.toNumber())
+
+      // inject horizontal messages
+      if (params?.horizontalMessages) {
+        for (const [id, messages] of Object.entries(params.horizontalMessages)) {
+          const sender = Number(id)
+          if (hrmpIngressChannels.includes(sender)) {
+            const channelId = meta.registry.createType('HrmpChannelId', { sender, receiver: paraId.toNumber() })
+            const hrmpChannelKey = hrmpChannels(channelId)
+            const decoded = await decodeProof(
+              extrinsic.validationData.relayParentStorageRoot,
+              [hrmpChannelKey],
+              extrinsic.relayChainState.trieNodes
+            )
+            const abridgedHrmpRaw = decoded[hrmpChannelKey]
+            if (!abridgedHrmpRaw) throw new Error('Canoot find hrmp channels from validation data')
+
+            const abridgedHrmp = meta.registry.createType('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw)).toJSON()
+            const paraMessages: { data: HexString; sent_at: number }[] = []
+
+            for (const { data, sentAt } of messages) {
+              // calculate new hash
+              const bytes = meta.registry.createType('Bytes', data)
+              abridgedHrmp.mqcHead = blake2AsHex(
+                u8aConcat(
+                  meta.registry.createType('Hash', abridgedHrmp.mqcHead).toU8a(),
+                  meta.registry.createType('BlockNumber', sentAt).toU8a(),
+                  blake2AsU8a(bytes.toU8a(), 256)
+                ),
+                256
+              )
+              abridgedHrmp.msgCount = (abridgedHrmp.msgCount as number) + 1
+              abridgedHrmp.totalSize = (abridgedHrmp.totalSize as number) + bytes.length
+
+              paraMessages.push({
+                data,
+                sent_at: sentAt,
+              })
+            }
+
+            horizontalMessages[sender] = paraMessages
+
+            newEntries.push([hrmpChannelKey, meta.registry.createType('AbridgedHrmpChannel', abridgedHrmp).toHex()])
+          }
+        }
+      }
+
       const upgradeKey = upgradeGoAheadSignal(paraId)
+      const pendingUpgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
       if (pendingUpgrade) {
         // send goAhead signal
         const goAhead = meta.registry.createType('UpgradeGoAhead', 'GoAhead')
@@ -78,13 +178,15 @@ export class SetValidationData implements CreateInherents {
       }
 
       const { trieRootHash, nodes } = await createProof(
-        extrinsic.validationData.relayParentStorageRoot as HexString,
-        extrinsic.relayChainState.trieNodes as HexString[],
+        extrinsic.validationData.relayParentStorageRoot,
+        extrinsic.relayChainState.trieNodes,
         newEntries
       )
 
       newData = {
         ...extrinsic,
+        downwardMessages,
+        horizontalMessages,
         validationData: {
           ...extrinsic.validationData,
           relayParentStorageRoot: trieRootHash,
