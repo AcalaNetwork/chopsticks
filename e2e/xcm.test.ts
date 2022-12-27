@@ -91,9 +91,6 @@ describe('XCM', async () => {
 
     await polkadot.chain.newBlock()
     await matchSnapshot(polkadot.api.query.system.events())
-
-    // wait for 10 secs for new block to built
-    await new Promise((resolve) => setTimeout(resolve, 10000))
     await matchSnapshot(acala.api.query.system.events())
 
     await polkadot.teardown()

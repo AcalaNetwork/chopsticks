@@ -2,10 +2,13 @@ import { stringToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
+import { defaultLogger } from '../logger'
 
 type Callback = (block: Block, pairs: [string, string][]) => void | Promise<void>
 
 export const randomId = () => Math.random().toString(36).substring(2)
+
+const logger = defaultLogger.child({ name: 'head-state' })
 
 export class HeadState {
   #headListeners: Record<string, (block: Block) => void> = {}
@@ -67,7 +70,9 @@ export class HeadState {
     for (const [keys, cb] of Object.values(this.#storageListeners)) {
       const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string])
       if (changed.length > 0) {
-        await cb(head, changed)
+        await Promise.resolve(cb(head, changed)).catch((error) => {
+          logger.error(error, 'callback')
+        })
       }
     }
 
