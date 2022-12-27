@@ -5,7 +5,7 @@ import yargs from 'yargs'
 
 import { BuildBlockMode } from './blockchain/txpool'
 import { configSchema } from './schema'
-import { connectDownward } from './xcm'
+import { connectDownward, connectParachains } from './xcm'
 import { decodeKey } from './decode-key'
 import { runBlock } from './run-block'
 import { setupWithServer } from './setup-with-server'
@@ -133,7 +133,7 @@ yargs(hideBin(process.argv))
       for (const { chain: parachain } of parachains) {
         await connectDownward(relaychain, parachain)
       }
-      // TODO: connect parachains horizontal
+      await connectParachains(parachains.map((x) => x.chain))
     }
   )
   .strict()
