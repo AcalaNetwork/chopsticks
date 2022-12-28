@@ -102,6 +102,7 @@ export class TxPool {
           ],
         },
         ...consensus.rest,
+          head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
       ]
     }
 
