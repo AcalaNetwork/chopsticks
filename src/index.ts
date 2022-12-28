@@ -118,7 +118,6 @@ yargs(hideBin(process.argv))
         relaychain: {
           desc: 'Relaychain config file path',
           string: true,
-          required: true,
         },
         parachain: {
           desc: 'Parachain config file path',
@@ -128,12 +127,17 @@ yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      const { chain: relaychain } = await setupWithServer(processConfig(argv.relaychain))
       const parachains = await Promise.all(argv.parachain.map(processConfig).map(setupWithServer))
-      for (const { chain: parachain } of parachains) {
-        await connectDownward(relaychain, parachain)
+      if (parachains.length > 1) {
+        await connectParachains(parachains.map((x) => x.chain))
       }
-      await connectParachains(parachains.map((x) => x.chain))
+
+      if (argv.relaychain) {
+        const { chain: relaychain } = await setupWithServer(processConfig(argv.relaychain))
+        for (const { chain: parachain } of parachains) {
+          await connectDownward(relaychain, parachain)
+        }
+      }
     }
   )
   .strict()

@@ -46,6 +46,8 @@ export const connectParachains = async (parachains: Blockchain[]) => {
   }
 
   await connectHorizontal(list)
+
+  logger.info('Parachains connected')
 }
 
 const connectHorizontal = async (parachains: Record<number, Blockchain>) => {
