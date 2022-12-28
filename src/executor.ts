@@ -21,6 +21,7 @@ import {
   run_task,
 } from '@acala-network/chopsticks-executor'
 import { defaultLogger, truncate, truncateStorageDiff } from './logger'
+import { memoize } from 'lodash'
 
 interface JsCallback {
   getStorage: (key: HexString) => Promise<string | undefined>
@@ -125,7 +126,7 @@ export const emptyTaskHandler = {
   },
 }
 
-export const getAuraSlotDuration = async (wasm: HexString, registry: Registry): Promise<number> => {
+export const getAuraSlotDuration = memoize(async (wasm: HexString, registry: Registry): Promise<number> => {
   const result = await runTask({
     wasm,
     calls: [['AuraApi_slot_duration', '0x']],
@@ -137,4 +138,4 @@ export const getAuraSlotDuration = async (wasm: HexString, registry: Registry): 
   if (!result.Call) throw new Error(result.Error)
   const slotDuration = registry.createType('u64', hexToU8a(result.Call.result)).toNumber()
   return slotDuration
-}
+})
