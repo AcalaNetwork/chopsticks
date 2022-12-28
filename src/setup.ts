@@ -8,6 +8,7 @@ import { Blockchain } from './blockchain'
 import { Config } from './schema'
 import { GenesisProvider } from './genesis-provider'
 import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherent'
+import { SetBabeRandomness, SetNimbusAuthorInherent } from './blockchain/inherent/parachain/validation-data'
 import { defaultLogger } from './logger'
 import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
@@ -45,7 +46,11 @@ export const setup = async (argv: Config) => {
 
   const header = await api.getHeader(blockHash)
 
-  const inherents = new InherentProviders(new SetTimestamp(), [new SetValidationData()])
+  const inherents = new InherentProviders(new SetTimestamp(), [
+    new SetValidationData(),
+    new SetNimbusAuthorInherent(),
+    new SetBabeRandomness(),
+  ])
 
   const chain = new Blockchain({
     api,

@@ -7,13 +7,8 @@ import { Api } from '../src/api'
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
 import { GenesisProvider } from '../src/genesis-provider'
-import {
-  InherentProviders,
-  SetBabeRandomness,
-  SetNimbusAuthorInherent,
-  SetTimestamp,
-  SetValidationData,
-} from '../src/blockchain/inherent'
+import { InherentProviders, SetTimestamp, SetValidationData } from '../src/blockchain/inherent'
+import { SetBabeRandomness, SetNimbusAuthorInherent } from '../src/blockchain/inherent/parachain/validation-data'
 import { StorageValues } from '../src/utils/set-storage'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'

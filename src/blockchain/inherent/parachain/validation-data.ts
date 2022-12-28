@@ -212,22 +212,22 @@ export class SetValidationData implements CreateInherents {
 
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements CreateInherents {
-  async createInherents(meta: DecoratedMeta, _timestamp: number, _parent: Block): Promise<HexString[]> {
+  async createInherents(parent: Block, _params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+    const meta = await parent.meta
     if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
       return []
     }
-    console.log('createInherents kickOffAuthorshipValidation', _parent.number)
     return [new GenericExtrinsic(meta.registry, meta.tx.authorInherent.kickOffAuthorshipValidation()).toHex()]
   }
 }
 
 // Support for Moonbeam pallet-randomness mandatory inherent
 export class SetBabeRandomness implements CreateInherents {
-  async createInherents(meta: DecoratedMeta, _timestamp: number, _parent: Block): Promise<HexString[]> {
+  async createInherents(parent: Block, _params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+    const meta = await parent.meta
     if (!meta.tx.randomness?.setBabeRandomnessResults) {
       return []
     }
-    console.log('createInherents SetBabeRandomness', _parent.number)
     return [new GenericExtrinsic(meta.registry, meta.tx.randomness.setBabeRandomnessResults()).toHex()]
   }
 }
