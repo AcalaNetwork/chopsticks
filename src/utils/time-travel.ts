@@ -56,7 +56,7 @@ export const timeTravel = async (chain: Blockchain, timestamp: number) => {
       compactHex(meta.query.babe.epochIndex()),
       u8aToHex(meta.registry.createType('u64', newEpoch).toU8a()),
     ])
-  } else {
+  } else if (meta.query.aura) {
     // new slot
     storage.push([
       compactHex(meta.query.aura.currentSlot()),
