@@ -71,8 +71,9 @@ const connectHorizontal = async (parachains: Record<number, Blockchain>) => {
         .createType('Vec<PolkadotCorePrimitivesOutboundHrmpMessage>', hexToU8a(value))
         .toJSON() as any as { recipient: number; data: HexString }[]
 
+      logger.info({ outboundHrmpMessage }, 'outboundHrmpMessage')
+
       for (const { recipient, data } of outboundHrmpMessage) {
-        logger.info({ outboundHrmpMessage }, 'outboundHrmpMessage')
         const horizontalMessages: Record<number, HorizontalMessage[]> = {
           [Number(id)]: [{ sentAt: chain.head.number, data }],
         }

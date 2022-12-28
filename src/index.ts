@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
+import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { configSchema } from './schema'
 import { connectDownward, connectParachains } from './xcm'
@@ -127,14 +128,19 @@ yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      const parachains = await Promise.all(argv.parachain.map(processConfig).map(setupWithServer))
+      const parachains: Blockchain[] = []
+      for (const config of argv.parachain) {
+        const { chain } = await setupWithServer(processConfig(config))
+        parachains.push(chain)
+      }
+
       if (parachains.length > 1) {
-        await connectParachains(parachains.map((x) => x.chain))
+        await connectParachains(parachains)
       }
 
       if (argv.relaychain) {
         const { chain: relaychain } = await setupWithServer(processConfig(argv.relaychain))
-        for (const { chain: parachain } of parachains) {
+        for (const parachain of parachains) {
           await connectDownward(relaychain, parachain)
         }
       }
