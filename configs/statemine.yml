@@ -1,0 +1,13 @@
+endpoint: wss://statemine-rpc.polkadot.io
+mock-signature-host: true
+block: 3550000
+db: ./db.sqlite
+
+import-storage:
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - data:
+            free: 1000000000000000
