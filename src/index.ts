@@ -3,18 +3,23 @@ import { readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
+import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { configSchema } from './schema'
+import { connectDownward, connectParachains } from './xcm'
 import { decodeKey } from './decode-key'
 import { runBlock } from './run-block'
 import { setupWithServer } from './setup-with-server'
 
-const processConfig = (argv: any) => {
+const processConfig = (path: string) => {
+  const configFile = readFileSync(path, 'utf8')
+  const config = yaml.load(configFile) as any
+  return configSchema.parse(config)
+}
+
+const processArgv = (argv: any) => {
   if (argv.config) {
-    const configFile = readFileSync(argv.config, 'utf8')
-    const config = yaml.load(configFile) as any
-    const parsed = configSchema.parse(config)
-    return { ...parsed, ...argv }
+    return { ...processConfig(argv.config), ...argv }
   }
   return argv
 }
@@ -59,11 +64,8 @@ yargs(hideBin(process.argv))
           string: true,
         },
       }),
-    (argv) => {
-      runBlock(processConfig(argv)).catch((err) => {
-        console.error(err)
-        process.exit(1)
-      })
+    async (argv) => {
+      await runBlock(processArgv(argv))
     }
   )
   .command(
@@ -89,11 +91,8 @@ yargs(hideBin(process.argv))
           boolean: true,
         },
       }),
-    (argv) => {
-      setupWithServer(processConfig(argv)).catch((err) => {
-        console.error(err)
-        process.exit(1)
-      })
+    async (argv) => {
+      await setupWithServer(processArgv(argv))
     }
   )
   .command(
@@ -108,11 +107,43 @@ yargs(hideBin(process.argv))
         .options({
           ...defaultOptions,
         }),
-    (argv) => {
-      decodeKey(processConfig(argv)).catch((err) => {
-        console.error(err)
-        process.exit(1)
-      })
+    async (argv) => {
+      await decodeKey(processArgv(argv))
+    }
+  )
+  .command(
+    'xcm',
+    'XCM setup with relaychain and parachains',
+    (yargs) =>
+      yargs.options({
+        relaychain: {
+          desc: 'Relaychain config file path',
+          string: true,
+        },
+        parachain: {
+          desc: 'Parachain config file path',
+          type: 'array',
+          string: true,
+          required: true,
+        },
+      }),
+    async (argv) => {
+      const parachains: Blockchain[] = []
+      for (const config of argv.parachain) {
+        const { chain } = await setupWithServer(processConfig(config))
+        parachains.push(chain)
+      }
+
+      if (parachains.length > 1) {
+        await connectParachains(parachains)
+      }
+
+      if (argv.relaychain) {
+        const { chain: relaychain } = await setupWithServer(processConfig(argv.relaychain))
+        for (const parachain of parachains) {
+          await connectDownward(relaychain, parachain)
+        }
+      }
     }
   )
   .strict()

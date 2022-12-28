@@ -50,6 +50,10 @@ export class Block {
     this.#registry = parentBlock?.registry
   }
 
+  get chain(): Blockchain {
+    return this.#chain
+  }
+
   get header(): Header | Promise<Header> {
     if (!this.#header) {
       this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(

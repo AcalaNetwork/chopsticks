@@ -12,6 +12,7 @@ import {
 global.WebSocket = WebSocket
 
 import { Block } from './blockchain/block'
+import { Registry } from '@polkadot/types-codec/types'
 import {
   calculate_state_root,
   create_proof,
@@ -20,8 +21,13 @@ import {
   run_task,
 } from '@acala-network/chopsticks-executor'
 import { defaultLogger, truncate, truncateStorageDiff } from './logger'
+import { memoize } from 'lodash'
 
-const logger = defaultLogger.child({ name: 'executor' })
+interface JsCallback {
+  getStorage: (key: HexString) => Promise<string | undefined>
+  getPrefixKeys: (key: HexString) => Promise<string[]>
+  getNextKey: (key: HexString) => Promise<string | undefined>
+}
 
 export type RuntimeVersion = {
   specName: string
@@ -33,6 +39,8 @@ export type RuntimeVersion = {
   transactionVersion: number
   stateVersion: number
 }
+
+const logger = defaultLogger.child({ name: 'executor' })
 
 export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion> => {
   return get_runtime_version(code).then((version) => {
@@ -76,7 +84,7 @@ export const runTask = async (
     mockSignatureHost: boolean
     allowUnresolvedImports: boolean
   },
-  callback: JsCallback
+  callback: JsCallback = emptyTaskHandler
 ) => {
   logger.trace({ task: { ...task, wasm: truncate(task.wasm) } }, 'taskRun')
   const response = await run_task(task, callback)
@@ -89,12 +97,6 @@ export const runTask = async (
     logger.trace({ response }, 'taskResponse')
   }
   return response
-}
-
-interface JsCallback {
-  getStorage: (key: HexString) => Promise<string | undefined>
-  getPrefixKeys: (key: HexString) => Promise<string[]>
-  getNextKey: (key: HexString) => Promise<string | undefined>
 }
 
 export const taskHandler = (block: Block): JsCallback => {
@@ -111,3 +113,29 @@ export const taskHandler = (block: Block): JsCallback => {
     },
   }
 }
+
+export const emptyTaskHandler = {
+  getStorage: async function (_key: HexString) {
+    throw new Error('Method not implemented')
+  },
+  getPrefixKeys: async function (_key: HexString) {
+    throw new Error('Method not implemented')
+  },
+  getNextKey: async function (_key: HexString) {
+    throw new Error('Method not implemented')
+  },
+}
+
+export const getAuraSlotDuration = memoize(async (wasm: HexString, registry: Registry): Promise<number> => {
+  const result = await runTask({
+    wasm,
+    calls: [['AuraApi_slot_duration', '0x']],
+    storage: [],
+    mockSignatureHost: false,
+    allowUnresolvedImports: false,
+  })
+
+  if (!result.Call) throw new Error(result.Error)
+  const slotDuration = registry.createType('u64', hexToU8a(result.Call.result)).toNumber()
+  return slotDuration
+})

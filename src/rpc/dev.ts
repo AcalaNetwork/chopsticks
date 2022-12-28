@@ -1,6 +1,7 @@
 import { Handlers, ResponseError } from './shared'
 import { StorageValues, setStorage } from '../utils/set-storage'
 import { defaultLogger } from '../logger'
+import { timeTravel } from '../utils/time-travel'
 
 const logger = defaultLogger.child({ name: 'rpc-dev' })
 
@@ -34,6 +35,12 @@ const handlers: Handlers = {
       'dev_setStorages'
     )
     return hash
+  },
+  dev_timeTravel: async (context, [date]) => {
+    const timestamp = typeof date === 'string' ? Date.parse(date) : date
+    if (Number.isNaN(timestamp)) throw new ResponseError(1, 'Invalid date')
+    await timeTravel(context.chain, timestamp)
+    return timestamp
   },
 }
 

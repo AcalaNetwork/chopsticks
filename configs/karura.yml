@@ -21,5 +21,8 @@ import-storage:
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: KUSD
         - free: 1000000000000000
-
-
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: KSM
+        - free: '10000000000000000000'

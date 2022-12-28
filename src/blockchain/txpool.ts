@@ -1,6 +1,6 @@
-import { Header } from '@polkadot/types/interfaces'
+import { Header, RawBabePreDigest } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
-import { bnToHex, bnToU8a, compactAddLength, stringToHex, u8aConcat } from '@polkadot/util'
+import { compactAddLength, stringToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -10,6 +10,7 @@ import { ResponseError } from '../rpc/shared'
 import { StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
+import { getCurrentSlot } from '../utils/time-travel'
 
 const logger = defaultLogger.child({ name: 'txpool' })
 
@@ -19,11 +20,56 @@ export enum BuildBlockMode {
   Manual, // only build when triggered
 }
 
+export interface DownwardMessage {
+  sentAt: number
+  msg: HexString
+}
+
+export interface HorizontalMessage {
+  sentAt: number
+  data: HexString
+}
+
+export interface BuildBlockParams {
+  inherent?: {
+    downwardMessages?: DownwardMessage[]
+    horizontalMessages?: Record<number, HorizontalMessage[]>
+  }
+}
+
 const getConsensus = (header: Header) => {
   if (header.digest.logs.length === 0) return
   const preRuntime = header.digest.logs[0].asPreRuntime
-  const [consensusEngine] = preRuntime
-  return { consensusEngine, rest: header.digest.logs.slice(1) }
+  const [consensusEngine, slot] = preRuntime
+  return { consensusEngine, slot, rest: header.digest.logs.slice(1) }
+}
+
+const getNewSlot = (digest: RawBabePreDigest, slotNumber: number) => {
+  if (digest.isPrimary) {
+    return {
+      primary: {
+        ...digest.asPrimary.toJSON(),
+        slotNumber,
+      },
+    }
+  }
+  if (digest.isSecondaryPlain) {
+    return {
+      secondaryPlain: {
+        ...digest.asSecondaryPlain.toJSON(),
+        slotNumber,
+      },
+    }
+  }
+  if (digest.isSecondaryVRF) {
+    return {
+      secondaryVRF: {
+        ...digest.asSecondaryVRF.toJSON(),
+        slotNumber,
+      },
+    }
+  }
+  return digest.toJSON()
 }
 
 export class TxPool {
@@ -62,13 +108,13 @@ export class TxPool {
 
   #batchBuildBlock = _.debounce(this.buildBlock, 100, { maxWait: 1000 })
 
-  async buildBlock() {
+  async buildBlock(params?: BuildBlockParams) {
     const last = this.#lastBuildBlockPromise
-    this.#lastBuildBlockPromise = this.#buildBlock(last)
+    this.#lastBuildBlockPromise = this.#buildBlock(last, params)
     await this.#lastBuildBlockPromise
   }
 
-  async #buildBlock(wait: Promise<void>) {
+  async #buildBlock(wait: Promise<void>, params?: BuildBlockParams) {
     await this.#chain.api.isReady
     await wait.catch(() => {}) // ignore error
     const head = this.#chain.head
@@ -77,17 +123,18 @@ export class TxPool {
     const meta = await head.meta
     const parentHeader = await head.header
 
-    const time = this.#inherentProvider.getTimestamp(head.number + 1)
-
     let newLogs = parentHeader.digest.logs as any
-    const expectedSlot = Math.floor(time / ((meta.consts.timestamp.minimumPeriod as any).toNumber() * 2))
     const consensus = getConsensus(parentHeader)
     if (consensus?.consensusEngine.isAura) {
-      const newSlot = compactAddLength(bnToU8a(expectedSlot, { isLe: true, bitLength: 64 }))
+      const slot = await getCurrentSlot(this.#chain)
+      const newSlot = compactAddLength(meta.registry.createType('Slot', slot + 1).toU8a())
       newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     } else if (consensus?.consensusEngine.isBabe) {
-      // trying to make a SecondaryPlainPreDigest
-      const newSlot = compactAddLength(u8aConcat('0x0200000000', bnToU8a(expectedSlot, { isLe: true, bitLength: 64 })))
+      const slot = await getCurrentSlot(this.#chain)
+      const digest = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.slot)
+      const newSlot = compactAddLength(
+        meta.registry.createType('RawBabePreDigest', getNewSlot(digest, slot + 1)).toU8a()
+      )
       newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
     } else if (consensus?.consensusEngine?.toString() == 'nmbs') {
       const nmbsKey = stringToHex('nmbs')
@@ -102,7 +149,7 @@ export class TxPool {
           ],
         },
         ...consensus.rest,
-          head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
+        head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted),
       ]
     }
 
@@ -126,8 +173,6 @@ export class TxPool {
         number: head.number,
         extrinsicsCount: extrinsics.length,
         tempHash: newBlock.hash,
-        timeValue: time,
-        expectedSlot,
       },
       'Building block'
     )
@@ -137,14 +182,7 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    if (meta.query.babe?.currentSlot) {
-      // TODO: figure out how to generate a valid babe slot digest instead of just modify the data
-      // but hey, we can get it working without a valid digest
-      const key = compactHex(meta.query.babe.currentSlot())
-      newBlock.pushStorageLayer().set(key, bnToHex(expectedSlot, { isLe: true, bitLength: 64 }))
-    }
-
-    const inherents = await this.#inherentProvider.createInherents(meta, time, newBlock)
+    const inherents = await this.#inherentProvider.createInherents(newBlock, params?.inherent)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)

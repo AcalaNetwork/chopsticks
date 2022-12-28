@@ -1,31 +1,23 @@
 import { Block } from '../block'
-import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import { BuildBlockParams } from '../txpool'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
+import { getCurrentTimestamp, getSlotDuration } from '../../utils/time-travel'
 
 export { SetValidationData } from './parachain/validation-data'
 
 export interface CreateInherents {
-  createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]>
+  createInherents(parent: Block, params?: BuildBlockParams['inherent']): Promise<HexString[]>
 }
 
-export interface InherentProvider extends CreateInherents {
-  getTimestamp(blockNumber: number): number
-}
+export type InherentProvider = CreateInherents
 
 export class SetTimestamp implements InherentProvider {
-  readonly #getTimestamp: (blockNumber: number) => number
-
-  constructor(getTimestamp: (blockNumber: number) => number = Date.now) {
-    this.#getTimestamp = getTimestamp
-  }
-
-  async createInherents(meta: DecoratedMeta, timestamp: number, _parent: Block): Promise<HexString[]> {
-    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(timestamp)).toHex()]
-  }
-
-  getTimestamp(blockNumber: number): number {
-    return this.#getTimestamp(blockNumber)
+  async createInherents(parent: Block): Promise<HexString[]> {
+    const meta = await parent.meta
+    const slotDuration = await getSlotDuration(parent.chain)
+    const currentTimestamp = await getCurrentTimestamp(parent.chain)
+    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(currentTimestamp + slotDuration)).toHex()]
   }
 }
 
@@ -38,15 +30,9 @@ export class InherentProviders implements InherentProvider {
     this.#providers = providers
   }
 
-  async createInherents(meta: DecoratedMeta, timestamp: number, parent: Block): Promise<HexString[]> {
-    const base = await this.#base.createInherents(meta, timestamp, parent)
-    const extra = await Promise.all(
-      this.#providers.map((provider) => provider.createInherents(meta, timestamp, parent))
-    )
+  async createInherents(parent: Block, params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+    const base = await this.#base.createInherents(parent, params)
+    const extra = await Promise.all(this.#providers.map((provider) => provider.createInherents(parent, params)))
     return [...base, ...extra.flat()]
-  }
-
-  getTimestamp(blockNumber: number): number {
-    return this.#base.getTimestamp(blockNumber)
   }
 }
