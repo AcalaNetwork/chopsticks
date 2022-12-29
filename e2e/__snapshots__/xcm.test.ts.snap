@@ -320,6 +320,24 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
   {
     "event": {
       "data": {
+        "dispatchInfo": {
+          "class": "Mandatory",
+          "paysFee": "Yes",
+          "weight": "85,212,000",
+        },
+      },
+      "index": "0x0000",
+      "method": "ExtrinsicSuccess",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
         "amount": "184,908,979",
         "who": "146SvjUZXoMaemdeiecyxgALeYMm8ZWh1yrGo8RtpoPfe7WL",
       },
@@ -328,7 +346,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "balances",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
@@ -344,7 +362,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "balances",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
@@ -360,7 +378,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "xcmPallet",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
@@ -375,7 +393,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "balances",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
@@ -389,7 +407,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "treasury",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
@@ -404,7 +422,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "balances",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
@@ -420,7 +438,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "transactionPayment",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
@@ -438,7 +456,7 @@ exports[`XCM > Polkadot send downward messages to Acala 1`] = `
       "section": "system",
     },
     "phase": {
-      "ApplyExtrinsic": "1",
+      "ApplyExtrinsic": "2",
     },
     "topics": [],
   },
