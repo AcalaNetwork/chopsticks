@@ -164,7 +164,6 @@ export class TxPool {
       },
     })
 
-    head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
     const newBlock = this.#chain.newTempBlock(head, header)
 
     logger.info(
