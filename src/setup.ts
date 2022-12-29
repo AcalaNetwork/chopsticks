@@ -7,8 +7,13 @@ import { Api } from './api'
 import { Blockchain } from './blockchain'
 import { Config } from './schema'
 import { GenesisProvider } from './genesis-provider'
-import { InherentProviders, SetTimestamp, SetValidationData } from './blockchain/inherent'
-import { SetBabeRandomness, SetNimbusAuthorInherent } from './blockchain/inherent/parachain/validation-data'
+import {
+  InherentProviders,
+  SetBabeRandomness,
+  SetNimbusAuthorInherent,
+  SetTimestamp,
+  SetValidationData,
+} from './blockchain/inherent'
 import { defaultLogger } from './logger'
 import { importStorage, overrideWasm } from './utils/import-storage'
 import { openDb } from './db'
