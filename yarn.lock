@@ -19,7 +19,7 @@ __metadata:
     "@polkadot/api": ^9.10.1
     "@polkadot/rpc-provider": ^9.10.1
     "@polkadot/types": ^9.10.1
-    "@polkadot/types-codec": ^9.10.1
+    "@polkadot/types-codec": ^9.10.5
     "@polkadot/types-known": ^9.10.1
     "@polkadot/util": ^10.2.1
     "@polkadot/util-crypto": ^10.2.1
@@ -421,7 +421,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types-codec@npm:9.10.1, @polkadot/types-codec@npm:^9.10.1":
+"@polkadot/types-codec@npm:9.10.1":
   version: 9.10.1
   resolution: "@polkadot/types-codec@npm:9.10.1"
   dependencies:
@@ -429,6 +429,17 @@ __metadata:
     "@polkadot/util": ^10.2.1
     "@polkadot/x-bigint": ^10.2.1
   checksum: 2a975695d7c40d1469e73a02e68afee1dc86eb6c19d56c058a21724bdab3c4d22e4c7d08c47edec9944f8b70db9dd82cf80c8110dee24b7c408c71cede733637
+  languageName: node
+  linkType: hard
+
+"@polkadot/types-codec@npm:^9.10.5":
+  version: 9.10.5
+  resolution: "@polkadot/types-codec@npm:9.10.5"
+  dependencies:
+    "@babel/runtime": ^7.20.6
+    "@polkadot/util": ^10.2.1
+    "@polkadot/x-bigint": ^10.2.1
+  checksum: fdfd6e36c69d416db3fdab2ee7afef1ac01d29022f3c41a2f4280e0ff9390b1314d1f1a520a411fe011dc8ea6e7372ac1dd4e24e34e56b5374afa5a99faca138
   languageName: node
   linkType: hard
 
