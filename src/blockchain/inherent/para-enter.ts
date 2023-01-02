@@ -29,7 +29,6 @@ export class ParaInherentEnter implements CreateInherents {
       .createType<GenericExtrinsic>('GenericExtrinsic', paraEnterExtrinsic)
       .args[0].toJSON() as any
 
-
     const parentHeader = (await parentBlock.header).toJSON()
 
     const newData = {
