@@ -1,4 +1,5 @@
 import { Handlers, ResponseError } from './shared'
+import { HexString } from '@polkadot/util/types'
 import { StorageValues, setStorage } from '../utils/set-storage'
 import { defaultLogger } from '../logger'
 import { timeTravel } from '../utils/time-travel'
@@ -23,7 +24,7 @@ const handlers: Handlers = {
     return finalHash
   },
   dev_setStorages: async (context, params) => {
-    const [values, blockHash] = params as [StorageValues, string?]
+    const [values, blockHash] = params as [StorageValues, HexString?]
     const hash = await setStorage(context.chain, values, blockHash).catch((error) => {
       throw new ResponseError(1, error.toString())
     })

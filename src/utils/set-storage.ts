@@ -1,4 +1,5 @@
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import { HexString } from '@polkadot/util/types'
 import { StorageKey } from '@polkadot/types'
 import { stringCamelCase } from '@polkadot/util/string'
 import { u8aToHex } from '@polkadot/util'
@@ -49,7 +50,11 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
   return storageItems
 }
 
-export const setStorage = async (chain: Blockchain, storage: StorageValues, blockHash?: string): Promise<string> => {
+export const setStorage = async (
+  chain: Blockchain,
+  storage: StorageValues,
+  blockHash?: HexString
+): Promise<HexString> => {
   const block = await chain.getBlock(blockHash)
   if (!block) throw Error(`Cannot find block ${blockHash || 'latest'}`)
 

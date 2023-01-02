@@ -37,7 +37,7 @@ export class Block {
   constructor(
     chain: Blockchain,
     public readonly number: number,
-    public readonly hash: string,
+    public readonly hash: HexString,
     parentBlock?: Block,
     block?: { header: Header; extrinsics: HexString[]; storage?: StorageLayerProvider }
   ) {

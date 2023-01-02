@@ -7,7 +7,6 @@ import { Block } from './block'
 import { Blockchain } from '.'
 import { InherentProvider } from './inherent'
 import { ResponseError } from '../rpc/shared'
-import { compactHex } from '../utils'
 import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
 import { getCurrentSlot } from '../utils/time-travel'
 
@@ -165,7 +164,7 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    const inherents = await this.#inherentProvider.createInherents(newBlock, params?.inherent)
+    const inherents = await this.#inherentProvider.createInherents(head, params?.inherent)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
@@ -186,14 +185,6 @@ export class TxPool {
         logger.info('Failed to apply extrinsic %o %s', e, e)
         this.#pool.push(extrinsic)
       }
-    }
-
-    if (meta.query.paraInherent?.included) {
-      // TODO: remvoe this once paraInherent.enter is implemented
-      // we are relaychain, however as we have not yet implemented the paraInherent.enter
-      // so need to do some trick to make the on_finalize check happy
-      const paraInherentIncludedKey = compactHex(meta.query.paraInherent.included())
-      newBlock.pushStorageLayer().set(paraInherentIncludedKey, '0x01')
     }
 
     const resp2 = await newBlock.call('BlockBuilder_finalize_block', '0x')
