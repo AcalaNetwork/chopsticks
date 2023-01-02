@@ -164,7 +164,7 @@ export class TxPool {
 
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
-    const inherents = await this.#inherentProvider.createInherents(newBlock, params?.inherent)
+    const inherents = await this.#inherentProvider.createInherents(head, params?.inherent)
     for (const extrinsic of inherents) {
       try {
         const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)

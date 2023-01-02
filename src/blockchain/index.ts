@@ -20,7 +20,7 @@ export interface Options {
   buildBlockMode?: BuildBlockMode
   inherentProvider: InherentProvider
   db?: DataSource
-  header: { number: number; hash: string }
+  header: { number: number; hash: HexString }
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
 }
@@ -89,7 +89,7 @@ export class Blockchain {
     return this.#blocksByNumber[number]
   }
 
-  async getBlock(hash?: string): Promise<Block | undefined> {
+  async getBlock(hash?: HexString): Promise<Block | undefined> {
     await this.api.isReady
     if (hash == null) {
       hash = this.head.hash
@@ -110,11 +110,10 @@ export class Blockchain {
 
   newTempBlock(parent: Block, header: Header): Block {
     const number = parent.number + 1
-    const hash =
-      '0x' +
+    const hash = ('0x' +
       Math.round(Math.random() * 100000000)
         .toString(16)
-        .padEnd(64, '0')
+        .padEnd(64, '0')) as HexString
     const block = new Block(this, number, hash, parent, { header, extrinsics: [], storage: parent.storage })
     this.#blocksByHash[hash] = block
     return block

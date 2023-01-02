@@ -1,5 +1,6 @@
 import '@polkadot/types-codec'
 import { DataSource } from 'typeorm'
+import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { WsProvider } from '@polkadot/api'
 
@@ -53,7 +54,7 @@ export const setup = async (argv: Config) => {
     inherentProvider: inherents,
     db,
     header: {
-      hash: blockHash,
+      hash: blockHash as HexString,
       number: Number(header.number),
     },
   })

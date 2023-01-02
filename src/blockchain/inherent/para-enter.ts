@@ -12,11 +12,7 @@ export class ParaInherentEnter implements CreateInherents {
       return []
     }
 
-    const parentBlock = await parent.parentBlock
-    if (!parentBlock) {
-      throw new Error('Parent block not found')
-    }
-    const extrinsics = await parentBlock.extrinsics
+    const extrinsics = await parent.extrinsics
 
     const paraEnterExtrinsic = extrinsics.find((extrinsic) => {
       const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
@@ -29,7 +25,7 @@ export class ParaInherentEnter implements CreateInherents {
       .createType<GenericExtrinsic>('GenericExtrinsic', paraEnterExtrinsic)
       .args[0].toJSON() as any
 
-    const parentHeader = (await parentBlock.header).toJSON()
+    const parentHeader = (await parent.header).toJSON()
 
     const newData = {
       ...extrinsic,

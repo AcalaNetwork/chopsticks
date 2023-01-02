@@ -18,7 +18,7 @@ export const configSchema = z
   .object({
     port: z.number().optional(),
     endpoint: z.string().optional(),
-    block: z.union([z.string(), z.number()]).optional(),
+    block: z.union([z.string().length(66).startsWith('0x'), z.number()]).optional(),
     'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
     'import-storage': z.any().optional(),
     'mock-signature-host': z.boolean().optional(),

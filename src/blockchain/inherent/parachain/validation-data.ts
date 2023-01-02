@@ -56,15 +56,11 @@ export class SetValidationData implements CreateInherents {
       return []
     }
 
-    const parentBlock = await parent.parentBlock
-    if (!parentBlock) {
-      throw new Error('Parent block not found')
-    }
-    const extrinsics = await parentBlock.extrinsics
+    const extrinsics = await parent.extrinsics
 
     let newData: ValidationData
 
-    if (parentBlock.number === 0) {
+    if (parent.number === 0) {
       // chain started with genesis, mock 1st validationData
       newData = MOCK_VALIDATION_DATA as ValidationData
     } else {
@@ -83,7 +79,7 @@ export class SetValidationData implements CreateInherents {
       const downwardMessages: { msg: HexString; sent_at: number }[] = []
       const horizontalMessages: Record<number, { data: HexString; sent_at: number }[]> = {}
 
-      const paraId = await getParaId(parentBlock.chain)
+      const paraId = await getParaId(parent.chain)
 
       const dmqMqcHeadKey = dmqMqcHead(paraId)
       const hrmpIngressChannelIndexKey = hrmpIngressChannelIndex(paraId)
@@ -173,7 +169,7 @@ export class SetValidationData implements CreateInherents {
       }
 
       const upgradeKey = upgradeGoAheadSignal(paraId)
-      const pendingUpgrade = await parentBlock.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
+      const pendingUpgrade = await parent.get(compactHex(meta.query.parachainSystem.pendingValidationCode()))
       if (pendingUpgrade) {
         // send goAhead signal
         const goAhead = meta.registry.createType('UpgradeGoAhead', 'GoAhead')

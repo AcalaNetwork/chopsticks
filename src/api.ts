@@ -87,7 +87,7 @@ export class Api {
   }
 
   async getBlockHash(blockNumber?: number) {
-    return this.#provider.send<string>('chain_getBlockHash', Number.isInteger(blockNumber) ? [blockNumber] : [])
+    return this.#provider.send<HexString>('chain_getBlockHash', Number.isInteger(blockNumber) ? [blockNumber] : [])
   }
 
   async getHeader(hash?: string) {
