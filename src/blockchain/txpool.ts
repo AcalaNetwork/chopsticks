@@ -3,14 +3,10 @@ import { HexString } from '@polkadot/util/types'
 import { compactAddLength } from '@polkadot/util'
 import _ from 'lodash'
 
-import { Block } from './block'
 import { Blockchain } from '.'
 import { InherentProvider } from './inherent'
-import { ResponseError } from '../rpc/shared'
-import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
+import { buildBlock } from './block-builder'
 import { getCurrentSlot } from '../utils/time-travel'
-
-const logger = defaultLogger.child({ name: 'txpool' })
 
 export enum BuildBlockMode {
   Batch, // one block per batch, default
@@ -147,72 +143,9 @@ export class TxPool {
       },
     })
 
-    const newBlock = this.#chain.newTempBlock(head, header)
-
-    logger.info(
-      {
-        hash: head.hash,
-        number: head.number,
-        extrinsicsCount: extrinsics.length,
-        tempHash: newBlock.hash,
-      },
-      'Building block'
-    )
-
-    const resp = await newBlock.call('Core_initialize_block', header.toHex())
-    logger.trace(truncateStorageDiff(resp.storageDiff), 'Initialize block')
-
-    newBlock.pushStorageLayer().setAll(resp.storageDiff)
-
     const inherents = await this.#inherentProvider.createInherents(head, params?.inherent)
-    for (const extrinsic of inherents) {
-      try {
-        const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
-        newBlock.pushStorageLayer().setAll(resp.storageDiff)
-        logger.trace(truncateStorageDiff(resp.storageDiff), 'Applied inherent')
-      } catch (e) {
-        logger.warn('Failed to apply inherents %o %s', e, e)
-        throw new ResponseError(1, 'Failed to apply inherents')
-      }
-    }
-
-    for (const extrinsic of extrinsics) {
-      try {
-        const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
-        newBlock.pushStorageLayer().setAll(resp.storageDiff)
-        logger.trace(truncateStorageDiff(resp.storageDiff), 'Applied extrinsic')
-      } catch (e) {
-        logger.info('Failed to apply extrinsic %o %s', e, e)
-        this.#pool.push(extrinsic)
-      }
-    }
-
-    const resp2 = await newBlock.call('BlockBuilder_finalize_block', '0x')
-
-    newBlock.pushStorageLayer().setAll(resp2.storageDiff)
-    logger.trace(truncateStorageDiff(resp2.storageDiff), 'Finalize block')
-
-    const blockData = registry.createType('Block', {
-      header,
-      extrinsics,
-    })
-
-    const finalBlock = new Block(this.#chain, newBlock.number, blockData.hash.toHex(), head, {
-      header,
-      extrinsics: [...inherents, ...extrinsics],
-      storage: head.storage,
-    })
-
-    const diff = await newBlock.storageDiff()
-    logger.trace(
-      Object.entries(diff).map(([key, value]) => [key, truncate(value)]),
-      'Final block'
-    )
-    finalBlock.pushStorageLayer().setAll(diff)
-
-    this.#chain.unregisterBlock(newBlock)
-    await this.#chain.setHead(finalBlock)
-
-    logger.info({ hash: finalBlock.hash, number: finalBlock.number, prevHash: newBlock.hash }, 'Block built')
+    const [newBlock, pendingExtrinsics] = await buildBlock(head, header, inherents, extrinsics)
+    this.#pool.push(...pendingExtrinsics)
+    await this.#chain.setHead(newBlock)
   }
 }
