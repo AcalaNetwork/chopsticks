@@ -4,7 +4,7 @@ const handlers: Handlers = {
   chain_getBlockHash: async (context, [blockNumber]) => {
     const block = await context.chain.getBlockAt(blockNumber)
     if (!block) {
-      throw new ResponseError(1, 'Block not found')
+      throw new ResponseError(1, `Block #${blockNumber} not found`)
     }
     return block.hash
   },
@@ -14,7 +14,7 @@ const handlers: Handlers = {
   chain_getBlock: async (context, [hash]) => {
     const block = await context.chain.getBlock(hash)
     if (!block) {
-      throw new ResponseError(1, 'Block not found')
+      throw new ResponseError(1, `Block ${hash} not found`)
     }
     return {
       block: {

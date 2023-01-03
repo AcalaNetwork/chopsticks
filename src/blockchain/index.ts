@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm'
-import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
@@ -10,7 +9,6 @@ import { Block } from './block'
 import { BuildBlockMode, BuildBlockParams, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
-import { ResponseError } from '../rpc/shared'
 import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
@@ -36,6 +34,7 @@ export class Blockchain {
   #head: Block
   readonly #blocksByNumber: Block[] = []
   readonly #blocksByHash: Record<string, Block> = {}
+  readonly #loadingBlocks: Record<string, Promise<void>> = {}
 
   readonly headState: HeadState
 
@@ -95,28 +94,25 @@ export class Blockchain {
       hash = this.head.hash
     }
     if (!this.#blocksByHash[hash]) {
-      try {
-        const registry = await this.head.registry
-        const header: Header = registry.createType('Header', await this.api.getHeader(hash))
-        const block = new Block(this, header.number.toNumber(), hash)
-        this.#registerBlock(block)
-      } catch (e) {
-        logger.debug(`getBlock(${hash}) failed: ${e}`)
-        return undefined
+      const loadingBlock = this.#loadingBlocks[hash]
+      if (loadingBlock) {
+        await loadingBlock
+      } else {
+        const loadingBlock = (async () => {
+          try {
+            const header = await this.api.getHeader(hash)
+            const block = new Block(this, Number(header.number), hash)
+            this.#registerBlock(block)
+          } catch (e) {
+            logger.debug(`getBlock(${hash}) failed: ${e}`)
+          }
+        })()
+        this.#loadingBlocks[hash] = loadingBlock
+        await loadingBlock
+        delete this.#loadingBlocks[hash]
       }
     }
     return this.#blocksByHash[hash]
-  }
-
-  newTempBlock(parent: Block, header: Header): Block {
-    const number = parent.number + 1
-    const hash = ('0x' +
-      Math.round(Math.random() * 100000000)
-        .toString(16)
-        .padEnd(64, '0')) as HexString
-    const block = new Block(this, number, hash, parent, { header, extrinsics: [], storage: parent.storage })
-    this.#blocksByHash[hash] = block
-    return block
   }
 
   unregisterBlock(block: Block): void {
@@ -152,7 +148,7 @@ export class Blockchain {
       this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)
     }
-    throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toString()}`)
+    throw new Error(`Extrinsic is invalid: ${validity.asErr.toString()}`)
   }
 
   async newBlock(params?: BuildBlockParams): Promise<Block> {

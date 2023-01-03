@@ -16,7 +16,9 @@ const handlers: Handlers = {
     let finalHash: string | undefined
 
     for (let i = 0; i < finalCount; i++) {
-      const block = await context.chain.newBlock()
+      const block = await context.chain.newBlock().catch((error) => {
+        throw new ResponseError(1, error.toString())
+      })
       logger.debug({ hash: block.hash }, 'dev_newBlock')
       finalHash = block.hash
     }
