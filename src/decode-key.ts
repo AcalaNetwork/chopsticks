@@ -14,7 +14,10 @@ export const decodeKey = async (argv: any) => {
       if (key.startsWith(keyPrefix)) {
         const decodedKey = meta.registry.createType('StorageKey', key)
         decodedKey.setMeta(storage.meta)
-        console.log(`${storage.section}.${storage.method}`, decodedKey.args.map((x) => x.toHuman()).join(', '))
+        console.log(
+          `${storage.section}.${storage.method}`,
+          decodedKey.args.map((x) => JSON.stringify(x.toHuman())).join(', ')
+        )
         break outer
       }
     }
