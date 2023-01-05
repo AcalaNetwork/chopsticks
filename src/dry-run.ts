@@ -1,9 +1,9 @@
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { exec } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 
 import { Config } from './schema'
 import { generateHtmlDiff } from './utils/generate-html-diff'
+import { openHtml } from './utils/open-html'
 import { setup } from './setup'
 
 export const dryRun = async (argv: Config) => {
@@ -19,8 +19,7 @@ export const dryRun = async (argv: Config) => {
     const filePath = await generateHtmlDiff(context.chain.head, storageDiff, blake2AsHex(argv['extrinsic'], 256))
     console.log(`Generated preview ${filePath}`)
     if (argv['open']) {
-      const start = process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open'
-      exec(start + ' ' + filePath)
+      openHtml(filePath)
     }
   } else if (argv['output-path']) {
     writeFileSync(argv['output-path'], JSON.stringify({ outcome: outcome.toHuman(), storageDiff }, null, 2))
