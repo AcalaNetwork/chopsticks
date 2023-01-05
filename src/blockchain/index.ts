@@ -168,7 +168,7 @@ export class Blockchain {
     const registry = await head.registry
     const inherents = await this.#inherentProvider.createInherents(head)
     const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
-    const outcome = registry.createType('ApplyExtrinsicResult', result)
+    const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
     return { outcome, storageDiff }
   }
 }
