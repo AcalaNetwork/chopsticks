@@ -1,12 +1,14 @@
 import { HexString } from '@polkadot/util/types'
+import { exec } from 'node:child_process'
 import { writeFileSync } from 'node:fs'
 
 import { Config } from './schema'
+import { generateHtmlDiff } from './utils/generate-html-diff'
 import { runTask, taskHandler } from './executor'
-import { setupWithServer } from './setup-with-server'
+import { setup } from './setup'
 
 export const runBlock = async (argv: Config) => {
-  const context = await setupWithServer(argv)
+  const context = await setup(argv)
 
   const header = await context.chain.head.header
   const wasm = await context.chain.head.wasm
@@ -33,12 +35,19 @@ export const runBlock = async (argv: Config) => {
     taskHandler(parent)
   )
 
-  if (argv['output-path']) {
+  if (result.Error) {
+    throw new Error(result.Error)
+  }
+
+  if (argv['html']) {
+    const filePath = await generateHtmlDiff(block, result.Call.storageDiff, block.hash)
+    console.log(`Generated preview ${filePath}`)
+    argv['open'] && exec(`open ${filePath}`)
+  } else if (argv['output-path']) {
     writeFileSync(argv['output-path'], JSON.stringify(result, null, 2))
   } else {
     console.dir(result, { depth: null, colors: false })
   }
 
-  await context.close()
-  setTimeout(() => process.exit(0), 50)
+  process.exit(0)
 }
