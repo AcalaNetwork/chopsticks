@@ -18,7 +18,10 @@ export const dryRun = async (argv: Config) => {
   if (argv['html']) {
     const filePath = await generateHtmlDiff(context.chain.head, storageDiff, blake2AsHex(argv['extrinsic'], 256))
     console.log(`Generated preview ${filePath}`)
-    argv['open'] && exec(`open ${filePath}`)
+    if (argv['open']) {
+      const start = process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open'
+      exec(start + ' ' + filePath)
+    }
   } else if (argv['output-path']) {
     writeFileSync(argv['output-path'], JSON.stringify({ outcome: outcome.toHuman(), storageDiff }, null, 2))
   } else {
