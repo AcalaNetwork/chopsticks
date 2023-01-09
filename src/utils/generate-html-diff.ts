@@ -8,7 +8,7 @@ export const generateHtmlDiff = async (block: Block, diff: [HexString, HexString
   const [left, _right, delta] = await decodeStorageDiff(block, diff)
   const htmlTemplate = readFileSync('./template/diff.html', 'utf-8')
   const html = template(htmlTemplate)({ left: JSON.stringify(left), delta: JSON.stringify(delta) })
-  mkdirSync('./preview')
+  mkdirSync('./preview', { recursive: true })
   const filePath = `./preview/${filename}.html`
   writeFileSync(filePath, html)
   return filePath
