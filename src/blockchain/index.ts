@@ -1,3 +1,4 @@
+import { ApplyExtrinsicResult } from '@polkadot/types/interfaces'
 import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
@@ -10,6 +11,7 @@ import { BuildBlockMode, BuildBlockParams, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { defaultLogger } from '../logger'
+import { dryRunExtrinsic } from './block-builder'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -30,6 +32,7 @@ export class Blockchain {
   readonly allowUnresolvedImports: boolean
 
   readonly #txpool: TxPool
+  readonly #inherentProvider: InherentProvider
 
   #head: Block
   readonly #blocksByNumber: Block[] = []
@@ -56,6 +59,7 @@ export class Blockchain {
     this.#registerBlock(this.#head)
 
     this.#txpool = new TxPool(this, inherentProvider, buildBlockMode)
+    this.#inherentProvider = inherentProvider
 
     this.headState = new HeadState(this.#head)
   }
@@ -154,5 +158,17 @@ export class Blockchain {
   async newBlock(params?: BuildBlockParams): Promise<Block> {
     await this.#txpool.buildBlock(params)
     return this.#head
+  }
+
+  async dryRun(
+    extrinsic: HexString
+  ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][] }> {
+    await this.api.isReady
+    const head = this.head
+    const registry = await head.registry
+    const inherents = await this.#inherentProvider.createInherents(head)
+    const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
+    const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
+    return { outcome, storageDiff }
   }
 }
