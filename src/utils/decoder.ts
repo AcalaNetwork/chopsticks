@@ -3,9 +3,11 @@ import { Block } from '../blockchain/block'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
+import { create } from 'jsondiffpatch'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
-import { diff as jsonDiff } from 'jsondiffpatch'
 import { merge, zipObjectDeep } from 'lodash'
+
+const diffPatcher = create({ array: { detectMove: false } })
 
 const cache: Record<HexString, StorageEntry> = {}
 
@@ -64,5 +66,5 @@ export const decodeStorageDiff = async (block: Block, diff: [HexString, HexStrin
     merge(oldState, await decodeKeyValue(block, key as HexString, (await parent.get(key)) as any))
     merge(newState, await decodeKeyValue(block, key as HexString, value))
   }
-  return [oldState, newState, jsonDiff(oldState, newState)]
+  return [oldState, newState, diffPatcher.diff(oldState, newState)]
 }

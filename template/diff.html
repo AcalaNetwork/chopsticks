@@ -1,405 +1,234 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script
-			type="text/javascript"
-			src="https://cdn.jsdelivr.net/npm/jsondiffpatch/dist/jsondiffpatch.umd.min.js"
-		></script>
 		<style>
 			body {
-				font-family: 'JetBrains Mono', monospace;
+				font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+				font-size: 14px;
 				min-width: 600px;
-			}
-
-			h1 {
-				margin: 4px;
-			}
-
-			header > * {
-				display: inline-block;
-			}
-
-			#description {
-				margin-left: 10px;
-				font-size: x-large;
-			}
-
-			#external-link {
-				font-size: smaller;
-				vertical-align: top;
-				margin-top: 10px;
-			}
-
-			h2 {
-				display: inline-block;
-				margin: 5px 0;
-			}
-
-			a#fork_me {
-				position: absolute;
-				top: 0;
-				right: 0;
-			}
-
-			.json-input > div {
-				float: left;
-				width: 50%;
-			}
-
-			.json-input > div {
-				text-align: center;
-			}
-
-			.CodeMirror {
-				text-align: initial;
-				border: 1px solid #ccc;
-			}
-
-			.json-input > div > textarea {
-				width: 95%;
-				height: 200px;
-			}
-
-			.prettyfy {
-				font-weight: bold;
-				font-size: smaller;
-				margin-left: 5px;
-			}
-
-			.buttons {
-				width: 100%;
-				text-align: center;
-				height: 1px;
-			}
-
-			.buttons > div {
-				margin: 0 auto;
-			}
-
-			.json-error {
-				background: #ffdfdf;
-				-webkit-transition: all 1s;
-				transition: all 1s;
-			}
-
-			.error-message {
-				font-weight: bold;
-				color: red;
-				font-size: smaller;
-				min-height: 20px;
-				display: block;
-			}
-
-			.header-options {
-				font-weight: normal;
-				margin-left: 30px;
-				display: inline-block;
-			}
-
-			#delta-panel-visual {
-				width: 100%;
-				overflow: auto;
-			}
-
-			#visualdiff {
-				margin-top: 4px;
-			}
-
-			#json-delta {
-				font-size: 12px;
 				margin: 0;
 				padding: 0;
-				width: 100%;
-				height: 200px;
+				background-color: rgb(39, 40, 34);
 			}
 
-			#delta-panel-json > p {
-				margin: 4px;
+			div#app {
+				margin: 0 !important;
+				padding: 10px !important;
 			}
 
-			footer {
-				font-size: small;
-				text-align: center;
-				margin: 40px;
+			.diff {
+				padding: 2px 4px;
+				border-radius: 4px;
+				position: relative;
+				color: white;
+				line-height: 150%;
 			}
 
-			.credits {
-				font-size: smaller;
+			.diffWrap {
+				position: relative;
+				z-index: 1;
 			}
 
-			.credits a {
-				text-decoration: none;
-				color: black;
-			}
-
-			.credits a:hover {
-				text-decoration: underline;
-			}
-
-			.results {
-				margin-top: 20px;
-			}
-
-			.results > div {
-				vertical-align: top;
-				display: inline-block;
-			}
-
-			.jsondiffpatch-delta {
-				font-size: 12px;
-				margin: 0;
-				padding: 0 0 0 12px;
-				display: inline-block;
-			}
-
-			.jsondiffpatch-delta pre {
-				font-size: 12px;
-				margin: 0;
-				padding: 0;
-				display: inline-block;
-			}
-
-			ul.jsondiffpatch-delta {
-				list-style-type: none;
-				padding: 0 0 0 20px;
-				margin: 0;
-			}
-
-			.jsondiffpatch-delta ul {
-				list-style-type: none;
-				padding: 0 0 0 20px;
-				margin: 0;
-			}
-
-			.jsondiffpatch-added .jsondiffpatch-property-name,
-			.jsondiffpatch-added .jsondiffpatch-value pre,
-			.jsondiffpatch-modified .jsondiffpatch-right-value pre,
-			.jsondiffpatch-textdiff-added {
-				background: #bbffbb;
-			}
-
-			.jsondiffpatch-deleted .jsondiffpatch-property-name,
-			.jsondiffpatch-deleted pre,
-			.jsondiffpatch-modified .jsondiffpatch-left-value pre,
-			.jsondiffpatch-textdiff-deleted {
-				background: #ffbbbb;
+			li:has(> span > span.diffWrap > span.diffRemove) > label {
+				color: #db2703 !important;
 				text-decoration: line-through;
+				text-decoration-thickness: 1px;
 			}
 
-			.jsondiffpatch-unchanged,
-			.jsondiffpatch-movedestination {
-				color: gray;
+			.diffAdd {
+				color: #64c83c;
 			}
 
-			.jsondiffpatch-unchanged,
-			.jsondiffpatch-movedestination > .jsondiffpatch-value {
-				transition: all 0.5s;
-				-webkit-transition: all 0.5s;
-				overflow-y: hidden;
+			.diffRemove {
+				text-decoration: line-through;
+				text-decoration-thickness: 1px;
+				color: #db2703;
 			}
 
-			.jsondiffpatch-unchanged-showing .jsondiffpatch-unchanged,
-			.jsondiffpatch-unchanged-showing .jsondiffpatch-movedestination > .jsondiffpatch-value {
-				max-height: 100px;
+			.diffUpdateFrom {
+				text-decoration: line-through;
+				text-decoration-thickness: 1px;
+				color: #db2703;
 			}
 
-			.jsondiffpatch-unchanged-hidden .jsondiffpatch-unchanged,
-			.jsondiffpatch-unchanged-hidden .jsondiffpatch-movedestination > .jsondiffpatch-value {
-				max-height: 0;
+			.diffUpdateTo {
+				color: #64c83c;
 			}
 
-			.jsondiffpatch-unchanged-hiding .jsondiffpatch-movedestination > .jsondiffpatch-value,
-			.jsondiffpatch-unchanged-hidden .jsondiffpatch-movedestination > .jsondiffpatch-value {
-				display: block;
+			.diffUpdateArrow {
+				color: #ccc;
 			}
-
-			.jsondiffpatch-unchanged-visible .jsondiffpatch-unchanged,
-			.jsondiffpatch-unchanged-visible .jsondiffpatch-movedestination > .jsondiffpatch-value {
-				max-height: 100px;
-			}
-
-			.jsondiffpatch-unchanged-hiding .jsondiffpatch-unchanged,
-			.jsondiffpatch-unchanged-hiding .jsondiffpatch-movedestination > .jsondiffpatch-value {
-				max-height: 0;
-			}
-
-			.jsondiffpatch-unchanged-showing .jsondiffpatch-arrow,
-			.jsondiffpatch-unchanged-hiding .jsondiffpatch-arrow {
-				display: none;
-			}
-
-			.jsondiffpatch-value {
-				display: inline-block;
-			}
-
-			.jsondiffpatch-property-name {
-				display: inline-block;
-				padding-right: 5px;
-				vertical-align: top;
-			}
-
-			.jsondiffpatch-property-name:after {
-				content: ': ';
-			}
-
-			.jsondiffpatch-child-node-type-array > .jsondiffpatch-property-name:after {
-				content: ': [';
-			}
-
-			.jsondiffpatch-child-node-type-array:after {
-				content: '],';
-			}
-
-			div.jsondiffpatch-child-node-type-array:before {
-				content: '[';
-			}
-
-			div.jsondiffpatch-child-node-type-array:after {
-				content: ']';
-			}
-
-			.jsondiffpatch-child-node-type-object > .jsondiffpatch-property-name:after {
-				content: ': {';
-			}
-
-			.jsondiffpatch-child-node-type-object:after {
-				content: '},';
-			}
-
-			div.jsondiffpatch-child-node-type-object:before {
-				content: '{';
-			}
-
-			div.jsondiffpatch-child-node-type-object:after {
-				content: '}';
-			}
-
-			.jsondiffpatch-value pre:after {
-				content: ',';
-			}
-
-			li:last-child > .jsondiffpatch-value pre:after,
-			.jsondiffpatch-modified > .jsondiffpatch-left-value pre:after {
-				content: '';
-			}
-
-			.jsondiffpatch-modified .jsondiffpatch-value {
-				display: inline-block;
-			}
-
-			.jsondiffpatch-modified .jsondiffpatch-right-value {
-				margin-left: 5px;
-			}
-
-			.jsondiffpatch-moved .jsondiffpatch-value {
-				display: none;
-			}
-
-			.jsondiffpatch-moved .jsondiffpatch-moved-destination {
-				display: inline-block;
-				background: #ffffbb;
-				color: #888;
-			}
-
-			.jsondiffpatch-moved .jsondiffpatch-moved-destination:before {
-				content: ' => ';
-			}
-
-			ul.jsondiffpatch-textdiff {
-				padding: 0;
-			}
-
-			.jsondiffpatch-textdiff-location {
-				color: #bbb;
-				display: inline-block;
-				min-width: 60px;
-			}
-
-			.jsondiffpatch-textdiff-line {
-				display: inline-block;
-			}
-
-			.jsondiffpatch-textdiff-line-number:after {
-				content: ',';
-			}
-
-			.jsondiffpatch-error {
-				background: red;
-				color: white;
-				font-weight: bold;
-			}
-
-			.jsondiffpatch-annotated-delta {
-				font-size: 12px;
-				margin: 0;
-				padding: 0 0 0 12px;
-				display: inline-block;
-			}
-
-			.jsondiffpatch-annotated-delta pre {
-				font-size: 12px;
-				margin: 0;
-				padding: 0;
-				display: inline-block;
-			}
-
-			.jsondiffpatch-annotated-delta td {
-				margin: 0;
-				padding: 0;
-			}
-
-			.jsondiffpatch-annotated-delta td pre:hover {
-				font-weight: bold;
-			}
-
-			td.jsondiffpatch-delta-note {
-				font-style: italic;
-				padding-left: 10px;
-			}
-
-			.jsondiffpatch-delta-note > div {
-				margin: 0;
-				padding: 0;
-			}
-
-			.jsondiffpatch-delta-note pre {
-				font-style: normal;
-			}
-
-			.jsondiffpatch-annotated-delta .jsondiffpatch-delta-note {
-				color: #777;
-			}
-
-			.jsondiffpatch-annotated-delta tr:hover {
-				background: #ffc;
-			}
-
-			.jsondiffpatch-annotated-delta tr:hover > td.jsondiffpatch-delta-note {
-				color: black;
-			}
-
-			.jsondiffpatch-error {
-				background: red;
-				color: white;
-				font-weight: bold;
+			.unchanged {
+				color: #666;
 			}
 		</style>
+		<script src="https://unpkg.com/babel-standalone@6/babel.min.js" crossorigin></script>
+		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" crossorigin></script>
+		<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+		<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+		<script src="https://unpkg.com/react-json-tree@0.18.0/lib/umd/react-json-tree.min.js" crossorigin></script>
 	</head>
 
 	<body>
-		<input type="checkbox" onchange="toggle(this)" id="show_unchanged" />
-		<label for="show_unchanged" style="font-size: 12px">Show Unchanged</label>
-		<div id="visual"></div>
-		<script>
-			function toggle(e) {
-				if (e.checked) {
-					jsondiffpatch.formatters.html.showUnchanged();
+		<div id="app"></div>
+		<script type="text/babel">
+
+			const left = <%= left %>;
+			const delta = <%= delta %>;
+
+			const expandFirstLevel = (keyName, data, level) => level <= 1;
+
+			function stringifyAndShrink(val) {
+				if (val == null) return 'null';
+				if (typeof val === 'string') return val
+				return JSON.stringify(val, null, 1);
+			}
+
+			const styling = (a) => {
+				const className = Array.isArray(a) ? a : [a]
+				return { className: className.join(' ') }
+			}
+
+			function valueRenderer(raw, value, ...keys) {
+				const modifyPath = keys.reverse().join('.')
+				const removePath = keys.map(x => Number.isInteger(parseInt(x)) ? '_' + x : x).join('.')
+				const isDelta = _.has(delta, modifyPath) || _.has(delta, removePath)
+
+				function renderSpan(name, body) {
+					return (
+						<span key={name} {...styling(['diff', name])}>
+							{body}
+						</span>
+					);
+				}
+
+				if (isDelta && Array.isArray(value)) {
+					switch (value.length) {
+						case 0:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan('diff', '[]')}
+							</span>
+						)
+						case 1:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan(
+								'diffAdd',
+								stringifyAndShrink(value[0])
+							)}
+							</span>
+						);
+						case 2:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan(
+								'diffUpdateFrom',
+								stringifyAndShrink(value[0])
+							)}
+							{renderSpan('diffUpdateArrow', ' => ')}
+							{renderSpan(
+								'diffUpdateTo',
+								stringifyAndShrink(value[1])
+							)}
+							</span>
+						);
+						case 3:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan('diffRemove', stringifyAndShrink(value[0]))}
+							</span>
+						);
+					}
+				}
+
+				return (
+					<span {...styling('diffWrap')}>
+						{renderSpan('unchanged', stringifyAndShrink(raw))}
+					</span>
+				);
+			};
+
+			function prepareDelta(value) {
+				if (value && value._t === 'a') {
+					const res = {};
+					for (const key in value) {
+						if (key !== '_t') {
+							if (key[0] === '_' && !value[key.substr(1)]) {
+								res[key.substr(1)] = value[key];
+							} else if (value['_' + key]) {
+								res[key] = [value['_' + key][0], value[key][0]];
+							} else if (!value['_' + key] && key[0] !== '_') {
+								res[key] = value[key];
+							}
+						}
+					}
+					return res;
 				} else {
-					jsondiffpatch.formatters.html.hideUnchanged();
+					if (Array.isArray(value) && value.length === 3 && value[0].length > 2 && value[0].slice(0, 2) === '@@') {
+						const [left, right] = value[0].split("@@").filter(x => x.length > 0)
+						const items = right.split("\n").slice(1).filter(x => x.length > 0)
+						const oldValue = items.filter(x => x[0] !== '+').map(x => x.slice(1)).join('')
+						const newValue = items.filter(x => x[0] !== '-').map(x => x.slice(1)).join('')
+						return [oldValue, newValue]
+					}
+				}
+				return value;
+			}
+
+			const theme = {
+				scheme: 'monokai',
+				base00: '#272822',
+				base01: '#383830',
+				base02: '#49483e',
+				base03: '#75715e',
+				base04: '#a59f85',
+				base05: '#f8f8f2',
+				base06: '#f5f4f1',
+				base07: '#f9f8f5',
+				base08: '#f92672',
+				base09: '#fd971f',
+				base0A: '#f4bf75',
+				base0B: '#a6e22e',
+				base0C: '#a1efe4',
+				base0D: '#66d9ef',
+				base0E: '#ae81ff',
+				base0F: '#cc6633',
+			};
+
+			class App extends React.Component {
+				constructor(props) {
+					super(props);
+					this.state = { showUnchanged: false };
+				}
+
+				toggle = (e) => {
+					this.setState(state => {
+						return { showUnchanged: !state.showUnchanged }
+					})
+				}
+
+				render() {
+					return (
+						<div>
+							<input type="checkbox" onChange={this.toggle} id="show_unchanged" />
+							<label for="show_unchanged" style={{fontSize: '12px', color: 'white'}}>Show Unchanged</label>
+							<ReactJsonTree.JSONTree
+								theme={theme}
+								invertTheme={false}
+								data={this.state.showUnchanged ? _.merge(left, delta): delta}
+								valueRenderer={valueRenderer}
+								postprocessValue={prepareDelta}
+								isCustomNode={Array.isArray}
+								shouldExpandNodeInitially={expandFirstLevel}
+								hideRoot
+							/>
+						</div>
+					);
 				}
 			}
-			jsondiffpatch.formatters.html.hideUnchanged();
-			document.getElementById('visual').innerHTML = jsondiffpatch.formatters.html.format(${ delta }, ${ left });
+
+			ReactDOM.createRoot(document.querySelector('#app')).render(<App />);
 		</script>
 	</body>
 </html>
