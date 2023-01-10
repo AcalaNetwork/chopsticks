@@ -4,7 +4,7 @@ import { setupAll } from './helper'
 
 describe.each([
   { chain: 'Polkadot', endpoint: 'wss://rpc.polkadot.io' },
-  { chain: 'Kusama', endpoint: 'wss://kusama-rpc.polkadot.io' },
+  { chain: 'Kusama', endpoint: 'wss://kusama-rpc.dwellir.com' },
   { chain: 'Acala', endpoint: 'wss://acala-rpc-1.aca-api.network' },
 ])('Latest $chain can build blocks', async ({ endpoint }) => {
   const { setup, teardownAll } = await setupAll({ endpoint })
