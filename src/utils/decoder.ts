@@ -53,7 +53,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     return { [key]: value }
   }
 
-  const decodedValue = meta.registry.createType(decodedKey.outputType, hexToU8a(value))
+  const decodedValue = value ? meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman() : null
 
   switch (decodedKey.args.length) {
     case 2: {
@@ -61,7 +61,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
         [storage.section]: {
           [storage.method]: {
             [decodedKey.args[0].toString()]: {
-              [decodedKey.args[1].toString()]: decodedValue.toHuman(),
+              [decodedKey.args[1].toString()]: decodedValue,
             },
           },
         },
@@ -71,7 +71,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
       return {
         [storage.section]: {
           [storage.method]: {
-            [decodedKey.args[0].toString()]: decodedValue.toHuman(),
+            [decodedKey.args[0].toString()]: decodedValue,
           },
         },
       }
@@ -79,7 +79,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     default:
       return {
         [storage.section]: {
-          [storage.method]: decodedValue.toHuman(),
+          [storage.method]: decodedValue,
         },
       }
   }
@@ -92,8 +92,8 @@ export const decodeStorageDiff = async (block: Block, diff: [HexString, HexStrin
   const oldState = {}
   const newState = {}
   for (const [key, value] of diff) {
-    _.merge(oldState, await decodeKeyValue(block, key as HexString, (await parent.get(key)) as any))
-    _.merge(newState, await decodeKeyValue(block, key as HexString, value))
+    _.merge(oldState, await decodeKeyValue(parent, key, (await parent.get(key)) as any))
+    _.merge(newState, await decodeKeyValue(block, key, value))
   }
   return [oldState, newState, diffPatcher.diff(oldState, newState)]
 }
