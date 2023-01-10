@@ -143,8 +143,8 @@ yargs(hideBin(process.argv))
         }),
     async (argv) => {
       const context = await setup(processArgv(argv))
-      const [storage, decodedKey] = await decodeKey(context.chain.head, argv.key as HexString)
-      if (storage) {
+      const { storage, decodedKey } = await decodeKey(context.chain.head, argv.key as HexString)
+      if (storage && decodedKey) {
         console.log(
           `${storage.section}.${storage.method}`,
           decodedKey.args.map((x) => JSON.stringify(x.toHuman())).join(', ')

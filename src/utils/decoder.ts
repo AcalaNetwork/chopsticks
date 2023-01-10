@@ -28,33 +28,37 @@ const getStorageEntry = async (block: Block, key: HexString) => {
   throw new Error(`Cannot find key ${key}`)
 }
 
-export const decodeKey = async (block: Block, key: HexString): Promise<[StorageEntry | undefined, StorageKey]> => {
+export const decodeKey = async (
+  block: Block,
+  key: HexString
+): Promise<{ storage?: StorageEntry; decodedKey?: StorageKey }> => {
   const meta = await block.meta
   const storage = await getStorageEntry(block, key).catch(() => undefined)
   const decodedKey = meta.registry.createType('StorageKey', key)
   if (storage) {
     decodedKey.setMeta(storage.meta)
+    return { storage, decodedKey }
   }
-  return [storage, decodedKey]
+  return {}
 }
 
 export const decodeKeyValue = async (block: Block, key: HexString, value?: HexString | null) => {
   const meta = await block.meta
-  const [entry, storageKey] = await decodeKey(block, key)
+  const { storage, decodedKey } = await decodeKey(block, key)
 
-  if (!entry) {
+  if (!storage || !decodedKey) {
     return { [key]: value }
   }
 
-  const decodedValue = meta.registry.createType(storageKey.outputType, hexToU8a(value))
+  const decodedValue = meta.registry.createType(decodedKey.outputType, hexToU8a(value))
 
-  switch (storageKey.args.length) {
+  switch (decodedKey.args.length) {
     case 2: {
       return {
-        [entry.section]: {
-          [entry.method]: {
-            [storageKey.args[0].toString()]: {
-              [storageKey.args[1].toString()]: decodedValue.toHuman(),
+        [storage.section]: {
+          [storage.method]: {
+            [decodedKey.args[0].toString()]: {
+              [decodedKey.args[1].toString()]: decodedValue.toHuman(),
             },
           },
         },
@@ -62,17 +66,17 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     }
     case 1: {
       return {
-        [entry.section]: {
-          [entry.method]: {
-            [storageKey.args[0].toString()]: decodedValue.toHuman(),
+        [storage.section]: {
+          [storage.method]: {
+            [decodedKey.args[0].toString()]: decodedValue.toHuman(),
           },
         },
       }
     }
     default:
       return {
-        [entry.section]: {
-          [entry.method]: decodedValue.toHuman(),
+        [storage.section]: {
+          [storage.method]: decodedValue.toHuman(),
         },
       }
   }
