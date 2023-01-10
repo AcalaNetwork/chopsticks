@@ -31,7 +31,7 @@ export const setup = async (argv: Config) => {
   let blockHash: string
   if (argv.block == null) {
     blockHash = await api.getBlockHash()
-  } else if (Number.isInteger(argv.block)) {
+  } else if (Number.isInteger(+argv.block)) {
     blockHash = await api.getBlockHash(Number(argv.block))
   } else {
     blockHash = argv.block as string
