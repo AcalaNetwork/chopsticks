@@ -8,7 +8,7 @@ const logger = defaultLogger.child({ name: 'rpc-dev' })
 
 const handlers: Handlers = {
   dev_newBlock: async (context, [param]) => {
-    const { count, to } = param || {}
+    const { count, to, hrmp } = param || {}
     const now = context.chain.head.number
     const diff = to ? to - now : count
     const finalCount = diff > 0 ? diff : 1
@@ -16,7 +16,7 @@ const handlers: Handlers = {
     let finalHash: string | undefined
 
     for (let i = 0; i < finalCount; i++) {
-      const block = await context.chain.newBlock().catch((error) => {
+      const block = await context.chain.newBlock({ inherent: { horizontalMessages: hrmp } }).catch((error) => {
         throw new ResponseError(1, error.toString())
       })
       logger.debug({ hash: block.hash }, 'dev_newBlock')
