@@ -61,6 +61,11 @@
 			.unchanged {
 				color: #666;
 			}
+			.delta {
+				color: #ccc;
+				font-size: 12px;
+				margin: 0 10px;
+			}
 		</style>
 		<script src="https://unpkg.com/babel-standalone@6/babel.min.js" crossorigin></script>
 		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" crossorigin></script>
@@ -102,6 +107,17 @@
 					);
 				}
 
+				function renderDelta(value) {
+					if (/^\d+(,\d+)*$/.test(value[1])) {
+						const oldValue = parseInt(value[0].replace(/,/g, ''))
+						const newValue = parseInt(value[1].replace(/,/g, ''))
+						if (oldValue > 0 && newValue > 0) {
+							const delta = newValue - oldValue
+							return (<span className="delta" >{delta > 0 ? '+' : ''}{delta}</span>)
+						}
+					}
+				}
+
 				if (isDelta && Array.isArray(value)) {
 					switch (value.length) {
 						case 0:
@@ -131,6 +147,7 @@
 								'diffUpdateTo',
 								stringifyAndShrink(value[1])
 							)}
+							{renderDelta(value)}
 							</span>
 						);
 						case 3:
