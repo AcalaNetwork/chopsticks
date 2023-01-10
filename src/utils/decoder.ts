@@ -7,7 +7,10 @@ import { create } from 'jsondiffpatch'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
-const diffPatcher = create({ array: { detectMove: false } })
+const diffPatcher = create({
+  array: { detectMove: false },
+  textDiff: { minLength: Number.MAX_VALUE }, // skip text diff
+})
 
 const cache: Record<HexString, StorageEntry> = {}
 

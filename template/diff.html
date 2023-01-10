@@ -30,29 +30,29 @@
 			}
 
 			li:has(> span > span.diffWrap > span.diffRemove) > label {
-				color: #db2703 !important;
+				color: red !important;
 				text-decoration: line-through;
 				text-decoration-thickness: 1px;
 			}
 
 			.diffAdd {
-				color: #64c83c;
+				color: darkseagreen;
 			}
 
 			.diffRemove {
 				text-decoration: line-through;
 				text-decoration-thickness: 1px;
-				color: #db2703;
+				color: red;
 			}
 
 			.diffUpdateFrom {
 				text-decoration: line-through;
 				text-decoration-thickness: 1px;
-				color: #db2703;
+				color: red;
 			}
 
 			.diffUpdateTo {
-				color: #64c83c;
+				color: darkseagreen;
 			}
 
 			.diffUpdateArrow {
@@ -112,8 +112,8 @@
 						const oldValue = parseInt(value[0].replace(/,/g, ''))
 						const newValue = parseInt(value[1].replace(/,/g, ''))
 						if (oldValue > 0 && newValue > 0) {
-							const delta = newValue - oldValue
-							return (<span className="delta" >{delta > 0 ? '+' : ''}{delta}</span>)
+							const delta = Number(newValue - oldValue)
+							return (<span className="delta" >{delta > 0 ? '+' : ''}{delta.toLocaleString()}</span>)
 						}
 					}
 				}
@@ -161,15 +161,13 @@
 
 				return (
 					<span {...styling('diffWrap')}>
-						{renderSpan('unchanged', stringifyAndShrink(raw))}
+						{renderSpan('unchanged', stringifyAndShrink(value))}
 					</span>
 				);
 			};
 
 			function prepareDelta(value) {
-				if (!value) return value;
-
-				if (value._t === 'a') {
+				if (value && value._t === 'a') {
 					const res = {};
 					for (const key in value) {
 						if (key !== '_t') {
@@ -183,14 +181,6 @@
 						}
 					}
 					return res;
-				} else {
-					if (Array.isArray(value) && value.length === 3 && typeof value[0] === 'string' && value[0].startsWith('@@')) {
-						const [left, right] = value[0].split("@@").filter(x => x.length > 0)
-						const items = right.split("\n").slice(1).filter(x => x.length > 0)
-						const oldValue = items.filter(x => x[0] !== '+').map(x => x.slice(1)).join('')
-						const newValue = items.filter(x => x[0] !== '-').map(x => x.slice(1)).join('')
-						return [oldValue, newValue]
-					}
 				}
 				return value;
 			}
