@@ -150,7 +150,9 @@
 			};
 
 			function prepareDelta(value) {
-				if (value && value._t === 'a') {
+				if (!value) return value;
+
+				if (value._t === 'a') {
 					const res = {};
 					for (const key in value) {
 						if (key !== '_t') {
@@ -165,7 +167,7 @@
 					}
 					return res;
 				} else {
-					if (Array.isArray(value) && value.length === 3 && value[0].length > 2 && value[0].slice(0, 2) === '@@') {
+					if (Array.isArray(value) && value.length === 3 && typeof value[0] === 'string' && value[0].startsWith('@@')) {
 						const [left, right] = value[0].split("@@").filter(x => x.length > 0)
 						const items = right.split("\n").slice(1).filter(x => x.length > 0)
 						const oldValue = items.filter(x => x[0] !== '+').map(x => x.slice(1)).join('')
@@ -216,7 +218,7 @@
 							<ReactJsonTree.JSONTree
 								theme={theme}
 								invertTheme={false}
-								data={this.state.showUnchanged ? _.merge(left, delta): delta}
+								data={this.state.showUnchanged ? _.merge(_.cloneDeep(left), delta): delta}
 								valueRenderer={valueRenderer}
 								postprocessValue={prepareDelta}
 								isCustomNode={Array.isArray}

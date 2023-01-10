@@ -5,7 +5,7 @@ import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
 import { create } from 'jsondiffpatch'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
-import { merge, zipObjectDeep } from 'lodash'
+import _ from 'lodash'
 
 const diffPatcher = create({ array: { detectMove: false } })
 
@@ -28,11 +28,13 @@ const getStorageEntry = async (block: Block, key: HexString) => {
   throw new Error(`Cannot find key ${key}`)
 }
 
-export const decodeKey = async (block: Block, key: HexString): Promise<[StorageEntry, StorageKey]> => {
+export const decodeKey = async (block: Block, key: HexString): Promise<[StorageEntry | undefined, StorageKey]> => {
   const meta = await block.meta
-  const storage = await getStorageEntry(block, key)
+  const storage = await getStorageEntry(block, key).catch(() => undefined)
   const decodedKey = meta.registry.createType('StorageKey', key)
-  decodedKey.setMeta(storage.meta)
+  if (storage) {
+    decodedKey.setMeta(storage.meta)
+  }
   return [storage, decodedKey]
 }
 
@@ -40,17 +42,39 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
   const meta = await block.meta
   const [entry, storageKey] = await decodeKey(block, key)
 
+  if (!entry) {
+    return { [key]: value }
+  }
+
   const decodedValue = meta.registry.createType(storageKey.outputType, hexToU8a(value))
 
-  return {
-    [entry.section]: {
-      [entry.method]:
-        storageKey.args.length > 0
-          ? {
-              ...zipObjectDeep([storageKey.args.map((x) => x.toString()).join('.')], [decodedValue.toHuman()]),
-            }
-          : decodedValue.toHuman(),
-    },
+  switch (storageKey.args.length) {
+    case 2: {
+      return {
+        [entry.section]: {
+          [entry.method]: {
+            [storageKey.args[0].toString()]: {
+              [storageKey.args[1].toString()]: decodedValue.toHuman(),
+            },
+          },
+        },
+      }
+    }
+    case 1: {
+      return {
+        [entry.section]: {
+          [entry.method]: {
+            [storageKey.args[0].toString()]: decodedValue.toHuman(),
+          },
+        },
+      }
+    }
+    default:
+      return {
+        [entry.section]: {
+          [entry.method]: decodedValue.toHuman(),
+        },
+      }
   }
 }
 
@@ -61,10 +85,8 @@ export const decodeStorageDiff = async (block: Block, diff: [HexString, HexStrin
   const oldState = {}
   const newState = {}
   for (const [key, value] of diff) {
-    // ignore keys less than 32 chars long because they're not pallet storage
-    if (key.length < 66) continue
-    merge(oldState, await decodeKeyValue(block, key as HexString, (await parent.get(key)) as any))
-    merge(newState, await decodeKeyValue(block, key as HexString, value))
+    _.merge(oldState, await decodeKeyValue(block, key as HexString, (await parent.get(key)) as any))
+    _.merge(newState, await decodeKeyValue(block, key as HexString, value))
   }
   return [oldState, newState, diffPatcher.diff(oldState, newState)]
 }

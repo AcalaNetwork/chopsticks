@@ -14,8 +14,8 @@ const TOKENS_ACCOUNTS =
 describe('decoder', () => {
   it('decode keys', async () => {
     const [storage, key] = await decodeKey(chain.head, SYSTEM_ACCOUNT)
-    expect(storage.section).eq('system')
-    expect(storage.method).eq('account')
+    expect(storage?.section).eq('system')
+    expect(storage?.method).eq('account')
     expect(key.args.map((x) => x.toHuman())).contains('25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa')
   })
 
