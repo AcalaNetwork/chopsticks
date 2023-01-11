@@ -1,12 +1,14 @@
 import { Block } from '../../blockchain/block'
-import { Handlers } from '../../rpc/shared'
+import { Handlers, ResponseError } from '../../rpc/shared'
 import { defaultLogger } from '../../logger'
 
 const logger = defaultLogger.child({ name: 'rpc-author' })
 
 const handlers: Handlers = {
   author_submitExtrinsic: async (context, [extrinsic]) => {
-    return context.chain.submitExtrinsic(extrinsic)
+    return context.chain.submitExtrinsic(extrinsic).catch((error) => {
+      throw new ResponseError(1, error.toString())
+    })
   },
   author_submitAndWatchExtrinsic: async (context, [extrinsic], { subscribe, unsubscribe }) => {
     let update = (_block: Block) => {}

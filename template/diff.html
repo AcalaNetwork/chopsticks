@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			body {
+				font-family: ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+				font-size: 14px;
+				min-width: 600px;
+				margin: 0;
+				padding: 0;
+				background-color: rgb(39, 40, 34);
+			}
+
+			div#app {
+				margin: 0 !important;
+				padding: 10px !important;
+			}
+
+			.diff {
+				padding: 2px 4px;
+				border-radius: 4px;
+				position: relative;
+				color: white;
+				line-height: 150%;
+			}
+
+			.diffWrap {
+				position: relative;
+				z-index: 1;
+			}
+
+			li:has(> span > span.diffWrap > span.diffRemove) > label {
+				color: red !important;
+				text-decoration: line-through;
+				text-decoration-thickness: 1px;
+			}
+
+			.diffAdd {
+				color: darkseagreen;
+			}
+
+			.diffRemove {
+				text-decoration: line-through;
+				text-decoration-thickness: 1px;
+				color: red;
+			}
+
+			.diffUpdateFrom {
+				text-decoration: line-through;
+				text-decoration-thickness: 1px;
+				color: red;
+			}
+
+			.diffUpdateTo {
+				color: darkseagreen;
+			}
+
+			.diffUpdateArrow {
+				color: #ccc;
+			}
+			.unchanged {
+				color: #666;
+			}
+			.delta {
+				color: #ccc;
+				font-size: 12px;
+				margin: 0 10px;
+			}
+		</style>
+		<script src="https://unpkg.com/babel-standalone@6/babel.min.js" crossorigin></script>
+		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js" crossorigin></script>
+		<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+		<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+		<script src="https://unpkg.com/react-json-tree@0.18.0/lib/umd/react-json-tree.min.js" crossorigin></script>
+	</head>
+
+	<body>
+		<div id="app"></div>
+		<script type="text/babel">
+
+			const left = <%= left %>;
+			const delta = <%= delta %>;
+
+			const expandFirstLevel = (keyName, data, level) => level <= 1;
+
+			function stringifyAndShrink(val) {
+				if (val == null) return 'null';
+				if (typeof val === 'string') return val
+				return JSON.stringify(val, null, 1);
+			}
+
+			const styling = (a) => {
+				const className = Array.isArray(a) ? a : [a]
+				return { className: className.join(' ') }
+			}
+
+			function valueRenderer(raw, value, ...keys) {
+				const modifyPath = keys.reverse().join('.')
+				const removePath = keys.map(x => Number.isInteger(parseInt(x)) ? '_' + x : x).join('.')
+				const isDelta = _.has(delta, modifyPath) || _.has(delta, removePath)
+
+				function renderSpan(name, body) {
+					return (
+						<span key={name} {...styling(['diff', name])}>
+							{body}
+						</span>
+					);
+				}
+
+				function renderDelta(value) {
+					if (/^\d+(,\d+)*$/.test(value[1])) {
+						const oldValue = parseInt(value[0].replace(/,/g, ''))
+						const newValue = parseInt(value[1].replace(/,/g, ''))
+						if (oldValue > 0 && newValue > 0) {
+							const delta = Number(newValue - oldValue)
+							return (<span className="delta" >{delta > 0 ? '+' : ''}{delta.toLocaleString()}</span>)
+						}
+					}
+				}
+
+				if (isDelta && Array.isArray(value)) {
+					switch (value.length) {
+						case 0:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan('diff', '[]')}
+							</span>
+						)
+						case 1:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan(
+								'diffAdd',
+								stringifyAndShrink(value[0])
+							)}
+							</span>
+						);
+						case 2:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan(
+								'diffUpdateFrom',
+								stringifyAndShrink(value[0])
+							)}
+							{renderSpan('diffUpdateArrow', ' => ')}
+							{renderSpan(
+								'diffUpdateTo',
+								stringifyAndShrink(value[1])
+							)}
+							{renderDelta(value)}
+							</span>
+						);
+						case 3:
+						return (
+							<span {...styling('diffWrap')}>
+							{renderSpan('diffRemove', stringifyAndShrink(value[0]))}
+							</span>
+						);
+					}
+				}
+
+				return (
+					<span {...styling('diffWrap')}>
+						{renderSpan('unchanged', stringifyAndShrink(value))}
+					</span>
+				);
+			};
+
+			function prepareDelta(value) {
+				if (value && value._t === 'a') {
+					const res = {};
+					for (const key in value) {
+						if (key !== '_t') {
+							if (key[0] === '_' && !value[key.substr(1)]) {
+								res[key.substr(1)] = value[key];
+							} else if (value['_' + key]) {
+								res[key] = [value['_' + key][0], value[key][0]];
+							} else if (!value['_' + key] && key[0] !== '_') {
+								res[key] = value[key];
+							}
+						}
+					}
+					return res;
+				}
+				return value;
+			}
+
+			const theme = {
+				scheme: 'monokai',
+				base00: '#272822',
+				base01: '#383830',
+				base02: '#49483e',
+				base03: '#75715e',
+				base04: '#a59f85',
+				base05: '#f8f8f2',
+				base06: '#f5f4f1',
+				base07: '#f9f8f5',
+				base08: '#f92672',
+				base09: '#fd971f',
+				base0A: '#f4bf75',
+				base0B: '#a6e22e',
+				base0C: '#a1efe4',
+				base0D: '#66d9ef',
+				base0E: '#ae81ff',
+				base0F: '#cc6633',
+			};
+
+			class App extends React.Component {
+				constructor(props) {
+					super(props);
+					this.state = { showUnchanged: false };
+				}
+
+				toggle = (e) => {
+					this.setState(state => {
+						return { showUnchanged: !state.showUnchanged }
+					})
+				}
+
+				render() {
+					return (
+						<div>
+							<input type="checkbox" onChange={this.toggle} id="show_unchanged" />
+							<label for="show_unchanged" style={{fontSize: '12px', color: 'white'}}>Show Unchanged</label>
+							<ReactJsonTree.JSONTree
+								theme={theme}
+								invertTheme={false}
+								data={this.state.showUnchanged ? _.merge(_.cloneDeep(left), delta): delta}
+								valueRenderer={valueRenderer}
+								postprocessValue={prepareDelta}
+								isCustomNode={Array.isArray}
+								shouldExpandNodeInitially={expandFirstLevel}
+								hideRoot
+							/>
+						</div>
+					);
+				}
+			}
+
+			ReactDOM.createRoot(document.querySelector('#app')).render(<App />);
+		</script>
+	</body>
+</html>

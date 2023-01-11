@@ -123,3 +123,5 @@ dist
 *.wasm
 
 .DS_store
+
+preview/

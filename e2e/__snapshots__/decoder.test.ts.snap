@@ -1,0 +1,38 @@
+// Vitest Snapshot v1
+
+exports[`decoder > decode key-value 1`] = `
+{
+  "system": {
+    "account": {
+      "25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa": {
+        "consumers": "0",
+        "data": {
+          "feeFrozen": "0",
+          "free": "10,000,000,000",
+          "miscFrozen": "0",
+          "reserved": "0",
+        },
+        "nonce": "0",
+        "providers": "0",
+        "sufficients": "0",
+      },
+    },
+  },
+}
+`;
+
+exports[`decoder > decode key-value 2`] = `
+{
+  "tokens": {
+    "accounts": {
+      "25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa": {
+        "{\\"token\\":\\"ACA\\"}": {
+          "free": "10,000,000,000",
+          "frozen": "0",
+          "reserved": "0",
+        },
+      },
+    },
+  },
+}
+`;

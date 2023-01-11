@@ -9,6 +9,6 @@ setupApi({
 describe('metadata', () => {
   it('metadata with stroage value', async () => {
     const meta = await chain.head.meta
-    expect(((await meta.consts.evmAccounts.chainId) as any).toNumber()).eq(787)
+    expect((meta.consts.evmAccounts.chainId as any).toNumber()).eq(787)
   })
 })

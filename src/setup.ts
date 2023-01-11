@@ -1,5 +1,6 @@
 import '@polkadot/types-codec'
 import { DataSource } from 'typeorm'
+import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { WsProvider } from '@polkadot/api'
 
@@ -9,6 +10,7 @@ import { Config } from './schema'
 import { GenesisProvider } from './genesis-provider'
 import {
   InherentProviders,
+  ParaInherentEnter,
   SetBabeRandomness,
   SetNimbusAuthorInherent,
   SetTimestamp,
@@ -36,7 +38,7 @@ export const setup = async (argv: Config) => {
   let blockHash: string
   if (argv.block == null) {
     blockHash = await api.getBlockHash()
-  } else if (Number.isInteger(argv.block)) {
+  } else if (Number.isInteger(+argv.block)) {
     blockHash = await api.getBlockHash(Number(argv.block))
   } else {
     blockHash = argv.block as string
@@ -53,6 +55,7 @@ export const setup = async (argv: Config) => {
 
   const inherents = new InherentProviders(new SetTimestamp(), [
     new SetValidationData(),
+    new ParaInherentEnter(),
     new SetNimbusAuthorInherent(),
     new SetBabeRandomness(),
   ])
@@ -63,7 +66,7 @@ export const setup = async (argv: Config) => {
     inherentProvider: inherents,
     db,
     header: {
-      hash: blockHash,
+      hash: blockHash as HexString,
       number: Number(header.number),
     },
   })

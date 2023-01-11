@@ -1,12 +1,10 @@
-endpoint: wss://acala-rpc.dwellir.com
+endpoint: wss://hydradx-rpc.dwellir.com
 mock-signature-host: true
-block: 2694000
+block: 1731000
 db: ./db.sqlite
-# wasm-override: acala-2101.wasm
+wasm-override: hydradx_runtime.compact.compressed.wasm
 
 import-storage:
-  Sudo:
-    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
   System:
     Account:
       -
@@ -19,5 +17,5 @@ import-storage:
       -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-          - token: AUSD
-        - free: 1000000000000000
+          - 2
+        - free: '100000000000000000000'

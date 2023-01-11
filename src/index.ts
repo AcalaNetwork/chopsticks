@@ -1,3 +1,4 @@
+import { HexString } from '@polkadot/util/types'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
@@ -7,8 +8,10 @@ import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { configSchema } from './schema'
 import { connectDownward, connectParachains } from './xcm'
-import { decodeKey } from './decode-key'
+import { decodeKey } from './utils/decoder'
+import { dryRun } from './dry-run'
 import { runBlock } from './run-block'
+import { setup } from './setup'
 import { setupWithServer } from './setup-with-server'
 
 const processConfig = (path: string) => {
@@ -31,7 +34,6 @@ const defaultOptions = {
   },
   block: {
     desc: 'Block hash or block number. Default to latest block',
-    string: true,
   },
   'wasm-override': {
     desc: 'Path to wasm override',
@@ -63,9 +65,41 @@ yargs(hideBin(process.argv))
           desc: 'File path to print output',
           string: true,
         },
+        html: {
+          desc: 'Generate html with storage diff',
+        },
+        open: {
+          desc: 'Open generated html',
+        },
       }),
     async (argv) => {
       await runBlock(processArgv(argv))
+    }
+  )
+  .command(
+    'dry-run',
+    'Dry run an extrinsic',
+    (yargs) =>
+      yargs.options({
+        ...defaultOptions,
+        extrinsic: {
+          desc: 'Extrinsic to dry run',
+          string: true,
+          required: true,
+        },
+        'output-path': {
+          desc: 'File path to print output',
+          string: true,
+        },
+        html: {
+          desc: 'Generate html with storage diff',
+        },
+        open: {
+          desc: 'Open generated html',
+        },
+      }),
+    async (argv) => {
+      await dryRun(processArgv(argv))
     }
   )
   .command(
@@ -108,7 +142,17 @@ yargs(hideBin(process.argv))
           ...defaultOptions,
         }),
     async (argv) => {
-      await decodeKey(processArgv(argv))
+      const context = await setup(processArgv(argv))
+      const { storage, decodedKey } = await decodeKey(context.chain.head, argv.key as HexString)
+      if (storage && decodedKey) {
+        console.log(
+          `${storage.section}.${storage.method}`,
+          decodedKey.args.map((x) => JSON.stringify(x.toHuman())).join(', ')
+        )
+      } else {
+        console.log('Unknown')
+      }
+      process.exit(0)
     }
   )
   .command(

@@ -1,5 +1,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Codec } from '@polkadot/types/types'
+import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
@@ -9,6 +10,7 @@ import { BuildBlockMode } from '../src/blockchain/txpool'
 import { GenesisProvider } from '../src/genesis-provider'
 import {
   InherentProviders,
+  ParaInherentEnter,
   SetBabeRandomness,
   SetNimbusAuthorInherent,
   SetTimestamp,
@@ -20,7 +22,7 @@ import { handler } from '../src/rpc'
 
 export type SetupOption = {
   endpoint?: string
-  blockHash?: string
+  blockHash?: HexString
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
   genesis?: string
@@ -29,11 +31,11 @@ export type SetupOption = {
 export const env = {
   mandala: {
     endpoint: 'wss://mandala-rpc.aca-staging.network/ws',
-    blockHash: '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1',
+    blockHash: '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1' as HexString,
   },
   rococo: {
     endpoint: 'wss://rococo-rpc.polkadot.io',
-    blockHash: '0xd7fef00504decd41d5d2e9a04346f6bc639fd428083e3ca941f636a8f88d456a',
+    blockHash: '0xd7fef00504decd41d5d2e9a04346f6bc639fd428083e3ca941f636a8f88d456a' as HexString,
   },
   mandalaGenesis: {
     genesis: 'https://raw.githubusercontent.com/AcalaNetwork/Acala/master/resources/mandala-dist.json',
@@ -59,6 +61,7 @@ export const setupAll = async ({
     async setup() {
       const inherents = new InherentProviders(new SetTimestamp(), [
         new SetValidationData(),
+        new ParaInherentEnter(),
         new SetNimbusAuthorInherent(),
         new SetBabeRandomness(),
       ])
@@ -171,13 +174,15 @@ function defer<T>() {
 export const mockCallback = () => {
   let next = defer()
   const callback = vi.fn((...args) => {
-    next.resolve(args)
-    next = defer()
+    setTimeout(() => {
+      next.resolve(args)
+      next = defer()
+    }, 50)
   })
 
   return {
     callback,
-    next() {
+    async next() {
       return next.promise
     },
   }

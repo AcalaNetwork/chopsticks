@@ -1,5 +1,5 @@
+import { ApplyExtrinsicResult } from '@polkadot/types/interfaces'
 import { DataSource } from 'typeorm'
-import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
@@ -10,8 +10,8 @@ import { Block } from './block'
 import { BuildBlockMode, BuildBlockParams, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
-import { ResponseError } from '../rpc/shared'
 import { defaultLogger } from '../logger'
+import { dryRunExtrinsic } from './block-builder'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -20,7 +20,7 @@ export interface Options {
   buildBlockMode?: BuildBlockMode
   inherentProvider: InherentProvider
   db?: DataSource
-  header: { number: number; hash: string }
+  header: { number: number; hash: HexString }
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
 }
@@ -32,10 +32,12 @@ export class Blockchain {
   readonly allowUnresolvedImports: boolean
 
   readonly #txpool: TxPool
+  readonly #inherentProvider: InherentProvider
 
   #head: Block
   readonly #blocksByNumber: Block[] = []
   readonly #blocksByHash: Record<string, Block> = {}
+  readonly #loadingBlocks: Record<string, Promise<void>> = {}
 
   readonly headState: HeadState
 
@@ -57,6 +59,7 @@ export class Blockchain {
     this.#registerBlock(this.#head)
 
     this.#txpool = new TxPool(this, inherentProvider, buildBlockMode)
+    this.#inherentProvider = inherentProvider
 
     this.headState = new HeadState(this.#head)
   }
@@ -89,35 +92,31 @@ export class Blockchain {
     return this.#blocksByNumber[number]
   }
 
-  async getBlock(hash?: string): Promise<Block | undefined> {
+  async getBlock(hash?: HexString): Promise<Block | undefined> {
     await this.api.isReady
     if (hash == null) {
       hash = this.head.hash
     }
     if (!this.#blocksByHash[hash]) {
-      try {
-        const registry = await this.head.registry
-        const header: Header = registry.createType('Header', await this.api.getHeader(hash))
-        const block = new Block(this, header.number.toNumber(), hash)
-        this.#registerBlock(block)
-      } catch (e) {
-        logger.debug(`getBlock(${hash}) failed: ${e}`)
-        return undefined
+      const loadingBlock = this.#loadingBlocks[hash]
+      if (loadingBlock) {
+        await loadingBlock
+      } else {
+        const loadingBlock = (async () => {
+          try {
+            const header = await this.api.getHeader(hash)
+            const block = new Block(this, Number(header.number), hash)
+            this.#registerBlock(block)
+          } catch (e) {
+            logger.debug(`getBlock(${hash}) failed: ${e}`)
+          }
+        })()
+        this.#loadingBlocks[hash] = loadingBlock
+        await loadingBlock
+        delete this.#loadingBlocks[hash]
       }
     }
     return this.#blocksByHash[hash]
-  }
-
-  newTempBlock(parent: Block, header: Header): Block {
-    const number = parent.number + 1
-    const hash =
-      '0x' +
-      Math.round(Math.random() * 100000000)
-        .toString(16)
-        .padEnd(64, '0')
-    const block = new Block(this, number, hash, parent, { header, extrinsics: [], storage: parent.storage })
-    this.#blocksByHash[hash] = block
-    return block
   }
 
   unregisterBlock(block: Block): void {
@@ -153,11 +152,23 @@ export class Blockchain {
       this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)
     }
-    throw new ResponseError(1, `Extrinsic is invalid: ${validity.asErr.toString()}`)
+    throw new Error(`Extrinsic is invalid: ${validity.asErr.toString()}`)
   }
 
   async newBlock(params?: BuildBlockParams): Promise<Block> {
     await this.#txpool.buildBlock(params)
     return this.#head
+  }
+
+  async dryRun(
+    extrinsic: HexString
+  ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][] }> {
+    await this.api.isReady
+    const head = this.head
+    const registry = await head.registry
+    const inherents = await this.#inherentProvider.createInherents(head)
+    const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
+    const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
+    return { outcome, storageDiff }
   }
 }

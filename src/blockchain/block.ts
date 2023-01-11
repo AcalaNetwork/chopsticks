@@ -8,7 +8,7 @@ import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from '.'
-import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValueKind } from './storage-layer'
+import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
 import { getRuntimeVersion, runTask, taskHandler } from '../executor'
 import type { RuntimeVersion } from '../executor'
@@ -37,9 +37,14 @@ export class Block {
   constructor(
     chain: Blockchain,
     public readonly number: number,
-    public readonly hash: string,
+    public readonly hash: HexString,
     parentBlock?: Block,
-    block?: { header: Header; extrinsics: HexString[]; storage?: StorageLayerProvider }
+    block?: {
+      header: Header
+      extrinsics: HexString[]
+      storage?: StorageLayerProvider
+      storageDiff?: Record<string, StorageValue | null>
+    }
   ) {
     this.#chain = chain
     this.#parentBlock = parentBlock
@@ -47,7 +52,18 @@ export class Block {
     this.#extrinsics = block?.extrinsics
     this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db)
     this.#storages = []
-    this.#registry = parentBlock?.registry
+
+    const storageDiff = block?.storageDiff || {}
+
+    // if code doesn't change then reuse parent block's meta
+    if (!storageDiff[stringToHex(':code')]) {
+      this.#runtimeVersion = parentBlock?.runtimeVersion
+      this.#metadata = parentBlock?.metadata
+      this.#registry = parentBlock?.registry
+      this.#meta = parentBlock?.meta
+    }
+
+    this.pushStorageLayer().setAll(storageDiff)
   }
 
   get chain(): Blockchain {
@@ -56,8 +72,8 @@ export class Block {
 
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(
-        ([registry, header]) => registry.createType('Header', header) as Header
+      this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(([registry, header]) =>
+        registry.createType<Header>('Header', header)
       )
     }
     return this.#header
@@ -126,17 +142,15 @@ export class Block {
   }
 
   get wasm() {
-    const getWasm = async (): Promise<HexString> => {
-      const wasmKey = stringToHex(':code')
-      const wasm = await this.get(wasmKey)
-      if (!wasm) {
-        throw new Error('No wasm found')
-      }
-      return wasm as HexString
-    }
-
     if (!this.#wasm) {
-      this.#wasm = getWasm()
+      this.#wasm = (async (): Promise<HexString> => {
+        const wasmKey = stringToHex(':code')
+        const wasm = await this.get(wasmKey)
+        if (!wasm) {
+          throw new Error('No wasm found')
+        }
+        return wasm as HexString
+      })()
     }
 
     return this.#wasm
@@ -188,19 +202,7 @@ export class Block {
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.wasm.then(async (wasm) => {
-        const response = await runTask(
-          {
-            wasm,
-            calls: [['Metadata_metadata', '0x']],
-            storage: [],
-            mockSignatureHost: this.#chain.mockSignatureHost,
-            allowUnresolvedImports: this.#chain.allowUnresolvedImports,
-          },
-          taskHandler(this)
-        )
-        return compactHex(hexToU8a(response.Call.result))
-      })
+      this.#metadata = this.call('Metadata_metadata', '0x').then((resp) => compactHex(hexToU8a(resp.result)))
     }
     return this.#metadata
   }

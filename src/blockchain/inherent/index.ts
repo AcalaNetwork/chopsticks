@@ -5,6 +5,7 @@ import { HexString } from '@polkadot/util/types'
 import { getCurrentTimestamp, getSlotDuration } from '../../utils/time-travel'
 
 export { SetValidationData } from './parachain/validation-data'
+export { ParaInherentEnter } from './para-enter'
 export { SetBabeRandomness } from './parachain/babe-randomness'
 export { SetNimbusAuthorInherent } from './parachain/nimbus-author-inherent'
 
