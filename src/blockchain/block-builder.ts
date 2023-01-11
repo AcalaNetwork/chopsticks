@@ -1,7 +1,9 @@
 import { Block, TaskCallResponse } from './block'
 import { Header, RawBabePreDigest } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
-import { compactAddLength } from '@polkadot/util'
+import { StorageValueKind } from './storage-layer'
+import { compactAddLength, stringToHex } from '@polkadot/util'
+import { compactHex } from '../utils'
 import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
 import { getCurrentSlot } from '../utils/time-travel'
 
@@ -57,6 +59,21 @@ const newHeader = async (head: Block) => {
     const digest = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.slot)
     const newSlot = compactAddLength(meta.registry.createType('RawBabePreDigest', getNewSlot(digest, slot + 1)).toU8a())
     newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
+  } else if (consensus?.consensusEngine?.toString() == 'nmbs') {
+    const nmbsKey = stringToHex('nmbs')
+    newLogs = [
+      {
+        // Using previous block author
+        PreRuntime: [
+          consensus.consensusEngine,
+          parentHeader.digest.logs
+            .find((log) => log.isPreRuntime && log.asPreRuntime[0].toHex() == nmbsKey)
+            ?.asPreRuntime[1].toHex(),
+        ],
+      },
+      ...consensus.rest,
+      head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted),
+    ]
   }
 
   const header = meta.registry.createType<Header>('Header', {

@@ -8,7 +8,14 @@ import { Api } from '../src/api'
 import { Blockchain } from '../src/blockchain'
 import { BuildBlockMode } from '../src/blockchain/txpool'
 import { GenesisProvider } from '../src/genesis-provider'
-import { InherentProviders, ParaInherentEnter, SetTimestamp, SetValidationData } from '../src/blockchain/inherent'
+import {
+  InherentProviders,
+  ParaInherentEnter,
+  SetBabeRandomness,
+  SetNimbusAuthorInherent,
+  SetTimestamp,
+  SetValidationData,
+} from '../src/blockchain/inherent'
 import { StorageValues } from '../src/utils/set-storage'
 import { createServer } from '../src/server'
 import { handler } from '../src/rpc'
@@ -52,7 +59,12 @@ export const setupAll = async ({
 
   return {
     async setup() {
-      const inherents = new InherentProviders(new SetTimestamp(), [new SetValidationData(), new ParaInherentEnter()])
+      const inherents = new InherentProviders(new SetTimestamp(), [
+        new SetValidationData(),
+        new ParaInherentEnter(),
+        new SetNimbusAuthorInherent(),
+        new SetBabeRandomness(),
+      ])
 
       const chain = new Blockchain({
         api,
