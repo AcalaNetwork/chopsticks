@@ -53,12 +53,12 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     return { [key]: value }
   }
 
-  let decodedValue
-
-  try {
-    decodedValue = value ? meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman() : null
-  } catch (e) {
-    decodedValue = null
+  const decodeValue = () => {
+    if (!value) return null
+    if (storage.section === 'substrate' && storage.method === 'code') {
+      return `:code (${hexToU8a(value).length} bytes)`
+    }
+    return meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman()
   }
 
   switch (decodedKey.args.length) {
@@ -67,7 +67,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
         [storage.section]: {
           [storage.method]: {
             [decodedKey.args[0].toString()]: {
-              [decodedKey.args[1].toString()]: decodedValue,
+              [decodedKey.args[1].toString()]: decodeValue(),
             },
           },
         },
@@ -77,7 +77,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
       return {
         [storage.section]: {
           [storage.method]: {
-            [decodedKey.args[0].toString()]: decodedValue,
+            [decodedKey.args[0].toString()]: decodeValue(),
           },
         },
       }
@@ -85,7 +85,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     default:
       return {
         [storage.section]: {
-          [storage.method]: decodedValue,
+          [storage.method]: decodeValue(),
         },
       }
   }
