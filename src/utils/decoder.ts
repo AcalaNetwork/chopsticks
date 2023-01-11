@@ -53,7 +53,13 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     return { [key]: value }
   }
 
-  const decodedValue = value ? meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman() : null
+  let decodedValue
+
+  try {
+    decodedValue = value ? meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman() : null
+  } catch (e) {
+    decodedValue = null
+  }
 
   switch (decodedKey.args.length) {
     case 2: {
