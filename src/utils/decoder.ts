@@ -3,6 +3,7 @@ import { Block } from '../blockchain/block'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
+import { blake2AsHex } from '@polkadot/util-crypto'
 import { create } from 'jsondiffpatch'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
@@ -53,7 +54,13 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     return { [key]: value }
   }
 
-  const decodedValue = value ? meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman() : null
+  const decodeValue = () => {
+    if (!value) return null
+    if (storage.section === 'substrate' && storage.method === 'code') {
+      return `:code blake2_256 ${blake2AsHex(value, 256)} (${hexToU8a(value).length} bytes)`
+    }
+    return meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman()
+  }
 
   switch (decodedKey.args.length) {
     case 2: {
@@ -61,7 +68,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
         [storage.section]: {
           [storage.method]: {
             [decodedKey.args[0].toString()]: {
-              [decodedKey.args[1].toString()]: decodedValue,
+              [decodedKey.args[1].toString()]: decodeValue(),
             },
           },
         },
@@ -71,7 +78,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
       return {
         [storage.section]: {
           [storage.method]: {
-            [decodedKey.args[0].toString()]: decodedValue,
+            [decodedKey.args[0].toString()]: decodeValue(),
           },
         },
       }
@@ -79,7 +86,7 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
     default:
       return {
         [storage.section]: {
-          [storage.method]: decodedValue,
+          [storage.method]: decodeValue(),
         },
       }
   }

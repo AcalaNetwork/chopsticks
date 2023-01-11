@@ -1,5 +1,485 @@
 // Vitest Snapshot v1
 
+exports[`dev rpc > dryRun 1`] = `
+{
+  "aura": {
+    "currentSlot": [
+      "138,911,898",
+      "138,911,900",
+    ],
+  },
+  "authorship": {
+    "author": [
+      null,
+      "5CLg63YpPJNqcyWaYebk3LuuUVp3un7y1tmuV3prhdbnMA77",
+    ],
+    "didSetUncles": [
+      null,
+      false,
+    ],
+  },
+  "cdpEngine": {
+    "lastAccumulationSecs": [
+      "1,666,942,752",
+      "1,666,942,794",
+    ],
+  },
+  "idleScheduler": {
+    "previousRelayBlockNumber": [
+      null,
+      "466,574",
+    ],
+  },
+  "parachainSystem": {
+    "announcedHrmpMessagesPerCandidate": [
+      null,
+      "5",
+    ],
+    "hrmpOutboundMessages": [
+      [],
+      null,
+    ],
+    "hrmpWatermark": [
+      "466,571",
+      "466,576",
+    ],
+    "lastRelayChainBlockNumber": [
+      "466,571",
+      "466,576",
+    ],
+    "relayStateProof": {
+      "trieNodes": {
+        "0": [
+          "0x5e414cb008e0e61e46722aa60abdd67280bd82018ee510cf360e1a460326ef53dde570b25b9e835fc045551ffe4e88fe08",
+        ],
+        "1": [
+          "0x5ee678799d3eff024253b90e84927cc6807ed4bd40e4853d40a1fd44e7128aa75ded4660543dc48918f507ac56fbef7d97",
+        ],
+        "10": [
+          "0x9f06de3d8a54d27e44a9d5ce189618f22d1008505f0e7b9012096b41c4eb3aaf947f6ea42908010080c74756edffa217dfb07ab596d82753deff985ac215e5cc2997d29afe1d397c16",
+        ],
+        "11": [
+          "0x9f0cb6f36e027abb2091cfb5110ab5087f9960685f06155b3cd9a8c9e5e9a23fd5dc13a5ed2037418f1000000000685f08316cbf8fa0da822a20ac1c55bf1be3208212000000000000505f0e7b9012096b41c4eb3aaf947f6ea42908000080740bfbe51a080a46d5c79a4b185680b175abb3ccdb602dbdba7552f7172ed8c180fddafc590530ce9037825fac38ceee0615edf7def5fd0af0bacb16f7d47f9859685f090e2fbf2d792cb324bffa9427fe1f0e202a1e07008e1e0700",
+        ],
+        "12": [
+          "0x9f0d710b30bd2eab0352ddcc26417aa19454807c77081e0bfde17b36573208a06cb5cfba6b63f5a4efb16ffa83d00700000402505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f03c716fb8fff3de61a883bb76adb34a204004c5f0dad6eef5c4b1c68eaa71ea17a02d9de0400",
+        ],
+        "2": [
+          "0x5f0077dfdb8adb10f78f10a5df8742c5458401df75b8601e1b21393fc7772afc0788aa25e88713977d61495fabb2550af5c835",
+        ],
+        "4": [
+          "0x80001480451c10fa62e420ae9678ed9e9f7f19e3e39be3a38ed4e3fe314234f3e6fed31780d3dac5ff6c2ce4154f56c20524e2dd095001f40b34d7c8afca34011128bc8620",
+        ],
+        "5": [
+          "0x800804809f3ada68c357b5e0a3ebb39ef181acfa9943af4725c244330a4b2c60837612e88097425c486ee3f57ab095f94c7dc030d79c63147ff57c50c90a577e2ad727d2e2",
+        ],
+        "6": [
+          "0x80439080216c4ed723e0a878bd96314428b2b7cb9727481f149f84011c0405423bb94e26805bd412b85f2239198146f1fe278f482ed1e54fff8aab83ff5278486f27553e5180118f288193e4da2abce3289ebcfe1b730737e817b189512053eb437b1211c9f6807a4cfe27b7daddf656ec94d5b0d02fa22183c8bcdadf8364f236cbe956cc8f9e80c3485bf9a1e0e78ac17578cca0d0b0cd5f632bd925284c5f54decc00e6f44aae",
+        ],
+        "7": [
+          "0x9e0da05ca59913bc38a8630590f2627c14404c5f0a351b6a99a5b21324516e668bb86a570400505f0e7b9012096b41c4eb3aaf947f6ea4290800007c7700e67da63472835bb0b737093a19ad4c63f5a4efb16ffa83d00700000400",
+        ],
+        "9": [
+          "0x9f05207f03cfdce586301014700e2c25931040505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f0ec2d17a76153ff51817f12d9cfc3c7f0400",
+        ],
+        "_0": [
+          "0x5e414cb008e0e61e46722aa60abdd672804a668b5dd5fdbbb977464ecdc16957c0122427c1c75eee32f5c0e1914be1a0c2",
+          0,
+          0,
+        ],
+        "_1": [
+          "0x5e77dfdb8adb10f78f10a5df8742c545840152e839e48f9731c559764a5d8175113da207c6ab6cad8901b3dbb43ede10629d",
+          0,
+          0,
+        ],
+        "_10": [
+          "0x801017806ad8bda250a43737b26933c1b7bebe6f4fe689b2888ff5ab4833d7394853350f8038f5c136db5bdb74d6a62722e6ea23af4fe820eb7fe28dee3a5f76d637dd337680fce20d3a31e175327fb242e2384d58d260086366f6537a30656deebc7569ac408065a1214a991ac85d93f38385d6f52af7b4ddcf56e589fcb92c8d9e8f27291c928049737cc2ff38b42f515ebf0dacf7973a405dbce3b0babc0f736c992cdabc256e",
+          0,
+          0,
+        ],
+        "_11": [
+          "0x802102800d9895e35f0264bacca9ad2ea08aaf8c00a5c48a3b6eb6f85c9c68d9948eb5cd801a2ff24096295cfccf1adda80b8dfffe380b9f3b54d7a3cdb67864a4655e62968022a699b2cc90a6654c84163d2a498506b192afe7cd9777227e5288e8ff069c0f",
+          0,
+          0,
+        ],
+        "_12": [
+          "0x80400180ebebd1a1cd0bbc6714b7fb0ac854cca5a4c4e34e69485da48be3c8087b56e09b80128645c79ca6581c248a412fd7b8bc532a187600e6e1cc20c915538ba4df6a79",
+          0,
+          0,
+        ],
+        "_13": [
+          "0x80ffbe80d9302a505e2b1ac931f539aed33bf791d1982906ae64c7197324044f191e9bca800d258c7c1477cbf492701f793dd1c289f0c987f80069c832289c5fe3347a9d6e8069cdb1e18e8720ceb81116ed0441a2e35c06c8f3082c4c8ec002b553d76f58d0804ccbce88c9317672f82360f8ed89dbb22b6361fff14cc83b1d633200da5fe03580115408b8b7d087417537c720a04fb794c84c37125bbfb62732856a541d7eded980d7e5aacd694b93699204a6effae83be121e3e53b6c6db4b6bd77d66afa273f8f80216c83448424bf83a4411ae84288b82210949c153764eaf633b472545843c78480b1f4de7c3ac5665016d561a60659cd2d8f2d3e0a97e2ea9749279bd8e35eb1f180c7d28f5cadb782d59da4784c958534e2152b99d5b07e401320244f153544165180a177a08018589101939793feaf34fbc94f7aa133c3afdcbb8b7fa611f9650a4e809d36f53848c6962284e5acce7a8f8f158d82793e4f2627d6062eae129f16f1ec801b6ac2582f609749e530158bbd0c14a4f6cd4c170f1417df478ff3de8b22bef0805a44c30e2676dc2d4c17451f51d9502e85064387999f366e6f3d404509a7780f8085eb1f0dff0ce7aaf97f522ffa3acc55eee6c25086c502fd44cdea3b44ed27d3",
+          0,
+          0,
+        ],
+        "_14": [
+          "0x9d0da05ca59913bc38a8630590f2627c154080b1abba3766b5e0e89e030faf9edc37ee457416995542dc23c470c2756b18eadc4c5f0a351b6a99a5b21324516e668bb86a570400505f0e7b9012096b41c4eb3aaf947f6ea4290800007c7700e67da63472835bb0b737093a19ad4c63f5a4efb16ffa83d00700000400",
+          0,
+          0,
+        ],
+        "_15": [
+          "0x9e207f03cfdce586301014700e2c25931040505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f0ec2d17a76153ff51817f12d9cfc3c7f0400",
+          0,
+          0,
+        ],
+        "_16": [
+          "0x9e710b30bd2eab0352ddcc26417aa1945fc180699a53b51a9709a3a86039c49b5ef278e9fc244dae27e1a0380c91bff5b0488580da8ec479c473ce7921c39e4c074a2ade4b282c86220c7989045187a14a1e5be57c77081e0bfde17b36573208a06cb5cfba6b63f5a4efb16ffa83d00700000402803d0ae0b8f6832e8fabf0ec62521c2487c58b69eb97060faa8059b00ff6b7262d505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f03c716fb8fff3de61a883bb76adb34a20400806c8122e0f7f786071d6a51b330d612eccdcbe8d8f79936accabd640506dffdf380a6abfb72ed49b586829cca4ce631c092d45a017ab0d68288d308873025cfe5d280521b868fc212b25f021984cf02ced547cd45952b88360766839dfde7d4683e61",
+          0,
+          0,
+        ],
+        "_17": [
+          "0x9eb6f36e027abb2091cfb5110ab5087ff96c685f06155b3cd9a8c9e5e9a23fd5dc13a5ed2034418f1000000000685f08316cbf8fa0da822a20ac1c55bf1be3208112000000000000505f0e7b9012096b41c4eb3aaf947f6ea42908000080e63c6175a901b4879d3c394e46980fb04e78755f0835d3bbf7c5f414cba07df280a75b29e0e24889a69c6b8c37a437692b76ca9aa52ab78997098b79da5c34a31a80cfd786a91dd64a1451cb03f2f5ae956fd593cd2b27264c4d8153b04f1c86e04c800f52715d71fe1c37787c148742c2476aadc24f49210fbc78bc78548c1a9544b6808f85bb9e09b1dc3958541a079dedea1ebb40e90bb6128b956104ed2447a777bf80e366aaf02cb9a5630d2837924fd454afd44088537ec63622dc962b12b353f5ff685f090e2fbf2d792cb324bffa9427fe1f0e20c61d07002a1e0700",
+          0,
+          0,
+        ],
+        "_18": [
+          "0x9ede3d8a54d27e44a9d5ce189618f22d1008505f0e7b9012096b41c4eb3aaf947f6ea42908010080c74756edffa217dfb07ab596d82753deff985ac215e5cc2997d29afe1d397c16",
+          0,
+          0,
+        ],
+        "_2": [
+          "0x5ee678799d3eff024253b90e84927cc680bd82018ee510cf360e1a460326ef53dde570b25b9e835fc045551ffe4e88fe08",
+          0,
+          0,
+        ],
+        "_4": [
+          "0x80001480acfe07b5b8e41ca7042936e3cd43e654c72c2dfea6d6dd98f95b7f752248bcff80c2402660f26f96016f5dd344e9e2d96dc9070897595ecdf7f50f81110b16d2db",
+          0,
+          0,
+        ],
+        "_5": [
+          "0x800110801828ce8e271c32f1d2c3fa491ee186afb535df22b61df9ef787bb52820200780808e5db75be813c05205986cbd6fdede707a4d26816063a41eb42ebc262c734fad",
+          0,
+          0,
+        ],
+        "_6": [
+          "0x80011080e9859c853fd1f4df9196537896db1fac1c248ed953ecf055e2f23dcf2cfafa0e800ebe650369ce0e3ce85b22816181f598cc6ecf7a3b22314357ab4181b9ccb867",
+          0,
+          0,
+        ],
+        "_7": [
+          "0x8004648086a9239b72237f5bf119e2a880c32f5866460632700509cb874c60f67fe815ea80f6f6801e4b41e2e6d8ec194dba122bfb9eb33feb2545ef5144cea79551f7cc52800ab6937642a09a526253a5f19dff53bb733f38bab3dce62c671fd145dd51205880a633a87385b599b46ca660727801daeadfd69030c2efe4d16fba2c99421493a9",
+          0,
+          0,
+        ],
+        "_8": [
+          "0x800804809f3ada68c357b5e0a3ebb39ef181acfa9943af4725c244330a4b2c60837612e8803d1a1da897b2924e874a26dde7c3f26c2d783c8cabed6a9ff4338673f459a217",
+          0,
+          0,
+        ],
+        "_9": [
+          "0x8008208042793f557c1d003b647e2eda79c2b5088c7d8cab2e82c1dcc87f4343cca91ae4485ead6eef5c4b1c68eaa71ea17a02d9de0400",
+          0,
+          0,
+        ],
+        "_t": "a",
+      },
+    },
+    "upwardMessages": [
+      [],
+      null,
+    ],
+    "validationData": {
+      "parentHead": [
+        "0x171ce46fb43bbf79154bc732a1b9744e1b3f63781cbf8e3fd75b60547e782ea23a910b008df19cc31e416e88a50e6e10063ce94d5a5d84d2f03232521d9400e1546698fa08cc3799e1250ded2695574a249cd1f1faa43e9f4ea32834178af658667a43b10806617572612098a047080000000005617572610101aabbea9b298d735650bcab2c0bbb30ebdaeba18a7527a4630c4b8dff41d45a1c8b96126630f05688b0c83729a9214ca71bfbc813b4552ade07fabe0bf7e43f8e",
+        "0xd94d2e18b4a8a88d9b21cb03bbe4df4431a93718c2c602c13043d595e8b8735a3e910b0021c0ecb97a4c7cc86aa22eeb2db02b60829551cf67bdc490f0948ac009f6c0801257ffee8b177dab50e7b537ccbd2d1ffcd8a0068a08d57a92ce367e4e0f52e1080661757261209aa0470800000000056175726101013aefb1326d057c6d6d174f1565404a8b1a6ab45c941fa89bd8a56ac401226d1b0d96a6e436d7021dd097d316f07fe554fc35c92e1966e8a9b6ebc4de15e57886",
+      ],
+      "relayParentNumber": [
+        "466,571",
+        "466,576",
+      ],
+      "relayParentStorageRoot": [
+        "0x2f50e0e0108236e208e2772821b251cd09790cde34157e9dea91bcdea2545017",
+        "0x9c325649c4ebff345980ea29b5fb7b60a9af1f8cb26e5d9403418e89aee6d5c8",
+      ],
+    },
+  },
+  "substrate": {
+    "extrinsicIndex": [
+      null,
+      "2",
+    ],
+  },
+  "system": {
+    "allExtrinsicsLen": [
+      null,
+      "1,527",
+    ],
+    "blockHash": {
+      "189520": [
+        null,
+        "0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1",
+      ],
+    },
+    "blockWeight": {
+      "mandatory": [
+        "500,000,000,000",
+        "10,909,625,000",
+      ],
+    },
+    "digest": {
+      "logs": {
+        "0": {
+          "PreRuntime": {
+            "1": [
+              "0x9ca0470800000000",
+            ],
+            "_1": [
+              "0x9aa0470800000000",
+              0,
+              0,
+            ],
+            "_t": "a",
+          },
+        },
+        "_t": "a",
+      },
+    },
+    "eventCount": [
+      "7",
+      "2",
+    ],
+    "events": {
+      "0": {
+        "event": {
+          "data": {
+            "amount": [
+              "2,429,299",
+              0,
+              0,
+            ],
+            "currencyId": [
+              {
+                "Token": "AUSD",
+              },
+              0,
+              0,
+            ],
+            "dispatchInfo": [
+              {
+                "class": "Mandatory",
+                "paysFee": "Yes",
+                "weight": "158,080,000",
+              },
+            ],
+            "who": [
+              "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+              0,
+              0,
+            ],
+          },
+          "index": [
+            "0x0b0a",
+            "0x0000",
+          ],
+          "method": [
+            "Deposited",
+            "ExtrinsicSuccess",
+          ],
+          "section": [
+            "tokens",
+            "system",
+          ],
+        },
+        "phase": [
+          "Initialization",
+          {
+            "ApplyExtrinsic": "0",
+          },
+        ],
+      },
+      "1": {
+        "event": {
+          "data": {
+            "amount": [
+              "2,429,299",
+              0,
+              0,
+            ],
+            "currencyId": [
+              {
+                "Token": "AUSD",
+              },
+              0,
+              0,
+            ],
+            "dispatchInfo": [
+              {
+                "class": "Mandatory",
+                "paysFee": "Yes",
+                "weight": "0",
+              },
+            ],
+            "who": [
+              "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+              0,
+              0,
+            ],
+          },
+          "index": [
+            "0x0b00",
+            "0x0000",
+          ],
+          "method": [
+            "Endowed",
+            "ExtrinsicSuccess",
+          ],
+          "section": [
+            "tokens",
+            "system",
+          ],
+        },
+        "phase": [
+          "Initialization",
+          {
+            "ApplyExtrinsic": "1",
+          },
+        ],
+      },
+      "_2": [
+        {
+          "event": {
+            "data": {
+              "amount": "44,234,034",
+              "currencyId": {
+                "Token": "AUSD",
+              },
+              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+            },
+            "index": "0x0b0a",
+            "method": "Deposited",
+            "section": "tokens",
+          },
+          "phase": "Initialization",
+          "topics": [],
+        },
+        0,
+        0,
+      ],
+      "_3": [
+        {
+          "event": {
+            "data": {
+              "amount": "365,959,255",
+              "currencyId": {
+                "Token": "AUSD",
+              },
+              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+            },
+            "index": "0x0b0a",
+            "method": "Deposited",
+            "section": "tokens",
+          },
+          "phase": "Initialization",
+          "topics": [],
+        },
+        0,
+        0,
+      ],
+      "_4": [
+        {
+          "event": {
+            "data": {
+              "dispatchInfo": {
+                "class": "Mandatory",
+                "paysFee": "Yes",
+                "weight": "158,080,000",
+              },
+            },
+            "index": "0x0000",
+            "method": "ExtrinsicSuccess",
+            "section": "system",
+          },
+          "phase": {
+            "ApplyExtrinsic": "0",
+          },
+          "topics": [],
+        },
+        0,
+        0,
+      ],
+      "_5": [
+        {
+          "event": {
+            "data": {
+              "dispatchInfo": {
+                "class": "Mandatory",
+                "paysFee": "Yes",
+                "weight": "0",
+              },
+            },
+            "index": "0x0000",
+            "method": "ExtrinsicSuccess",
+            "section": "system",
+          },
+          "phase": {
+            "ApplyExtrinsic": "1",
+          },
+          "topics": [],
+        },
+        0,
+        0,
+      ],
+      "_6": [
+        {
+          "event": {
+            "data": {
+              "amount": "412,622,588",
+              "currencyId": {
+                "Token": "AUSD",
+              },
+              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+            },
+            "index": "0x0b08",
+            "method": "Withdrawn",
+            "section": "tokens",
+          },
+          "phase": "Finalization",
+          "topics": [],
+        },
+        0,
+        0,
+      ],
+      "_t": "a",
+    },
+    "executionPhase": [
+      null,
+      {
+        "ApplyExtrinsic": "2",
+      },
+    ],
+    "extrinsicData": {
+      "0": [
+        null,
+        "0x280401000b0fa8881d8401",
+      ],
+      "1": [
+        null,
+        "0xa91704a000e902d94d2e18b4a8a88d9b21cb03bbe4df4431a93718c2c602c13043d595e8b8735a3e910b0021c0ecb97a4c7cc86aa22eeb2db02b60829551cf67bdc490f0948ac009f6c0801257ffee8b177dab50e7b537ccbd2d1ffcd8a0068a08d57a92ce367e4e0f52e1080661757261209aa0470800000000056175726101013aefb1326d057c6d6d174f1565404a8b1a6ab45c941fa89bd8a56ac401226d1b0d96a6e436d7021dd097d316f07fe554fc35c92e1966e8a9b6ebc4de15e57886901e07009c325649c4ebff345980ea29b5fb7b60a9af1f8cb26e5d9403418e89aee6d5c80000500034c45e414cb008e0e61e46722aa60abdd67280bd82018ee510cf360e1a460326ef53dde570b25b9e835fc045551ffe4e88fe08c45ee678799d3eff024253b90e84927cc6807ed4bd40e4853d40a1fd44e7128aa75ded4660543dc48918f507ac56fbef7d97cc5f0077dfdb8adb10f78f10a5df8742c5458401df75b8601e1b21393fc7772afc0788aa25e88713977d61495fabb2550af5c83545035f04b49d95320d9021994c850f25b8e385f902000030000080000008000000000010000000100005000000050000000a0000000a000000000050000000100000e8764817000000040000000400000000000000000000000000000000000000000000000000000000000000000000000800000000200000040000000400000000001000b0040000000000000000000014000000040000000400000000000000010100000000060000006400000002000000c8000000020000001900000000000000020000000200000000c817a804000000150180001480451c10fa62e420ae9678ed9e9f7f19e3e39be3a38ed4e3fe314234f3e6fed31780d3dac5ff6c2ce4154f56c20524e2dd095001f40b34d7c8afca34011128bc86201501800804809f3ada68c357b5e0a3ebb39ef181acfa9943af4725c244330a4b2c60837612e88097425c486ee3f57ab095f94c7dc030d79c63147ff57c50c90a577e2ad727d2e2a10280439080216c4ed723e0a878bd96314428b2b7cb9727481f149f84011c0405423bb94e26805bd412b85f2239198146f1fe278f482ed1e54fff8aab83ff5278486f27553e5180118f288193e4da2abce3289ebcfe1b730737e817b189512053eb437b1211c9f6807a4cfe27b7daddf656ec94d5b0d02fa22183c8bcdadf8364f236cbe956cc8f9e80c3485bf9a1e0e78ac17578cca0d0b0cd5f632bd925284c5f54decc00e6f44aae6d019e0da05ca59913bc38a8630590f2627c14404c5f0a351b6a99a5b21324516e668bb86a570400505f0e7b9012096b41c4eb3aaf947f6ea4290800007c7700e67da63472835bb0b737093a19ad4c63f5a4efb16ffa83d007000004001d019ef78c98723ddc9073523ef3beefda0c1004505f0e7b9012096b41c4eb3aaf947f6ea4290800007c77095dac46c07a40d91506e7637ec4ba5763f5a4efb16ffa83d00700000400f09f05207f03cfdce586301014700e2c25931040505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f0ec2d17a76153ff51817f12d9cfc3c7f040025019f06de3d8a54d27e44a9d5ce189618f22d1008505f0e7b9012096b41c4eb3aaf947f6ea42908010080c74756edffa217dfb07ab596d82753deff985ac215e5cc2997d29afe1d397c16ed029f0cb6f36e027abb2091cfb5110ab5087f9960685f06155b3cd9a8c9e5e9a23fd5dc13a5ed2037418f1000000000685f08316cbf8fa0da822a20ac1c55bf1be3208212000000000000505f0e7b9012096b41c4eb3aaf947f6ea42908000080740bfbe51a080a46d5c79a4b185680b175abb3ccdb602dbdba7552f7172ed8c180fddafc590530ce9037825fac38ceee0615edf7def5fd0af0bacb16f7d47f9859685f090e2fbf2d792cb324bffa9427fe1f0e202a1e07008e1e0700c1019f0d710b30bd2eab0352ddcc26417aa19454807c77081e0bfde17b36573208a06cb5cfba6b63f5a4efb16ffa83d00700000402505f0e7b9012096b41c4eb3aaf947f6ea4290800004c5f03c716fb8fff3de61a883bb76adb34a204004c5f0dad6eef5c4b1c68eaa71ea17a02d9de04000000",
+      ],
+    },
+    "number": [
+      "189,519",
+      "189,521",
+    ],
+    "parentHash": [
+      "0xd94d2e18b4a8a88d9b21cb03bbe4df4431a93718c2c602c13043d595e8b8735a",
+      "0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1",
+    ],
+  },
+  "timestamp": {
+    "didUpdate": [
+      null,
+      true,
+    ],
+    "now": [
+      "1,666,942,776,038",
+      "1,666,942,806,031",
+    ],
+  },
+}
+`;
+
 exports[`dev rpc > setStorages 1`] = `"5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn"`;
 
 exports[`dev rpc > setStorages 2`] = `"5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu"`;

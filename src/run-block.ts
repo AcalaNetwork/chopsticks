@@ -2,7 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import { writeFileSync } from 'node:fs'
 
 import { Config } from './schema'
-import { generateHtmlDiff } from './utils/generate-html-diff'
+import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
 import { openHtml } from './utils/open-html'
 import { runTask, taskHandler } from './executor'
 import { setup } from './setup'
@@ -40,7 +40,7 @@ export const runBlock = async (argv: Config) => {
   }
 
   if (argv['html']) {
-    const filePath = await generateHtmlDiff(block, result.Call.storageDiff, block.hash)
+    const filePath = await generateHtmlDiffPreviewFile(block, result.Call.storageDiff, block.hash)
     console.log(`Generated preview ${filePath}`)
     if (argv['open']) {
       openHtml(filePath)

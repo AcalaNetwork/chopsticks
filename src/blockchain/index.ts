@@ -7,11 +7,11 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
-import { BuildBlockMode, BuildBlockParams, TxPool } from './txpool'
+import { BuildBlockMode, BuildBlockParams, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { defaultLogger } from '../logger'
-import { dryRunExtrinsic } from './block-builder'
+import { dryRunExtrinsic, dryRunInherents } from './block-builder'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -160,7 +160,7 @@ export class Blockchain {
     return this.#head
   }
 
-  async dryRun(
+  async dryRunExtrinsic(
     extrinsic: HexString
   ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][] }> {
     await this.api.isReady
@@ -170,5 +170,12 @@ export class Blockchain {
     const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
     const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
     return { outcome, storageDiff }
+  }
+
+  async dryRunHrmp(hrmp: Record<number, HorizontalMessage[]>): Promise<[HexString, HexString | null][]> {
+    await this.api.isReady
+    const head = this.head
+    const inherents = await this.#inherentProvider.createInherents(head, { horizontalMessages: hrmp })
+    return dryRunInherents(head, inherents)
   }
 }
