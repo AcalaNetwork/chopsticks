@@ -175,3 +175,12 @@ export const dryRunExtrinsic = async (
   const newBlock = await initNewBlock(head, header, inherents)
   return newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
 }
+
+export const dryRunInherents = async (
+  head: Block,
+  inherents: HexString[]
+): Promise<[HexString, HexString | null][]> => {
+  const header = await newHeader(head)
+  const newBlock = await initNewBlock(head, header, inherents)
+  return Object.entries(await newBlock.storageDiff()) as [HexString, HexString | null][]
+}

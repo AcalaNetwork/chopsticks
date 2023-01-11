@@ -131,7 +131,7 @@ export class Block {
     this.#storages.pop()
   }
 
-  async storageDiff(): Promise<Record<string, string>> {
+  async storageDiff(): Promise<Record<HexString, HexString | null>> {
     const storage = {}
 
     for (const layer of this.#storages) {
