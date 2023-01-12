@@ -1,5 +1,5 @@
+import { AccountInfo, Call, Header, RawBabePreDigest } from '@polkadot/types/interfaces'
 import { Block, TaskCallResponse } from './block'
-import { Call, Header, RawBabePreDigest } from '@polkadot/types/interfaces'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageValueKind } from './storage-layer'
@@ -205,7 +205,7 @@ export const dryRunExtrinsic = async (
     const generic = registry.createType<GenericExtrinsic>('GenericExtrinsic', call)
 
     const accountRaw = await head.get(compactHex(meta.query.system.account(extrinsic.address)))
-    const account = registry.createType('AccountInfo', hexToU8a(accountRaw))
+    const account = registry.createType<AccountInfo>('AccountInfo', hexToU8a(accountRaw))
 
     generic.signFake(extrinsic.address, {
       blockHash: head.hash,
