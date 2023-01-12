@@ -83,9 +83,17 @@ yargs(hideBin(process.argv))
       yargs.options({
         ...defaultOptions,
         extrinsic: {
-          desc: 'Extrinsic to dry run',
+          desc: 'Extrinsic or call to dry run. If you pass call here then address is required to fake signature',
           string: true,
           required: true,
+        },
+        address: {
+          desc: 'Address to fake sign extrinsic',
+          string: true,
+        },
+        at: {
+          desc: 'Block hash to dry run',
+          string: true,
         },
         'output-path': {
           desc: 'File path to print output',
@@ -122,6 +130,10 @@ yargs(hideBin(process.argv))
         },
         'mock-signature-host': {
           desc: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
+          boolean: true,
+        },
+        'allow-unresolved-imports': {
+          desc: 'Allow wasm unresolved imports',
           boolean: true,
         },
       }),

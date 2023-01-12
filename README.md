@@ -31,7 +31,8 @@ Make sure you have setup Rust environment (>= 1.64).
   - Use option `--html` to generate storage diff preview (add `--open` to automatically open file)
 
 - Dry run extrinsic, same as `run-block`, example:
-  - `yarn start dry-run --config=configs/mandala.yml --html --open --extrinsic 0x51028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d01a4143d076116f80a4074ed7acc90f9e1f9e2db54603900be53145a6ef5faa333f2614e687a06a9c886a909d77f3115b1a9d989afdc9fd73e5dca941bc690ae8a0000000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a481b000000a1edccce1bc2d3`
+  - `yarn start dry-run --config=configs/mandala.yml --html --open --extrinsic=0x39028400d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d01183abac17ff331f8b65dbeddd27f014dedd892020cfdc6c40b574f6930f8cf391bde95997ae2edc5b1192a4036ea97804956c4b5497175c8d68b630301685889450200000a00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a480284d717`
+  - Dry run call `yarn start dry-run --config=configs/mandala.yml --html --open --extrinsic=0xff00000080969800 --address=5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY --at=0x5f660b32489966cc707ecde831864aeecf9092c4983e75f9880313e9158d62b9`
 
 - Run a test node
   - `yarn start dev --endpoint=wss://acala-rpc-2.aca-api.network/ws`
