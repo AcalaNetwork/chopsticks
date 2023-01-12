@@ -161,10 +161,14 @@ export class Blockchain {
   }
 
   async dryRunExtrinsic(
-    extrinsic: HexString
+    extrinsic: HexString | { call: HexString; address: string },
+    at?: HexString
   ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][] }> {
     await this.api.isReady
-    const head = this.head
+    const head = at ? await this.getBlock(at) : this.head
+    if (!head) {
+      throw new Error(`Cannot find block ${at}`)
+    }
     const registry = await head.registry
     const inherents = await this.#inherentProvider.createInherents(head)
     const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)

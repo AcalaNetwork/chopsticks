@@ -69,6 +69,8 @@ export const setup = async (argv: Config) => {
       hash: blockHash as HexString,
       number: Number(header.number),
     },
+    mockSignatureHost: argv['mock-signature-host'],
+    allowUnresolvedImports: argv['allow-unresolved-imports'],
   })
 
   if (argv.timestamp) await timeTravel(chain, argv.timestamp)

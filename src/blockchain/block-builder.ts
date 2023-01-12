@@ -1,8 +1,9 @@
+import { AccountInfo, Call, Header, RawBabePreDigest } from '@polkadot/types/interfaces'
 import { Block, TaskCallResponse } from './block'
-import { Header, RawBabePreDigest } from '@polkadot/types/interfaces'
+import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageValueKind } from './storage-layer'
-import { compactAddLength, stringToHex } from '@polkadot/util'
+import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
 import { getCurrentSlot } from '../utils/time-travel'
@@ -186,10 +187,47 @@ export const buildBlock = async (
 export const dryRunExtrinsic = async (
   head: Block,
   inherents: HexString[],
-  extrinsic: HexString
+  extrinsic: HexString | { call: HexString; address: string }
 ): Promise<TaskCallResponse> => {
+  const registry = await head.registry
   const header = await newHeader(head)
   const newBlock = await initNewBlock(head, header, inherents)
+
+  if (typeof extrinsic !== 'string') {
+    if (!head.chain.mockSignatureHost) {
+      throw new Error(
+        'Cannot fake signature because mock signature host is not enabled. Start chain with `mockSignatureHost: true`'
+      )
+    }
+
+    const meta = await head.meta
+    const call = registry.createType<Call>('Call', hexToU8a(extrinsic.call))
+    const generic = registry.createType<GenericExtrinsic>('GenericExtrinsic', call)
+
+    const accountRaw = await head.get(compactHex(meta.query.system.account(extrinsic.address)))
+    const account = registry.createType<AccountInfo>('AccountInfo', hexToU8a(accountRaw))
+
+    generic.signFake(extrinsic.address, {
+      blockHash: head.hash,
+      genesisHash: head.hash,
+      runtimeVersion: await head.runtimeVersion,
+      nonce: account.nonce,
+    })
+
+    const mockSignature = new Uint8Array(64)
+    mockSignature.fill(0xcd)
+    mockSignature.set([0xde, 0xad, 0xbe, 0xef])
+    generic.signature.set(mockSignature)
+
+    defaultLogger.info({ call: call.toHuman() }, 'dry_run_call')
+
+    return newBlock.call('BlockBuilder_apply_extrinsic', generic.toHex())
+  }
+
+  defaultLogger.info(
+    { call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toHuman() },
+    'dry_run_extrinsic'
+  )
   return newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
 }
 

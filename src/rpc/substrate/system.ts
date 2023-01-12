@@ -23,6 +23,10 @@ const handlers: Handlers = {
       shouldhVePeers: false,
     }
   },
+  system_dryRun: async (context, [extrinsic, at]) => {
+    const { outcome } = await context.chain.dryRunExtrinsic(extrinsic, at)
+    return outcome.toHex()
+  },
 }
 
 export default handlers
