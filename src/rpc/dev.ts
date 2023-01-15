@@ -1,5 +1,6 @@
 import { HexString } from '@polkadot/util/types'
 
+import { Block } from '../blockchain/block'
 import { Handlers, ResponseError } from './shared'
 import { StorageValues, setStorage } from '../utils/set-storage'
 import { decodeStorageDiff } from '../utils/decoder'
@@ -72,6 +73,20 @@ const handlers: Handlers = {
       new: newData,
       delta,
     }
+  },
+  dev_setHead: async (context, [hashOrNumber]) => {
+    let block: Block | undefined
+    if (typeof hashOrNumber === 'number') {
+      const blockNumber = hashOrNumber > 0 ? hashOrNumber : context.chain.head.number + hashOrNumber
+      block = await context.chain.getBlockAt(blockNumber)
+    } else {
+      block = await context.chain.getBlock(hashOrNumber)
+    }
+    if (!block) {
+      throw new ResponseError(1, 'Block not found')
+    }
+    await context.chain.setHead(block)
+    return block.hash
   },
 }
 

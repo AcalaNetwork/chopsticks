@@ -81,4 +81,16 @@ describe('dev rpc', () => {
     const resp = await ws.send('dev_dryRun', params)
     expect(resp.delta).toMatchSnapshot()
   })
+
+  it('setHead', async () => {
+    const blockNumber = (await api.rpc.chain.getHeader()).number.toNumber()
+    const hash = (await api.rpc.chain.getBlockHash()).toHex()
+    const newHash = await dev.newBlock({ count: 3 })
+    await dev.setHead(hash)
+    expect(await api.rpc.chain.getBlockHash()).toBe(hash)
+    await dev.setHead(blockNumber + 3)
+    expect(await api.rpc.chain.getBlockHash()).toBe(newHash)
+    await dev.setHead(-3)
+    expect(await api.rpc.chain.getBlockHash()).toBe(hash)
+  })
 })
