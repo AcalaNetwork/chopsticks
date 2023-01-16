@@ -83,7 +83,7 @@ const handlers: Handlers = {
       block = await context.chain.getBlock(hashOrNumber)
     }
     if (!block) {
-      throw new ResponseError(1, 'Block not found')
+      throw new ResponseError(1, `Block not found ${hashOrNumber}`)
     }
     await context.chain.setHead(block)
     return block.hash
