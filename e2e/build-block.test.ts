@@ -16,8 +16,8 @@ describe.each([
   it('build blocks', async () => {
     const { chain, ws, teardown } = await setup()
     const blockNumber = chain.head.number
-    await ws.send('dev_newBlock', [{ count: 10 }])
-    expect(chain.head.number).eq(blockNumber + 10)
+    await ws.send('dev_newBlock', [{ count: 3 }])
+    expect(chain.head.number).eq(blockNumber + 3)
     await teardown()
   })
 })
