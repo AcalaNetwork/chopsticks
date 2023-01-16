@@ -1,4 +1,3 @@
-import { HexString } from '@polkadot/util/types'
 import createLogger from 'pino'
 
 export const defaultLogger = createLogger({
