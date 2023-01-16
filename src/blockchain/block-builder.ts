@@ -5,7 +5,7 @@ import { HexString } from '@polkadot/util/types'
 import { StorageValueKind } from './storage-layer'
 import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
-import { defaultLogger, truncate, truncateStorageDiff } from '../logger'
+import { defaultLogger, truncate } from '../logger'
 import { getCurrentSlot } from '../utils/time-travel'
 
 const logger = defaultLogger.child({ name: 'block-builder' })
@@ -101,7 +101,7 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
     // initialize block
     const { storageDiff } = await newBlock.call('Core_initialize_block', header.toHex())
     newBlock.pushStorageLayer().setAll(storageDiff)
-    logger.trace(truncateStorageDiff(storageDiff), 'Initialize block')
+    logger.trace(truncate(storageDiff), 'Initialize block')
   }
 
   // apply inherents
@@ -109,7 +109,7 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
     try {
       const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
       newBlock.pushStorageLayer().setAll(storageDiff)
-      logger.trace(truncateStorageDiff(storageDiff), 'Applied inherent')
+      logger.trace(truncate(storageDiff), 'Applied inherent')
     } catch (e) {
       logger.warn('Failed to apply inherents %o %s', e, e)
       throw new Error('Failed to apply inherents')
@@ -144,7 +144,7 @@ export const buildBlock = async (
     try {
       const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
       newBlock.pushStorageLayer().setAll(storageDiff)
-      logger.trace(truncateStorageDiff(storageDiff), 'Applied extrinsic')
+      logger.trace(truncate(storageDiff), 'Applied extrinsic')
     } catch (e) {
       logger.info('Failed to apply extrinsic %o %s', e, e)
       pendingExtrinsics.push(extrinsic)
@@ -156,7 +156,7 @@ export const buildBlock = async (
     const { storageDiff } = await newBlock.call('BlockBuilder_finalize_block', '0x')
 
     newBlock.pushStorageLayer().setAll(storageDiff)
-    logger.trace(truncateStorageDiff(storageDiff), 'Finalize block')
+    logger.trace(truncate(storageDiff), 'Finalize block')
   }
 
   const blockData = registry.createType('Block', {
