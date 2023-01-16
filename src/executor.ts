@@ -20,7 +20,7 @@ import {
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
-import { defaultLogger, truncate, truncateStorageDiff } from './logger'
+import { defaultLogger, truncate } from './logger'
 import { memoize } from 'lodash'
 
 interface JsCallback {
@@ -86,13 +86,10 @@ export const runTask = async (
   },
   callback: JsCallback = emptyTaskHandler
 ) => {
-  logger.trace({ task: { ...task, wasm: truncate(task.wasm) } }, 'taskRun')
+  logger.trace(truncate(task), 'taskRun')
   const response = await run_task(task, callback)
   if (response.Call) {
-    logger.trace(
-      { result: truncate(response.Call.result), storageDiff: truncateStorageDiff(response.Call.storageDiff) },
-      'taskResponse'
-    )
+    logger.trace(truncate(response.Call), 'taskResponse')
   } else {
     logger.trace({ response }, 'taskResponse')
   }
@@ -108,7 +105,7 @@ export const taskHandler = (block: Block): JsCallback => {
       return block.getKeysPaged({ prefix: key, pageSize: 1000, startKey: key })
     },
     getNextKey: async function (key: HexString) {
-      const keys = await block.getKeysPaged({ prefix: key, pageSize: 1, startKey: key })
+      const keys = await block.getKeysPaged({ prefix: '0x', pageSize: 1, startKey: key })
       return keys[0]
     },
   }

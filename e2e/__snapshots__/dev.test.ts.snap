@@ -19,6 +19,20 @@ exports[`dev rpc > dryRun 1`] = `
     ],
   },
   "cdpEngine": {
+    "debitExchangeRate": {
+      "{\\"stableAssetPoolToken\\":0}": [
+        "485,048,213,257,347,904",
+        "485,048,232,352,119,611",
+      ],
+      "{\\"token\\":\\"DOT\\"}": [
+        "509,204,261,826,024,749",
+        "509,204,282,170,944,255",
+      ],
+      "{\\"token\\":\\"LDOT\\"}": [
+        "507,950,484,094,994,129",
+        "507,950,504,389,819,775",
+      ],
+    },
     "lastAccumulationSecs": [
       "1,666,942,752",
       "1,666,942,794",
@@ -201,6 +215,14 @@ exports[`dev rpc > dryRun 1`] = `
     ],
   },
   "system": {
+    "account": {
+      "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ": {
+        "providers": [
+          "5",
+          "6",
+        ],
+      },
+    },
     "allExtrinsicsLen": [
       null,
       "1,527",
@@ -214,7 +236,7 @@ exports[`dev rpc > dryRun 1`] = `
     "blockWeight": {
       "mandatory": [
         "500,000,000,000",
-        "10,909,625,000",
+        "11,331,935,000",
       ],
     },
     "digest": {
@@ -237,7 +259,7 @@ exports[`dev rpc > dryRun 1`] = `
     },
     "eventCount": [
       "7",
-      "2",
+      "6",
     ],
     "events": {
       "0": {
@@ -245,181 +267,41 @@ exports[`dev rpc > dryRun 1`] = `
           "data": {
             "amount": [
               "2,429,299",
-              0,
-              0,
-            ],
-            "currencyId": [
-              {
-                "Token": "AUSD",
-              },
-              0,
-              0,
-            ],
-            "dispatchInfo": [
-              {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "158,080,000",
-              },
-            ],
-            "who": [
-              "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-              0,
-              0,
+              "1,821,974",
             ],
           },
-          "index": [
-            "0x0b0a",
-            "0x0000",
-          ],
-          "method": [
-            "Deposited",
-            "ExtrinsicSuccess",
-          ],
-          "section": [
-            "tokens",
-            "system",
-          ],
         },
-        "phase": [
-          "Initialization",
-          {
-            "ApplyExtrinsic": "0",
-          },
-        ],
       },
       "1": {
         "event": {
           "data": {
             "amount": [
               "2,429,299",
-              0,
-              0,
-            ],
-            "currencyId": [
-              {
-                "Token": "AUSD",
-              },
-              0,
-              0,
-            ],
-            "dispatchInfo": [
-              {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "0",
-              },
-            ],
-            "who": [
-              "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-              0,
-              0,
+              "1,821,974",
             ],
           },
-          "index": [
-            "0x0b00",
-            "0x0000",
-          ],
-          "method": [
-            "Endowed",
-            "ExtrinsicSuccess",
-          ],
-          "section": [
-            "tokens",
-            "system",
-          ],
         },
-        "phase": [
-          "Initialization",
-          {
-            "ApplyExtrinsic": "1",
-          },
-        ],
       },
-      "_2": [
-        {
-          "event": {
-            "data": {
-              "amount": "44,234,034",
-              "currencyId": {
-                "Token": "AUSD",
-              },
-              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-            },
-            "index": "0x0b0a",
-            "method": "Deposited",
-            "section": "tokens",
+      "2": {
+        "event": {
+          "data": {
+            "amount": [
+              "44,234,034",
+              "33,175,527",
+            ],
           },
-          "phase": "Initialization",
-          "topics": [],
         },
-        0,
-        0,
-      ],
-      "_3": [
-        {
-          "event": {
-            "data": {
-              "amount": "365,959,255",
-              "currencyId": {
-                "Token": "AUSD",
-              },
-              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-            },
-            "index": "0x0b0a",
-            "method": "Deposited",
-            "section": "tokens",
+      },
+      "3": {
+        "event": {
+          "data": {
+            "amount": [
+              "365,959,255",
+              "274,469,453",
+            ],
           },
-          "phase": "Initialization",
-          "topics": [],
         },
-        0,
-        0,
-      ],
-      "_4": [
-        {
-          "event": {
-            "data": {
-              "dispatchInfo": {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "158,080,000",
-              },
-            },
-            "index": "0x0000",
-            "method": "ExtrinsicSuccess",
-            "section": "system",
-          },
-          "phase": {
-            "ApplyExtrinsic": "0",
-          },
-          "topics": [],
-        },
-        0,
-        0,
-      ],
-      "_5": [
-        {
-          "event": {
-            "data": {
-              "dispatchInfo": {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "0",
-              },
-            },
-            "index": "0x0000",
-            "method": "ExtrinsicSuccess",
-            "section": "system",
-          },
-          "phase": {
-            "ApplyExtrinsic": "1",
-          },
-          "topics": [],
-        },
-        0,
-        0,
-      ],
+      },
       "_6": [
         {
           "event": {
@@ -476,6 +358,26 @@ exports[`dev rpc > dryRun 1`] = `
       "1,666,942,776,038",
       "1,666,942,806,031",
     ],
+  },
+  "tokens": {
+    "accounts": {
+      "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ": {
+        "{\\"token\\":\\"AUSD\\"}": [
+          null,
+          {
+            "free": "309,466,954",
+            "frozen": "0",
+            "reserved": "0",
+          },
+        ],
+      },
+    },
+    "totalIssuance": {
+      "{\\"token\\":\\"AUSD\\"}": [
+        "395,953,866,361,320,454,436",
+        "395,953,866,361,629,921,390",
+      ],
+    },
   },
 }
 `;
