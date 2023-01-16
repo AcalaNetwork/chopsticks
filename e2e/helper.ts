@@ -160,6 +160,9 @@ export const dev = {
   timeTravel: (date: string | number) => {
     return ws.send<number>('dev_timeTravel', [date])
   },
+  setHead: (hashOrNumber: string | number) => {
+    return ws.send('dev_setHead', [hashOrNumber])
+  },
 }
 
 function defer<T>() {
