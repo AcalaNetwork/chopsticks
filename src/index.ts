@@ -7,7 +7,7 @@ import yargs from 'yargs'
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { configSchema } from './schema'
-import { connectDownward, connectParachains } from './xcm'
+import { connectParachains, connectVertical } from './xcm'
 import { decodeKey } from './utils/decoder'
 import { dryRun } from './dry-run'
 import { runBlock } from './run-block'
@@ -197,7 +197,7 @@ yargs(hideBin(process.argv))
       if (argv.relaychain) {
         const { chain: relaychain } = await setupWithServer(processConfig(argv.relaychain))
         for (const parachain of parachains) {
-          await connectDownward(relaychain, parachain)
+          await connectVertical(relaychain, parachain)
         }
       }
     }
