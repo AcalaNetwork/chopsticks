@@ -40,7 +40,7 @@ export const runBlock = async (argv: Config) => {
   }
 
   if (argv['html']) {
-    const filePath = await generateHtmlDiffPreviewFile(block, result.Call.storageDiff, block.hash)
+    const filePath = await generateHtmlDiffPreviewFile(parent, result.Call.storageDiff, block.hash)
     console.log(`Generated preview ${filePath}`)
     if (argv['open']) {
       openHtml(filePath)
