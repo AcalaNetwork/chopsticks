@@ -1,7 +1,7 @@
 import { afterAll, describe, it } from 'vitest'
 
 import { DownwardMessage, HorizontalMessage } from '../src/blockchain/txpool'
-import { connectDownward } from '../src/xcm'
+import { connectDownward } from '../src/xcm/downward'
 import { matchSnapshot, setupAll, testingPairs } from './helper'
 import { setStorage } from '../src/utils/set-storage'
 
