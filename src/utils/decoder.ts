@@ -101,13 +101,10 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
 }
 
 export const decodeStorageDiff = async (block: Block, diff: [HexString, HexString | null][]) => {
-  const parent = await block.parentBlock
-  if (!parent) throw new Error('Cannot find parent block')
-
   const oldState = {}
   const newState = {}
   for (const [key, value] of diff) {
-    _.merge(oldState, await decodeKeyValue(parent, key, (await parent.get(key)) as any))
+    _.merge(oldState, await decodeKeyValue(block, key, (await block.get(key)) as any))
     _.merge(newState, await decodeKeyValue(block, key, value))
   }
   return [oldState, newState, diffPatcher.diff(oldState, newState)]
