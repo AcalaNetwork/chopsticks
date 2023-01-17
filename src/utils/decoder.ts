@@ -13,9 +13,17 @@ const diffPatcher = create({
   textDiff: { minLength: Number.MAX_VALUE }, // skip text diff
 })
 
-const cache: Record<HexString, StorageEntry> = {}
+const _CACHE: Record<string, Record<HexString, StorageEntry>> = {}
+
+const getCache = (uid: string): Record<HexString, StorageEntry> => {
+  if (!_CACHE[uid]) {
+    _CACHE[uid] = {}
+  }
+  return _CACHE[uid]
+}
 
 const getStorageEntry = async (block: Block, key: HexString) => {
+  const cache = getCache(block.chain.uid)
   for (const [prefix, storageEntry] of Object.entries(cache)) {
     if (key.startsWith(prefix)) return storageEntry
   }

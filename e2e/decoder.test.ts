@@ -1,4 +1,4 @@
-import { chain, setupApi } from './helper'
+import { chain, setupAll, setupApi } from './helper'
 import { decodeKey, decodeKeyValue } from '../src/utils/decoder'
 import { describe, expect, it } from 'vitest'
 
@@ -27,5 +27,18 @@ describe('decoder', () => {
 
     const ormlAccountData = meta.registry.createType('AccountData', data.data)
     expect(await decodeKeyValue(chain.head, TOKENS_ACCOUNTS, ormlAccountData.toHex())).toMatchSnapshot()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  })
+
+  it('works with multiple chains', async () => {
+    const { setup, teardownAll } = await setupAll({ endpoint: 'wss://rpc.polkadot.io' })
+    const { chain } = await setup()
+
+    const meta = await chain.head.meta
+    const data = { data: { free: 10000000000 } }
+    const value = meta.registry.createType('AccountInfo', data)
+    expect(await decodeKeyValue(chain.head, SYSTEM_ACCOUNT, value.toHex())).toMatchSnapshot()
+
+    await teardownAll()
   })
 })

@@ -26,6 +26,7 @@ export interface Options {
 }
 
 export class Blockchain {
+  readonly uid: string = Math.random().toString(36).substring(2)
   readonly api: Api
   readonly db: DataSource | undefined
   readonly mockSignatureHost: boolean
