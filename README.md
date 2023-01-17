@@ -64,7 +64,7 @@ Make sure you have setup Rust environment (>= 1.64).
   - Edit configs/kusama.yml if needed. (e.g. update the block number)
   - `yarn start dev --config=configs/kusama.yml`
 
-- Setup XCM multichain (UpwardMessages not yet supported)
+- Setup XCM multichain
 **_NOTE:_** You can also connect multiple parachains without a relaychain
 ```bash
 yarn start xcm --relaychain=configs/kusama.yml --parachain=configs/karura.yml --parachain=configs/statemine.yml
