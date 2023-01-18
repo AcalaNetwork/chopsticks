@@ -4,6 +4,7 @@ exports[`author rpc > works 1`] = `
 [
   [
     SubmittableResult {
+      "blockNumber": undefined,
       "dispatchError": undefined,
       "dispatchInfo": undefined,
       "events": [],
@@ -17,6 +18,7 @@ exports[`author rpc > works 1`] = `
   ],
   [
     SubmittableResult {
+      "blockNumber": 189521,
       "dispatchError": undefined,
       "dispatchInfo": {
         "class": "Normal",
@@ -201,6 +203,7 @@ exports[`author rpc > works 5`] = `
 [
   [
     SubmittableResult {
+      "blockNumber": undefined,
       "dispatchError": undefined,
       "dispatchInfo": undefined,
       "events": [],
@@ -214,6 +217,7 @@ exports[`author rpc > works 5`] = `
   ],
   [
     SubmittableResult {
+      "blockNumber": 189522,
       "dispatchError": undefined,
       "dispatchInfo": {
         "class": "Normal",
@@ -398,6 +402,7 @@ exports[`author rpc > works 9`] = `
 [
   [
     SubmittableResult {
+      "blockNumber": undefined,
       "dispatchError": undefined,
       "dispatchInfo": undefined,
       "events": [],
@@ -411,6 +416,7 @@ exports[`author rpc > works 9`] = `
   ],
   [
     SubmittableResult {
+      "blockNumber": 189523,
       "dispatchError": undefined,
       "dispatchInfo": {
         "class": "Normal",
