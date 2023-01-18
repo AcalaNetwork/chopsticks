@@ -1,5 +1,4 @@
 import { HexString } from '@polkadot/util/types'
-import { WebSocket } from 'ws'
 import {
   compactAddLength,
   compactToU8a,
@@ -9,7 +8,6 @@ import {
   u8aConcatStrict,
   u8aToHex,
 } from '@polkadot/util'
-global.WebSocket = WebSocket
 
 import { Block } from './blockchain/block'
 import { Registry } from '@polkadot/types-codec/types'
