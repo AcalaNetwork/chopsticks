@@ -5,6 +5,11 @@ import substrate from './substrate'
 const allHandlers: Handlers = {
   ...substrate,
   ...dev,
+  rpc_methods: async () =>
+    Promise.resolve({
+      version: 1,
+      methods: Object.keys(allHandlers),
+    }),
 }
 
 export const handler =
