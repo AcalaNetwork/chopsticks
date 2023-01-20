@@ -1,4 +1,4 @@
-extern crate console_error_panic_hook;
+// extern crate console_error_panic_hook;
 
 use smoldot::json_rpc::methods::{HashHexString, HexString};
 use std::collections::BTreeMap;
@@ -8,7 +8,7 @@ mod proof;
 mod task;
 
 fn setup_console() {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    // std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     #[cfg(feature = "logging")]
     {
         let _ = console_log::init_with_level(log::Level::Trace);
