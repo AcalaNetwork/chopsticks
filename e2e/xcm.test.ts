@@ -90,6 +90,7 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await polkadot.chain.newBlock()
+    await acala.chain.upcomingBlock()
     await matchSnapshot(polkadot.api.query.system.events())
     await matchSnapshot(acala.api.query.system.events())
 

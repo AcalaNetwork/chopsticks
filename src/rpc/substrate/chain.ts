@@ -9,7 +9,11 @@ const handlers: Handlers = {
     return block.hash
   },
   chain_getHeader: async (context, [hash]) => {
-    return (await context.chain.getBlock(hash))?.header
+    const block = await context.chain.getBlock(hash)
+    if (!block) {
+      throw new ResponseError(1, `Block ${hash} not found`)
+    }
+    return await block.header
   },
   chain_getBlock: async (context, [hash]) => {
     const block = await context.chain.getBlock(hash)

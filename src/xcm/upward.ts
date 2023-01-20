@@ -23,6 +23,8 @@ export const connectUpward = async (parachain: Blockchain, relaychain: Blockchai
     const relaychainMeta = await relaychain.head.meta
 
     const upwardMessages = parachainMeta.registry.createType('Vec<Bytes>', hexToU8a(value))
+    if (upwardMessages.length === 0) return
+
     const queueSize = parachainMeta.registry.createType('(u32, u32)', [
       upwardMessages.length,
       upwardMessages.map((x) => x.byteLength).reduce((s, i) => s + i, 0),

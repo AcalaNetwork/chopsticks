@@ -25,6 +25,8 @@ export const connectDownward = async (relaychain: Blockchain, parachain: Blockch
       .createType('Vec<PolkadotCorePrimitivesInboundDownwardMessage>', hexToU8a(value))
       .toJSON() as any as DownwardMessage[]
 
+    if (downwardMessages.length === 0) return
+
     logger.debug({ downwardMessages }, 'downward_message')
     await parachain.newBlock({ inherent: { downwardMessages } })
   })
