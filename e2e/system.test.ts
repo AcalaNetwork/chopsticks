@@ -15,5 +15,8 @@ describe('system rpc', () => {
       isSyncing: false,
       shouldHavePeers: false,
     })
+    expect((await api.rpc.system.accountNextIndex('5EYCAe5fiQJsoMt16QywpBQwyn5cgfkXFFJApwwKPXFoF2h7')).toNumber()).toBe(
+      0
+    )
   })
 })
