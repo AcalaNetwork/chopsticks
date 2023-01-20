@@ -1,3 +1,6 @@
+import { hexToU8a } from '@polkadot/util'
+import { readFileSync } from 'node:fs'
+
 import { Handlers } from '../shared'
 
 const handlers: Handlers = {
@@ -11,7 +14,8 @@ const handlers: Handlers = {
     return context.chain.api.getSystemName()
   },
   system_version: async (_context) => {
-    return 'chopsticks-1.1.0'
+    const { version } = JSON.parse(readFileSync('package.json', 'utf-8'))
+    return `chopsticks-v${version}`
   },
   system_chainType: async (_context) => {
     return 'Development'
@@ -26,6 +30,13 @@ const handlers: Handlers = {
   system_dryRun: async (context, [extrinsic, at]) => {
     const { outcome } = await context.chain.dryRunExtrinsic(extrinsic, at)
     return outcome.toHex()
+  },
+  system_accountNextIndex: async (context, [address]) => {
+    const head = context.chain.head
+    const registry = await head.registry
+    const account = registry.createType('AccountId32', address)
+    const result = await head.call('AccountNonceApi_account_nonce', account.toHex())
+    return registry.createType('Index', hexToU8a(result.result)).toNumber()
   },
 }
 
