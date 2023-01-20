@@ -1,3 +1,4 @@
+import { Index } from '@polkadot/types/interfaces'
 import { hexToU8a } from '@polkadot/util'
 import { readFileSync } from 'node:fs'
 
@@ -36,7 +37,7 @@ const handlers: Handlers = {
     const registry = await head.registry
     const account = registry.createType('AccountId32', address)
     const result = await head.call('AccountNonceApi_account_nonce', account.toHex())
-    return registry.createType('Index', hexToU8a(result.result)).toNumber()
+    return registry.createType<Index>('Index', hexToU8a(result.result)).toNumber()
   },
 }
 
