@@ -161,6 +161,10 @@ export class Blockchain {
     return this.#head
   }
 
+  async upcomingBlock(count = 1) {
+    return this.#txpool.upcomingBlock(count)
+  }
+
   async dryRunExtrinsic(
     extrinsic: HexString | { call: HexString; address: string },
     at?: HexString

@@ -62,7 +62,11 @@ export class HeadState {
     this.#head = head
 
     for (const cb of Object.values(this.#headListeners)) {
-      cb(head)
+      try {
+        cb(head)
+      } catch (error) {
+        logger.error(error, 'callback')
+      }
     }
 
     const diff = await this.#head.storageDiff()
@@ -70,9 +74,11 @@ export class HeadState {
     for (const [keys, cb] of Object.values(this.#storageListeners)) {
       const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string])
       if (changed.length > 0) {
-        await Promise.resolve(cb(head, changed)).catch((error) => {
+        try {
+          cb(head, changed)
+        } catch (error) {
           logger.error(error, 'callback')
-        })
+        }
       }
     }
 
