@@ -35,7 +35,7 @@ const handlers: Handlers = {
   system_accountNextIndex: async (context, [address]) => {
     const head = context.chain.head
     const registry = await head.registry
-    const account = registry.createType('AccountId32', address)
+    const account = registry.createType('AccountId', address)
     const result = await head.call('AccountNonceApi_account_nonce', account.toHex())
     return registry.createType<Index>('Index', hexToU8a(result.result)).toNumber()
   },
