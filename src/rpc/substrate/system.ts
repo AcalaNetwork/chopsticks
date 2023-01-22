@@ -1,6 +1,7 @@
 import { Index } from '@polkadot/types/interfaces'
 import { hexToU8a } from '@polkadot/util'
 import { readFileSync } from 'node:fs'
+import path from 'node:path'
 
 import { Handlers } from '../shared'
 
@@ -15,7 +16,7 @@ const handlers: Handlers = {
     return context.chain.api.getSystemName()
   },
   system_version: async (_context) => {
-    const { version } = JSON.parse(readFileSync('package.json', 'utf-8'))
+    const { version } = JSON.parse(readFileSync(path.join(__dirname, '../../../package.json'), 'utf-8'))
     return `chopsticks-v${version}`
   },
   system_chainType: async (_context) => {
