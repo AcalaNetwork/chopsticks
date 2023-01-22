@@ -34,13 +34,11 @@ export const connectUpward = async (parachain: Blockchain, relaychain: Blockchai
     logger.debug({ [paraId.toNumber()]: upwardMessages.toJSON(), queueSize: queueSize.toJSON() }, 'upward_message')
 
     // TODO: make sure we append instead of replace
-    relaychain.head.pushStorageLayer().set(compactHex(relaychainMeta.query.ump.needsDispatch()), needsDispatch.toHex())
-    relaychain.head
-      .pushStorageLayer()
-      .set(compactHex(relaychainMeta.query.ump.relayDispatchQueues(paraId)), upwardMessages.toHex())
-    relaychain.head
-      .pushStorageLayer()
-      .set(compactHex(relaychainMeta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex())
+    relaychain.head.pushStorageLayer().setAll([
+      [compactHex(relaychainMeta.query.ump.needsDispatch()), needsDispatch.toHex()],
+      [compactHex(relaychainMeta.query.ump.relayDispatchQueues(paraId)), upwardMessages.toHex()],
+      [compactHex(relaychainMeta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex()],
+    ])
 
     await relaychain.newBlock()
   })
