@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
@@ -16,8 +16,7 @@
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
 		"start": "ts-node --transpile-only src/index.ts",
-		"build": "rm -rf dist && tsc -p tsconfig.prod.json && yarn postbuild",
-		"postbuild": "cp -r template ./dist",
+		"build": "rm -rf dist && tsc -p tsconfig.prod.json",
 		"build-wasm": "wasm-pack build executor --target nodejs --scope acala-network",
 		"build-wasm-logging": "yarn build-wasm --features=logging",
 		"check": "cd executor && cargo check --locked",
@@ -75,6 +74,7 @@
 	"files": [
 		"dist",
 		"bin",
+		"template",
 		"chopsticks.mjs"
 	],
 	"engines": {
