@@ -71,6 +71,7 @@ pub struct TaskCall {
 pub struct CallResponse {
     result: HexString,
     storage_diff: Vec<(HexString, Option<HexString>)>,
+	accessed_storage_keys: Vec<HexString>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -101,6 +102,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     .unwrap();
     let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
 
+	let mut keys: Vec<HexString> = Vec::new();
+
     for (call, params) in task.calls.as_ref().unwrap() {
         let mut vm = runtime_host::run(runtime_host::Config {
             virtual_machine: vm_proto.clone(),
@@ -121,6 +124,9 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                 }
                 RuntimeHostVm::StorageGet(req) => {
                     let key = HexString(req.key().as_ref().to_vec());
+
+					keys.push(key.clone());
+
                     let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
                     let value = js.get_storage(key).await;
                     let value = if value.is_string() {
@@ -202,6 +208,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
         TaskResponse::Call(CallResponse {
             result: HexString(ret),
             storage_diff: diff,
+			accessed_storage_keys: keys,
         })
     }))
 }

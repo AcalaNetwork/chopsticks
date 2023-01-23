@@ -44,6 +44,10 @@ export class Api {
     return this.#provider.disconnect()
   }
 
+  get provider() {
+    return this.#provider
+  }
+
   get isReady() {
     if (this.#provider instanceof WsProvider) {
       return this.#provider.isReady

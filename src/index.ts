@@ -13,6 +13,7 @@ import { dryRun } from './dry-run'
 import { runBlock } from './run-block'
 import { setup } from './setup'
 import { setupWithServer } from './setup-with-server'
+import { nonce } from './nonce'
 
 const processConfig = (path: string) => {
   const configFile = readFileSync(path, 'utf8')
@@ -108,6 +109,31 @@ yargs(hideBin(process.argv))
       }),
     async (argv) => {
       await dryRun(processArgv(argv))
+    }
+  )
+  .command(
+    'nonce',
+    'get nonce',
+    (yargs) =>
+      yargs.options({
+        ...defaultOptions,
+        'account-id': {
+          desc: 'Account id hex string',
+          string: true,
+        },
+        'output-path': {
+          desc: 'File path to print output',
+          string: true,
+        },
+        html: {
+          desc: 'Generate html with storage diff',
+        },
+        open: {
+          desc: 'Open generated html',
+        },
+      }),
+    async (argv) => {
+      await nonce(processArgv(argv))
     }
   )
   .command(
