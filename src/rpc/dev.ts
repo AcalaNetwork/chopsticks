@@ -29,7 +29,7 @@ const handlers: Handlers = {
 
     return finalHash
   },
-  dev_setStorages: async (context, params) => {
+  dev_setStorage: async (context, params) => {
     const [values, blockHash] = params as [StorageValues, HexString?]
     const hash = await setStorage(context.chain, values, blockHash).catch((error) => {
       throw new ResponseError(1, error.toString())
@@ -39,7 +39,7 @@ const handlers: Handlers = {
         hash,
         values,
       },
-      'dev_setStorages'
+      'dev_setStorage'
     )
     return hash
   },

@@ -115,7 +115,7 @@ dist
 !.yarn/patches
 !.yarn/plugins
 !.yarn/sdks
-!.yarn/versions
+.yarn/versions
 
 .idea
 

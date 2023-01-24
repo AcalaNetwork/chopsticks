@@ -6,12 +6,12 @@ import { api, dev, env, expectJson, setupApi, testingPairs, ws } from './helper'
 setupApi(env.mandala)
 
 describe('dev rpc', () => {
-  it('setStorages', async () => {
+  it('setStorage', async () => {
     const { alice, test1 } = testingPairs()
 
     await expectJson(api.query.sudo.key()).toMatchSnapshot()
 
-    await dev.setStorages([[api.query.sudo.key.key(), u8aToHex(alice.addressRaw)]])
+    await dev.setStorage([[api.query.sudo.key.key(), u8aToHex(alice.addressRaw)]])
 
     await expectJson(api.query.sudo.key()).toMatchSnapshot()
 
@@ -20,11 +20,11 @@ describe('dev rpc', () => {
 
     await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
 
-    await dev.setStorages([[api.query.system.account.key(test1.address), null]], hash)
+    await dev.setStorage([[api.query.system.account.key(test1.address), null]], hash)
 
     await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
 
-    await dev.setStorages({
+    await dev.setStorage({
       System: {
         Account: [[[test1.address], { data: { free: 100000 }, nonce: 1 }]],
       },
@@ -33,15 +33,15 @@ describe('dev rpc', () => {
     await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
   })
 
-  it('setStorages handle errors', async () => {
+  it('setStorage handle errors', async () => {
     await expect(
-      dev.setStorages({
+      dev.setStorage({
         SSystem: { Account: [] },
       })
     ).rejects.toThrowError('1: Error: Cannot find pallet SSystem')
 
     await expect(
-      dev.setStorages({
+      dev.setStorage({
         System: { AAccount: [] },
       })
     ).rejects.toThrowError('1: Error: Cannot find storage AAccount in pallet System')

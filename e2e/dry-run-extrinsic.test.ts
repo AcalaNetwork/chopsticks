@@ -12,7 +12,7 @@ describe('dry-run-extrinsic', () => {
     const properties = await chain.api.chainProperties
     const { alice, bob } = testingPairs(properties.ss58Format)
 
-    await dev.setStorages({
+    await dev.setStorage({
       System: {
         Account: [[[alice.address], { data: { free: 1000 * 1e12 } }]],
       },
@@ -26,7 +26,7 @@ describe('dry-run-extrinsic', () => {
   it('dry run extrinsic with fake signature', async () => {
     const ALICE = '5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu'
 
-    await dev.setStorages({ Sudo: { Key: ALICE } })
+    await dev.setStorage({ Sudo: { Key: ALICE } })
 
     // sudo.sudo(system.fillBlock(10000000))
     const call = '0xff00000080969800'
