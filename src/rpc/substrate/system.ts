@@ -26,7 +26,7 @@ const handlers: Handlers = {
     return {
       peers: 0,
       isSyncing: false,
-      shouldhVePeers: false,
+      shouldHavePeers: false,
     }
   },
   system_dryRun: async (context, [extrinsic, at]) => {
