@@ -154,8 +154,8 @@ export const dev = {
   newBlock: (param?: { count?: number; to?: number }): Promise<string> => {
     return ws.send('dev_newBlock', [param])
   },
-  setStorages: (values: StorageValues, blockHash?: string) => {
-    return ws.send('dev_setStorages', [values, blockHash])
+  setStorage: (values: StorageValues, blockHash?: string) => {
+    return ws.send('dev_setStorage', [values, blockHash])
   },
   timeTravel: (date: string | number) => {
     return ws.send<number>('dev_timeTravel', [date])

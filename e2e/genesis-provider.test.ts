@@ -20,7 +20,7 @@ describe('genesis provider works', () => {
     const properties = await chain.api.chainProperties
     const { test1, test2 } = testingPairs(properties.ss58Format)
 
-    await dev.setStorages({
+    await dev.setStorage({
       System: {
         Account: [[[test1.address], { data: { free: 1000 * 1e12 } }]],
       },

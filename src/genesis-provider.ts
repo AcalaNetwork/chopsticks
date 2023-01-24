@@ -20,7 +20,7 @@ export class GenesisProvider implements ProviderInterface {
   readonly stats?: ProviderStats
 
   #eventemitter: EventEmitter
-  #isReadyPromise: Promise<GenesisProvider>
+  #isReadyPromise: Promise<void>
 
   #genesis: Genesis
   #stateRoot: Promise<HexString>
@@ -38,7 +38,7 @@ export class GenesisProvider implements ProviderInterface {
 
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', (): void => {
-        resolve(this)
+        resolve()
       })
       this.#eventemitter.once('error', reject)
     })
@@ -80,7 +80,8 @@ export class GenesisProvider implements ProviderInterface {
     return this.#isConnected
   }
 
-  get isReady(): Promise<GenesisProvider> {
+  get isReady(): Promise<void> {
+    this.connect()
     return this.#isReadyPromise
   }
 

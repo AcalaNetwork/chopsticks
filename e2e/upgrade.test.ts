@@ -13,7 +13,7 @@ setupApi({
 describe('upgrade', () => {
   const { alice, bob } = testingPairs()
   it('setCode works', async () => {
-    await dev.setStorages({
+    await dev.setStorage({
       Sudo: {
         Key: alice.address,
       },
