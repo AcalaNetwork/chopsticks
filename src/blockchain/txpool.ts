@@ -1,6 +1,6 @@
 import { HexString } from '@polkadot/util/types'
-import { ReplaySubject, share } from 'rxjs'
-import { skip } from 'rxjs/operators'
+import { ReplaySubject, firstValueFrom, share } from 'rxjs'
+import { first, skip } from 'rxjs/operators'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -79,12 +79,7 @@ export class TxPool {
 
   async upcomingBlock(count = 1) {
     if (count < 1) throw new Error('count needs to be greater than 0')
-    return new Promise<Block>((resolve) => {
-      const sub = this.#upcoming.pipe(skip(count - 1)).subscribe((block) => {
-        sub.unsubscribe()
-        resolve(block)
-      })
-    })
+    return firstValueFrom(this.#upcoming.pipe(skip(count - 1), first()))
   }
 
   async #buildBlock(wait: Promise<void>, params?: BuildBlockParams) {

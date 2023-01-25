@@ -177,10 +177,8 @@ function defer<T>() {
 export const mockCallback = () => {
   let next = defer()
   const callback = vi.fn((...args) => {
-    setTimeout(() => {
-      next.resolve(args)
-      next = defer()
-    }, 50)
+    next.resolve(args)
+    next = defer()
   })
 
   return {
