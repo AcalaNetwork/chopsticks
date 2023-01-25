@@ -13,6 +13,7 @@ import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
 import { calculateStateRoot, runTask } from './executor'
+import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {
   #isConnected = false
@@ -45,16 +46,8 @@ export class GenesisProvider implements ProviderInterface {
   }
 
   static fromUrl = async (url: string) => {
-    let isUrl = false
-    try {
-      new URL(url)
-      isUrl = true
-    } catch (e) {
-      void e
-    }
-
     let file: any
-    if (isUrl) {
+    if (isUrl(url)) {
       file = await axios.get(url).then((x) => x.data)
     } else if (lstatSync(url).isFile()) {
       file = JSON.parse(String(readFileSync(url)))
