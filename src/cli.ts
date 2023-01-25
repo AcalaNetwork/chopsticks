@@ -1,6 +1,7 @@
 import { HexString } from '@polkadot/util/types'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync } from 'node:fs'
+import axios from 'axios'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
@@ -8,17 +9,23 @@ import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setup, 
 import { configSchema } from './schema'
 import { decodeKey } from './utils/decoder'
 import { dryRun } from './dry-run'
+import { isUrl } from './utils'
 import { runBlock } from './run-block'
 
-const processConfig = (path: string) => {
-  const configFile = readFileSync(path, 'utf8')
-  const config = yaml.load(configFile) as any
+const processConfig = async (path: string) => {
+  let file
+  if (isUrl(path)) {
+    file = await axios.get(path).then((x) => x.data)
+  } else {
+    file = readFileSync(path, 'utf8')
+  }
+  const config = yaml.load(file) as any
   return configSchema.parse(config)
 }
 
-const processArgv = (argv: any) => {
+const processArgv = async (argv: any) => {
   if (argv.config) {
-    return { ...processConfig(argv.config), ...argv }
+    return { ...(await processConfig(argv.config)), ...argv }
   }
   return argv
 }
@@ -69,7 +76,7 @@ yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      await runBlock(processArgv(argv))
+      await runBlock(await processArgv(argv))
     }
   )
   .command(
@@ -103,7 +110,7 @@ yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      await dryRun(processArgv(argv))
+      await dryRun(await processArgv(argv))
     }
   )
   .command(
@@ -134,7 +141,7 @@ yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      await setupWithServer(processArgv(argv))
+      await setupWithServer(await processArgv(argv))
     }
   )
   .command(
@@ -150,7 +157,7 @@ yargs(hideBin(process.argv))
           ...defaultOptions,
         }),
     async (argv) => {
-      const context = await setup(processArgv(argv))
+      const context = await setup(await processArgv(argv))
       const { storage, decodedKey } = await decodeKey(context.chain.head, argv.key as HexString)
       if (storage && decodedKey) {
         console.log(
@@ -182,7 +189,7 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const parachains: Blockchain[] = []
       for (const config of argv.parachain) {
-        const { chain } = await setupWithServer(processConfig(config))
+        const { chain } = await setupWithServer(await processConfig(config))
         parachains.push(chain)
       }
 
@@ -191,7 +198,7 @@ yargs(hideBin(process.argv))
       }
 
       if (argv.relaychain) {
-        const { chain: relaychain } = await setupWithServer(processConfig(argv.relaychain))
+        const { chain: relaychain } = await setupWithServer(await processConfig(argv.relaychain))
         for (const parachain of parachains) {
           await connectVertical(relaychain, parachain)
         }

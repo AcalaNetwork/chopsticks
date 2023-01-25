@@ -45,3 +45,12 @@ export const getParaId = async (chain: Blockchain) => {
   if (!raw) throw new Error('Cannot find parachain id')
   return meta.registry.createType('u32', hexToU8a(raw))
 }
+
+export const isUrl = (url: string) => {
+  try {
+    new URL(url)
+    return true
+  } catch (e) {
+    return false
+  }
+}
