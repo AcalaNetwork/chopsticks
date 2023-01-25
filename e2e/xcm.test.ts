@@ -2,6 +2,7 @@ import { afterAll, describe, it } from 'vitest'
 
 import { DownwardMessage, HorizontalMessage } from '../src/blockchain/txpool'
 import { connectDownward } from '../src/xcm/downward'
+import { connectUpward } from '../src/xcm/upward'
 import { matchSnapshot, setupAll, testingPairs } from './helper'
 import { setStorage } from '../src/utils/set-storage'
 
@@ -24,7 +25,7 @@ const horizontalMessages: Record<number, HorizontalMessage[]> = {
 describe('XCM', async () => {
   const ctxAcala = await setupAll({
     endpoint: 'wss://acala-rpc-1.aca-api.network',
-    blockHash: '0x663c25dc86521f4b7f74dcbc26224bb0fac40e316e6b0bcf6a51de373f37afac',
+    blockHash: '0x0defc0c9df164f9c4310239a9cfc4cab5fa6c7d8fa8fea44cc46ab39017e963a',
   })
 
   const ctxPolkadot = await setupAll({
@@ -91,6 +92,64 @@ describe('XCM', async () => {
 
     await polkadot.chain.newBlock()
     await acala.chain.upcomingBlock()
+    await matchSnapshot(polkadot.api.query.system.events())
+    await matchSnapshot(acala.api.query.system.events())
+
+    await polkadot.teardown()
+    await acala.teardown()
+  })
+
+  it('Acala send upward messages to Polkadot', async () => {
+    const polkadot = await ctxPolkadot.setup()
+    const acala = await ctxAcala.setup()
+
+    await connectUpward(acala.chain, polkadot.chain)
+
+    const { alice } = testingPairs()
+
+    await setStorage(acala.chain, {
+      System: {
+        Account: [[[alice.address], { data: { free: 1000 * 1e10 } }]],
+      },
+      Tokens: {
+        Accounts: [[[alice.address, { token: 'DOT' }], { free: 1000e10 }]],
+      },
+    })
+
+    await matchSnapshot(polkadot.api.query.system.account(alice.address))
+    await matchSnapshot(acala.api.query.system.account(alice.address))
+    await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
+
+    await acala.api.tx.xTokens
+      .transfer(
+        {
+          Token: 'DOT',
+        },
+        10e10,
+        {
+          V1: {
+            parents: 1,
+            interior: {
+              X1: {
+                AccountId32: {
+                  network: 'Any',
+                  id: alice.addressRaw,
+                },
+              },
+            },
+          },
+        },
+        {
+          Unlimited: null,
+        }
+      )
+      .signAndSend(alice)
+
+    await acala.chain.newBlock()
+    await polkadot.chain.upcomingBlock()
+
+    await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
+    await matchSnapshot(polkadot.api.query.system.account(alice.address))
     await matchSnapshot(polkadot.api.query.system.events())
     await matchSnapshot(acala.api.query.system.events())
 
