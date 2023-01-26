@@ -12,6 +12,7 @@ import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { defaultLogger } from '../logger'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder'
+import { RegisteredTypes } from '@polkadot/types/types'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -23,6 +24,7 @@ export interface Options {
   header: { number: number; hash: HexString }
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
+  registeredTypes: RegisteredTypes
 }
 
 export class Blockchain {
@@ -31,6 +33,7 @@ export class Blockchain {
   readonly db: DataSource | undefined
   readonly mockSignatureHost: boolean
   readonly allowUnresolvedImports: boolean
+  readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
   readonly #inherentProvider: InherentProvider
@@ -50,11 +53,13 @@ export class Blockchain {
     header,
     mockSignatureHost = false,
     allowUnresolvedImports = false,
+    registeredTypes = {},
   }: Options) {
     this.api = api
     this.db = db
     this.mockSignatureHost = mockSignatureHost
     this.allowUnresolvedImports = allowUnresolvedImports
+    this.registeredTypes = registeredTypes
 
     this.#head = new Block(this, header.number, header.hash)
     this.#registerBlock(this.#head)

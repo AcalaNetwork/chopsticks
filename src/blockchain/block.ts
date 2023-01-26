@@ -1,4 +1,4 @@
-import { ChainProperties } from '@polkadot/types/interfaces'
+import { ChainProperties, Header } from '@polkadot/types/interfaces'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { expandMetadata } from '@polkadot/types/metadata'
@@ -12,8 +12,6 @@ import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, S
 import { compactHex } from '../utils'
 import { getRuntimeVersion, runTask, taskHandler } from '../executor'
 import type { RuntimeVersion } from '../executor'
-import { RegistryTypes } from './header'
-import type { Header } from './header'
 
 export type TaskCallResponse = {
   result: HexString
@@ -177,7 +175,7 @@ export class Block {
         this.runtimeVersion,
       ]).then(([data, properties, chain, version]) => {
         const registry = new TypeRegistry(this.hash)
-        registry.setKnownTypes(RegistryTypes)
+        registry.setKnownTypes(this.chain.registeredTypes)
         registry.setChainProperties(registry.createType('ChainProperties', properties) as ChainProperties)
         registry.register(getSpecTypes(registry, chain, version.specName, version.specVersion))
         registry.setHasher(getSpecHasher(registry, chain, version.specName))

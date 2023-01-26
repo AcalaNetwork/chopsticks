@@ -71,6 +71,7 @@ export const setup = async (argv: Config) => {
     },
     mockSignatureHost: argv['mock-signature-host'],
     allowUnresolvedImports: argv['allow-unresolved-imports'],
+    registeredTypes: argv['registered-types'],
   })
 
   if (argv.timestamp) await timeTravel(chain, argv.timestamp)

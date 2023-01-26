@@ -1,7 +1,20 @@
 endpoint: wss://mangata-x.api.onfinality.io/public-ws
-# endpoint: ws://127.0.0.1:9946
 mock-signature-host: true
-db: ./db.sqlite
+db: ./mangata.db.sqlite
+
+registered-types:
+    types:
+      ShufflingSeed:
+        seed: 'H256'
+        proof: 'H512'
+      Header:
+        parentHash: 'Hash'
+        number: 'Compact<BlockNumber>'
+        stateRoot: 'Hash'
+        extrinsicsRoot: 'Hash'
+        digest: 'Digest'
+        seed: 'ShufflingSeed'
+        count: 'BlockNumber'
 
 import-storage:
   Sudo:
@@ -15,3 +28,4 @@ import-storage:
         - free: '1000000000000000000000000' # 1M MG
   Council:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+    
