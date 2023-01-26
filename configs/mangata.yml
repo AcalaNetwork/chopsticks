@@ -28,4 +28,3 @@ import-storage:
         - free: '1000000000000000000000000' # 1M MG
   Council:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
-    
