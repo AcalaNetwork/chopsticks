@@ -1,6 +1,6 @@
+import { BehaviorSubject, firstValueFrom } from 'rxjs'
 import { HexString } from '@polkadot/util/types'
-import { ReplaySubject, firstValueFrom, share } from 'rxjs'
-import { first, skip } from 'rxjs/operators'
+import { skip, take } from 'rxjs/operators'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -37,13 +37,12 @@ export class TxPool {
   readonly #mode: BuildBlockMode
   readonly #inherentProvider: InherentProvider
 
+  #last: BehaviorSubject<Block>
   #lastBuildBlockPromise: Promise<void> = Promise.resolve()
-
-  #last = new ReplaySubject<Block>(1)
-  #upcoming = this.#last.pipe(share())
 
   constructor(chain: Blockchain, inherentProvider: InherentProvider, mode: BuildBlockMode = BuildBlockMode.Batch) {
     this.#chain = chain
+    this.#last = new BehaviorSubject<Block>(chain.head)
     this.#mode = mode
     this.#inherentProvider = inherentProvider
   }
@@ -77,9 +76,9 @@ export class TxPool {
     this.#last.next(this.#chain.head)
   }
 
-  async upcomingBlock(count = 1) {
-    if (count < 1) throw new Error('count needs to be greater than 0')
-    return firstValueFrom(this.#upcoming.pipe(skip(count - 1), first()))
+  async upcomingBlock(skipCount = 0) {
+    if (skipCount < 0) throw new Error('skipCount needs to be greater or equal to 0')
+    return firstValueFrom(this.#last.pipe(skip(1 + skipCount), take(1)))
   }
 
   async #buildBlock(wait: Promise<void>, params?: BuildBlockParams) {

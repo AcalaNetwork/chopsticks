@@ -121,7 +121,8 @@ export const setupApi = (option: SetupOption) => {
   beforeAll(async () => {
     const res = await setupAll(option)
     setup = res.setup
-    return () => res.teardownAll()
+
+    return res.teardownAll
   })
 
   beforeEach(async () => {

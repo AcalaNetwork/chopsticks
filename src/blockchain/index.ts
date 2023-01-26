@@ -161,8 +161,8 @@ export class Blockchain {
     return this.#head
   }
 
-  async upcomingBlock(count = 1) {
-    return this.#txpool.upcomingBlock(count)
+  async upcomingBlock(skipCount = 0) {
+    return this.#txpool.upcomingBlock(skipCount)
   }
 
   async dryRunExtrinsic(
