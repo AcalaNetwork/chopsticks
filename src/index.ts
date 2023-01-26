@@ -14,6 +14,7 @@ import { runBlock } from './run-block'
 import { setup } from './setup'
 import { setupWithServer } from './setup-with-server'
 import { nonce } from './nonce'
+import { balance } from './balance'
 
 const processConfig = (path: string) => {
   const configFile = readFileSync(path, 'utf8')
@@ -134,6 +135,21 @@ yargs(hideBin(process.argv))
       }),
     async (argv) => {
       await nonce(processArgv(argv))
+    }
+  )
+  .command(
+    'balance',
+    'get balance',
+    (yargs) =>
+      yargs.options({
+        ...defaultOptions,
+        'account-id': {
+          desc: 'Account id hex string',
+          string: true,
+        },
+      }),
+    async (argv) => {
+      await balance(processArgv(argv))
     }
   )
   .command(
