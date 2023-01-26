@@ -4,6 +4,7 @@ import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
+import { RegisteredTypes } from '@polkadot/types/types'
 
 import { Api } from '../api'
 import { Block } from './block'
@@ -12,7 +13,6 @@ import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { defaultLogger } from '../logger'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder'
-import { RegisteredTypes } from '@polkadot/types/types'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
