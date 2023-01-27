@@ -6,6 +6,9 @@ import path from 'node:path'
 import { Handlers } from '../shared'
 
 const handlers: Handlers = {
+  system_localPeerId: async () => '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
+  system_nodeRoles: async () => ['Full'],
+  system_localListenAddresses: async () => [],
   system_chain: async (context) => {
     return context.chain.api.getSystemChain()
   },
