@@ -1,10 +1,10 @@
 import { ApplyExtrinsicResult } from '@polkadot/types/interfaces'
 import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
+import { RegisteredTypes } from '@polkadot/types/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
-import { RegisteredTypes } from '@polkadot/types/types'
 
 import { Api } from '../api'
 import { Block } from './block'
