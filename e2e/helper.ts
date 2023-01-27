@@ -76,6 +76,7 @@ export const setupAll = async ({
         },
         mockSignatureHost,
         allowUnresolvedImports,
+        registeredTypes: {},
       })
 
       const { port, close } = await createServer(handler({ chain }))

@@ -1,6 +1,7 @@
 import { ApplyExtrinsicResult } from '@polkadot/types/interfaces'
 import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
+import { RegisteredTypes } from '@polkadot/types/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { u8aConcat, u8aToHex } from '@polkadot/util'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
@@ -23,6 +24,7 @@ export interface Options {
   header: { number: number; hash: HexString }
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
+  registeredTypes: RegisteredTypes
 }
 
 export class Blockchain {
@@ -31,6 +33,7 @@ export class Blockchain {
   readonly db: DataSource | undefined
   readonly mockSignatureHost: boolean
   readonly allowUnresolvedImports: boolean
+  readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
   readonly #inherentProvider: InherentProvider
@@ -50,11 +53,13 @@ export class Blockchain {
     header,
     mockSignatureHost = false,
     allowUnresolvedImports = false,
+    registeredTypes = {},
   }: Options) {
     this.api = api
     this.db = db
     this.mockSignatureHost = mockSignatureHost
     this.allowUnresolvedImports = allowUnresolvedImports
+    this.registeredTypes = registeredTypes
 
     this.#head = new Block(this, header.number, header.hash)
     this.#registerBlock(this.#head)
