@@ -36,6 +36,7 @@ jobs:
     - run: yarn check
     - run: yarn build-wasm
     - run: yarn build
+    - run: node -e "assert(require('./package.json').version === require('./executor/pkg/package.json').version, 'Chopsticks and executor version not the same. Please update Cargo.toml version')"
     # Writes token to .yarnrc.yml. If written directly in .yarnrc.yml, it will cause an error
     - run: |
           echo npmAuthToken: "\${NPM_AUTH_TOKEN}" >> ./.yarnrc.yml
