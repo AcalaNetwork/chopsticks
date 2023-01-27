@@ -149,7 +149,7 @@ export class GenesisProvider implements ProviderInterface {
         return runTask(
           {
             wasm: code,
-            calls: [['Metadata_metadata', '0x']],
+            calls: [['Metadata_metadata', []]],
             storage: [],
             mockSignatureHost: false,
             allowUnresolvedImports: true,

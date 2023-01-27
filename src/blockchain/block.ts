@@ -203,7 +203,7 @@ export class Block {
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.call('Metadata_metadata', '0x').then((resp) => compactHex(hexToU8a(resp.result)))
+      this.#metadata = this.call('Metadata_metadata', []).then((resp) => compactHex(hexToU8a(resp.result)))
     }
     return this.#metadata
   }
@@ -220,7 +220,7 @@ export class Block {
 
   async call(
     method: string,
-    args: HexString,
+    args: HexString[],
     storage: [HexString, HexString | null][] = []
   ): Promise<TaskCallResponse> {
     const wasm = await this.wasm

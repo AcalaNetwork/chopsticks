@@ -60,7 +60,7 @@ impl RuntimeVersion {
 #[serde(rename_all = "camelCase")]
 pub struct TaskCall {
     wasm: HexString,
-    calls: Option<Vec<(String, HexString)>>,
+    calls: Vec<(String, Vec<HexString>)>,
     storage: Vec<(HexString, Option<HexString>)>,
     mock_signature_host: bool,
     allow_unresolved_imports: bool,
@@ -101,11 +101,11 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     .unwrap();
     let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
 
-    for (call, params) in task.calls.as_ref().unwrap() {
+    for (call, params) in task.calls {
         let mut vm = runtime_host::run(runtime_host::Config {
             virtual_machine: vm_proto.clone(),
-            function_to_call: call,
-            parameter: iter::once(params.as_ref()),
+            function_to_call: call.as_str(),
+            parameter: params.into_iter().map(|x| x.0),
             top_trie_root_calculation_cache: None,
             storage_top_trie_changes,
             offchain_storage_changes,

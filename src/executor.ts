@@ -77,7 +77,7 @@ export const createProof = async (
 export const runTask = async (
   task: {
     wasm: HexString
-    calls: [string, HexString][]
+    calls: [string, HexString[]][]
     storage: [HexString, HexString | null][]
     mockSignatureHost: boolean
     allowUnresolvedImports: boolean
@@ -124,7 +124,7 @@ export const emptyTaskHandler = {
 export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: Registry): Promise<number> => {
   const result = await runTask({
     wasm,
-    calls: [['AuraApi_slot_duration', '0x']],
+    calls: [['AuraApi_slot_duration', []]],
     storage: [],
     mockSignatureHost: false,
     allowUnresolvedImports: false,
