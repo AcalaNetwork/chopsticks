@@ -16,13 +16,13 @@ export const runBlock = async (argv: Config) => {
   const parent = await block.parentBlock
   if (!parent) throw Error('cant find parent block')
 
-  const calls: [string, HexString][] = [['Core_initialize_block', header.toHex()]]
+  const calls: [string, HexString[]][] = [['Core_initialize_block', [header.toHex()]]]
 
   for (const extrinsic of await block.extrinsics) {
-    calls.push(['BlockBuilder_apply_extrinsic', extrinsic])
+    calls.push(['BlockBuilder_apply_extrinsic', [extrinsic]])
   }
 
-  calls.push(['BlockBuilder_finalize_block', '0x' as HexString])
+  calls.push(['BlockBuilder_finalize_block', []])
 
   const result = await runTask(
     {

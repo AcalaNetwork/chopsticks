@@ -99,7 +99,7 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
 
   {
     // initialize block
-    const { storageDiff } = await newBlock.call('Core_initialize_block', header.toHex())
+    const { storageDiff } = await newBlock.call('Core_initialize_block', [header.toHex()])
     newBlock.pushStorageLayer().setAll(storageDiff)
     logger.trace(truncate(storageDiff), 'Initialize block')
   }
@@ -107,7 +107,7 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
   // apply inherents
   for (const extrinsic of inherents) {
     try {
-      const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
+      const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
       newBlock.pushStorageLayer().setAll(storageDiff)
       logger.trace(truncate(storageDiff), 'Applied inherent')
     } catch (e) {
@@ -142,7 +142,7 @@ export const buildBlock = async (
   // apply extrinsics
   for (const extrinsic of extrinsics) {
     try {
-      const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
+      const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
       newBlock.pushStorageLayer().setAll(storageDiff)
       logger.trace(truncate(storageDiff), 'Applied extrinsic')
     } catch (e) {
@@ -153,7 +153,7 @@ export const buildBlock = async (
 
   {
     // finalize block
-    const { storageDiff } = await newBlock.call('BlockBuilder_finalize_block', '0x')
+    const { storageDiff } = await newBlock.call('BlockBuilder_finalize_block', [])
 
     newBlock.pushStorageLayer().setAll(storageDiff)
     logger.trace(truncate(storageDiff), 'Finalize block')
@@ -221,14 +221,14 @@ export const dryRunExtrinsic = async (
 
     defaultLogger.info({ call: call.toHuman() }, 'dry_run_call')
 
-    return newBlock.call('BlockBuilder_apply_extrinsic', generic.toHex())
+    return newBlock.call('BlockBuilder_apply_extrinsic', [generic.toHex()])
   }
 
   defaultLogger.info(
     { call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toHuman() },
     'dry_run_extrinsic'
   )
-  return newBlock.call('BlockBuilder_apply_extrinsic', extrinsic)
+  return newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
 }
 
 export const dryRunInherents = async (

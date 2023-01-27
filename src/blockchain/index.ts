@@ -151,7 +151,7 @@ export class Blockchain {
   async submitExtrinsic(extrinsic: HexString): Promise<HexString> {
     const source = '0x02' // External
     const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
-    const res = await this.head.call('TaggedTransactionQueue_validate_transaction', args)
+    const res = await this.head.call('TaggedTransactionQueue_validate_transaction', [args])
     const registry = await this.head.registry
     const validity: TransactionValidity = registry.createType('TransactionValidity', res.result)
     if (validity.isOk) {

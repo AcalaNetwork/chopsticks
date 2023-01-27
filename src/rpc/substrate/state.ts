@@ -1,5 +1,5 @@
 import { Block } from '../../blockchain/block'
-import { Handlers } from '../shared'
+import { Handlers, ResponseError } from '../shared'
 import { defaultLogger } from '../../logger'
 
 const logger = defaultLogger.child({ name: 'rpc-state' })
@@ -37,9 +37,10 @@ const handlers: Handlers = {
   state_call: async (context, [method, data, hash]) => {
     const block = await context.chain.getBlock(hash)
     if (!block) {
-      return []
+      throw new ResponseError(1, `Block ${hash} not found`)
     }
-    return (await block.call(method, data)).result
+    const resp = await block.call(method, [data])
+    return resp.result
   },
   state_subscribeRuntimeVersion: async (context, _params, { subscribe }) => {
     let update = (_block: Block) => {}
