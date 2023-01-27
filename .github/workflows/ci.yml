@@ -39,3 +39,5 @@ jobs:
     - run: yarn lint
     - run: yarn test
     - run: yarn build
+    - name: Test substrate-api-sidecard with chopsticks node
+      run: sh e2e/scripts/sidecard-chopsticks.sh
