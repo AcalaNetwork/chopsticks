@@ -3,6 +3,8 @@ name: Publish
 on:
   push:
     branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   publish:
@@ -36,6 +38,7 @@ jobs:
     - run: yarn check
     - run: yarn build-wasm
     - run: yarn build
+    - run: node -e "assert(require('./package.json').version === require('./executor/pkg/package.json').version, 'chopsticks and executor version not the same')"
     # Writes token to .yarnrc.yml. If written directly in .yarnrc.yml, it will cause an error
     - run: |
           echo npmAuthToken: "\${NPM_AUTH_TOKEN}" >> ./.yarnrc.yml
