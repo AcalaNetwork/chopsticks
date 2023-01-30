@@ -38,11 +38,13 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
 
       if (storageEntry.meta.type.isPlain) {
         const key = new StorageKey(meta.registry, [storageEntry])
-        storageItems.push([key.toHex(), storage ? meta.registry.createType(key.outputType, storage).toHex(true) : null])
+        const type = storageEntry.meta.modifier.isOptional ? `Option<${key.outputType}>` : key.outputType
+        storageItems.push([key.toHex(), storage ? meta.registry.createType(type, storage).toHex() : null])
       } else {
         for (const [keys, value] of storage) {
           const key = new StorageKey(meta.registry, [storageEntry, keys])
-          storageItems.push([key.toHex(), value ? meta.registry.createType(key.outputType, value).toHex(true) : null])
+          const type = storageEntry.meta.modifier.isOptional ? `Option<${key.outputType}>` : key.outputType
+          storageItems.push([key.toHex(), value ? meta.registry.createType(type, value).toHex() : null])
         }
       }
     }

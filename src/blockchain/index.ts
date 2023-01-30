@@ -192,4 +192,10 @@ export class Blockchain {
     const inherents = await this.#inherentProvider.createInherents(head, { horizontalMessages: hrmp })
     return dryRunInherents(head, inherents)
   }
+
+  async getInherents(): Promise<HexString[]> {
+    await this.api.isReady
+    const inherents = await this.#inherentProvider.createInherents(this.head)
+    return inherents
+  }
 }
