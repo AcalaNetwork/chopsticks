@@ -45,7 +45,7 @@ const getNewSlot = (digest: RawBabePreDigest, slotNumber: number) => {
   return digest.toJSON()
 }
 
-const newHeader = async (head: Block) => {
+export const newHeader = async (head: Block) => {
   const meta = await head.meta
   const parentHeader = await head.header
 

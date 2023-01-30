@@ -9,6 +9,7 @@ import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setup, 
 import { configSchema } from './schema'
 import { decodeKey } from './utils/decoder'
 import { dryRun } from './dry-run'
+import { dryRunPreimage } from './dry-run-preimage'
 import { isUrl } from './utils'
 import { runBlock } from './run-block'
 
@@ -88,10 +89,13 @@ yargs(hideBin(process.argv))
         extrinsic: {
           desc: 'Extrinsic or call to dry run. If you pass call here then address is required to fake signature',
           string: true,
-          required: true,
         },
         address: {
           desc: 'Address to fake sign extrinsic',
+          string: true,
+        },
+        preimage: {
+          desc: 'Preimage to dry run',
           string: true,
         },
         at: {
@@ -110,7 +114,12 @@ yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      await dryRun(await processArgv(argv))
+      const config = await processArgv(argv)
+      if (config.preimage) {
+        await dryRunPreimage(config)
+      } else {
+        await dryRun(config)
+      }
     }
   )
   .command(
