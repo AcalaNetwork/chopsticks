@@ -107,5 +107,9 @@ export const decodeStorageDiff = async (block: Block, diff: [HexString, HexStrin
     _.merge(oldState, await decodeKeyValue(block, key, (await block.get(key)) as any))
     _.merge(newState, await decodeKeyValue(block, key, value))
   }
-  return [oldState, newState, diffPatcher.diff(oldState, newState)]
+  const oldStateWithoutEvents = _.cloneDeep(oldState)
+  if (oldStateWithoutEvents['system']?.['events']) {
+    oldStateWithoutEvents['system']['events'] = []
+  }
+  return [oldState, newState, diffPatcher.diff(oldStateWithoutEvents, newState)]
 }

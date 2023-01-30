@@ -234,215 +234,117 @@ exports[`dev rpc > dryRun 1`] = `
       "6",
     ],
     "events": {
-      "0": {
-        "event": {
-          "data": {
-            "amount": [
-              "2,429,299",
-              "1,821,974",
-            ],
-          },
-        },
-      },
-      "1": {
-        "event": {
-          "data": {
-            "amount": [
-              "2,429,299",
-              "1,821,974",
-            ],
-          },
-        },
-      },
-      "2": {
-        "event": {
-          "data": {
-            "amount": [
-              "44,234,035",
-              "33,175,527",
-            ],
-          },
-        },
-      },
-      "3": {
-        "event": {
-          "data": {
-            "amount": [
-              "365,959,263",
-              "274,469,453",
-            ],
-          },
-        },
-      },
-      "4": {
-        "event": {
-          "data": {
-            "amount": [
-              "1,000,000,000,000",
-              0,
-              0,
-            ],
-            "currencyId": [
-              {
-                "Token": "TAI",
-              },
-              0,
-              0,
-            ],
-            "dispatchInfo": [
-              {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "158,080,000",
-              },
-            ],
-            "from": [
-              "5EYCAe5fiQJsoMt16QywpBQwyn5cgfkXFFJApwwKPXFoF2h7",
-              0,
-              0,
-            ],
-            "to": [
-              "5EYCAe5fiQJsnzYGdTNgiw719xk2hhoFczYFMNqwMx6JDf7h",
-              0,
-              0,
-            ],
-          },
-          "index": [
-            "0x0b02",
-            "0x0000",
-          ],
-          "method": [
-            "Transfer",
-            "ExtrinsicSuccess",
-          ],
-          "section": [
-            "tokens",
-            "system",
-          ],
-        },
-        "phase": [
-          "Initialization",
-          {
-            "ApplyExtrinsic": "0",
-          },
-        ],
-      },
-      "5": {
-        "event": {
-          "data": {
-            "amount": [
-              "1,000,000,000,000",
-              0,
-              0,
-            ],
-            "currencyId": [
-              {
-                "Token": "TAI",
-              },
-              0,
-              0,
-            ],
-            "dispatchInfo": [
-              {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "0",
-              },
-            ],
-            "from": [
-              "5EYCAe5fiQJsoMt16QywpBQwyn5cgfkXFFJApwwKPXFoF2h7",
-              0,
-              0,
-            ],
-            "to": [
-              "5EYCAe5fiQJsnzYGdTNgiw719xk2hhoFczYFMNqwMx6JDf7h",
-              0,
-              0,
-            ],
-          },
-          "index": [
-            "0x0c00",
-            "0x0000",
-          ],
-          "method": [
-            "Transferred",
-            "ExtrinsicSuccess",
-          ],
-          "section": [
-            "currencies",
-            "system",
-          ],
-        },
-        "phase": [
-          "Initialization",
-          {
-            "ApplyExtrinsic": "1",
-          },
-        ],
-      },
-      "_6": [
+      "0": [
         {
           "event": {
             "data": {
-              "dispatchInfo": {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "158,080,000",
-              },
-            },
-            "index": "0x0000",
-            "method": "ExtrinsicSuccess",
-            "section": "system",
-          },
-          "phase": {
-            "ApplyExtrinsic": "0",
-          },
-          "topics": [],
-        },
-        0,
-        0,
-      ],
-      "_7": [
-        {
-          "event": {
-            "data": {
-              "dispatchInfo": {
-                "class": "Mandatory",
-                "paysFee": "Yes",
-                "weight": "0",
-              },
-            },
-            "index": "0x0000",
-            "method": "ExtrinsicSuccess",
-            "section": "system",
-          },
-          "phase": {
-            "ApplyExtrinsic": "1",
-          },
-          "topics": [],
-        },
-        0,
-        0,
-      ],
-      "_8": [
-        {
-          "event": {
-            "data": {
-              "amount": "412,622,597",
+              "amount": "1,821,974",
               "currencyId": {
                 "Token": "AUSD",
               },
               "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
             },
-            "index": "0x0b08",
-            "method": "Withdrawn",
+            "index": "0x0b0a",
+            "method": "Deposited",
             "section": "tokens",
           },
-          "phase": "Finalization",
+          "phase": "Initialization",
           "topics": [],
         },
-        0,
-        0,
+      ],
+      "1": [
+        {
+          "event": {
+            "data": {
+              "amount": "1,821,974",
+              "currencyId": {
+                "Token": "AUSD",
+              },
+              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+            },
+            "index": "0x0b00",
+            "method": "Endowed",
+            "section": "tokens",
+          },
+          "phase": "Initialization",
+          "topics": [],
+        },
+      ],
+      "2": [
+        {
+          "event": {
+            "data": {
+              "amount": "33,175,527",
+              "currencyId": {
+                "Token": "AUSD",
+              },
+              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+            },
+            "index": "0x0b0a",
+            "method": "Deposited",
+            "section": "tokens",
+          },
+          "phase": "Initialization",
+          "topics": [],
+        },
+      ],
+      "3": [
+        {
+          "event": {
+            "data": {
+              "amount": "274,469,453",
+              "currencyId": {
+                "Token": "AUSD",
+              },
+              "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
+            },
+            "index": "0x0b0a",
+            "method": "Deposited",
+            "section": "tokens",
+          },
+          "phase": "Initialization",
+          "topics": [],
+        },
+      ],
+      "4": [
+        {
+          "event": {
+            "data": {
+              "dispatchInfo": {
+                "class": "Mandatory",
+                "paysFee": "Yes",
+                "weight": "158,080,000",
+              },
+            },
+            "index": "0x0000",
+            "method": "ExtrinsicSuccess",
+            "section": "system",
+          },
+          "phase": {
+            "ApplyExtrinsic": "0",
+          },
+          "topics": [],
+        },
+      ],
+      "5": [
+        {
+          "event": {
+            "data": {
+              "dispatchInfo": {
+                "class": "Mandatory",
+                "paysFee": "Yes",
+                "weight": "0",
+              },
+            },
+            "index": "0x0000",
+            "method": "ExtrinsicSuccess",
+            "section": "system",
+          },
+          "phase": {
+            "ApplyExtrinsic": "1",
+          },
+          "topics": [],
+        },
       ],
       "_t": "a",
     },
