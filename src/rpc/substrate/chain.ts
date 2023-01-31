@@ -49,7 +49,7 @@ const handlers: Handlers = {
     let update = () => {}
 
     const id = context.chain.headState.subscribeHead(() => update())
-    const callback = subscribe('chain_newFinalizedHead', id, () => context.chain.headState.unsubscribeHead(id))
+    const callback = subscribe('chain_finalizedHead', id, () => context.chain.headState.unsubscribeHead(id))
 
     update = async () => {
       callback(await context.chain.head.header)
@@ -67,6 +67,7 @@ const handlers: Handlers = {
 const alias = {
   chain_subscribeNewHeads: handlers.chain_subscribeNewHead,
   chain_unsubscribeNewHeads: handlers.chain_unsubscribeNewHead,
+  chain_unsubscribeFinalizedHeads: handlers.chain_unsubscribeNewHead,
 }
 
 export default {
