@@ -1,5 +1,11 @@
 import { Handlers, ResponseError } from '../shared'
 
+const processHeader = (header: any) => {
+  const res = header.toJSON() as any
+  res.number = '0x' + res.number.toString(16) // number is hex format
+  return res
+}
+
 const handlers: Handlers = {
   chain_getBlockHash: async (context, [blockNumber]) => {
     const block = await context.chain.getBlockAt(blockNumber)
@@ -13,7 +19,7 @@ const handlers: Handlers = {
     if (!block) {
       throw new ResponseError(1, `Block ${hash} not found`)
     }
-    return await block.header
+    return processHeader(await block.header)
   },
   chain_getBlock: async (context, [hash]) => {
     const block = await context.chain.getBlock(hash)
@@ -38,7 +44,7 @@ const handlers: Handlers = {
     const callback = subscribe('chain_newHead', id, () => context.chain.headState.unsubscribeHead(id))
 
     update = async () => {
-      callback(await context.chain.head.header)
+      callback(processHeader(await context.chain.head.header))
     }
 
     update()
@@ -52,7 +58,7 @@ const handlers: Handlers = {
     const callback = subscribe('chain_finalizedHead', id, () => context.chain.headState.unsubscribeHead(id))
 
     update = async () => {
-      callback(await context.chain.head.header)
+      callback(processHeader(await context.chain.head.header))
     }
 
     update()
