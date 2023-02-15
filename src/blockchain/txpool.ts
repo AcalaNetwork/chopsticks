@@ -1,4 +1,5 @@
 import { BehaviorSubject, firstValueFrom } from 'rxjs'
+import { EventEmitter } from 'node:stream'
 import { HexString } from '@polkadot/util/types'
 import { skip, take } from 'rxjs/operators'
 import _ from 'lodash'
@@ -7,6 +8,8 @@ import { Block } from './block'
 import { Blockchain } from '.'
 import { InherentProvider } from './inherent'
 import { buildBlock } from './block-builder'
+
+export const APPLY_EXTRINSIC_ERROR = 'TxPool::ApplyExtrinsicError'
 
 export enum BuildBlockMode {
   Batch, // one block per batch, default
@@ -36,6 +39,8 @@ export class TxPool {
   readonly #pool: HexString[] = []
   readonly #mode: BuildBlockMode
   readonly #inherentProvider: InherentProvider
+
+  readonly event = new EventEmitter()
 
   #last: BehaviorSubject<Block>
   #lastBuildBlockPromise: Promise<void> = Promise.resolve()
@@ -87,7 +92,9 @@ export class TxPool {
     const head = this.#chain.head
     const extrinsics = this.#pool.splice(0)
     const inherents = await this.#inherentProvider.createInherents(head, params?.inherent)
-    const [newBlock, pendingExtrinsics] = await buildBlock(head, inherents, extrinsics)
+    const [newBlock, pendingExtrinsics] = await buildBlock(head, inherents, extrinsics, (extrinsic, error) => {
+      this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
+    })
     this.#pool.push(...pendingExtrinsics)
     await this.#chain.setHead(newBlock)
   }

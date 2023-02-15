@@ -167,7 +167,7 @@ export const dev = {
   },
 }
 
-function defer<T>() {
+export function defer<T>() {
   const deferred = {} as { resolve: (value: any) => void; reject: (reason: any) => void; promise: Promise<T> }
   deferred.promise = new Promise((resolve, reject) => {
     deferred.resolve = resolve

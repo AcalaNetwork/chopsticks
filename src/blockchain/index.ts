@@ -79,8 +79,8 @@ export class Blockchain {
     return this.#head
   }
 
-  get pendingExtrinsics(): HexString[] {
-    return this.#txpool.pendingExtrinsics
+  get txPool() {
+    return this.#txpool
   }
 
   async getBlockAt(number?: number): Promise<Block | undefined> {
@@ -158,7 +158,7 @@ export class Blockchain {
       this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)
     }
-    throw new Error(`Extrinsic is invalid: ${validity.asErr.toString()}`)
+    throw validity.asErr
   }
 
   async newBlock(params?: BuildBlockParams): Promise<Block> {

@@ -1,8 +1,16 @@
-import { AccountInfo, Call, Header, RawBabePreDigest } from '@polkadot/types/interfaces'
+import {
+  AccountInfo,
+  ApplyExtrinsicResult,
+  Call,
+  Header,
+  RawBabePreDigest,
+  TransactionValidityError,
+} from '@polkadot/types/interfaces'
 import { Block, TaskCallResponse } from './block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageValueKind } from './storage-layer'
+import { blake2AsHex } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate } from '../logger'
@@ -122,7 +130,8 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
 export const buildBlock = async (
   head: Block,
   inherents: HexString[],
-  extrinsics: HexString[]
+  extrinsics: HexString[],
+  onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
   const header = await newHeader(head)
@@ -134,17 +143,28 @@ export const buildBlock = async (
       extrinsicsCount: extrinsics.length,
       tempHash: newBlock.hash,
     },
-    `Building block #${newBlock.number.toLocaleString()}`
+    `Try building block #${newBlock.number.toLocaleString()}`
   )
 
   const pendingExtrinsics: HexString[] = []
+  const includedExtrinsic: HexString[] = []
 
   // apply extrinsics
   for (const extrinsic of extrinsics) {
     try {
-      const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
+      const { result, storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
+      const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
+      if (outcome.isErr) {
+        if (outcome.asErr.isInvalid && outcome.asErr.asInvalid.isFuture) {
+          pendingExtrinsics.push(extrinsic)
+        } else {
+          onApplyExtrinsicError(extrinsic, outcome.asErr)
+        }
+        continue
+      }
       newBlock.pushStorageLayer().setAll(storageDiff)
       logger.trace(truncate(storageDiff), 'Applied extrinsic')
+      includedExtrinsic.push(extrinsic)
     } catch (e) {
       logger.info('Failed to apply extrinsic %o %s', e, e)
       pendingExtrinsics.push(extrinsic)
@@ -161,7 +181,7 @@ export const buildBlock = async (
 
   const blockData = registry.createType('Block', {
     header,
-    extrinsics,
+    extrinsics: includedExtrinsic,
   })
 
   const storageDiff = await newBlock.storageDiff()
@@ -171,13 +191,18 @@ export const buildBlock = async (
   )
   const finalBlock = new Block(head.chain, newBlock.number, blockData.hash.toHex(), head, {
     header,
-    extrinsics: [...inherents, ...extrinsics],
+    extrinsics: [...inherents, ...includedExtrinsic],
     storage: head.storage,
     storageDiff,
   })
 
   logger.info(
-    { hash: finalBlock.hash, number: newBlock.number },
+    {
+      hash: finalBlock.hash,
+      extrinsics: includedExtrinsic.map((x) => blake2AsHex(x, 256)),
+      pendingExtrinsics: pendingExtrinsics.length,
+      number: newBlock.number,
+    },
     `Block built #${newBlock.number.toLocaleString()} hash ${finalBlock.hash}`
   )
 
