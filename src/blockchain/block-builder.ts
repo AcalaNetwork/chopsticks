@@ -10,6 +10,7 @@ import { Block, TaskCallResponse } from './block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageValueKind } from './storage-layer'
+import { blake2AsHex } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate } from '../logger'
@@ -142,7 +143,7 @@ export const buildBlock = async (
       extrinsicsCount: extrinsics.length,
       tempHash: newBlock.hash,
     },
-    `Building block #${newBlock.number.toLocaleString()}`
+    `Try building block #${newBlock.number.toLocaleString()}`
   )
 
   const pendingExtrinsics: HexString[] = []
@@ -196,7 +197,12 @@ export const buildBlock = async (
   })
 
   logger.info(
-    { hash: finalBlock.hash, number: newBlock.number },
+    {
+      hash: finalBlock.hash,
+      extrinsics: includedExtrinsic.map((x) => blake2AsHex(x, 256)),
+      pendingExtrinsics: pendingExtrinsics.length,
+      number: newBlock.number,
+    },
     `Block built #${newBlock.number.toLocaleString()} hash ${finalBlock.hash}`
   )
 
