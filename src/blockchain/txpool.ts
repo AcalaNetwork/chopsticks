@@ -1,5 +1,6 @@
-import { BehaviorSubject, firstValueFrom } from 'rxjs'
+import { BehaviorSubject, ReplaySubject, firstValueFrom } from 'rxjs'
 import { HexString } from '@polkadot/util/types'
+import { TransactionValidityError } from '@polkadot/types/interfaces'
 import { skip, take } from 'rxjs/operators'
 import _ from 'lodash'
 
@@ -36,6 +37,8 @@ export class TxPool {
   readonly #pool: HexString[] = []
   readonly #mode: BuildBlockMode
   readonly #inherentProvider: InherentProvider
+
+  readonly applyExtrinsicError = new ReplaySubject<[HexString, TransactionValidityError]>(1)
 
   #last: BehaviorSubject<Block>
   #lastBuildBlockPromise: Promise<void> = Promise.resolve()
@@ -87,7 +90,9 @@ export class TxPool {
     const head = this.#chain.head
     const extrinsics = this.#pool.splice(0)
     const inherents = await this.#inherentProvider.createInherents(head, params?.inherent)
-    const [newBlock, pendingExtrinsics] = await buildBlock(head, inherents, extrinsics)
+    const [newBlock, pendingExtrinsics] = await buildBlock(head, inherents, extrinsics, (extrinsic, error) => {
+      this.applyExtrinsicError.next([extrinsic, error])
+    })
     this.#pool.push(...pendingExtrinsics)
     await this.#chain.setHead(newBlock)
   }

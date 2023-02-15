@@ -1,3 +1,5 @@
+import { filter } from 'rxjs/operators'
+
 import { Block } from '../../blockchain/block'
 import { Handlers, ResponseError } from '../../rpc/shared'
 import { defaultLogger } from '../../logger'
@@ -16,7 +18,20 @@ const handlers: Handlers = {
     const id = context.chain.headState.subscribeHead((block) => update(block))
     const callback = subscribe('author_extrinsicUpdate', id, () => context.chain.headState.unsubscribeHead(id))
 
+    const errorSub = context.chain.applyExtrinsicError.pipe(filter((x) => x === extrinsic)).subscribe(([_, error]) => {
+      callback(null, new ResponseError(1, error.toString()))
+      done(id)
+    })
+
+    const done = (id: string) => {
+      errorSub.unsubscribe()
+      unsubscribe(id)
+    }
+
     update = async (block) => {
+      const extrisnics = await block.extrinsics
+      if (!extrisnics.includes(extrinsic)) return
+
       logger.debug({ block: block.hash }, 'author_extrinsicUpdate')
       // for now just assume tx is always included on next block
       callback({
@@ -25,7 +40,7 @@ const handlers: Handlers = {
       callback({
         Finalized: block.hash,
       })
-      unsubscribe(id)
+      done(id)
     }
 
     context.chain
@@ -35,10 +50,10 @@ const handlers: Handlers = {
           Ready: null,
         })
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         logger.error({ error }, 'ExtrinsicFailed')
-        callback({ Invalid: null })
-        unsubscribe(id)
+        callback(null, new ResponseError(1, error.message))
+        done(id)
       })
     return id
   },

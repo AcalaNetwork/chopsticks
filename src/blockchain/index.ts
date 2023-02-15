@@ -83,6 +83,10 @@ export class Blockchain {
     return this.#txpool.pendingExtrinsics
   }
 
+  get applyExtrinsicError() {
+    return this.#txpool.applyExtrinsicError
+  }
+
   async getBlockAt(number?: number): Promise<Block | undefined> {
     if (number === undefined) {
       return this.head

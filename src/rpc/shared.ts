@@ -25,7 +25,7 @@ export interface Context {
 }
 
 export interface SubscriptionManager {
-  subscribe: (method: string, subid: string, onCancel?: () => void) => (data: any) => void
+  subscribe: (method: string, subid: string, onCancel?: () => void) => (data?: any, error?: ResponseError) => void
   unsubscribe: (subid: string) => void
 }
 

@@ -1,6 +1,6 @@
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { SubscriptionManager } from './rpc/shared'
+import { ResponseError, SubscriptionManager } from './rpc/shared'
 import { defaultLogger, truncate } from './logger'
 
 const logger = defaultLogger.child({ name: 'ws' })
@@ -65,17 +65,29 @@ export const createServer = async (handler: Handler, port?: number) => {
     const subscriptionManager = {
       subscribe: (method: string, subid: string, onCancel: () => void = () => {}) => {
         subscriptions[subid] = onCancel
-        return (data: object) => {
+        return (data?: object, error?: ResponseError) => {
           if (subscriptions[subid]) {
-            logger.trace({ method, subid, data: truncate(data) }, 'Subscription notification')
-            send({
-              jsonrpc: '2.0',
-              method,
-              params: {
-                result: data,
-                subscription: subid,
-              },
-            })
+            if (error) {
+              logger.trace({ method, subid, error }, 'Subscription notification error')
+              send({
+                jsonrpc: '2.0',
+                method,
+                error,
+                params: {
+                  subscription: subid,
+                },
+              })
+            } else {
+              logger.trace({ method, subid, data: truncate(data) }, 'Subscription notification')
+              send({
+                jsonrpc: '2.0',
+                method,
+                params: {
+                  result: data,
+                  subscription: subid,
+                },
+              })
+            }
           }
         }
       },
