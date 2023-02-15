@@ -79,12 +79,8 @@ export class Blockchain {
     return this.#head
   }
 
-  get pendingExtrinsics(): HexString[] {
-    return this.#txpool.pendingExtrinsics
-  }
-
-  get applyExtrinsicError() {
-    return this.#txpool.applyExtrinsicError
+  get txPool() {
+    return this.#txpool
   }
 
   async getBlockAt(number?: number): Promise<Block | undefined> {

@@ -1,5 +1,4 @@
-import { filter } from 'rxjs/operators'
-
+import { APPLY_EXTRINSIC_ERROR } from '../../blockchain/txpool'
 import { Block } from '../../blockchain/block'
 import { Handlers, ResponseError } from '../../rpc/shared'
 import { defaultLogger } from '../../logger'
@@ -18,13 +17,17 @@ const handlers: Handlers = {
     const id = context.chain.headState.subscribeHead((block) => update(block))
     const callback = subscribe('author_extrinsicUpdate', id, () => context.chain.headState.unsubscribeHead(id))
 
-    const errorSub = context.chain.applyExtrinsicError.pipe(filter((x) => x === extrinsic)).subscribe(([_, error]) => {
-      callback(null, new ResponseError(1, error.toString()))
-      done(id)
-    })
+    const onExtrinsicFail = ([failedExtrinsic, error]) => {
+      if (failedExtrinsic === extrinsic) {
+        callback(null, new ResponseError(1, error.message))
+        done(id)
+      }
+    }
+
+    context.chain.txPool.event.on(APPLY_EXTRINSIC_ERROR, onExtrinsicFail)
 
     const done = (id: string) => {
-      errorSub.unsubscribe()
+      context.chain.txPool.event.removeListener(APPLY_EXTRINSIC_ERROR, onExtrinsicFail)
       unsubscribe(id)
     }
 
@@ -61,7 +64,7 @@ const handlers: Handlers = {
     unsubscribe(subid)
   },
   author_pendingExtrinsics: async (context) => {
-    return context.chain.pendingExtrinsics
+    return context.chain.txPool.pendingExtrinsics
   },
 }
 
