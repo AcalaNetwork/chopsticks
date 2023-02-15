@@ -1,6 +1,7 @@
 import { APPLY_EXTRINSIC_ERROR } from '../../blockchain/txpool'
 import { Block } from '../../blockchain/block'
 import { Handlers, ResponseError } from '../../rpc/shared'
+import { TransactionValidityError } from '@polkadot/types/interfaces'
 import { defaultLogger } from '../../logger'
 
 const logger = defaultLogger.child({ name: 'rpc-author' })
@@ -17,9 +18,9 @@ const handlers: Handlers = {
     const id = context.chain.headState.subscribeHead((block) => update(block))
     const callback = subscribe('author_extrinsicUpdate', id, () => context.chain.headState.unsubscribeHead(id))
 
-    const onExtrinsicFail = ([failedExtrinsic, error]) => {
+    const onExtrinsicFail = ([failedExtrinsic, error]: [string, TransactionValidityError]) => {
       if (failedExtrinsic === extrinsic) {
-        callback(null, new ResponseError(1, error.message))
+        callback(error.toJSON())
         done(id)
       }
     }
@@ -53,9 +54,9 @@ const handlers: Handlers = {
           Ready: null,
         })
       })
-      .catch((error: Error) => {
+      .catch((error: TransactionValidityError) => {
         logger.error({ error }, 'ExtrinsicFailed')
-        callback(null, new ResponseError(1, error.message))
+        callback(error.toJSON())
         done(id)
       })
     return id

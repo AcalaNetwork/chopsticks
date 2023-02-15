@@ -1,4 +1,11 @@
-import { AccountInfo, ApplyExtrinsicResult, Call, Header, RawBabePreDigest } from '@polkadot/types/interfaces'
+import {
+  AccountInfo,
+  ApplyExtrinsicResult,
+  Call,
+  Header,
+  RawBabePreDigest,
+  TransactionValidityError,
+} from '@polkadot/types/interfaces'
 import { Block, TaskCallResponse } from './block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
@@ -123,7 +130,7 @@ export const buildBlock = async (
   head: Block,
   inherents: HexString[],
   extrinsics: HexString[],
-  onApplyExtrinsicError: (extrinsic: HexString, error: Error) => void
+  onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
   const header = await newHeader(head)
@@ -150,7 +157,7 @@ export const buildBlock = async (
         if (outcome.asErr.isInvalid && outcome.asErr.asInvalid.isFuture) {
           pendingExtrinsics.push(extrinsic)
         } else {
-          onApplyExtrinsicError(extrinsic, new Error(outcome.asErr.toString()))
+          onApplyExtrinsicError(extrinsic, outcome.asErr)
         }
         continue
       }
