@@ -8,8 +8,9 @@ const logger = defaultLogger.child({ name: 'rpc-author' })
 
 const handlers: Handlers = {
   author_submitExtrinsic: async (context, [extrinsic]) => {
-    return context.chain.submitExtrinsic(extrinsic).catch((error) => {
-      throw new ResponseError(1, error.toString())
+    return context.chain.submitExtrinsic(extrinsic).catch((error: TransactionValidityError) => {
+      const code = error.isInvalid ? 1010 : 1011
+      throw new ResponseError(code, error.toString())
     })
   },
   author_submitAndWatchExtrinsic: async (context, [extrinsic], { subscribe, unsubscribe }) => {

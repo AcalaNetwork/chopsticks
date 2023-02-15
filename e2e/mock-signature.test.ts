@@ -30,7 +30,7 @@ describe('mock signature', () => {
       blockHash: api.genesisHash,
     })
 
-    await expect(tx.send()).rejects.toThrow('Extrinsic is invalid')
+    await expect(tx.send()).rejects.toThrow('1010: {"invalid":{"badProof":null}}')
   })
 
   it('accept mock signature', async () => {

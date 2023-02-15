@@ -66,7 +66,7 @@ describe('author rpc', () => {
       blockHash: api.genesisHash,
     })
 
-    await expect(tx.send()).rejects.toThrow('{"invalid":{"badProof":null}}')
+    await expect(tx.send()).rejects.toThrow('1010: {"invalid":{"badProof":null}}')
   })
 
   it('failed apply extirinsic', async () => {
