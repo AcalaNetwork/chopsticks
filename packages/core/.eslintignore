@@ -1,8 +1,6 @@
 vitest.config.ts
 .eslintrc.js
 node_modules/
-executor/
-vendor/
 dist/
 preview/
 chopsticks.js
