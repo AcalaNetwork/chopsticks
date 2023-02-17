@@ -3,7 +3,7 @@ import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { hexToU8a, u8aConcat } from '@polkadot/util'
 
-import { Block } from '../../../blockchain/block'
+import { Block } from '../../block'
 import { BuildBlockParams } from '../../txpool'
 import { CreateInherents } from '..'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'

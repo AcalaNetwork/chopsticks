@@ -1,4 +1,0 @@
-{
-	"extends": "./tsconfig.json",
-	"exclude": ["node_modules", "vendor", "executor", "e2e", "vitest.config.ts"]
-}

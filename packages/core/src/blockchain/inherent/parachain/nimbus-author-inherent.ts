@@ -1,17 +1,17 @@
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 
-import { Block } from '../../../blockchain/block'
+import { Block } from '../../block'
 import { BuildBlockParams } from '../../txpool'
 import { CreateInherents } from '..'
 
-// Support for Moonbeam pallet-randomness mandatory inherent
-export class SetBabeRandomness implements CreateInherents {
+// Support for Nimbus Author Inherent
+export class SetNimbusAuthorInherent implements CreateInherents {
   async createInherents(parent: Block, _params?: BuildBlockParams['inherent']): Promise<HexString[]> {
     const meta = await parent.meta
-    if (!meta.tx.randomness?.setBabeRandomnessResults) {
+    if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
       return []
     }
-    return [new GenericExtrinsic(meta.registry, meta.tx.randomness.setBabeRandomnessResults()).toHex()]
+    return [new GenericExtrinsic(meta.registry, meta.tx.authorInherent.kickOffAuthorshipValidation()).toHex()]
   }
 }
