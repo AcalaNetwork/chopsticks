@@ -11,7 +11,7 @@
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"start": "ts-node --transpile-only src/cli.ts",
 		"build": "rm -rf dist && tsc -p ./tsconfig.build.json",
-		"test": "vitest",
+		"test": "vitest --silent",
 		"test:dev": "LOG_LEVEL=trace vitest --inspect",
 		"dev": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/dev.yml",
 		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/karura.yml",
@@ -57,8 +57,7 @@
 		"prettier": "^2.8.3",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
-		"vitest": "^0.28.3",
-		"wasm-pack": "^0.10.3"
+		"vitest": "^0.28.3"
 	},
 	"files": [
 		"dist",
