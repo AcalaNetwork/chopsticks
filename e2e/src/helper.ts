@@ -4,10 +4,10 @@ import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
-import { Api } from '@acala-network/chopsticks-core/lib/api'
-import { Blockchain } from '@acala-network/chopsticks-core/lib/blockchain'
-import { BuildBlockMode } from '@acala-network/chopsticks-core/lib/blockchain/txpool'
-import { GenesisProvider } from '@acala-network/chopsticks-core/lib/genesis-provider'
+import { Api } from '@acala-network/chopsticks/lib/api'
+import { Blockchain } from '@acala-network/chopsticks/lib/blockchain'
+import { BuildBlockMode } from '@acala-network/chopsticks/lib/blockchain/txpool'
+import { GenesisProvider } from '@acala-network/chopsticks/lib/genesis-provider'
 import {
   InherentProviders,
   ParaInherentEnter,
@@ -15,10 +15,10 @@ import {
   SetNimbusAuthorInherent,
   SetTimestamp,
   SetValidationData,
-} from '@acala-network/chopsticks-core/lib/blockchain/inherent'
-import { StorageValues } from '@acala-network/chopsticks-core/lib/utils/set-storage'
-import { createServer } from '@acala-network/chopsticks-core/lib/server'
-import { handler } from '@acala-network/chopsticks-core/lib/rpc'
+} from '@acala-network/chopsticks/lib/blockchain/inherent'
+import { StorageValues } from '@acala-network/chopsticks/lib/utils/set-storage'
+import { createServer } from '@acala-network/chopsticks/lib/server'
+import { handler } from '@acala-network/chopsticks/lib/rpc'
 
 export type SetupOption = {
   endpoint?: string

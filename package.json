@@ -1,5 +1,4 @@
 {
-	"name": "@acala-network/chopsticks",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"packageManager": "yarn@3.2.4",
@@ -18,12 +17,12 @@
 		"build-wasm-logging": "yarn build-wasm --features=logging",
 		"check": "cd executor && cargo check --locked",
 		"test": "CI=true && yarn workspaces foreach run test",
-		"start": "yarn workspace @acala-network/chopsticks-core run start",
-		"dev": "yarn workspace @acala-network/chopsticks-core run dev",
-		"dev:karura": "yarn workspace @acala-network/chopsticks-core run dev:karura",
-		"dev:acala": "yarn workspace @acala-network/chopsticks-core run dev:acala",
-		"dev:moonriver": "yarn workspace @acala-network/chopsticks-core run dev:moonriver",
-		"dev:moonbeam": "yarn workspace @acala-network/chopsticks-core run dev:moonbeam"
+		"start": "yarn workspace @acala-network/chopsticks run start",
+		"dev": "yarn workspace @acala-network/chopsticks run dev",
+		"dev:karura": "yarn workspace @acala-network/chopsticks run dev:karura",
+		"dev:acala": "yarn workspace @acala-network/chopsticks run dev:acala",
+		"dev:moonriver": "yarn workspace @acala-network/chopsticks run dev:moonriver",
+		"dev:moonbeam": "yarn workspace @acala-network/chopsticks run dev:moonbeam"
 	},
 	"engines": {
 		"node": ">=v14"

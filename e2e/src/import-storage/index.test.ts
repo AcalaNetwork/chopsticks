@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import path from 'path'
 
 import { api, chain, setupApi } from '../helper'
-import { importStorage, overrideWasm } from '@acala-network/chopsticks-core/lib/utils/import-storage'
+import { importStorage, overrideWasm } from '@acala-network/chopsticks/lib/utils/import-storage'
 
 setupApi({
   endpoint: 'wss://acala-rpc-1.aca-api.network',

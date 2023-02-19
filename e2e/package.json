@@ -9,7 +9,7 @@
 		"node": ">=v14"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks-core": "workspace:*",
+		"@acala-network/chopsticks": "workspace:*",
 		"vitest": "^0.28.3",
 		"@polkadot/api": "^9.12.1"
 	},
