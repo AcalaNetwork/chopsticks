@@ -14,6 +14,7 @@
 		"prepare": "husky install",
 		"start": "ts-node --transpile-only src/cli.ts",
 		"build": "yarn workspaces foreach run build",
+		"build:watch": "yarn workspaces foreach run build:watch",
 		"build-wasm": "wasm-pack build executor --target nodejs --scope acala-network",
 		"build-wasm-logging": "yarn build-wasm --features=logging",
 		"check": "cd executor && cargo check --locked",
