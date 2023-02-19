@@ -125,3 +125,5 @@ dist
 .DS_store
 
 preview/
+
+lib

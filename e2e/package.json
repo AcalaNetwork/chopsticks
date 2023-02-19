@@ -1,0 +1,25 @@
+{
+	"name": "@acala-network/chopsticks-e2etest",
+	"author": "Bryan Chen <xlchen1291@gmail.com>",
+	"license": "Apache-2.0",
+	"scripts": {
+		"test": "vitest --silent"
+	},
+	"engines": {
+		"node": ">=v14"
+	},
+	"dependencies": {
+		"@acala-network/chopsticks-core": "workspace:*",
+		"vitest": "^0.28.3",
+		"@polkadot/api": "^9.12.1"
+	},
+	"prettier": {
+		"tabWidth": 2,
+		"semi": false,
+		"singleQuote": true
+	},
+	"lint-staged": {
+		"*.{js,ts}": "eslint --cache --fix",
+		"*.{js,ts,css,md}": "prettier --write"
+	}
+}

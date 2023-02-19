@@ -1,8 +1,8 @@
 {
 	"name": "@acala-network/chopsticks-core",
 	"version": "0.3.12",
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
+	"main": "./lib/index.js",
+	"types": "./lib/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
@@ -11,6 +11,7 @@
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"start": "ts-node --transpile-only src/cli.ts",
 		"build": "rm -rf dist && tsc -p ./tsconfig.build.json",
+		"build:watch": "rm -rf dist && tsc -p ./tsconfig.build.json -w",
 		"test": "vitest --silent",
 		"test:dev": "LOG_LEVEL=trace vitest --inspect",
 		"dev": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/dev.yml",

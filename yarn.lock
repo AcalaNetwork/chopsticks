@@ -5,7 +5,7 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@acala-network/chopsticks-core@workspace:packages/core":
+"@acala-network/chopsticks-core@workspace:*, @acala-network/chopsticks-core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-core@workspace:packages/core"
   dependencies:
@@ -47,6 +47,15 @@ __metadata:
     zod: ^3.20.2
   bin:
     chopsticks-core: ./chopsticks.js
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks-e2etest@workspace:e2e":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks-e2etest@workspace:e2e"
+  dependencies:
+    "@acala-network/chopsticks-core": "workspace:*"
+    vitest: ^0.28.3
   languageName: unknown
   linkType: soft
 

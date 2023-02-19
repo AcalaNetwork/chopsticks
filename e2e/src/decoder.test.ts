@@ -1,5 +1,5 @@
 import { chain, setupAll, setupApi } from './helper'
-import { decodeKey, decodeKeyValue } from '../src/utils/decoder'
+import { decodeKey, decodeKeyValue } from '@acala-network/chopsticks-core/lib/utils/decoder'
 import { describe, expect, it } from 'vitest'
 
 setupApi({
