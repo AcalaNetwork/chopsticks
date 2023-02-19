@@ -9,11 +9,11 @@
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
-		"start": "ts-node --transpile-only src/cli.ts",
 		"build": "rm -rf dist && tsc -p ./tsconfig.build.json",
 		"build:watch": "rm -rf dist && tsc -p ./tsconfig.build.json -w",
 		"test": "vitest --silent",
 		"test:dev": "LOG_LEVEL=trace vitest --inspect",
+		"start": "ts-node --transpile-only src/cli.ts",
 		"dev": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/dev.yml",
 		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/karura.yml",
 		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/acala.yml",
@@ -55,13 +55,12 @@
 		"eslint-config-prettier": "^8.6.0",
 		"eslint-plugin-import": "^2.27.5",
 		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
-		"prettier": "^2.8.3",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
 		"vitest": "^0.28.3"
 	},
 	"files": [
-		"dist",
+		"lib",
 		"bin",
 		"template"
 	]

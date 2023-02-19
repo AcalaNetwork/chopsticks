@@ -10,8 +10,8 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
-		"vitest": "^0.28.3",
-		"@polkadot/api": "^9.12.1"
+		"@polkadot/api": "^9.12.1",
+		"vitest": "^0.28.3"
 	},
 	"prettier": {
 		"tabWidth": 2,

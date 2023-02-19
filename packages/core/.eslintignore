@@ -1,0 +1,6 @@
+vitest.config.ts
+.eslintrc.js
+node_modules/
+dist/
+preview/
+chopsticks.js

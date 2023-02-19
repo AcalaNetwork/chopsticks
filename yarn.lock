@@ -5,9 +5,33 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"@acala-network/chopsticks-core@workspace:*, @acala-network/chopsticks-core@workspace:packages/core":
+"@acala-network/chopsticks-core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-core@workspace:packages/core"
+  dependencies:
+    vitest: ^0.28.3
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks-e2etest@workspace:e2e":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks-e2etest@workspace:e2e"
+  dependencies:
+    "@acala-network/chopsticks": "workspace:*"
+    "@polkadot/api": ^9.12.1
+    vitest: ^0.28.3
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks-executor@workspace:*, @acala-network/chopsticks-executor@workspace:executor/pkg":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks-executor@workspace:executor/pkg"
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks@workspace:*, @acala-network/chopsticks@workspace:packages/chopsticks":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks@workspace:packages/chopsticks"
   dependencies:
     "@acala-network/chopsticks-executor": "workspace:*"
     "@polkadot/api": ^9.12.1
@@ -34,7 +58,6 @@ __metadata:
     lodash: ^4.17.21
     pino: ^8.8.0
     pino-pretty: ^9.1.1
-    prettier: ^2.8.3
     reflect-metadata: ^0.1.13
     sqlite3: ^5.1.4
     ts-node: ^10.9.1
@@ -46,31 +69,7 @@ __metadata:
     yargs: ^17.6.2
     zod: ^3.20.2
   bin:
-    chopsticks-core: ./chopsticks.js
-  languageName: unknown
-  linkType: soft
-
-"@acala-network/chopsticks-e2etest@workspace:e2e":
-  version: 0.0.0-use.local
-  resolution: "@acala-network/chopsticks-e2etest@workspace:e2e"
-  dependencies:
-    "@acala-network/chopsticks-core": "workspace:*"
-    vitest: ^0.28.3
-  languageName: unknown
-  linkType: soft
-
-"@acala-network/chopsticks-executor@workspace:*, @acala-network/chopsticks-executor@workspace:executor/pkg":
-  version: 0.0.0-use.local
-  resolution: "@acala-network/chopsticks-executor@workspace:executor/pkg"
-  languageName: unknown
-  linkType: soft
-
-"@acala-network/chopsticks@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@acala-network/chopsticks@workspace:."
-  dependencies:
-    husky: ^8.0.3
-    wasm-pack: ^0.10.3
+    chopsticks: ./chopsticks.js
   languageName: unknown
   linkType: soft
 
@@ -994,6 +993,13 @@ __metadata:
   version: 18.11.18
   resolution: "@types/node@npm:18.11.18"
   checksum: 03f17f9480f8d775c8a72da5ea7e9383db5f6d85aa5fefde90dd953a1449bd5e4ffde376f139da4f3744b4c83942166d2a7603969a6f8ea826edfb16e6e3b49d
+  languageName: node
+  linkType: hard
+
+"@types/prettier@npm:^2":
+  version: 2.7.2
+  resolution: "@types/prettier@npm:2.7.2"
+  checksum: b47d76a5252265f8d25dd2fe2a5a61dc43ba0e6a96ffdd00c594cb4fd74c1982c2e346497e3472805d97915407a09423804cc2110a0b8e1b22cffcab246479b7
   languageName: node
   linkType: hard
 
@@ -4319,12 +4325,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.8.3":
-  version: 2.8.3
-  resolution: "prettier@npm:2.8.3"
+"prettier@npm:^2.8.4":
+  version: 2.8.4
+  resolution: "prettier@npm:2.8.4"
   bin:
     prettier: bin-prettier.js
-  checksum: 92f2ceb522d454370e02082aa74ad27388672f7cee8975028b59517c069fe643bdc73e322675c8faf2ff173d7a626d1a6389f26b474000308e793aa25fff46e5
+  checksum: c173064bf3df57b6d93d19aa98753b9b9dd7657212e33b41ada8e2e9f9884066bb9ca0b4005b89b3ab137efffdf8fbe0b462785aba20364798ff4303aadda57e
   languageName: node
   linkType: hard
 
@@ -4582,6 +4588,17 @@ __metadata:
   checksum: 1a75b09503f705b594dcfebf65b9e1ca4536e3facdf5716e10d4272697b4bb7e6bd8ab35be1b3fe1271f864d4c4a75d012bd77cbe7a55579d5138258b9e85c23
   languageName: node
   linkType: hard
+
+"root-workspace-0b6124@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "root-workspace-0b6124@workspace:."
+  dependencies:
+    "@types/prettier": ^2
+    husky: ^8.0.3
+    prettier: ^2.8.4
+    wasm-pack: ^0.10.3
+  languageName: unknown
+  linkType: soft
 
 "run-parallel@npm:^1.1.9":
   version: 1.2.0

@@ -1,0 +1,22 @@
+{
+	"name": "@acala-network/chopsticks-core",
+	"version": "0.3.12",
+	"main": "./lib/index.js",
+	"types": "./lib/index.d.ts",
+	"author": "Bryan Chen <xlchen1291@gmail.com>",
+	"license": "Apache-2.0",
+	"scripts": {
+		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
+		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
+		"build": "rm -rf dist && tsc -p ./tsconfig.build.json",
+		"build:watch": "rm -rf dist && tsc -p ./tsconfig.build.json -w",
+		"test": "vitest --silent",
+		"test:dev": "LOG_LEVEL=trace vitest --inspect"
+	},
+	"devDependencies": {
+		"vitest": "^0.28.3"
+	},
+	"files": [
+		"lib"
+	]
+}

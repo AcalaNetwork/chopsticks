@@ -37,7 +37,9 @@
 		"*.{js,ts,css,md}": "prettier --write"
 	},
 	"devDependencies": {
+		"@types/prettier": "^2",
 		"husky": "^8.0.3",
+		"prettier": "^2.8.4",
 		"wasm-pack": "^0.10.3"
 	}
 }
