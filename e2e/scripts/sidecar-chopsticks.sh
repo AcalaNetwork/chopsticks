@@ -6,8 +6,8 @@ set -xe
 git clone https://github.com/paritytech/substrate-api-sidecar.git
 
 # run chopsticks node
-yarn run start dev --endpoint wss://rpc.polkadot.io --port 8011 & POLKADOT_PID=$!
-yarn run start dev --endpoint wss://statemint-rpc.polkadot.io --port 8012 & STATEMINT_PID=$!
+yarn workspace @acala-network/chopsticks run start dev --endpoint wss://rpc.polkadot.io --port 8011 & POLKADOT_PID=$!
+yarn workspace @acala-network/chopsticks run start dev --endpoint wss://statemint-rpc.polkadot.io --port 8012 & STATEMINT_PID=$!
 
 # run tests
 (cd substrate-api-sidecar && \
