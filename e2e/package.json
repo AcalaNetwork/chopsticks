@@ -1,0 +1,38 @@
+{
+	"name": "@acala-network/chopsticks-e2e",
+	"author": "Bryan Chen <xlchen1291@gmail.com>",
+	"license": "Apache-2.0",
+	"scripts": {
+		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
+		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
+		"test": "vitest --silent",
+		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
+	},
+	"engines": {
+		"node": ">=v14"
+	},
+	"dependencies": {
+		"@acala-network/chopsticks": "workspace:*",
+		"@polkadot/api": "^9.12.1"
+	},
+	"devDependencies": {
+		"@types/prettier": "^2",
+		"@typescript-eslint/eslint-plugin": "^5.50.0",
+		"@typescript-eslint/parser": "^5.50.0",
+		"eslint": "^8.32.0",
+		"eslint-config-prettier": "^8.6.0",
+		"eslint-plugin-import": "^2.27.5",
+		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+		"prettier": "^2.8.4",
+		"vitest": "^0.28.3"
+	},
+	"prettier": {
+		"tabWidth": 2,
+		"semi": false,
+		"singleQuote": true
+	},
+	"lint-staged": {
+		"*.{js,ts}": "eslint --cache --fix",
+		"*.{js,ts,css,md}": "prettier --write"
+	}
+}
