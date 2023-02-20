@@ -2,6 +2,8 @@
 
 set -xe
 
+rm -rf substrate-api-sidecar
+
 # clone sidecard
 git clone https://github.com/paritytech/substrate-api-sidecar.git
 
@@ -15,7 +17,7 @@ yarn && \
 yarn test:latest-e2e-tests --local ws://localhost:8011 --chain polkadot && \
 yarn test:latest-e2e-tests --local ws://localhost:8012 --chain statemint)
 
-#cleanup
+# cleanup
 rm -rf substrate-api-sidecar
 kill $POLKADOT_PID
 kill $STATEMINT_PID
