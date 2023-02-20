@@ -1,9 +1,10 @@
 {
-	"name": "@acala-network/chopsticks-e2etest",
+	"name": "@acala-network/chopsticks-e2e",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"scripts": {
-		"test": "vitest --silent"
+		"test": "vitest --silent",
+		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
 	},
 	"engines": {
 		"node": ">=v14"

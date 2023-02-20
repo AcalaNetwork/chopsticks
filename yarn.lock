@@ -14,9 +14,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@acala-network/chopsticks-e2etest@workspace:e2e":
+"@acala-network/chopsticks-e2e@workspace:e2e":
   version: 0.0.0-use.local
-  resolution: "@acala-network/chopsticks-e2etest@workspace:e2e"
+  resolution: "@acala-network/chopsticks-e2e@workspace:e2e"
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
     "@polkadot/api": ^9.12.1
