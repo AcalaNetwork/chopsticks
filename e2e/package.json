@@ -4,7 +4,7 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"test": "vitest --silent",
-		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
+		"sidecar": "rm -rf substrate-api-sidecar && sh ./scripts/sidecar-chopsticks.sh"
 	},
 	"engines": {
 		"node": ">=v14"
