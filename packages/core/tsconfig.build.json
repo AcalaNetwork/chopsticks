@@ -1,9 +1,9 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "./lib",
-    "rootDir": "./src"
-  },
+		"baseUrl": ".",
+		"outDir": "./lib",
+		"rootDir": "./src"
+	},
 	"exclude": ["node_modules", "vendor", "executor", "e2e", "vitest.config.ts"]
 }
