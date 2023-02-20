@@ -8,8 +8,8 @@
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
-		"build": "rm -rf dist && tsc -p ./tsconfig.build.json",
-		"build:watch": "rm -rf dist && tsc -p ./tsconfig.build.json -w",
+		"build": "rm -rf lib && tsc -p ./tsconfig.build.json",
+		"build:watch": "rm -rf lib && tsc -p ./tsconfig.build.json -w",
 		"test": "vitest --silent",
 		"test:dev": "LOG_LEVEL=trace vitest --inspect"
 	},

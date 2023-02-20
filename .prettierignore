@@ -6,4 +6,5 @@ vendor/
 .pnp.cjs
 .pnp.loader.mjs
 dist/
+lib/
 preview/

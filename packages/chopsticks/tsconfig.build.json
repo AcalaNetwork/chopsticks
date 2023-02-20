@@ -5,5 +5,5 @@
 		"outDir": "./lib",
 		"rootDir": "./src"
 	},
-	"exclude": ["node_modules", "vendor", "executor", "e2e", "vitest.config.ts"]
+	"exclude": ["node_modules", "src/**/*.test.ts", "vendor", "executor", "e2e", "vitest.config.ts"]
 }

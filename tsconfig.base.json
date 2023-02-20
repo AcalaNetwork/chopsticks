@@ -10,7 +10,6 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noImplicitAny": false,
-		"outDir": "dist",
 		"target": "esnext",
 		"skipLibCheck": true,
 		"strict": true,
