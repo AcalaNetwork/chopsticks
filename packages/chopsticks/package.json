@@ -10,8 +10,8 @@
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"build": "rm -rf lib && tsc -p ./tsconfig.json",
-		"test": "vitest --silent",
-		"test:dev": "LOG_LEVEL=trace vitest --inspect",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"start": "ts-node --transpile-only src/cli.ts",
 		"dev": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/dev.yml",
 		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/karura.yml",
@@ -58,7 +58,7 @@
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
 		"typescript": "^4.9.4",
-		"vitest": "^0.28.3"
+		"vitest": "^0.28.5"
 	},
 	"files": [
 		"lib",

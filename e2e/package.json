@@ -5,7 +5,8 @@
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
-		"test": "vitest --silent",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
 	},
 	"engines": {
@@ -24,15 +25,6 @@
 		"eslint-plugin-import": "^2.27.5",
 		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
 		"prettier": "^2.8.4",
-		"vitest": "^0.28.3"
-	},
-	"prettier": {
-		"tabWidth": 2,
-		"semi": false,
-		"singleQuote": true
-	},
-	"lint-staged": {
-		"*.{js,ts}": "eslint --cache --fix",
-		"*.{js,ts,css,md}": "prettier --write"
+		"vitest": "^0.28.5"
 	}
 }
