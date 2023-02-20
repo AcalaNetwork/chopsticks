@@ -9,6 +9,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-core@workspace:packages/core"
   dependencies:
+    eslint: ^8.32.0
     vitest: ^0.28.3
   languageName: unknown
   linkType: soft

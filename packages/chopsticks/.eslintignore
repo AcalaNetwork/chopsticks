@@ -2,5 +2,6 @@ vitest.config.ts
 .eslintrc.js
 node_modules/
 dist/
+lib/
 preview/
 chopsticks.js
