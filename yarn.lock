@@ -9,7 +9,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-core@workspace:packages/core"
   dependencies:
+    "@types/prettier": ^2
+    "@typescript-eslint/eslint-plugin": ^5.50.0
+    "@typescript-eslint/parser": ^5.50.0
     eslint: ^8.32.0
+    eslint-config-prettier: ^8.6.0
+    eslint-plugin-import: ^2.27.5
+    eslint-plugin-sort-imports-es6-autofix: ^0.6.0
+    prettier: ^2.8.4
     vitest: ^0.28.3
   languageName: unknown
   linkType: soft
@@ -20,6 +27,14 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
     "@polkadot/api": ^9.12.1
+    "@types/prettier": ^2
+    "@typescript-eslint/eslint-plugin": ^5.50.0
+    "@typescript-eslint/parser": ^5.50.0
+    eslint: ^8.32.0
+    eslint-config-prettier: ^8.6.0
+    eslint-plugin-import: ^2.27.5
+    eslint-plugin-sort-imports-es6-autofix: ^0.6.0
+    prettier: ^2.8.4
     vitest: ^0.28.3
   languageName: unknown
   linkType: soft
@@ -45,6 +60,7 @@ __metadata:
     "@types/js-yaml": ^4.0.5
     "@types/lodash": ^4.14.191
     "@types/node": ^18.11.18
+    "@types/prettier": ^2
     "@types/ws": ^8.5.4
     "@types/yargs": ^17.0.20
     "@typescript-eslint/eslint-plugin": ^5.50.0
@@ -59,6 +75,7 @@ __metadata:
     lodash: ^4.17.21
     pino: ^8.8.0
     pino-pretty: ^9.1.1
+    prettier: ^2.8.4
     reflect-metadata: ^0.1.13
     sqlite3: ^5.1.4
     ts-node: ^10.9.1
@@ -4594,9 +4611,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@types/prettier": ^2
     husky: ^8.0.3
-    prettier: ^2.8.4
     wasm-pack: ^0.10.3
   languageName: unknown
   linkType: soft

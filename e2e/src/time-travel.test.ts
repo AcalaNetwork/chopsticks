@@ -1,7 +1,7 @@
 import { HexString } from '@polkadot/util/types'
 import { chain, setupApi, ws } from './helper'
 import { describe, expect, it } from 'vitest'
-import { getCurrentTimestamp, getSlotDuration, timeTravel } from '@acala-network/chopsticks/lib/utils/time-travel'
+import { getCurrentTimestamp, getSlotDuration, timeTravel } from '@acala-network/chopsticks/src/utils/time-travel'
 
 describe.each([
   {

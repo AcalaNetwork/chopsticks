@@ -8,13 +8,19 @@
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
-		"build": "rm -rf lib && tsc -p ./tsconfig.build.json",
-		"build:watch": "rm -rf lib && tsc -p ./tsconfig.build.json -w",
+		"build": "rm -rf lib && tsc -p ./tsconfig.json",
 		"test": "vitest --silent",
 		"test:dev": "LOG_LEVEL=trace vitest --inspect"
 	},
 	"devDependencies": {
+		"@types/prettier": "^2",
+		"@typescript-eslint/eslint-plugin": "^5.50.0",
+		"@typescript-eslint/parser": "^5.50.0",
 		"eslint": "^8.32.0",
+		"eslint-config-prettier": "^8.6.0",
+		"eslint-plugin-import": "^2.27.5",
+		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+		"prettier": "^2.8.4",
 		"vitest": "^0.28.3"
 	},
 	"files": [

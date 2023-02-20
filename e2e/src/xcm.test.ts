@@ -1,10 +1,10 @@
 import { afterAll, describe, it } from 'vitest'
 
-import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks/lib/blockchain/txpool'
-import { connectDownward } from '@acala-network/chopsticks/lib/xcm/downward'
-import { connectUpward } from '@acala-network/chopsticks/lib/xcm/upward'
+import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks/src/blockchain/txpool'
+import { connectDownward } from '@acala-network/chopsticks/src/xcm/downward'
+import { connectUpward } from '@acala-network/chopsticks/src/xcm/upward'
 import { matchSnapshot, setupAll, testingPairs } from './helper'
-import { setStorage } from '@acala-network/chopsticks/lib/utils/set-storage'
+import { setStorage } from '@acala-network/chopsticks/src/utils/set-storage'
 
 const downwardMessages: DownwardMessage[] = [
   {

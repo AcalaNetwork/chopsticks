@@ -12,8 +12,7 @@ Tokens:
         - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
         - Token: ACA
       # value
-      - free:
-          1000000000000000
+      - free: 1000000000000000
     - # 2nd record
       # keys
       - [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY, Token: AUSD]

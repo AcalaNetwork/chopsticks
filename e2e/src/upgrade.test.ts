@@ -22,7 +22,7 @@ describe('upgrade', () => {
       },
     })
 
-    const runtime = String(readFileSync(path.join(__dirname, './blobs/acala-runtime-2101.txt'))).trim()
+    const runtime = String(readFileSync(path.join(__dirname, '../../blobs/acala-runtime-2101.txt'))).trim()
 
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
     await api.tx.sudo.sudo(api.tx.parachainSystem.authorizeUpgrade(blake2AsHex(runtime))).signAndSend(alice)
