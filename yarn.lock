@@ -17,7 +17,7 @@ __metadata:
     eslint-plugin-import: ^2.27.5
     eslint-plugin-sort-imports-es6-autofix: ^0.6.0
     prettier: ^2.8.4
-    vitest: ^0.28.3
+    vitest: ^0.28.5
   languageName: unknown
   linkType: soft
 
@@ -35,7 +35,7 @@ __metadata:
     eslint-plugin-import: ^2.27.5
     eslint-plugin-sort-imports-es6-autofix: ^0.6.0
     prettier: ^2.8.4
-    vitest: ^0.28.3
+    vitest: ^0.28.5
   languageName: unknown
   linkType: soft
 
@@ -82,7 +82,7 @@ __metadata:
     ts-node-dev: ^2.0.0
     typeorm: ^0.3.11
     typescript: ^4.9.4
-    vitest: ^0.28.3
+    vitest: ^0.28.5
     ws: ^8.12.0
     yargs: ^17.6.2
     zod: ^3.20.2
@@ -4612,6 +4612,7 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     husky: ^8.0.3
+    vitest: ^0.28.5
     wasm-pack: ^0.10.3
   languageName: unknown
   linkType: soft
@@ -5561,7 +5562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vitest@npm:^0.28.3":
+"vitest@npm:^0.28.5":
   version: 0.28.5
   resolution: "vitest@npm:0.28.5"
   dependencies:
