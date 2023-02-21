@@ -76,8 +76,10 @@ export const setup = async (argv: Config) => {
 
   if (argv.timestamp) await timeTravel(chain, argv.timestamp)
 
-  await importStorage(chain, argv['import-storage'])
+  // override wasm before importing storage, in case new pallets have been
+  // added that have storage imports
   await overrideWasm(chain, argv['wasm-override'])
+  await importStorage(chain, argv['import-storage'])
 
   return { chain, api, ws: provider }
 }
