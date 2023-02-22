@@ -17,12 +17,8 @@
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"start": "yarn workspace @acala-network/chopsticks run start",
-		"dev": "yarn workspace @acala-network/chopsticks run dev",
-		"dev:karura": "yarn workspace @acala-network/chopsticks run dev:karura",
-		"dev:acala": "yarn workspace @acala-network/chopsticks run dev:acala",
-		"dev:moonriver": "yarn workspace @acala-network/chopsticks run dev:moonriver",
-		"dev:moonbeam": "yarn workspace @acala-network/chopsticks run dev:moonbeam"
+		"start": "yarn script:start",
+		"dev": "yarn script:run"
 	},
 	"engines": {
 		"node": ">=v14"
