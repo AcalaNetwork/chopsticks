@@ -1,13 +1,5 @@
 import { HexString } from '@polkadot/util/types'
-import {
-  compactAddLength,
-  compactToU8a,
-  hexToString,
-  hexToU8a,
-  u8aConcat,
-  u8aConcatStrict,
-  u8aToHex,
-} from '@polkadot/util'
+import { hexToString, hexToU8a } from '@polkadot/util'
 
 import { Block } from './blockchain/block'
 import { Registry } from '@polkadot/types-codec/types'
@@ -52,13 +44,8 @@ export const calculateStateRoot = async (entries: [HexString, HexString][]): Pro
   return calculate_state_root(entries)
 }
 
-const nodesAddLength = (nodes: HexString[]): HexString => {
-  const nodesWithLength = nodes.map((x) => compactAddLength(hexToU8a(x)))
-  return u8aToHex(u8aConcatStrict([compactToU8a(nodesWithLength.length), u8aConcat(...nodesWithLength)]))
-}
-
 export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
-  const decoded: [HexString, HexString | null][] = await decode_proof(trieRootHash, keys, nodesAddLength(nodes))
+  const decoded: [HexString, HexString | null][] = await decode_proof(trieRootHash, keys, nodes)
   return decoded.reduce((accum, [key, value]) => {
     accum[key] = value
     return accum
@@ -70,7 +57,7 @@ export const createProof = async (
   nodes: HexString[],
   entries: [HexString, HexString | null][]
 ) => {
-  const result = await create_proof(trieRootHash, nodesAddLength(nodes), entries)
+  const result = await create_proof(trieRootHash, nodes, entries)
   return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }
 

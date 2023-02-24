@@ -12,6 +12,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+arrayvec = "0.7.2"
 getrandom = { version = "0.2", default-features = false, features = ["js"] }
 serde = { version = "1.0.151", default-features = false }
 serde_json = { version = "1.0", default-features = false }
@@ -27,8 +28,6 @@ console_log = { version = "0.2.0", optional = true }
 
 smoldot = { path = '../vendor/smoldot', default-features = false }
 
-[dev-dependencies]
-arrayvec = "0.7.2"
 
 [features]
 default = []

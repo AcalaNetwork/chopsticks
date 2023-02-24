@@ -12,11 +12,11 @@ use std::collections::BTreeMap;
 pub fn decode_proof(
     hash: HashHexString,
     keys: Vec<HexString>,
-    proof: Vec<u8>,
+    nodes: Vec<Vec<u8>>,
 ) -> Result<Vec<(HexString, Option<HexString>)>, String> {
     let config = Config::<Vec<u8>> {
         trie_root_hash: &hash.0,
-        proof,
+        proof: encode_proofs(nodes),
     };
     let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
 
@@ -36,12 +36,12 @@ pub fn decode_proof(
 
 pub fn create_proof(
     hash: HashHexString,
-    proof: Vec<u8>,
+    nodes: Vec<Vec<u8>>,
     entries: BTreeMap<Vec<u8>, Option<Vec<u8>>>,
 ) -> Result<(HashHexString, Vec<HexString>), String> {
     let config = Config::<Vec<u8>> {
         trie_root_hash: &hash.0,
-        proof,
+        proof: encode_proofs(nodes),
     };
     let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
     let mut proof_builder = ProofBuilder::new();
@@ -147,85 +147,16 @@ pub fn create_proof(
     Ok((HashHexString(trie_root_hash), nodes))
 }
 
-#[test]
-fn create_proof_works() {
-    use hex_literal::hex;
-
-    let root = HashHexString(hex!(
-        "4a8902b29241020b24b4a1620d0154f756b81ffbcf739a9f06d3447df8123ebd"
-    ));
-
-    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
-        (
-            hex!("06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385").to_vec(),
-            Some(hex!("000030000080000008000000000010000000100005000000050000000a0000000a000000000050000000100000e8764817000000040000000400000000000000000000000000000000000000000000000000000000000000000000000800000000200000040000000400000000001000b0040000000000000000000014000000040000000400000000000000010100000000060000006400000002000000c8000000020000001900000000000000020000000200000000c817a804000000").to_vec())
-        ),
-        (
-            hex!("cd710b30bd2eab0352ddcc26417aa1949e94c040f5e73d9b7addd6cb603d15d363f5a4efb16ffa83d0070000").to_vec(),
-            Some(hex!("01").to_vec())
-        )
-    ]);
-
-    let (hash, nodes) = create_proof(root.clone(), get_proof(), entries).unwrap();
-
-    let keys = vec![
-		HexString(
-			hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec(),
-		),
-		HexString(
-        	hex!("06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385").to_vec(),
-    	),
-		HexString(
-			hex!("cd710b30bd2eab0352ddcc26417aa1949e94c040f5e73d9b7addd6cb603d15d363f5a4efb16ffa83d0070000").to_vec()
-		)
-	];
-    let decoded = decode_proof(
-        hash,
-        keys,
-        encode_proofs(nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>()),
-    )
-    .unwrap();
-    let (key, value) = decoded[0].to_owned();
-    assert_eq!(key, HexString(hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec()));
-    assert_eq!(
-        value,
-        Some(HexString(
-            hex!("d205bfd64a59c64fe84480fda7dafd773cb029530c4efe8441bf1f4332bfa48a").to_vec()
-        ))
-    );
-
-    // delete entries
-    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
-        (
-            hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec(),
-            None
-        ),
-    ]);
-
-    let (hash, nodes) = create_proof(root, get_proof(), entries).unwrap();
-    let keys = vec![
-		HexString(
-			hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec(),
-		),
-		HexString(
-        	hex!("06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385").to_vec(),
-    	),
-		HexString(
-			hex!("cd710b30bd2eab0352ddcc26417aa1949e94c040f5e73d9b7addd6cb603d15d363f5a4efb16ffa83d0070000").to_vec()
-		)
-	];
-    let decoded = decode_proof(
-        hash,
-        keys,
-        encode_proofs(nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>()),
-    )
-    .unwrap();
-    let (key, value) = decoded[0].to_owned();
-    assert_eq!(key, HexString(hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec()));
-    assert_eq!(value, None);
+fn encode_proofs(nodes: Vec<Vec<u8>>) -> Vec<u8> {
+    let mut proof = encode_scale_compact_usize(nodes.len()).as_ref().to_vec();
+    for mut node in nodes {
+        let mut node_length = encode_scale_compact_usize(node.len()).as_ref().to_vec();
+        proof.append(&mut node_length);
+        proof.append(&mut node);
+    }
+    proof
 }
 
-#[cfg(test)]
 /// Returns a buffer containing the SCALE-compact encoding of the parameter.
 fn encode_scale_compact_usize(mut value: usize) -> impl AsRef<[u8]> + Clone {
     const MAX_BITS: usize = 1 + (usize::BITS as usize) / 8;
@@ -254,6 +185,66 @@ fn encode_scale_compact_usize(mut value: usize) -> impl AsRef<[u8]> + Clone {
 }
 
 #[test]
+fn create_proof_works() {
+    use hex_literal::hex;
+
+    let dmq_mqc_head = HexString(hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec());
+    let active_config = HexString(
+        hex!("06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385").to_vec(),
+    );
+    let upgrade_go_ahead_signal = HexString(hex!("cd710b30bd2eab0352ddcc26417aa1949e94c040f5e73d9b7addd6cb603d15d363f5a4efb16ffa83d0070000").to_vec());
+
+    let dmq_mqc_head_value = HexString(
+        hex!("d205bfd64a59c64fe84480fda7dafd773cb029530c4efe8441bf1f4332bfa48a").to_vec(),
+    );
+    let active_config_value = HexString(hex!("00005000005000000a00000000c8000000c800000a0000000a000000c8000000640000000000500000c800000700e8764817020040010a0000000000000000c0220fca950300000000000000000000c0220fca9503000000000000000000e8030000009001000a00000000000000009001008070000000000000000000000a000000050000000500000001000000010500000001c800000006000000580200005802000002000000280000000000000002000000010000000700c817a8040200400101020000000f000000").to_vec());
+
+    let root = HashHexString(hex!(
+        "4a8902b29241020b24b4a1620d0154f756b81ffbcf739a9f06d3447df8123ebd"
+    ));
+
+    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
+        (active_config.clone().0, Some(active_config_value.clone().0)),
+        (upgrade_go_ahead_signal.clone().0, Some(hex!("01").to_vec())),
+    ]);
+
+    let (hash, nodes) = create_proof(root.clone(), get_proof(), entries).unwrap();
+
+    let keys = vec![
+        dmq_mqc_head.clone(),
+        active_config.clone(),
+        upgrade_go_ahead_signal.clone(),
+    ];
+    let decoded = decode_proof(
+        hash,
+        keys,
+        nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
+    )
+    .unwrap();
+    let (key, value) = decoded[0].to_owned();
+    assert_eq!(key, dmq_mqc_head.clone());
+    assert_eq!(value, Some(dmq_mqc_head_value));
+    let (key, value) = decoded[1].to_owned();
+    assert_eq!(key, active_config.clone());
+    assert_eq!(value, Some(active_config_value));
+
+    // delete entries
+    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([(dmq_mqc_head.clone().0, None)]);
+
+    let (hash, nodes) = create_proof(root, get_proof(), entries).unwrap();
+    let keys = vec![dmq_mqc_head.clone(), active_config, upgrade_go_ahead_signal];
+    let decoded = decode_proof(
+        hash,
+        keys,
+        nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
+    )
+    .unwrap();
+    let (key, value) = decoded[0].to_owned();
+    assert_eq!(key, dmq_mqc_head);
+    assert_eq!(value, None);
+}
+
+#[test]
 fn decode_proof_works() {
     use hex_literal::hex;
 
@@ -269,20 +260,9 @@ fn decode_proof_works() {
 }
 
 #[cfg(test)]
-fn encode_proofs(nodes: Vec<Vec<u8>>) -> Vec<u8> {
-    let mut proof = encode_scale_compact_usize(nodes.len()).as_ref().to_vec();
-    for mut node in nodes {
-        let mut node_length = encode_scale_compact_usize(node.len()).as_ref().to_vec();
-        proof.append(&mut node_length);
-        proof.append(&mut node);
-    }
-    proof
-}
-
-#[cfg(test)]
-fn get_proof() -> Vec<u8> {
+fn get_proof() -> Vec<Vec<u8>> {
     use hex_literal::hex;
-    let nodes = vec![
+    vec![
         hex!("5703f5a4efb16ffa83d007000080d205bfd64a59c64fe84480fda7dafd773cb029530c4efe8441bf1f4332bfa48a").to_vec(),
 		hex!("5703f5a4efb16ffa83d00700008420e8030000d4070000d6070000db070000dc070000f0070000f2070000f3070000").to_vec(),
 		hex!("5c8c2de8299067f3070000d0070000d4e8030000009001000090010000000000000000000000e8764817000000000000000000000000e87648170000000000000000000000").to_vec(),
@@ -340,6 +320,5 @@ fn get_proof() -> Vec<u8> {
 		hex!("9f06604cff828a6e3f579ca6c59ace013df7ff801afb0ed9ee8eab53f55af9e9f1c49736c6186c5852d7bba27baeab053a2d22fc809c793f0292c00ae878a17876cc7fe3343623734664aeb50333eac67dd4077b40808aaa7d061d20c8b96edc45a36746cfc2f8645b20db12f51ca020ed4967049c20804c9d12d0f9b7ab988d1ed94f3972945784bf8fb75767e41b3dc5f12410377c5c8048ddad220fd43771ed93688597e2e167308755101c343e6d465739e1f748a699806ae40eb731b53990d314bc9635edeb0f4f45870cf3d6db37bf48d2343547d2cf8005198aaee0fd5761c623207eea8ad53f057e9de0446cd00c23da5ff1c8183ec7809621a90e7fa3e8ed459a6e474ef84a300363f0d245d36a0851a191240462d6e680e2d358899753b8e0b96e95191efba0fba2333c8e526737b6976fa7b413cfa3b980f42207a985ccdcd35ae1ff027a2611b93edb846fe723806a980b082e6328715f809e314bdc1d2c60c13fd046b06bc81c65bcaad55d821e83a9c2dc31293e5ae21780f08e4a062dfbb903d956382db84eadd0bf0a7b2b8468d8cfed83802de874a67b80424742990c218a746f5754b3a2c769a9ecbb457500412b0281ebb4304054067880b5407c24baa40b063e62c1d162c55f4a646edd70607bcbaef3808211db13013780eba4585adb29d3256f8059f81a40517e63b12c41ef7c0a8726a4ba62701e3598").to_vec(),
 		hex!("9f0d3719f5b0b12c7105c073c507445948cabb800ff6a2c0cf1c6e2dd1cad56d23aa6f51a78d85792606966afc176ecb4101e51b802db7d1beaf4152abcbe2d72358d938f31eef2e6f9adb322dd6316cd211dfe79580bb7fd6b2fa22db69bca4f70304addc539798fc6174ddae0c5865c71ff96e53415c5700bd9a93e85e3ce1d20700002408d6070000dc07000080054bc6bd08b77192f231932a6e63a3f54a48d954725a2198a762781089bf150980fd53aee7d7ccb0767af55024401273b0a9437c5917cdd60d406dac4aab7223338019cbbdbf60cd90027c802d921f737c07a073bb4bed3b9ff0c37b26506e6aafc94c57077a93d174890f1ff20700001404d0070000806e5feeb98858d49ab4f600b9337280df82041595257c4d566175cbf59cc105f680f44d2eba0587ca4f414fe092f163abb43531c554c28cfcc26cf032083a7af9b4").to_vec(),
 		hex!("9f0d7fefc408aac59dbfe80a72ac8e3ce5cebf80b9cbd0d700a17a0e4c717af58b887e80c0bce7832e64817caa8b47152baf5ba0807e1ee2c8362cd0745aa0c58780b99fefa1024c1b472d3386a2319e71b68028a68012d23785dbec11744e5f0fef2c34efcb738891240cd4ad63bb101bd4c2512a0980152c557d36cdee4289c8b2c42462576e238b62422b257e91773a473f49c3858680a8842b069c158af198d7d570838f69a2f4c9a218d51c69ad60361a873a11bbea80f08851397f0db3ac9785de1017f41cb5b073b92ecf6b4653d1f38d4993028e4680117820f0023f9e54736ad10ecae8806bcf1cc8b4ed694aa530ed85e6361db7ea80be32eae63e4a223cdf5cbf90b66f48665668ec0bedbb6b76302768ea6f3b19cc8030b143a144cc26437db830e7d750f21dbc87cf3140097b1fdbddb697782a237180ec76035be1c7d52a15dcf76aaf69fced1772f1464ec7886952dada14030ad4fc809b912d6aa76e61c4b515535db14d28490924ef2007cf19e0022b5a089b6d010380f28a57be8a23f6a2588595e53cb640bbeeee2ef9ddc962a6672ac98bd2d6ea4e").to_vec(),
-    ].into_iter().collect::<Vec<_>>();
-    encode_proofs(nodes)
+    ].into_iter().collect::<Vec<_>>()
 }

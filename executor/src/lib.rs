@@ -61,8 +61,12 @@ pub async fn decode_proof(
 
     let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
     let keys = serde_wasm_bindgen::from_value::<Vec<HexString>>(keys)?;
-    let nodes = serde_wasm_bindgen::from_value::<HexString>(nodes)?;
-    let entries = proof::decode_proof(root_trie_hash, keys, nodes.0)?;
+    let nodes = serde_wasm_bindgen::from_value::<Vec<HexString>>(nodes)?;
+    let entries = proof::decode_proof(
+        root_trie_hash,
+        keys,
+        nodes.into_iter().map(|x| x.0).collect(),
+    )?;
     let result = serde_wasm_bindgen::to_value(&entries)?;
 
     Ok(result)
@@ -77,14 +81,18 @@ pub async fn create_proof(
     setup_console();
 
     let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
-    let proof = serde_wasm_bindgen::from_value::<HexString>(nodes)?;
+    let proof = serde_wasm_bindgen::from_value::<Vec<HexString>>(nodes)?;
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, Option<HexString>)>>(entries)?;
     let entries = BTreeMap::from_iter(
         entries
             .into_iter()
             .map(|(key, value)| (key.0, value.map(|x| x.0))),
     );
-    let proof = proof::create_proof(root_trie_hash, proof.0, entries)?;
+    let proof = proof::create_proof(
+        root_trie_hash,
+        proof.into_iter().map(|x| x.0).collect(),
+        entries,
+    )?;
     let result = serde_wasm_bindgen::to_value(&proof)?;
 
     Ok(result)
