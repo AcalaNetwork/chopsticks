@@ -1,8 +1,9 @@
 endpoint: wss://kusama-rpc.dwellir.com
 mock-signature-host: true
-block: 15616800
-timestamp: 1670190990039
+block: 16771789
+timestamp: 1677218556000
 db: ./db.sqlite
+# wasm-override: kusama_runtime-v9380.compact.compressed.wasm
 
 import-storage:
   System:
@@ -59,3 +60,54 @@ import-storage:
     Members:
       - [[5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], rank: 7]
     Voting: []
+  # Configuration:
+  #   ActiveConfig: {
+  #     "maxCodeSize": 10485760,
+  #     "maxHeadDataSize": 20480,
+  #     "maxUpwardQueueCount": 10,
+  #     "maxUpwardQueueSize": 51200,
+  #     "maxUpwardMessageSize": 51200,
+  #     "maxUpwardMessageNumPerCandidate": 10,
+  #     "hrmpMaxMessageNumPerCandidate": 10,
+  #     "validationUpgradeCooldown": 3600,
+  #     "validationUpgradeDelay": 600,
+  #     "maxPovSize": 5242880,
+  #     "maxDownwardMessageSize": 51200,
+  #     "umpServiceTotalWeight": {
+  #       "refTime": 100000000000,
+  #       "proofSize": 5242880
+  #     },
+  #     "hrmpMaxParachainOutboundChannels": 30,
+  #     "hrmpMaxParathreadOutboundChannels": 0,
+  #     "hrmpSenderDeposit": 5000000000000,
+  #     "hrmpRecipientDeposit": 5000000000000,
+  #     "hrmpChannelMaxCapacity": 1000,
+  #     "hrmpChannelMaxTotalSize": 102400,
+  #     "hrmpMaxParachainInboundChannels": 30,
+  #     "hrmpMaxParathreadInboundChannels": 0,
+  #     "hrmpChannelMaxMessageSize": 102400,
+  #     "codeRetentionPeriod": 28800,
+  #     "parathreadCores": 0,
+  #     "parathreadRetries": 0,
+  #     "groupRotationFrequency": 10,
+  #     "chainAvailabilityPeriod": 10,
+  #     "threadAvailabilityPeriod": 10,
+  #     "schedulingLookahead": 1,
+  #     "maxValidatorsPerCore": 5,
+  #     "maxValidators": 200,
+  #     "disputePeriod": 6,
+  #     "disputePostConclusionAcceptancePeriod": 600,
+  #     "disputeConclusionByTimeOutPeriod": 600,
+  #     "noShowSlots": 2,
+  #     "nDelayTranches": 89,
+  #     "zerothDelayTrancheWidth": 0,
+  #     "neededApprovals": 30,
+  #     "relayVrfModuloSamples": 40,
+  #     "umpMaxIndividualWeight": {
+  #       "refTime": 50000000000,
+  #       "proofSize": 5242880
+  #     },
+  #     "pvfCheckingEnabled": true,
+  #     "pvfVotingTtl": 2,
+  #     "minimumValidationUpgradeDelay": 20
+  #   }
