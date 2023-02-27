@@ -14,7 +14,7 @@ import { isUrl } from './utils'
 import { runBlock } from './run-block'
 
 const processConfig = async (path: string) => {
-  let file
+  let file: string
   if (isUrl(path)) {
     file = await axios.get(path).then((x) => x.data)
   } else {
@@ -26,8 +26,9 @@ const processConfig = async (path: string) => {
 
 const processArgv = async (argv: any) => {
   if (argv.config) {
-    return { ...(await processConfig(argv.config)), ...argv }
+    argv = { ...(await processConfig(argv.config)), ...argv }
   }
+  argv.port = argv.port ?? (process.env.PORT ? Number(process.env.PORT) : 8000)
   return argv
 }
 

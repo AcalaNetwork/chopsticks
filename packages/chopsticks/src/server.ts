@@ -38,7 +38,7 @@ export const createServer = async (handler: Handler, port?: number) => {
   let wss: WebSocketServer | undefined
   let listenPort: number | undefined
   for (let i = 0; i < 5; i++) {
-    const preferPort = (port || 0) + i
+    const preferPort = (port ?? 0) > 0 ? (port ?? 0) + i : 0
     logger.debug('Try starting on port %d', preferPort)
     const [maybeWss, maybeListenPort] = await createWS(preferPort)
     if (maybeWss && maybeListenPort) {
