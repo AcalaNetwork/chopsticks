@@ -3,7 +3,6 @@ import { hexToU8a } from '@polkadot/util'
 import { Blockchain } from '../blockchain'
 import { compactHex, getParaId } from '../utils'
 import { logger } from '.'
-import { setStorage } from '../utils/set-storage'
 
 export const connectUpward = async (parachain: Blockchain, relaychain: Blockchain) => {
   const meta = await parachain.head.meta
@@ -14,12 +13,7 @@ export const connectUpward = async (parachain: Blockchain, relaychain: Blockchai
     const value = pairs[0][1]
     if (!value) return
 
-    const parachainMeta = await parachain.head.meta
-    const upwardMessagesKey = compactHex(parachainMeta.query.parachainSystem.upwardMessages())
-
-    // clear parachain message queue
-    await setStorage(parachain, [[upwardMessagesKey, null]], head.hash)
-
+    const parachainMeta = await head.meta
     const relaychainMeta = await relaychain.head.meta
 
     const upwardMessages = parachainMeta.registry.createType('Vec<Bytes>', hexToU8a(value))

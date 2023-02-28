@@ -15,7 +15,7 @@ export const connectDownward = async (relaychain: Blockchain, parachain: Blockch
     const value = pairs[0][1]
     if (!value) return
 
-    const meta = await relaychain.head.meta
+    const meta = await head.meta
     const downwardMessageQueuesKey = compactHex(meta.query.dmp.downwardMessageQueues(paraId))
 
     // clear relaychain message queue
