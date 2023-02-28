@@ -1,4 +1,4 @@
-import { BehaviorSubject, EMPTY, firstValueFrom, iif } from 'rxjs'
+import { BehaviorSubject, firstValueFrom } from 'rxjs'
 import { EventEmitter } from 'node:stream'
 import { HexString } from '@polkadot/util/types'
 import { skip, take, timeout } from 'rxjs/operators'
