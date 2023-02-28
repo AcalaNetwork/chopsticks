@@ -1,7 +1,7 @@
 import { BehaviorSubject, firstValueFrom } from 'rxjs'
 import { EventEmitter } from 'node:stream'
 import { HexString } from '@polkadot/util/types'
-import { skip, take } from 'rxjs/operators'
+import { skip, take, timeout } from 'rxjs/operators'
 import _ from 'lodash'
 
 import { Block } from './block'
@@ -32,6 +32,13 @@ export interface BuildBlockParams {
     downwardMessages?: DownwardMessage[]
     horizontalMessages?: Record<number, HorizontalMessage[]>
   }
+}
+
+export interface UpcomingBlockParams {
+  /// upcoming blocks to skip
+  skipCount?: number
+  /// how long to wait in milliseconds
+  timeout?: number
 }
 
 export class TxPool {
@@ -81,9 +88,14 @@ export class TxPool {
     this.#last.next(this.#chain.head)
   }
 
-  async upcomingBlock(skipCount = 0) {
+  async upcomingBlock(params?: UpcomingBlockParams) {
+    const { skipCount, timeout: millisecs } = { skipCount: 0, ...(params || {}) }
     if (skipCount < 0) throw new Error('skipCount needs to be greater or equal to 0')
-    return firstValueFrom(this.#last.pipe(skip(1 + skipCount), take(1)))
+    let stream$ = this.#last.pipe()
+    if (millisecs) {
+      stream$ = stream$.pipe(timeout(millisecs))
+    }
+    return firstValueFrom(stream$.pipe(skip(1 + skipCount), take(1)))
   }
 
   async #buildBlock(wait: Promise<void>, params?: BuildBlockParams) {
