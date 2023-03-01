@@ -131,7 +131,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     } else {
                         None
                     };
-                    // TODO: not sure if we need to inject correct trie_version, seems to work with both
+                    // TODO: not sure if we need to inject correct trie_version because it's ignored
+                    // https://github.com/smol-dot/smoldot/blob/82252ea371943bdb1c2caeea5cd1d48494b99660/lib/src/executor/runtime_host.rs#L269
                     req.inject_value(value.map(|x| (iter::once(x), TrieEntryVersion::V1)))
                 }
                 RuntimeHostVm::PrefixKeys(req) => {
@@ -237,7 +238,8 @@ pub fn calculate_state_root(entries: Vec<(HexString, HexString)>) -> HexString {
             }
             RootMerkleValueCalculation::StorageValue(req) => {
                 let key = req.key().collect::<Vec<u8>>();
-                // TODO: not sure if we need to inject correct trie_version, seems to work with both
+                // TODO: not sure if we need to inject correct trie_version because it's ignored
+                // https://github.com/smol-dot/smoldot/blob/82252ea371943bdb1c2caeea5cd1d48494b99660/lib/src/executor/runtime_host.rs#L269
                 calc = req.inject(map.get(&key).map(|x| (x, TrieEntryVersion::V1)));
             }
         }
