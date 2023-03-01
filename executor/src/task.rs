@@ -51,7 +51,7 @@ impl RuntimeVersion {
                 .map(|x| (HexString(x.name_hash.to_vec()), x.version))
                 .collect(),
             transaction_version: transaction_version.unwrap_or_default(),
-            state_version: state_version.unwrap_or_default(),
+            state_version: state_version.unwrap_or(TrieEntryVersion::V0).into(),
         }
     }
 }
@@ -88,7 +88,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut storage_top_trie_changes = StorageDiff::from_iter(
         task.storage
             .into_iter()
-            .map(|(key, value)| (key.0, value.map(|x| x.0))),
+            .map(|(key, value)| (key.0, value.map(|x| x.0), ())),
     );
     let mut offchain_storage_changes = StorageDiff::empty();
 
@@ -131,7 +131,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     } else {
                         None
                     };
-                    req.inject_value(value.map(iter::once))
+                    // TODO: not sure if we need to inject correct trie_version, seems to work with both
+                    req.inject_value(value.map(|x| (iter::once(x), TrieEntryVersion::V1)))
                 }
                 RuntimeHostVm::PrefixKeys(req) => {
                     let prefix = req.prefix().as_ref().to_vec();
@@ -196,7 +197,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     Ok(ret.map_or_else(TaskResponse::Error, move |ret| {
         let diff = storage_top_trie_changes
             .diff_into_iter_unordered()
-            .map(|(k, v)| (HexString(k), v.map(HexString)))
+            .map(|(k, v, _)| (HexString(k), v.map(HexString)))
             .collect();
 
         TaskResponse::Call(CallResponse {
@@ -211,7 +212,7 @@ pub async fn runtime_version(wasm: HexString) -> Result<RuntimeVersion, String> 
         module: &wasm,
         heap_pages: HeapPages::from(2048),
         exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
-        allow_unresolved_imports: true, // we do not care to get just version
+        allow_unresolved_imports: true,
     })
     .unwrap();
 
@@ -236,7 +237,8 @@ pub fn calculate_state_root(entries: Vec<(HexString, HexString)>) -> HexString {
             }
             RootMerkleValueCalculation::StorageValue(req) => {
                 let key = req.key().collect::<Vec<u8>>();
-                calc = req.inject(TrieEntryVersion::V0, map.get(&key));
+                // TODO: not sure if we need to inject correct trie_version, seems to work with both
+                calc = req.inject(map.get(&key).map(|x| (x, TrieEntryVersion::V1)));
             }
         }
     }
