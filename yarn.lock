@@ -59,7 +59,7 @@ __metadata:
     "@polkadot/util-crypto": ^10.4.2
     "@types/js-yaml": ^4.0.5
     "@types/lodash": ^4.14.191
-    "@types/node": ^18.14.0
+    "@types/node": ^18.14.2
     "@types/prettier": ^2.7.2
     "@types/ws": ^8.5.4
     "@types/yargs": ^17.0.22
@@ -1014,10 +1014,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.14.0":
-  version: 18.14.0
-  resolution: "@types/node@npm:18.14.0"
-  checksum: d83fcf5e4ed544755dd9028f5cbb6b9d46235043159111bb2ad62223729aee581c0144a9f6df8ba73d74011db9ed4ebd7af2fd5e0996714e3beb508a5da8ac5c
+"@types/node@npm:^18.14.2":
+  version: 18.14.2
+  resolution: "@types/node@npm:18.14.2"
+  checksum: 53c07e721f6ae33de71306f6a0b75dae6066a4f55bd5484c93bd59ff25f0c5f004ceafeef509a4d0cb9e24a247efc34d50489bcc1b05a53ecc68e2fc088e65cb
   languageName: node
   linkType: hard
 
