@@ -34,7 +34,7 @@
 	},
 	"devDependencies": {
 		"husky": "^8.0.3",
-		"vitest": "^0.28.5",
+		"vitest": "^0.29.2",
 		"wasm-pack": "^0.10.3"
 	}
 }
