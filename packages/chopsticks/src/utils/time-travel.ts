@@ -9,9 +9,10 @@ import { setStorage } from './set-storage'
 
 export const getCurrentSlot = async (chain: Blockchain) => {
   const meta = await chain.head.meta
+  // use raw key here because some chain did not expose those storage to metadata
   const slotRaw = meta.consts.babe
-    ? await chain.head.get(compactHex(meta.query.babe.currentSlot()))
-    : await chain.head.get(compactHex(meta.query.aura.currentSlot()))
+    ? await chain.head.get('0x1cb6f36e027abb2091cfb5110ab5087f06155b3cd9a8c9e5e9a23fd5dc13a5ed') // babe.currentSlot
+    : await chain.head.get('0x57f8dc2f5ab09467896f47300f04243806155b3cd9a8c9e5e9a23fd5dc13a5ed') // aura.currentSlot
   if (!slotRaw) throw new Error('Cannot find current slot')
   return meta.registry.createType<Slot>('Slot', hexToU8a(slotRaw)).toNumber()
 }
