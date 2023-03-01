@@ -5,7 +5,7 @@ import { setupAll } from './helper'
 describe.each([
   { chain: 'Polkadot', endpoint: 'wss://rpc.polkadot.io' },
   { chain: 'Statemint', endpoint: 'wss://statemint-rpc.polkadot.io' },
-  { chain: 'Polkadot Collectives', endpoint: 'wss://polkadot-collectives-rpc.polkadot.io'},
+  { chain: 'Polkadot Collectives', endpoint: 'wss://polkadot-collectives-rpc.polkadot.io' },
   { chain: 'Acala', endpoint: 'wss://acala-rpc-1.aca-api.network' },
 
   { chain: 'Kusama', endpoint: 'wss://kusama-rpc.polkadot.io' },
@@ -14,7 +14,7 @@ describe.each([
 
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
   { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
-  { chain: 'Westend Collectives', endpoint: 'wss://westend-collectives-rpc.polkadot.io' }
+  { chain: 'Westend Collectives', endpoint: 'wss://westend-collectives-rpc.polkadot.io' },
 ])('Latest $chain can build blocks', async ({ endpoint }) => {
   const { setup, teardownAll } = await setupAll({ endpoint })
 
