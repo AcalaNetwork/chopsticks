@@ -10,18 +10,8 @@ import type { HexString } from '@polkadot/util/types'
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
-import { runTask, taskHandler } from '../executor'
-
-export type RuntimeVersion = {
-  specName: string
-  implName: string
-  authoringVersion: number
-  specVersion: number
-  implVersion: number
-  apis: [HexString, number][]
-  transactionVersion: number
-  stateVersion: number
-}
+import { getRuntimeVersion, runTask, taskHandler } from '../executor'
+import type { RuntimeVersion } from '../executor'
 
 export type TaskCallResponse = {
   result: HexString
@@ -206,15 +196,7 @@ export class Block {
 
   get runtimeVersion(): Promise<RuntimeVersion> {
     if (!this.#runtimeVersion) {
-      this.#runtimeVersion = this.metadata.then((meta) => {
-        const registry = new TypeRegistry(this.hash)
-        const metadata = new Metadata(registry, meta)
-        const version = metadata.asLatest.pallets
-          .find((x) => x.name.toString() === 'System')
-          ?.constants.find((x) => x.name.toString() === 'Version')
-        if (!version) throw new Error('Failed to find system version')
-        return registry.createType('RuntimeVersion', version.value).toJSON() as RuntimeVersion
-      })
+      this.#runtimeVersion = this.wasm.then(getRuntimeVersion)
     }
     return this.#runtimeVersion
   }

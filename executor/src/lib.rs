@@ -30,6 +30,17 @@ extern "C" {
 }
 
 #[wasm_bindgen]
+pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsValue> {
+    setup_console();
+
+    let code = serde_wasm_bindgen::from_value::<HexString>(code)?;
+    let runtime_version = task::runtime_version(code).await?;
+    let result = serde_wasm_bindgen::to_value(&runtime_version)?;
+
+    Ok(result)
+}
+
+#[wasm_bindgen]
 pub async fn calculate_state_root(entries: JsValue) -> Result<JsValue, JsValue> {
     setup_console();
 

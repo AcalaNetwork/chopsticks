@@ -11,7 +11,7 @@ import {
   hrmpIngressChannelIndex,
   upgradeGoAheadSignal,
 } from './utils/proof'
-import { calculateStateRoot, createProof, decodeProof, getAuraSlotDuration } from './executor'
+import { calculateStateRoot, createProof, decodeProof, getAuraSlotDuration, getRuntimeVersion } from './executor'
 
 const getCode = () => {
   const code = String(readFileSync(path.join(__dirname, '../../../blobs/acala-runtime-2101.txt'))).trim()
@@ -20,6 +20,35 @@ const getCode = () => {
 }
 
 describe('wasm', () => {
+  it('get runtime version from wasm runtime', async () => {
+    const expectedRuntimeVersion = {
+      specName: 'acala',
+      implName: 'acala',
+      authoringVersion: 1,
+      specVersion: 2101,
+      implVersion: 0,
+      apis: [
+        ['0xdf6acb689907609b', 4],
+        ['0x37e397fc7c91f5e4', 1],
+        ['0x40fe3ad401f8959a', 6],
+        ['0xd2bc9897eed08f15', 3],
+        ['0xf78b278be53f454c', 2],
+        ['0xdd718d5cc53262d4', 1],
+        ['0xab3c0572291feb8b', 1],
+        ['0xbc9d89904f5b923f', 1],
+        ['0x37c8bb1350a9a2a8', 1],
+        ['0x6ef953004ba30e59', 1],
+        ['0x955e168e0cfb3409', 1],
+        ['0xe3df3f2aa8a5cc57', 2],
+        ['0xea93e3f16f3d6962', 2],
+      ],
+      transactionVersion: 1,
+      stateVersion: 0,
+    }
+
+    expect(await getRuntimeVersion(getCode())).toMatchObject(expectedRuntimeVersion)
+  })
+
   it('calculate state root', async () => {
     const a = await calculateStateRoot([['0x5301bf5ff0298f5c7b93a446709f8e885f772afdd0d8ba3d4d559a06f0742f12', '0x01']])
     const b = await calculateStateRoot([['0x5301bf5ff0298f5c7b93a446709f8e885f772afdd0d8ba3d4d559a06f0742f12', '0x02']])

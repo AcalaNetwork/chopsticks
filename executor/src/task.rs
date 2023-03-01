@@ -5,6 +5,7 @@ use smoldot::{
         host::{Config, HeapPages, HostVmPrototype},
         runtime_host::{self, RuntimeHostVm},
         storage_diff::StorageDiff,
+        CoreVersionRef,
     },
     json_rpc::methods::HexString,
     trie::{
@@ -13,6 +14,47 @@ use smoldot::{
     },
 };
 use std::collections::BTreeMap;
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RuntimeVersion {
+    pub spec_name: HexString,
+    pub impl_name: HexString,
+    pub authoring_version: u32,
+    pub spec_version: u32,
+    pub impl_version: u32,
+    pub apis: Vec<(HexString, u32)>,
+    pub transaction_version: u32,
+    pub state_version: u8,
+}
+
+impl RuntimeVersion {
+    fn new(core_version_ref: CoreVersionRef) -> Self {
+        let CoreVersionRef {
+            spec_name,
+            impl_name,
+            authoring_version,
+            spec_version,
+            impl_version,
+            apis,
+            transaction_version,
+            state_version,
+        } = core_version_ref;
+        RuntimeVersion {
+            spec_name: HexString(spec_name.as_bytes().to_vec()),
+            impl_name: HexString(impl_name.as_bytes().to_vec()),
+            authoring_version,
+            spec_version,
+            impl_version,
+            apis: apis
+                .into_iter()
+                .map(|x| (HexString(x.name_hash.to_vec()), x.version))
+                .collect(),
+            transaction_version: transaction_version.unwrap_or_default(),
+            state_version: state_version.unwrap_or(TrieEntryVersion::V0).into(),
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -163,6 +205,20 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             storage_diff: diff,
         })
     }))
+}
+
+pub async fn runtime_version(wasm: HexString) -> Result<RuntimeVersion, String> {
+    let vm_proto = HostVmPrototype::new(Config {
+        module: &wasm,
+        heap_pages: HeapPages::from(2048),
+        exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+        allow_unresolved_imports: true,
+    })
+    .unwrap();
+
+    let core_version = vm_proto.runtime_version().decode();
+
+    Ok(RuntimeVersion::new(core_version))
 }
 
 pub fn calculate_state_root(entries: Vec<(HexString, HexString)>) -> HexString {
