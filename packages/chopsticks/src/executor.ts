@@ -1,15 +1,9 @@
 import { HexString } from '@polkadot/util/types'
-import { hexToString, hexToU8a } from '@polkadot/util'
+import { hexToU8a } from '@polkadot/util'
 
 import { Block } from './blockchain/block'
 import { Registry } from '@polkadot/types-codec/types'
-import {
-  calculate_state_root,
-  create_proof,
-  decode_proof,
-  get_runtime_version,
-  run_task,
-} from '@acala-network/chopsticks-executor'
+import { calculate_state_root, create_proof, decode_proof, run_task } from '@acala-network/chopsticks-executor'
 import { defaultLogger, truncate } from './logger'
 import _ from 'lodash'
 
@@ -19,26 +13,7 @@ interface JsCallback {
   getNextKey: (key: HexString) => Promise<string | undefined>
 }
 
-export type RuntimeVersion = {
-  specName: string
-  implName: string
-  authoringVersion: number
-  specVersion: number
-  implVersion: number
-  apis: [HexString, number][]
-  transactionVersion: number
-  stateVersion: number
-}
-
 const logger = defaultLogger.child({ name: 'executor' })
-
-export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion> => {
-  return get_runtime_version(code).then((version) => {
-    version.specName = hexToString(version.specName)
-    version.implName = hexToString(version.implName)
-    return version
-  })
-}
 
 export const calculateStateRoot = async (entries: [HexString, HexString][]): Promise<HexString> => {
   return calculate_state_root(entries)
