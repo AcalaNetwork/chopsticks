@@ -25,7 +25,7 @@ pub fn decode_proof(
         .map(|key| {
             let value = decoded.storage_value(key.as_ref());
             if let Some(value) = value {
-                return (key, value.map(|value| HexString(value.to_owned())));
+                return (key, value.map(|(value, _)| HexString(value.to_owned())));
             }
             (key, None)
         })
@@ -127,7 +127,10 @@ pub fn create_proof(
             },
         };
 
-        proof_builder.set_node_value(&key, &proof_node_codec::encode_to_vec(decoded), None)
+        let node_value = proof_node_codec::encode_to_vec(decoded)
+            .map_err(|e| format!("Failed to encode node proof {:?}", e.to_string()))?;
+
+        proof_builder.set_node_value(&key, &node_value, None)
     }
 
     assert!(proof_builder.missing_node_values().next().is_none());
