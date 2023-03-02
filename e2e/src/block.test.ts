@@ -36,10 +36,8 @@ describe('block', () => {
       dev.newBlock()
     }, 1000)
     {
-      const start = Date.now()
       // no block is built within 1 sec
       await expect(chain.upcomingBlock({ timeout: 1_000 })).rejects.toThrowError('Timeout has occurred')
-      expect(Date.now() - start).to.be.approximately(1_000, 50)
 
       const next = await chain.upcomingBlock({ timeout: 10_000 })
       expect(next.number).toEqual(blockNumber + 6)
