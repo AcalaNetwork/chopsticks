@@ -147,10 +147,10 @@
 
 					function renderDelta(value) {
 						if (/^\d+(,\d+)*$/.test(value[0]) && /^\d+(,\d+)*$/.test(value[1])) {
-							const oldValue = parseInt(value[0].replace(/,/g, ''))
-							const newValue = parseInt(value[1].replace(/,/g, ''))
+							const oldValue = BigInt(value[0].replace(/,/g, ''))
+							const newValue = BigInt(value[1].replace(/,/g, ''))
 							if (oldValue > 0 && newValue > 0) {
-								const delta = Number(newValue - oldValue)
+								const delta = newValue - oldValue
 								return (<span className="delta" >{delta > 0 ? '+' : ''}{delta.toLocaleString()}</span>)
 							}
 						}
