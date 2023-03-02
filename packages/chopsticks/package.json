@@ -12,7 +12,7 @@
 		"build": "rm -rf lib && tsc -p ./tsconfig.json",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"script:start": "cd ../..; ts-node packages/chopsticks/src/cli.ts",
+		"script:start": "cd ../..; ts-node --transpile-only packages/chopsticks/src/cli.ts",
 		"script:run": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/dev.yml",
 		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/karura.yml",
 		"dev:acala": "ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/acala.yml",

@@ -81,8 +81,12 @@ export const newHeader = async (head: Block) => {
         ],
       },
       ...consensus.rest,
-      head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted),
     ]
+
+    if (meta.query.randomness) {
+      // reset notFirstBlock so randomness will skip validation
+      head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
+    }
   }
 
   const header = meta.registry.createType<Header>('Header', {
