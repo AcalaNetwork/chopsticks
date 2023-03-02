@@ -8,9 +8,18 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
-import { BuildBlockMode, BuildBlockParams, HorizontalMessage, TxPool, UpcomingBlockParams } from './txpool'
+import {
+  BuildBlockMode,
+  BuildBlockParams,
+  DownwardMessage,
+  HorizontalMessage,
+  TxPool,
+  UpcomingBlockParams,
+} from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
+import { StorageValue } from './storage-layer'
+import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder'
 
@@ -186,10 +195,56 @@ export class Blockchain {
     return { outcome, storageDiff }
   }
 
-  async dryRunHrmp(hrmp: Record<number, HorizontalMessage[]>): Promise<[HexString, HexString | null][]> {
+  async dryRunHrmp(
+    hrmp: Record<number, HorizontalMessage[]>,
+    at?: HexString
+  ): Promise<[HexString, HexString | null][]> {
     await this.api.isReady
-    const head = this.head
+    const head = at ? await this.getBlock(at) : this.head
+    if (!head) {
+      throw new Error(`Cannot find block ${at}`)
+    }
     const inherents = await this.#inherentProvider.createInherents(head, { horizontalMessages: hrmp })
+    return dryRunInherents(head, inherents)
+  }
+  async dryRunDmp(dmp: DownwardMessage[], at?: HexString): Promise<[HexString, HexString | null][]> {
+    await this.api.isReady
+    const head = at ? await this.getBlock(at) : this.head
+    if (!head) {
+      throw new Error(`Cannot find block ${at}`)
+    }
+    const inherents = await this.#inherentProvider.createInherents(head, { downwardMessages: dmp })
+    return dryRunInherents(head, inherents)
+  }
+  async dryRunUmp(ump: Record<number, HexString[]>, at?: HexString): Promise<[HexString, HexString | null][]> {
+    await this.api.isReady
+    const head = at ? await this.getBlock(at) : this.head
+    if (!head) {
+      throw new Error(`Cannot find block ${at}`)
+    }
+    const meta = await head.meta
+
+    const needsDispatch = meta.registry.createType('Vec<u32>', Object.keys(ump))
+
+    const stroageValues: [string, StorageValue | null][] = [
+      [compactHex(meta.query.ump.needsDispatch()), needsDispatch.toHex()],
+    ]
+
+    for (const [paraId, messages] of Object.entries(ump)) {
+      const upwardMessages = meta.registry.createType('Vec<Bytes>', messages)
+      if (upwardMessages.length === 0) throw new Error('No upward meesage')
+
+      const queueSize = meta.registry.createType('(u32, u32)', [
+        upwardMessages.length,
+        upwardMessages.map((x) => x.byteLength).reduce((s, i) => s + i, 0),
+      ])
+
+      stroageValues.push([compactHex(meta.query.ump.relayDispatchQueues(paraId)), upwardMessages.toHex()])
+      stroageValues.push([compactHex(meta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex()])
+    }
+
+    head.pushStorageLayer().setAll(stroageValues)
+    const inherents = await this.#inherentProvider.createInherents(head)
     return dryRunInherents(head, inherents)
   }
 

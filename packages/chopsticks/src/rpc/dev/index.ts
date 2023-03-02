@@ -1,12 +1,12 @@
 import { HexString } from '@polkadot/util/types'
+import _ from 'lodash'
 
-import { Block } from '../blockchain/block'
-import { Handlers, ResponseError } from './shared'
-import { StorageValues, setStorage } from '../utils/set-storage'
-import { decodeStorageDiff } from '../utils/decoder'
-import { defaultLogger } from '../logger'
-import { generateHtmlDiff } from '../utils/generate-html-diff'
-import { timeTravel } from '../utils/time-travel'
+import { Block } from '../../blockchain/block'
+import { Handlers, ResponseError } from '../shared'
+import { StorageValues, setStorage } from '../../utils/set-storage'
+import { defaultLogger } from '../../logger'
+import { dev_dryRun } from './dry-run'
+import { timeTravel } from '../../utils/time-travel'
 
 const logger = defaultLogger.child({ name: 'rpc-dev' })
 
@@ -49,31 +49,6 @@ const handlers: Handlers = {
     await timeTravel(context.chain, timestamp)
     return timestamp
   },
-  dev_dryRun: async (context, [{ html, extrinsic, hrmp, raw }]) => {
-    const dryRun = async () => {
-      if (extrinsic) {
-        const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(extrinsic)
-        if (outcome.isErr) {
-          throw new Error(outcome.asErr.toString())
-        }
-        return storageDiff
-      }
-      return context.chain.dryRunHrmp(hrmp)
-    }
-    const storageDiff = await dryRun()
-    if (html) {
-      return generateHtmlDiff(context.chain.head, storageDiff)
-    }
-    if (raw) {
-      return storageDiff
-    }
-    const [oldData, newData, delta] = await decodeStorageDiff(context.chain.head, storageDiff)
-    return {
-      old: oldData,
-      new: newData,
-      delta,
-    }
-  },
   dev_setHead: async (context, [hashOrNumber]) => {
     let block: Block | undefined
     if (typeof hashOrNumber === 'number') {
@@ -88,6 +63,7 @@ const handlers: Handlers = {
     await context.chain.setHead(block)
     return block.hash
   },
+  dev_dryRun,
 }
 
 export default handlers

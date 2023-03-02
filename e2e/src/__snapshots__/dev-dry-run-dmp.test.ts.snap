@@ -1,0 +1,213 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dev_dryRun dmp > works 1`] = `
+[
+  {
+    "event": {
+      "data": {
+        "amount": "44,619,385,455",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "44,619,385,455",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b00",
+      "method": "Endowed",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "2,990,804,362",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "1,471,890,122",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "8,779,155,449",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "dispatchInfo": {
+          "class": "Mandatory",
+          "paysFee": "Yes",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "244,378,000",
+          },
+        },
+      },
+      "index": "0x0000",
+      "method": "ExtrinsicSuccess",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "0",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "count": "1",
+      },
+      "index": "0x1e04",
+      "method": "DownwardMessagesReceived",
+      "section": "parachainSystem",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "4,099,997,616,912",
+        "currencyId": {
+          "Token": "DOT",
+        },
+        "who": "23RTYMXEKv7MkSh6CPfyFVYXweCWUF6WncMY1jzhxaw2pV7b",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "2,383,088",
+        "currencyId": {
+          "Token": "DOT",
+        },
+        "who": "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "messageId": "0xca342f7f7a0756371bce233b208eef2c5d5311c90615f896ad38254f3c8acf82",
+        "outcome": {
+          "Complete": "800,000,000",
+        },
+      },
+      "index": "0x3502",
+      "method": "ExecutedDownward",
+      "section": "dmpQueue",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "dmqHead": "0x842783101bd919c29d091ef3d7e8012cefe31548b848c6558317096f44196cb4",
+        "weightUsed": {
+          "proofSize": "0",
+          "refTime": "800,000,000",
+        },
+      },
+      "index": "0x1e05",
+      "method": "DownwardMessagesProcessed",
+      "section": "parachainSystem",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "dispatchInfo": {
+          "class": "Mandatory",
+          "paysFee": "No",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "86,298,000",
+          },
+        },
+      },
+      "index": "0x0000",
+      "method": "ExtrinsicSuccess",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+]
+`;

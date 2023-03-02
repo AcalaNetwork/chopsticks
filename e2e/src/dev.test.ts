@@ -64,14 +64,14 @@ describe('dev rpc', () => {
     expect(timestamp).eq(Date.parse(date))
   })
 
-  it('dryRun', async () => {
+  it('dryRun hrmp', async () => {
     const params = [
       {
         raw: false,
         hrmp: {
-          '2034': [
+          2034: [
             {
-              send_at: 13740000,
+              sentAt: 13740000,
               data: '0x000210000400000106540254a37a01cd75b616d63e0ab665bffdb0143c52ae0013000064a7b3b6e00d0a1300000106540254a37a01cd75b616d63e0ab665bffdb0143c52ae0013000064a7b3b6e00d010700f2052a010d010004000101008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48',
             },
           ],
@@ -79,7 +79,7 @@ describe('dev rpc', () => {
       },
     ]
     const resp = await ws.send('dev_dryRun', params)
-    expect(resp.delta).toMatchSnapshot()
+    expect(resp.new.system.events).toMatchSnapshot()
   })
 
   it('setHead', async () => {
