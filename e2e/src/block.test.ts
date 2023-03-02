@@ -37,12 +37,21 @@ describe('block', () => {
     }, 1000)
     {
       const start = Date.now()
-      // no block is build within 1 sec
+      // no block is built within 1 sec
       await expect(chain.upcomingBlock({ timeout: 1_000 })).rejects.toThrowError('Timeout has occurred')
       expect(Date.now() - start).to.be.approximately(1_000, 50)
 
       const next = await chain.upcomingBlock({ timeout: 10_000 })
       expect(next.number).toEqual(blockNumber + 6)
+    }
+
+    setTimeout(() => {
+      dev.newBlock()
+    }, 1000)
+    {
+      // second block is never built
+      await expect(chain.upcomingBlock({ skipCount: 1, timeout: 10_000 })).rejects.toThrowError('Timeout has occurred')
+      expect(chain.head.number).toEqual(blockNumber + 7)
     }
 
     await delay(1000)
