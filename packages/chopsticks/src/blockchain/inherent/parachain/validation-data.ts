@@ -5,7 +5,7 @@ import { hexToU8a, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from '../../block'
-import { BuildBlockParams, HorizontalMessage } from '../../txpool'
+import { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool'
 import { CreateInherents } from '..'
 import {
   WELL_KNOWN_KEYS,
@@ -45,8 +45,8 @@ const MOCK_VALIDATION_DATA = {
 }
 
 export type ValidationData = {
-  downwardMessages: { sent_at: number; msg: HexString }[]
-  horizontalMessages: Record<number, { sent_at: number; data: HexString }[]>
+  downwardMessages: DownwardMessage[]
+  horizontalMessages: Record<number, HorizontalMessage[]>
   validationData: {
     relayParentNumber: number
     relayParentStorageRoot: HexString
@@ -81,11 +81,11 @@ export class SetValidationData implements CreateInherents {
       }
       const extrinsic = meta.registry
         .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
-        .args[0].toJSON() as ValidationData
+        .args[0].toJSON() as any as ValidationData
 
       const newEntries: [HexString, HexString | null][] = []
-      const downwardMessages: { msg: HexString; sent_at: number }[] = []
-      const horizontalMessages: Record<number, { data: HexString; sent_at: number }[]> = {}
+      const downwardMessages: DownwardMessage[] = []
+      const horizontalMessages: Record<number, HorizontalMessage[]> = {}
 
       const paraId = await getParaId(parent.chain)
 
@@ -122,7 +122,7 @@ export class SetValidationData implements CreateInherents {
 
           downwardMessages.push({
             msg,
-            sent_at: sentAt,
+            sentAt,
           })
         }
         newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
@@ -137,6 +137,7 @@ export class SetValidationData implements CreateInherents {
         .toJSON() as number[]
 
       const hrmpMessages = {
+        // reset values, we just need the keys
         ..._.mapValues(extrinsic.horizontalMessages, () => [] as HorizontalMessage[]),
         ...(params?.horizontalMessages || {}),
       }
@@ -162,7 +163,7 @@ export class SetValidationData implements CreateInherents {
         const abridgedHrmp = meta.registry
           .createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw))
           .toJSON()
-        const paraMessages: { data: HexString; sent_at: number }[] = []
+        const paraMessages: HorizontalMessage[] = []
 
         for (const { data, sentAt } of messages) {
           // calculate new hash
@@ -180,7 +181,7 @@ export class SetValidationData implements CreateInherents {
 
           paraMessages.push({
             data,
-            sent_at: sentAt,
+            sentAt,
           })
         }
 

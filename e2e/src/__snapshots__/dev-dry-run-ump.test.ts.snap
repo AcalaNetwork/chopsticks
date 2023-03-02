@@ -1,0 +1,110 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`dev_dryRun ump > works 1`] = `
+[
+  {
+    "event": {
+      "data": {
+        "dispatchInfo": {
+          "class": "Mandatory",
+          "paysFee": "Yes",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "233,042,000",
+          },
+        },
+      },
+      "index": "0x0000",
+      "method": "ExtrinsicSuccess",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "0",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "38,046,810,000",
+        "who": "13YMK2eYoAvStnzReuxBjMrAvPXmmdsURwZvc62PrdXimbNy",
+      },
+      "index": "0x0508",
+      "method": "Withdraw",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "37,638,163,032",
+        "who": "14Xvmfh7QYWYJUUkLHVmyRkJ1PbLLNHJ1RnsnsZ1Ph7pNxg3",
+      },
+      "index": "0x0507",
+      "method": "Deposit",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "408,646,968",
+        "who": "1XQn94kWaMVJG16AWPKGmYFERfttsjZq4ompSTz2jxHK6uL",
+      },
+      "index": "0x0507",
+      "method": "Deposit",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": [
+        "0x48079e14ffeb3fb6f43147677425488c414c9f58d90b608de5f34f0ac8df8d50",
+        {
+          "Complete": "4,000,000,000",
+        },
+      ],
+      "index": "0x3b02",
+      "method": "ExecutedUpward",
+      "section": "ump",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "dispatchInfo": {
+          "class": "Mandatory",
+          "paysFee": "Yes",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "97,884,000",
+          },
+        },
+      },
+      "index": "0x0000",
+      "method": "ExtrinsicSuccess",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+]
+`;
