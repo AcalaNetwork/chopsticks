@@ -35,6 +35,7 @@
 		"pino": "^8.11.0",
 		"pino-pretty": "^9.4.0",
 		"reflect-metadata": "^0.1.13",
+		"rxjs": "^7.8.0",
 		"sqlite3": "^5.1.4",
 		"typeorm": "^0.3.12",
 		"ws": "^8.12.1",
