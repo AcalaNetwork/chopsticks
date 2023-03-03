@@ -12,6 +12,7 @@ import { dryRun } from './dry-run'
 import { dryRunPreimage } from './dry-run-preimage'
 import { isUrl } from './utils'
 import { runBlock } from './run-block'
+import { tryRuntime } from './try-runtime'
 
 const processConfig = async (path: string) => {
   let file: string
@@ -79,6 +80,33 @@ yargs(hideBin(process.argv))
       }),
     async (argv) => {
       await runBlock(await processArgv(argv))
+    }
+  )
+yargs(hideBin(process.argv))
+  .scriptName('chopsticks')
+  .command(
+    'try-runtime',
+    'Runs runtime upgrade',
+    (yargs) =>
+      yargs.options({
+        ...defaultOptions,
+        port: {
+          desc: 'Port to listen on',
+          number: true,
+        },
+        'output-path': {
+          desc: 'File path to print output',
+          string: true,
+        },
+        html: {
+          desc: 'Generate html with storage diff',
+        },
+        open: {
+          desc: 'Open generated html',
+        },
+      }),
+    async (argv) => {
+      await tryRuntime(await processArgv(argv))
     }
   )
   .command(
