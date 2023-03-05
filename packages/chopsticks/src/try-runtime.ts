@@ -7,7 +7,6 @@ import { setup } from './setup'
 
 export const tryRuntime = async (argv: Config) => {
   const context = await setup(argv)
-  const wasm = await context.chain.head.wasm
   const block = context.chain.head
   const registry = await block.registry
   registry.register({
@@ -22,7 +21,7 @@ export const tryRuntime = async (argv: Config) => {
   const result = await block.call('TryRuntime_on_runtime_upgrade', [select_none.toHex()], [])
 
   if (argv['html']) {
-    const filePath = await generateHtmlDiffPreviewFile(parent, result.Call.storageDiff, block.hash)
+    const filePath = await generateHtmlDiffPreviewFile(block, result.storageDiff, block.hash)
     console.log(`Generated preview ${filePath}`)
     if (argv['open']) {
       openHtml(filePath)
