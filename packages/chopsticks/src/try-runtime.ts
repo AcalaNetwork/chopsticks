@@ -1,18 +1,14 @@
-import { HexString } from '@polkadot/util/types'
 import { writeFileSync } from 'node:fs'
 
 import { Config } from './schema'
 import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
 import { openHtml } from './utils/open-html'
-import { runTask, taskHandler } from './executor'
 import { setup } from './setup'
 
 export const tryRuntime = async (argv: Config) => {
   const context = await setup(argv)
   const wasm = await context.chain.head.wasm
   const block = context.chain.head
-  const parent = await block.parentBlock
-  if (!parent) throw Error('cant find parent block')
   const registry = await block.registry
   registry.register({
     UpgradeCheckSelect: {
@@ -23,21 +19,7 @@ export const tryRuntime = async (argv: Config) => {
   })
 
   const select_none = registry.createType('UpgradeCheckSelect', 'None')
-  const calls: [string, HexString[]][] = [['TryRuntime_on_runtime_upgrade', [select_none.toHex()]]]
-  const result = await runTask(
-    {
-      wasm,
-      calls,
-      storage: [],
-      mockSignatureHost: false,
-      allowUnresolvedImports: false,
-    },
-    taskHandler(parent)
-  )
-
-  if (result.Error) {
-    throw new Error(result.Error)
-  }
+  const result = await block.call('TryRuntime_on_runtime_upgrade', [select_none.toHex()], [])
 
   if (argv['html']) {
     const filePath = await generateHtmlDiffPreviewFile(parent, result.Call.storageDiff, block.hash)

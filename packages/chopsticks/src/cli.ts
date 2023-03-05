@@ -82,18 +82,12 @@ yargs(hideBin(process.argv))
       await runBlock(await processArgv(argv))
     }
   )
-yargs(hideBin(process.argv))
-  .scriptName('chopsticks')
   .command(
     'try-runtime',
     'Runs runtime upgrade',
     (yargs) =>
       yargs.options({
         ...defaultOptions,
-        port: {
-          desc: 'Port to listen on',
-          number: true,
-        },
         'output-path': {
           desc: 'File path to print output',
           string: true,
