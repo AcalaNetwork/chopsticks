@@ -1,6 +1,6 @@
 endpoint: wss://acala-rpc.dwellir.com
 mock-signature-host: true
-block: 2694000
+block: 3000000
 db: ./db.sqlite
 # wasm-override: acala-2101.wasm
 
@@ -20,4 +20,9 @@ import-storage:
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: AUSD
+        - free: 1000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: DOT
         - free: 1000000000000000
