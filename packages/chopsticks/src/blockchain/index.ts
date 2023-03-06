@@ -181,8 +181,14 @@ export class Blockchain {
     logger.debug({ id, hrmp }, 'submitHorizontalMessages')
   }
 
-  async newBlock(params?: BuildBlockParams): Promise<Block> {
-    await this.#txpool.buildBlock(params)
+  async newBlock(params: Partial<BuildBlockParams>): Promise<Block> {
+    await this.#txpool.buildBlock({
+      upwardMessages: {},
+      downwardMessages: [],
+      horizontalMessages: {},
+      transactions: [],
+      ...params,
+    })
     return this.#head
   }
 
@@ -200,7 +206,12 @@ export class Blockchain {
       throw new Error(`Cannot find block ${at}`)
     }
     const registry = await head.registry
-    const inherents = await this.#inherentProvider.createInherents(head)
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
     const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
     return { outcome, storageDiff }
@@ -215,7 +226,12 @@ export class Blockchain {
     if (!head) {
       throw new Error(`Cannot find block ${at}`)
     }
-    const inherents = await this.#inherentProvider.createInherents(head, { horizontalMessages: hrmp })
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: hrmp,
+    })
     return dryRunInherents(head, inherents)
   }
   async dryRunDmp(dmp: DownwardMessage[], at?: HexString): Promise<[HexString, HexString | null][]> {
@@ -224,7 +240,12 @@ export class Blockchain {
     if (!head) {
       throw new Error(`Cannot find block ${at}`)
     }
-    const inherents = await this.#inherentProvider.createInherents(head, { downwardMessages: dmp })
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: dmp,
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     return dryRunInherents(head, inherents)
   }
   async dryRunUmp(ump: Record<number, HexString[]>, at?: HexString): Promise<[HexString, HexString | null][]> {
@@ -255,13 +276,23 @@ export class Blockchain {
     }
 
     head.pushStorageLayer().setAll(stroageValues)
-    const inherents = await this.#inherentProvider.createInherents(head)
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     return dryRunInherents(head, inherents)
   }
 
   async getInherents(): Promise<HexString[]> {
     await this.api.isReady
-    const inherents = await this.#inherentProvider.createInherents(this.head)
+    const inherents = await this.#inherentProvider.createInherents(this.head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     return inherents
   }
 }

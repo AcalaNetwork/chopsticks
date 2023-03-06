@@ -96,7 +96,7 @@ export const dryRunPreimage = async (argv: Config) => {
   // if dry-run preimage has extrinsic arguments then dry-run extrinsic
   // this is usefull to test something after preimage is applied
   if (argv['extrinsic']) {
-    await context.chain.newBlock()
+    await context.chain.newBlock({})
     const input = argv['address'] ? { call: argv['extrinsic'], address: argv['address'] } : argv['extrinsic']
     const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(input)
     if (outcome.isErr) {
