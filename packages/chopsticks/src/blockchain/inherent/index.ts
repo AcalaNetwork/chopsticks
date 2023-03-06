@@ -10,7 +10,7 @@ export { SetBabeRandomness } from './parachain/babe-randomness'
 export { SetNimbusAuthorInherent } from './parachain/nimbus-author-inherent'
 
 export interface CreateInherents {
-  createInherents(parent: Block, params?: BuildBlockParams['inherent']): Promise<HexString[]>
+  createInherents(parent: Block, params: BuildBlockParams): Promise<HexString[]>
 }
 
 export type InherentProvider = CreateInherents
@@ -33,7 +33,7 @@ export class InherentProviders implements InherentProvider {
     this.#providers = providers
   }
 
-  async createInherents(parent: Block, params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+  async createInherents(parent: Block, params: BuildBlockParams): Promise<HexString[]> {
     const base = await this.#base.createInherents(parent, params)
     const extra = await Promise.all(this.#providers.map((provider) => provider.createInherents(parent, params)))
     return [...base, ...extra.flat()]

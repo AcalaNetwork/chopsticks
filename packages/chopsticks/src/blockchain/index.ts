@@ -163,6 +163,24 @@ export class Blockchain {
     throw validity.asErr
   }
 
+  submitUpwardMessages(id: number, ump: HexString[]) {
+    this.#txpool.submitUpwardMessages(id, ump)
+
+    logger.debug({ id, ump }, 'submitUpwardMessages')
+  }
+
+  submitDownwardMessages(dmp: DownwardMessage[]) {
+    this.#txpool.submitDownwardMessages(dmp)
+
+    logger.debug({ dmp }, 'submitDownwardMessages')
+  }
+
+  submitHorizontalMessages(id: number, hrmp: HorizontalMessage[]) {
+    this.#txpool.submitHorizontalMessages(id, hrmp)
+
+    logger.debug({ id, hrmp }, 'submitHorizontalMessages')
+  }
+
   async newBlock(params?: BuildBlockParams): Promise<Block> {
     await this.#txpool.buildBlock(params)
     return this.#head

@@ -135,6 +135,7 @@ export const buildBlock = async (
   head: Block,
   inherents: HexString[],
   extrinsics: HexString[],
+  ump: Record<number, HexString[]>,
   onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
@@ -152,6 +153,38 @@ export const buildBlock = async (
 
   const pendingExtrinsics: HexString[] = []
   const includedExtrinsic: HexString[] = []
+
+  // apply ump via storage override hack
+  if (Object.keys(ump).length > 0) {
+    const meta = await head.meta
+    const layer = head.pushStorageLayer()
+    for (const [paraId, upwardMessages] of Object.entries(ump)) {
+      const queueSize = meta.registry.createType('(u32, u32)', [
+        upwardMessages.length,
+        upwardMessages.map((x) => x.length).reduce((s, i) => s + i, 0),
+      ])
+
+      const messages = meta.registry.createType('Vec<Bytes>', upwardMessages)
+
+      // TODO: make sure we append instead of replace
+      layer.setAll([
+        [compactHex(meta.query.ump.relayDispatchQueues(paraId)), messages.toHex()],
+        [compactHex(meta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex()],
+      ])
+    }
+
+    logger.trace(
+      {
+        number: newBlock.number,
+        tempHash: newBlock.hash,
+        ump,
+      },
+      'Upward messages'
+    )
+
+    const needsDispatch = meta.registry.createType('Vec<u32>', Object.keys(ump))
+    layer.set(compactHex(meta.query.ump.needsDispatch()), needsDispatch.toHex())
+  }
 
   // apply extrinsics
   for (const extrinsic of extrinsics) {

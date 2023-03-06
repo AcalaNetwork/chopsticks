@@ -1,4 +1,4 @@
-import { afterAll, describe, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 
 import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks/src/blockchain/txpool'
 import { connectDownward } from '@acala-network/chopsticks/src/xcm/downward'
@@ -91,7 +91,7 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await polkadot.chain.newBlock()
-    await acala.chain.upcomingBlocks()
+    expect(await acala.chain.upcomingBlocks()).toBe(1)
     await matchSnapshot(polkadot.api.query.system.events())
     await matchSnapshot(acala.api.query.system.events())
 
@@ -146,7 +146,7 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await acala.chain.newBlock()
-    await polkadot.chain.upcomingBlocks()
+    expect(await polkadot.chain.upcomingBlocks()).toBe(1)
 
     await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
     await matchSnapshot(polkadot.api.query.system.account(alice.address))

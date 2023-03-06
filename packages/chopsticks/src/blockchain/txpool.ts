@@ -17,7 +17,7 @@ export enum BuildBlockMode {
 
 export interface DownwardMessage {
   sentAt: number
-  msg: HexString
+  data: HexString
 }
 
 export interface HorizontalMessage {
@@ -26,15 +26,20 @@ export interface HorizontalMessage {
 }
 
 export interface BuildBlockParams {
-  inherent?: {
-    downwardMessages?: DownwardMessage[]
-    horizontalMessages?: Record<number, HorizontalMessage[]>
-  }
+  downwardMessages: DownwardMessage[]
+  upwardMessages: Record<number, HexString[]>
+  horizontalMessages: Record<number, HorizontalMessage[]>
+  transactions: HexString[]
 }
 
 export class TxPool {
   readonly #chain: Blockchain
+
   readonly #pool: HexString[] = []
+  readonly #ump: Record<number, HexString[]> = {}
+  readonly #dmp: DownwardMessage[] = []
+  readonly #hrmp: Record<number, HorizontalMessage[]> = {}
+
   readonly #mode: BuildBlockMode
   readonly #inherentProvider: InherentProvider
   readonly #pendingBlocks: { params: BuildBlockParams; deferred: Deferred<void> }[] = []
@@ -56,6 +61,34 @@ export class TxPool {
   submitExtrinsic(extrinsic: HexString) {
     this.#pool.push(extrinsic)
 
+    this.#maybeBuildBlock()
+  }
+
+  submitUpwardMessages(id: number, ump: HexString[]) {
+    if (!this.#ump[id]) {
+      this.#ump[id] = []
+    }
+    this.#ump[id].push(...ump)
+
+    this.#maybeBuildBlock()
+  }
+
+  submitDownwardMessages(dmp: DownwardMessage[]) {
+    this.#dmp.push(...dmp)
+
+    this.#maybeBuildBlock()
+  }
+
+  submitHorizontalMessages(id: number, hrmp: HorizontalMessage[]) {
+    if (!this.#hrmp[id]) {
+      this.#hrmp[id] = []
+    }
+    this.#hrmp[id].push(...hrmp)
+
+    this.#maybeBuildBlock()
+  }
+
+  #maybeBuildBlock() {
     switch (this.#mode) {
       case BuildBlockMode.Batch:
         this.#batchBuildBlock()
@@ -72,8 +105,24 @@ export class TxPool {
   #batchBuildBlock = _.debounce(this.buildBlock, 100, { maxWait: 1000 })
 
   async buildBlock(params?: BuildBlockParams) {
+    if (!params) {
+      // collect all pending messages
+      const transactions = this.#pool.splice(0)
+      params = {
+        transactions,
+        upwardMessages: { ...this.#ump },
+        downwardMessages: this.#dmp.splice(0),
+        horizontalMessages: { ...this.#hrmp },
+      }
+      for (const id of Object.keys(this.#ump)) {
+        delete this.#ump[id]
+      }
+      for (const id of Object.keys(this.#hrmp)) {
+        delete this.#hrmp[id]
+      }
+    }
     this.#pendingBlocks.push({
-      params: params || {},
+      params,
       deferred: defer<void>(),
     })
     this.#buildBlockIfNeeded()
@@ -111,11 +160,16 @@ export class TxPool {
     const { params, deferred } = pending
 
     const head = this.#chain.head
-    const extrinsics = this.#pool.splice(0)
-    const inherents = await this.#inherentProvider.createInherents(head, params?.inherent)
-    const [newBlock, pendingExtrinsics] = await buildBlock(head, inherents, extrinsics, (extrinsic, error) => {
-      this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
-    })
+    const inherents = await this.#inherentProvider.createInherents(head, params)
+    const [newBlock, pendingExtrinsics] = await buildBlock(
+      head,
+      inherents,
+      params.transactions,
+      params.upwardMessages,
+      (extrinsic, error) => {
+        this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
+      }
+    )
     this.#pool.push(...pendingExtrinsics)
     await this.#chain.setHead(newBlock)
 

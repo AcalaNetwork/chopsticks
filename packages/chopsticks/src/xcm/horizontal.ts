@@ -30,7 +30,7 @@ export const connectHorizontal = async (parachains: Record<number, Blockchain>) 
         }
         const receiver = parachains[recipient]
         if (receiver) {
-          await receiver.newBlock({ inherent: { horizontalMessages } })
+          receiver.submitHorizontalMessages(id, horizontalMessages)
         }
       }
     })

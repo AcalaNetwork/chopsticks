@@ -101,13 +101,13 @@ export const setupAll = async ({
         api: apiPromise,
         async teardown() {
           await apiPromise.disconnect()
-          await new Promise((resolve) => setTimeout(resolve, 1000))
+          await delay(100)
           await close()
         },
       }
     },
     async teardownAll() {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await delay(100)
       await api.disconnect()
     },
   }

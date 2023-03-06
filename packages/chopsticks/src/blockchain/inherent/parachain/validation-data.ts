@@ -58,7 +58,7 @@ export type ValidationData = {
 }
 
 export class SetValidationData implements CreateInherents {
-  async createInherents(parent: Block, params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+  async createInherents(parent: Block, params: BuildBlockParams): Promise<HexString[]> {
     const meta = await parent.meta
     if (!meta.tx.parachainSystem?.setValidationData) {
       return []
@@ -109,19 +109,19 @@ export class SetValidationData implements CreateInherents {
       // inject downward messages
       let dmqMqcHeadHash = decoded[dmqMqcHeadKey]
       if (dmqMqcHeadHash) {
-        for (const { msg, sentAt } of params?.downwardMessages || []) {
+        for (const { data, sentAt } of params.downwardMessages || []) {
           // calculate new hash
           dmqMqcHeadHash = blake2AsHex(
             u8aConcat(
               meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
               meta.registry.createType('BlockNumber', sentAt).toU8a(),
-              blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256)
+              blake2AsU8a(meta.registry.createType('Bytes', data).toU8a(), 256)
             ),
             256
           )
 
           downwardMessages.push({
-            msg,
+            data,
             sentAt,
           })
         }
