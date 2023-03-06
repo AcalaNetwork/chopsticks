@@ -108,9 +108,6 @@ export class SetValidationData implements CreateInherents {
 
       // inject downward messages
       let dmqMqcHeadHash = decoded[dmqMqcHeadKey]
-      console.log(11111, 'old hash', {
-        dmqMqcHeadHash,
-      })
       if (dmqMqcHeadHash) {
         for (const { msg, sentAt } of params.downwardMessages) {
           // calculate new hash
@@ -129,10 +126,6 @@ export class SetValidationData implements CreateInherents {
           })
         }
         newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
-        console.log(1111, {
-          dmqMqcHeadHash,
-          downwardMessages,
-        })
       }
 
       const hrmpIngressChannels = meta.registry

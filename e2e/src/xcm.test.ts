@@ -97,10 +97,10 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await polkadot.chain.newBlock()
-    await matchSystemEvents(polkadot, 'xcmPallet')
+    await matchSystemEvents(polkadot)
 
     await acala.chain.newBlock()
-    await matchSystemEvents(acala, 'parachainSystem', 'dmpQueue')
+    await matchSystemEvents(acala)
   })
 
   it('Acala send upward messages to Polkadot', async () => {
@@ -147,11 +147,12 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await acala.chain.newBlock()
-    expect(await polkadot.chain.upcomingBlocks()).toBe(1)
-
+    await matchSystemEvents(acala)
     await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
+
+    await polkadot.chain.newBlock()
+
     await matchSnapshot(polkadot.api.query.system.account(alice.address))
-    await matchSnapshot(polkadot.api.query.system.events())
-    await matchSnapshot(acala.api.query.system.events())
+    await matchSystemEvents(polkadot)
   })
 })

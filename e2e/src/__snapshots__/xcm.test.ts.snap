@@ -1,5 +1,132 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`XCM > Acala handles downward messages > system events 1`] = `
+[
+  {
+    "data": {
+      "amount": "(rounded 45000000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 2500000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 1200000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 7100000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 260000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+  {
+    "data": {
+      "count": 1,
+    },
+    "method": "DownwardMessagesReceived",
+    "section": "parachainSystem",
+  },
+  {
+    "data": {
+      "amount": "(rounded 250000000000)",
+      "currencyId": {
+        "Token": "DOT",
+      },
+      "who": "25EPNyxpdqMUeVj9WndwUYVKkfFkMLroo2fg9V1MA79PJ6iE",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 1700000)",
+      "currencyId": {
+        "Token": "DOT",
+      },
+      "who": "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "messageId": "(hash)",
+      "outcome": {
+        "Complete": 800000000,
+      },
+    },
+    "method": "ExecutedDownward",
+    "section": "dmpQueue",
+  },
+  {
+    "data": {
+      "dmqHead": "(hash)",
+      "weightUsed": {
+        "proofSize": 0,
+        "refTime": 800000000,
+      },
+    },
+    "method": "DownwardMessagesProcessed",
+    "section": "parachainSystem",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "No",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 99000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+]
+`;
+
 exports[`XCM > Acala handles downward messages 1`] = `
 [
   {
@@ -192,6 +319,138 @@ exports[`XCM > Acala handles downward messages 1`] = `
       "ApplyExtrinsic": "1",
     },
     "topics": [],
+  },
+]
+`;
+
+exports[`XCM > Acala handles horizonal messages > system events 1`] = `
+[
+  {
+    "data": {
+      "amount": "(rounded 45000000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 2500000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 1200000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 7100000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 260000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+  {
+    "data": {
+      "amount": "(rounded 9100000000000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23UvQ3ZQXJ5LfTUSYkcRPkQX2FHgcKxGmqdxYJe9j5e3Lwsi",
+    },
+    "method": "Withdrawn",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 9100000000000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "2561WgnRM2Nbec2WseHxVdpeW19YYHh7RM5gRWQV7zwwwgXQ",
+    },
+    "method": "Endowed",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 9100000000000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "2561WgnRM2Nbec2WseHxVdpeW19YYHh7RM5gRWQV7zwwwgXQ",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 1600000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "messageHash": "(hash)",
+      "weight": {
+        "proofSize": 0,
+        "refTime": 800000000,
+      },
+    },
+    "method": "Success",
+    "section": "xcmpQueue",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "No",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 99000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
   },
 ]
 `;
@@ -396,6 +655,8 @@ exports[`XCM > Acala handles horizonal messages 1`] = `
   },
 ]
 `;
+
+exports[`XCM > Acala send upward messages to Polkadot > system events 1`] = `[]`;
 
 exports[`XCM > Acala send upward messages to Polkadot 1`] = `
 {
