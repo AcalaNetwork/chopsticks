@@ -82,7 +82,9 @@ export class TxPool {
 
   async upcomingBlocks() {
     const count = this.#pendingBlocks.length
-    await this.#pendingBlocks[count - 1].deferred.promise
+    if (count > 0) {
+      await this.#pendingBlocks[count - 1].deferred.promise
+    }
     return count
   }
 
