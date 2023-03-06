@@ -159,11 +159,7 @@ export const buildBlock = async (
       const { result, storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
       const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
       if (outcome.isErr) {
-        if (outcome.asErr.isInvalid && outcome.asErr.asInvalid.isFuture) {
-          pendingExtrinsics.push(extrinsic)
-        } else {
-          onApplyExtrinsicError(extrinsic, outcome.asErr)
-        }
+        onApplyExtrinsicError(extrinsic, outcome.asErr)
         continue
       }
       newBlock.pushStorageLayer().setAll(storageDiff)
