@@ -91,7 +91,7 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await polkadot.chain.newBlock()
-    await acala.chain.upcomingBlock()
+    await acala.chain.upcomingBlocks()
     await matchSnapshot(polkadot.api.query.system.events())
     await matchSnapshot(acala.api.query.system.events())
 
@@ -146,7 +146,7 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await acala.chain.newBlock()
-    await polkadot.chain.upcomingBlock()
+    await polkadot.chain.upcomingBlocks()
 
     await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
     await matchSnapshot(polkadot.api.query.system.account(alice.address))

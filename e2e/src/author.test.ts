@@ -78,7 +78,7 @@ describe('author rpc', () => {
         invalid.resolve(result.status.toString())
       }
       if (result.status.isFinalized) {
-        finalized.resolve(null)
+        finalized.resolve()
       }
     }
 

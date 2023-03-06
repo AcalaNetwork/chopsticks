@@ -18,6 +18,7 @@ import {
 } from '@acala-network/chopsticks/src/blockchain/inherent'
 import { StorageValues } from '@acala-network/chopsticks/src/utils/set-storage'
 import { createServer } from '@acala-network/chopsticks/src/server'
+import { defer } from '@acala-network/chopsticks/src/utils'
 import { handler } from '@acala-network/chopsticks/src/rpc'
 
 export type SetupOption = {
@@ -167,15 +168,6 @@ export const dev = {
   },
 }
 
-export function defer<T>() {
-  const deferred = {} as { resolve: (value: any) => void; reject: (reason: any) => void; promise: Promise<T> }
-  deferred.promise = new Promise((resolve, reject) => {
-    deferred.resolve = resolve
-    deferred.reject = reject
-  })
-  return deferred
-}
-
 export const mockCallback = () => {
   let next = defer()
   const callback = vi.fn((...args) => {
@@ -213,3 +205,5 @@ export const testingPairs = (ss58Format?: number) => {
     keyring,
   }
 }
+
+export { defer }

@@ -8,14 +8,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
-import {
-  BuildBlockMode,
-  BuildBlockParams,
-  DownwardMessage,
-  HorizontalMessage,
-  TxPool,
-  UpcomingBlockParams,
-} from './txpool'
+import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { StorageValue } from './storage-layer'
@@ -175,8 +168,8 @@ export class Blockchain {
     return this.#head
   }
 
-  async upcomingBlock(params?: UpcomingBlockParams) {
-    return this.#txpool.upcomingBlock(params)
+  async upcomingBlocks() {
+    return this.#txpool.upcomingBlocks()
   }
 
   async dryRunExtrinsic(

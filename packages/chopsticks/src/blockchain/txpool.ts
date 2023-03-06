@@ -1,11 +1,9 @@
-import { BehaviorSubject, firstValueFrom } from 'rxjs'
 import { EventEmitter } from 'node:stream'
 import { HexString } from '@polkadot/util/types'
-import { skip, take, timeout } from 'rxjs/operators'
 import _ from 'lodash'
 
-import { Block } from './block'
 import { Blockchain } from '.'
+import { Deferred, defer } from '../utils'
 import { InherentProvider } from './inherent'
 import { buildBlock } from './block-builder'
 
@@ -34,27 +32,19 @@ export interface BuildBlockParams {
   }
 }
 
-export interface UpcomingBlockParams {
-  /// upcoming blocks to skip
-  skipCount?: number
-  /// how long to wait in milliseconds
-  timeout?: number
-}
-
 export class TxPool {
   readonly #chain: Blockchain
   readonly #pool: HexString[] = []
   readonly #mode: BuildBlockMode
   readonly #inherentProvider: InherentProvider
+  readonly #pendingBlocks: { params: BuildBlockParams; deferred: Deferred<void> }[] = []
 
   readonly event = new EventEmitter()
 
-  #last: BehaviorSubject<Block>
-  #lastBuildBlockPromise: Promise<void> = Promise.resolve()
+  #isBuilding = false
 
   constructor(chain: Blockchain, inherentProvider: InherentProvider, mode: BuildBlockMode = BuildBlockMode.Batch) {
     this.#chain = chain
-    this.#last = new BehaviorSubject<Block>(chain.head)
     this.#mode = mode
     this.#inherentProvider = inherentProvider
   }
@@ -82,25 +72,42 @@ export class TxPool {
   #batchBuildBlock = _.debounce(this.buildBlock, 100, { maxWait: 1000 })
 
   async buildBlock(params?: BuildBlockParams) {
-    const last = this.#lastBuildBlockPromise
-    this.#lastBuildBlockPromise = this.#buildBlock(last, params)
-    await this.#lastBuildBlockPromise
-    this.#last.next(this.#chain.head)
+    this.#pendingBlocks.push({
+      params: params || {},
+      deferred: defer<void>(),
+    })
+    this.#buildBlockIfNeeded()
+    await this.upcomingBlocks()
   }
 
-  async upcomingBlock(params?: UpcomingBlockParams) {
-    const { skipCount, timeout: millisecs } = { skipCount: 0, ...(params || {}) }
-    if (skipCount < 0) throw new Error('skipCount needs to be greater or equal to 0')
-    let stream$ = this.#last.pipe()
-    if (millisecs) {
-      stream$ = stream$.pipe(timeout(millisecs))
+  async upcomingBlocks() {
+    const count = this.#pendingBlocks.length
+    await this.#pendingBlocks[count - 1].deferred.promise
+    return count
+  }
+
+  async #buildBlockIfNeeded() {
+    if (this.#isBuilding) return
+    if (this.#pendingBlocks.length === 0) return
+
+    this.#isBuilding = true
+    try {
+      await this.#buildBlock()
+    } finally {
+      this.#isBuilding = false
+      this.#buildBlockIfNeeded()
     }
-    return firstValueFrom(stream$.pipe(skip(1 + skipCount), take(1)))
   }
 
-  async #buildBlock(wait: Promise<void>, params?: BuildBlockParams) {
+  async #buildBlock() {
     await this.#chain.api.isReady
-    await wait.catch(() => {}) // ignore error
+
+    const pending = this.#pendingBlocks[0]
+    if (!pending) {
+      throw new Error('Unreachable')
+    }
+    const { params, deferred } = pending
+
     const head = this.#chain.head
     const extrinsics = this.#pool.splice(0)
     const inherents = await this.#inherentProvider.createInherents(head, params?.inherent)
@@ -109,5 +116,8 @@ export class TxPool {
     })
     this.#pool.push(...pendingExtrinsics)
     await this.#chain.setHead(newBlock)
+
+    this.#pendingBlocks.shift()
+    deferred.resolve()
   }
 }
