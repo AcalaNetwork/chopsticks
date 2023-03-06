@@ -850,6 +850,57 @@ exports[`XCM > Acala send upward messages to Polkadot 7`] = `
 ]
 `;
 
+exports[`XCM > Polkadot send downward messages to Acala > system events 1`] = `
+[
+  {
+    "data": [
+      {
+        "Complete": 1000000000,
+      },
+    ],
+    "method": "Attempted",
+    "section": "xcmPallet",
+  },
+]
+`;
+
+exports[`XCM > Polkadot send downward messages to Acala > system events 2`] = `
+[
+  {
+    "data": {
+      "count": 2,
+    },
+    "method": "DownwardMessagesReceived",
+    "section": "parachainSystem",
+  },
+  {
+    "data": {
+      "messageId": "(hash)",
+    },
+    "method": "InvalidFormat",
+    "section": "dmpQueue",
+  },
+  {
+    "data": {
+      "messageId": "(hash)",
+    },
+    "method": "InvalidFormat",
+    "section": "dmpQueue",
+  },
+  {
+    "data": {
+      "dmqHead": "(hash)",
+      "weightUsed": {
+        "proofSize": 0,
+        "refTime": 0,
+      },
+    },
+    "method": "DownwardMessagesProcessed",
+    "section": "parachainSystem",
+  },
+]
+`;
+
 exports[`XCM > Polkadot send downward messages to Acala 1`] = `
 [
   {

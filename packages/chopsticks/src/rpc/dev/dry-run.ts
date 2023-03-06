@@ -38,7 +38,7 @@ const dryRunSchema = z.object({
     .array(
       z.object({
         sentAt: z.number(),
-        data: zHex,
+        msg: zHex,
       })
     )
     .min(1)

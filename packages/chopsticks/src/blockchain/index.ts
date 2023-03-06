@@ -181,14 +181,13 @@ export class Blockchain {
     logger.debug({ id, hrmp }, 'submitHorizontalMessages')
   }
 
-  async newBlock(params: Partial<BuildBlockParams>): Promise<Block> {
-    await this.#txpool.buildBlock({
-      upwardMessages: {},
-      downwardMessages: [],
-      horizontalMessages: {},
-      transactions: [],
-      ...params,
-    })
+  async newBlock(params?: Partial<BuildBlockParams>): Promise<Block> {
+    await this.#txpool.buildBlock(params)
+    return this.#head
+  }
+
+  async newBlockWithParams(params: BuildBlockParams): Promise<Block> {
+    await this.#txpool.buildBlockWithParams(params)
     return this.#head
   }
 

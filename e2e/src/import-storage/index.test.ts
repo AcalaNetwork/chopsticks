@@ -41,7 +41,7 @@ describe('import-storage', () => {
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
     const blockNumber = chain.head.number
     // can produce blocks
-    await expect(chain.newBlock({})).resolves.toContain({ number: blockNumber + 1 })
+    await expect(chain.newBlock()).resolves.toContain({ number: blockNumber + 1 })
   })
 
   it('able to reset storage map', async () => {

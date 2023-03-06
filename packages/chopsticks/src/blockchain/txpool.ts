@@ -17,7 +17,7 @@ export enum BuildBlockMode {
 
 export interface DownwardMessage {
   sentAt: number
-  data: HexString
+  msg: HexString
 }
 
 export interface HorizontalMessage {
@@ -104,29 +104,36 @@ export class TxPool {
 
   #batchBuildBlock = _.debounce(this.buildBlock, 100, { maxWait: 1000 })
 
-  async buildBlock(params?: BuildBlockParams) {
-    if (!params) {
-      // collect all pending messages
-      const transactions = this.#pool.splice(0)
-      params = {
-        transactions,
-        upwardMessages: { ...this.#ump },
-        downwardMessages: this.#dmp.splice(0),
-        horizontalMessages: { ...this.#hrmp },
-      }
-      for (const id of Object.keys(this.#ump)) {
-        delete this.#ump[id]
-      }
-      for (const id of Object.keys(this.#hrmp)) {
-        delete this.#hrmp[id]
-      }
-    }
+  async buildBlockWithParams(params: BuildBlockParams) {
     this.#pendingBlocks.push({
       params,
       deferred: defer<void>(),
     })
     this.#buildBlockIfNeeded()
     await this.upcomingBlocks()
+  }
+
+  async buildBlock(params?: Partial<BuildBlockParams>) {
+    const transactions = params?.transactions || this.#pool.splice(0)
+    const upwardMessages = params?.upwardMessages || { ...this.#ump }
+    const downwardMessages = params?.downwardMessages || this.#dmp.splice(0)
+    const horizontalMessages = params?.horizontalMessages || { ...this.#hrmp }
+    if (!params?.upwardMessages) {
+      for (const id of Object.keys(this.#ump)) {
+        delete this.#ump[id]
+      }
+    }
+    if (!params?.horizontalMessages) {
+      for (const id of Object.keys(this.#hrmp)) {
+        delete this.#hrmp[id]
+      }
+    }
+    await this.buildBlockWithParams({
+      transactions,
+      upwardMessages,
+      downwardMessages,
+      horizontalMessages,
+    })
   }
 
   async upcomingBlocks() {

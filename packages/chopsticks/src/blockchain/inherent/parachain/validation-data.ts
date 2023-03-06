@@ -108,24 +108,31 @@ export class SetValidationData implements CreateInherents {
 
       // inject downward messages
       let dmqMqcHeadHash = decoded[dmqMqcHeadKey]
+      console.log(11111, 'old hash', {
+        dmqMqcHeadHash,
+      })
       if (dmqMqcHeadHash) {
-        for (const { data, sentAt } of params.downwardMessages || []) {
+        for (const { msg, sentAt } of params.downwardMessages) {
           // calculate new hash
           dmqMqcHeadHash = blake2AsHex(
             u8aConcat(
               meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
               meta.registry.createType('BlockNumber', sentAt).toU8a(),
-              blake2AsU8a(meta.registry.createType('Bytes', data).toU8a(), 256)
+              blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256)
             ),
             256
           )
 
           downwardMessages.push({
-            data,
+            msg,
             sentAt,
           })
         }
         newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
+        console.log(1111, {
+          dmqMqcHeadHash,
+          downwardMessages,
+        })
       }
 
       const hrmpIngressChannels = meta.registry
@@ -139,7 +146,7 @@ export class SetValidationData implements CreateInherents {
       const hrmpMessages = {
         // reset values, we just need the keys
         ..._.mapValues(extrinsic.horizontalMessages, () => [] as HorizontalMessage[]),
-        ...(params?.horizontalMessages || {}),
+        ...params.horizontalMessages,
       }
 
       // inject horizontal messages
