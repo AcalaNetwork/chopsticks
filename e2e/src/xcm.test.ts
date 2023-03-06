@@ -9,7 +9,7 @@ import { setStorage } from '@acala-network/chopsticks/src/utils/set-storage'
 const downwardMessages: DownwardMessage[] = [
   {
     sentAt: 1,
-    msg: '0x0210010400010000078155a74e390a1300010000078155a74e39010300286bee0d01000400010100c0cbffafddbe39f71f0190c2369adfc59eaa4c81a308ebcad88cdd9c400ba57c',
+    data: '0x0210010400010000078155a74e390a1300010000078155a74e39010300286bee0d01000400010100c0cbffafddbe39f71f0190c2369adfc59eaa4c81a308ebcad88cdd9c400ba57c',
   },
 ]
 
@@ -40,14 +40,14 @@ describe('XCM', async () => {
 
   it('Acala handles downward messages', async () => {
     const { chain, api, teardown } = await ctxAcala.setup()
-    await chain.newBlock({ inherent: { downwardMessages } })
+    await chain.newBlock({ downwardMessages })
     await matchSnapshot(api.query.system.events())
     await teardown()
   })
 
   it('Acala handles horizonal messages', async () => {
     const { chain, api, teardown } = await ctxAcala.setup()
-    await chain.newBlock({ inherent: { horizontalMessages } })
+    await chain.newBlock({ horizontalMessages })
     await matchSnapshot(api.query.system.events())
     await teardown()
   })
@@ -90,7 +90,7 @@ describe('XCM', async () => {
       )
       .signAndSend(alice)
 
-    await polkadot.chain.newBlock()
+    await polkadot.chain.newBlock({})
     expect(await acala.chain.upcomingBlocks()).toBe(1)
     await matchSnapshot(polkadot.api.query.system.events())
     await matchSnapshot(acala.api.query.system.events())
@@ -145,7 +145,7 @@ describe('XCM', async () => {
       )
       .signAndSend(alice)
 
-    await acala.chain.newBlock()
+    await acala.chain.newBlock({})
     expect(await polkadot.chain.upcomingBlocks()).toBe(1)
 
     await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
