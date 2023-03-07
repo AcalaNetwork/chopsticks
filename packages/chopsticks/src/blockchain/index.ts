@@ -157,7 +157,7 @@ export class Blockchain {
     const registry = await this.head.registry
     const validity: TransactionValidity = registry.createType('TransactionValidity', res.result)
     if (validity.isOk) {
-      this.#txpool.submitExtrinsic(extrinsic)
+      await this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)
     }
     throw validity.asErr

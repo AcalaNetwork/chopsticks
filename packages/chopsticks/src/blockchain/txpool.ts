@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import { Blockchain } from '.'
 import { Deferred, defer } from '../utils'
+import { GenericExtrinsic } from '@polkadot/types'
 import { InherentProvider } from './inherent'
 import { buildBlock } from './block-builder'
 
@@ -35,7 +36,7 @@ export interface BuildBlockParams {
 export class TxPool {
   readonly #chain: Blockchain
 
-  readonly #pool: HexString[] = []
+  readonly #pool: { extrinsic: HexString; signer: string }[] = []
   readonly #ump: Record<number, HexString[]> = {}
   readonly #dmp: DownwardMessage[] = []
   readonly #hrmp: Record<number, HorizontalMessage[]> = {}
@@ -55,13 +56,23 @@ export class TxPool {
   }
 
   get pendingExtrinsics(): HexString[] {
-    return this.#pool
+    return this.#pool.map(({ extrinsic }) => extrinsic)
   }
 
-  submitExtrinsic(extrinsic: HexString) {
-    this.#pool.push(extrinsic)
+  pendingExtrinsicsBy(address: string): HexString[] {
+    return this.#pool.filter(({ signer }) => signer === address).map(({ extrinsic }) => extrinsic)
+  }
+
+  async submitExtrinsic(extrinsic: HexString) {
+    this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })
 
     this.#maybeBuildBlock()
+  }
+
+  async #getSigner(extrinsic: HexString) {
+    const registry = await this.#chain.head.registry
+    const tx = registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)
+    return tx.signer.toString()
   }
 
   submitUpwardMessages(id: number, ump: HexString[]) {
@@ -114,7 +125,7 @@ export class TxPool {
   }
 
   async buildBlock(params?: Partial<BuildBlockParams>) {
-    const transactions = params?.transactions || this.#pool.splice(0)
+    const transactions = params?.transactions || this.#pool.splice(0).map(({ extrinsic }) => extrinsic)
     const upwardMessages = params?.upwardMessages || { ...this.#ump }
     const downwardMessages = params?.downwardMessages || this.#dmp.splice(0)
     const horizontalMessages = params?.horizontalMessages || { ...this.#hrmp }
@@ -177,7 +188,9 @@ export class TxPool {
         this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
       }
     )
-    this.#pool.push(...pendingExtrinsics)
+    for (const extrinsic of pendingExtrinsics) {
+      this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })
+    }
     await this.#chain.setHead(newBlock)
 
     this.#pendingBlocks.shift()
