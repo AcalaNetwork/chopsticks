@@ -8,14 +8,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
-import {
-  BuildBlockMode,
-  BuildBlockParams,
-  DownwardMessage,
-  HorizontalMessage,
-  TxPool,
-  UpcomingBlockParams,
-} from './txpool'
+import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { StorageValue } from './storage-layer'
@@ -170,13 +163,36 @@ export class Blockchain {
     throw validity.asErr
   }
 
-  async newBlock(params?: BuildBlockParams): Promise<Block> {
+  submitUpwardMessages(id: number, ump: HexString[]) {
+    this.#txpool.submitUpwardMessages(id, ump)
+
+    logger.debug({ id, ump }, 'submitUpwardMessages')
+  }
+
+  submitDownwardMessages(dmp: DownwardMessage[]) {
+    this.#txpool.submitDownwardMessages(dmp)
+
+    logger.debug({ dmp }, 'submitDownwardMessages')
+  }
+
+  submitHorizontalMessages(id: number, hrmp: HorizontalMessage[]) {
+    this.#txpool.submitHorizontalMessages(id, hrmp)
+
+    logger.debug({ id, hrmp }, 'submitHorizontalMessages')
+  }
+
+  async newBlock(params?: Partial<BuildBlockParams>): Promise<Block> {
     await this.#txpool.buildBlock(params)
     return this.#head
   }
 
-  async upcomingBlock(params?: UpcomingBlockParams) {
-    return this.#txpool.upcomingBlock(params)
+  async newBlockWithParams(params: BuildBlockParams): Promise<Block> {
+    await this.#txpool.buildBlockWithParams(params)
+    return this.#head
+  }
+
+  async upcomingBlocks() {
+    return this.#txpool.upcomingBlocks()
   }
 
   async dryRunExtrinsic(
@@ -189,7 +205,12 @@ export class Blockchain {
       throw new Error(`Cannot find block ${at}`)
     }
     const registry = await head.registry
-    const inherents = await this.#inherentProvider.createInherents(head)
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
     const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
     return { outcome, storageDiff }
@@ -204,7 +225,12 @@ export class Blockchain {
     if (!head) {
       throw new Error(`Cannot find block ${at}`)
     }
-    const inherents = await this.#inherentProvider.createInherents(head, { horizontalMessages: hrmp })
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: hrmp,
+    })
     return dryRunInherents(head, inherents)
   }
   async dryRunDmp(dmp: DownwardMessage[], at?: HexString): Promise<[HexString, HexString | null][]> {
@@ -213,7 +239,12 @@ export class Blockchain {
     if (!head) {
       throw new Error(`Cannot find block ${at}`)
     }
-    const inherents = await this.#inherentProvider.createInherents(head, { downwardMessages: dmp })
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: dmp,
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     return dryRunInherents(head, inherents)
   }
   async dryRunUmp(ump: Record<number, HexString[]>, at?: HexString): Promise<[HexString, HexString | null][]> {
@@ -244,13 +275,23 @@ export class Blockchain {
     }
 
     head.pushStorageLayer().setAll(stroageValues)
-    const inherents = await this.#inherentProvider.createInherents(head)
+    const inherents = await this.#inherentProvider.createInherents(head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     return dryRunInherents(head, inherents)
   }
 
   async getInherents(): Promise<HexString[]> {
     await this.api.isReady
-    const inherents = await this.#inherentProvider.createInherents(this.head)
+    const inherents = await this.#inherentProvider.createInherents(this.head, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
     return inherents
   }
 }

@@ -39,6 +39,7 @@ const defaultOptions = {
   },
   block: {
     desc: 'Block hash or block number. Default to latest block',
+    string: true,
   },
   'wasm-override': {
     desc: 'Path to wasm override',
@@ -168,7 +169,11 @@ yargs(hideBin(process.argv))
         }),
     async (argv) => {
       const context = await setup(await processArgv(argv))
-      const { storage, decodedKey } = await decodeKey(context.chain.head, argv.key as HexString)
+      const { storage, decodedKey } = decodeKey(
+        await context.chain.head.meta,
+        context.chain.head,
+        argv.key as HexString
+      )
       if (storage && decodedKey) {
         console.log(
           `${storage.section}.${storage.method}`,

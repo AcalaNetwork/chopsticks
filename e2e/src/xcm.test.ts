@@ -1,10 +1,13 @@
-import { afterAll, describe, it } from 'vitest'
+import { beforeEach, describe, it } from 'vitest'
 
 import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks/src/blockchain/txpool'
 import { connectDownward } from '@acala-network/chopsticks/src/xcm/downward'
 import { connectUpward } from '@acala-network/chopsticks/src/xcm/upward'
-import { matchSnapshot, setupAll, testingPairs } from './helper'
+import { matchSystemEvents, testingPairs } from '@acala-network/chopsticks-tests/src'
 import { setStorage } from '@acala-network/chopsticks/src/utils/set-storage'
+
+import { matchSnapshot } from './helper'
+import networks, { Network } from './networks'
 
 const downwardMessages: DownwardMessage[] = [
   {
@@ -23,44 +26,35 @@ const horizontalMessages: Record<number, HorizontalMessage[]> = {
 }
 
 describe('XCM', async () => {
-  const ctxAcala = await setupAll({
-    endpoint: 'wss://acala-rpc-1.aca-api.network',
-    blockHash: '0x0defc0c9df164f9c4310239a9cfc4cab5fa6c7d8fa8fea44cc46ab39017e963a',
-  })
+  let acala: Network
+  let polkadot: Network
 
-  const ctxPolkadot = await setupAll({
-    endpoint: 'wss://rpc.polkadot.io',
-    blockHash: '0x0a26b277b252fc61efcda02e44e95c73bf7ae21233bacb2d3bd7631212350d59',
-  })
+  beforeEach(async () => {
+    acala = await networks.acala()
+    polkadot = await networks.polkadot()
 
-  afterAll(async () => {
-    await ctxAcala.teardownAll()
-    await ctxPolkadot.teardownAll()
+    return async () => {
+      await acala.teardown()
+      await polkadot.teardown()
+    }
   })
 
   it('Acala handles downward messages', async () => {
-    const { chain, api, teardown } = await ctxAcala.setup()
-    await chain.newBlock({ inherent: { downwardMessages } })
-    await matchSnapshot(api.query.system.events())
-    await teardown()
+    await acala.chain.newBlock({ downwardMessages })
+    await matchSystemEvents(acala)
   })
 
   it('Acala handles horizonal messages', async () => {
-    const { chain, api, teardown } = await ctxAcala.setup()
-    await chain.newBlock({ inherent: { horizontalMessages } })
-    await matchSnapshot(api.query.system.events())
-    await teardown()
+    await acala.chain.newBlock({ horizontalMessages })
+    await matchSystemEvents(acala)
   })
 
   it('Polkadot send downward messages to Acala', async () => {
-    const polkadot = await ctxPolkadot.setup()
-    const acala = await ctxAcala.setup()
-
     await connectDownward(polkadot.chain, acala.chain)
 
     const { alice } = testingPairs()
 
-    await setStorage(polkadot.chain, {
+    polkadot.dev.setStorage({
       System: {
         Account: [[[alice.address], { data: { free: 1000 * 1e10 } }]],
       },
@@ -91,18 +85,13 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await polkadot.chain.newBlock()
-    await acala.chain.upcomingBlock()
-    await matchSnapshot(polkadot.api.query.system.events())
-    await matchSnapshot(acala.api.query.system.events())
+    await matchSystemEvents(polkadot)
 
-    await polkadot.teardown()
-    await acala.teardown()
+    await acala.chain.newBlock()
+    await matchSystemEvents(acala)
   })
 
   it('Acala send upward messages to Polkadot', async () => {
-    const polkadot = await ctxPolkadot.setup()
-    const acala = await ctxAcala.setup()
-
     await connectUpward(acala.chain, polkadot.chain)
 
     const { alice } = testingPairs()
@@ -146,14 +135,12 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await acala.chain.newBlock()
-    await polkadot.chain.upcomingBlock()
-
+    await matchSystemEvents(acala)
     await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
-    await matchSnapshot(polkadot.api.query.system.account(alice.address))
-    await matchSnapshot(polkadot.api.query.system.events())
-    await matchSnapshot(acala.api.query.system.events())
 
-    await polkadot.teardown()
-    await acala.teardown()
+    await polkadot.chain.newBlock()
+
+    await matchSnapshot(polkadot.api.query.system.account(alice.address))
+    await matchSystemEvents(polkadot)
   })
 })

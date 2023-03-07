@@ -38,10 +38,12 @@ export const setup = async (argv: Config) => {
   let blockHash: string
   if (argv.block == null) {
     blockHash = await api.getBlockHash()
+  } else if (typeof argv.block === 'string' && argv.block.startsWith('0x')) {
+    blockHash = argv.block as string
   } else if (Number.isInteger(+argv.block)) {
     blockHash = await api.getBlockHash(Number(argv.block))
   } else {
-    blockHash = argv.block as string
+    throw new Error(`Invalid block number or hash: ${argv.block}`)
   }
 
   defaultLogger.debug({ ...argv, blockHash }, 'Args')

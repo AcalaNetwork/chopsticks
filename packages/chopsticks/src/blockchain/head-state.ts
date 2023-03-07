@@ -1,4 +1,3 @@
-import { asapScheduler } from 'rxjs'
 import { stringToHex } from '@polkadot/util'
 import _ from 'lodash'
 
@@ -12,7 +11,7 @@ export const randomId = () => Math.random().toString(36).substring(2)
 const logger = defaultLogger.child({ name: 'head-state' })
 
 export class HeadState {
-  #headListeners: Record<string, (block: Block) => void> = {}
+  #headListeners: Record<string, (block: Block) => void | Promise<void>> = {}
   #storageListeners: Record<string, [string[], Callback]> = {}
   #oldValues: Record<string, string | undefined> = {}
 
@@ -63,13 +62,11 @@ export class HeadState {
     this.#head = head
 
     for (const cb of Object.values(this.#headListeners)) {
-      asapScheduler.schedule(() => {
-        try {
-          cb(head)
-        } catch (error) {
-          logger.error(error, 'callback')
-        }
-      })
+      try {
+        await cb(head)
+      } catch (error) {
+        logger.error(error, 'setHead head callback error')
+      }
     }
 
     const diff = await this.#head.storageDiff()
@@ -77,13 +74,11 @@ export class HeadState {
     for (const [keys, cb] of Object.values(this.#storageListeners)) {
       const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string])
       if (changed.length > 0) {
-        asapScheduler.schedule(() => {
-          try {
-            cb(head, changed)
-          } catch (error) {
-            logger.error(error, 'callback')
-          }
-        })
+        try {
+          await cb(head, changed)
+        } catch (error) {
+          logger.error(error, 'setHead storaeg diff callback error')
+        }
       }
     }
 

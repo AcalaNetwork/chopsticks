@@ -7,7 +7,7 @@ import { CreateInherents } from '..'
 
 // Support for Moonbeam pallet-randomness mandatory inherent
 export class SetBabeRandomness implements CreateInherents {
-  async createInherents(parent: Block, _params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+  async createInherents(parent: Block, _params: BuildBlockParams): Promise<HexString[]> {
     const meta = await parent.meta
     if (!meta.tx.randomness?.setBabeRandomnessResults) {
       return []

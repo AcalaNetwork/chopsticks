@@ -7,7 +7,7 @@ import { CreateInherents } from '..'
 
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements CreateInherents {
-  async createInherents(parent: Block, _params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+  async createInherents(parent: Block, _params: BuildBlockParams): Promise<HexString[]> {
     const meta = await parent.meta
     if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
       return []

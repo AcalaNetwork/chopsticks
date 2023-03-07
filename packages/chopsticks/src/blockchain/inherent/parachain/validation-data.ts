@@ -58,7 +58,7 @@ export type ValidationData = {
 }
 
 export class SetValidationData implements CreateInherents {
-  async createInherents(parent: Block, params?: BuildBlockParams['inherent']): Promise<HexString[]> {
+  async createInherents(parent: Block, params: BuildBlockParams): Promise<HexString[]> {
     const meta = await parent.meta
     if (!meta.tx.parachainSystem?.setValidationData) {
       return []
@@ -109,7 +109,7 @@ export class SetValidationData implements CreateInherents {
       // inject downward messages
       let dmqMqcHeadHash = decoded[dmqMqcHeadKey]
       if (dmqMqcHeadHash) {
-        for (const { msg, sentAt } of params?.downwardMessages || []) {
+        for (const { msg, sentAt } of params.downwardMessages) {
           // calculate new hash
           dmqMqcHeadHash = blake2AsHex(
             u8aConcat(
@@ -139,7 +139,7 @@ export class SetValidationData implements CreateInherents {
       const hrmpMessages = {
         // reset values, we just need the keys
         ..._.mapValues(extrinsic.horizontalMessages, () => [] as HorizontalMessage[]),
-        ...(params?.horizontalMessages || {}),
+        ...params.horizontalMessages,
       }
 
       // inject horizontal messages

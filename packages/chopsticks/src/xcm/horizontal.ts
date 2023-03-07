@@ -2,7 +2,6 @@ import { HexString } from '@polkadot/util/types'
 import { hexToU8a } from '@polkadot/util'
 
 import { Blockchain } from '../blockchain'
-import { HorizontalMessage } from '../blockchain/txpool'
 import { compactHex } from '../utils'
 import { logger } from '.'
 
@@ -25,12 +24,9 @@ export const connectHorizontal = async (parachains: Record<number, Blockchain>) 
       logger.info({ outboundHrmpMessage }, 'outboundHrmpMessage')
 
       for (const { recipient, data } of outboundHrmpMessage) {
-        const horizontalMessages: Record<number, HorizontalMessage[]> = {
-          [Number(id)]: [{ sentAt: head.number, data }],
-        }
         const receiver = parachains[recipient]
         if (receiver) {
-          await receiver.newBlock({ inherent: { horizontalMessages } })
+          receiver.submitHorizontalMessages(Number(id), [{ sentAt: head.number, data }])
         }
       }
     })

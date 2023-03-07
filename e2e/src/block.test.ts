@@ -1,57 +1,28 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 
-import { chain, delay, dev, setupApi } from './helper'
+import { delay } from './helper'
+import networks from './networks'
 
-setupApi({ endpoint: 'wss://rpc.polkadot.io' })
+describe('block', async () => {
+  const acala = await networks.acala()
+  const { chain, dev } = acala
 
-describe('block', () => {
+  afterAll(async () => {
+    await acala.teardown()
+  })
+
   it('upcoming block works', async () => {
-    const blockNumber = chain.head.number
+    const promises: Promise<any>[] = []
+    expect(await chain.upcomingBlocks()).toEqual(0)
+    promises.push(dev.newBlock())
+    await delay(10)
+    expect(await chain.upcomingBlocks()).toEqual(1)
 
-    setTimeout(() => {
-      dev.newBlock()
-    }, 1000)
-    {
-      const next = await chain.upcomingBlock()
-      expect(next.number).toEqual(blockNumber + 1)
-    }
+    promises.push(dev.newBlock())
+    promises.push(dev.newBlock())
+    await delay(10)
+    expect(await chain.upcomingBlocks()).toEqual(2)
 
-    setTimeout(() => {
-      dev.newBlock()
-    }, 1000)
-    {
-      const next = await chain.upcomingBlock()
-      expect(next.number).toEqual(blockNumber + 2)
-    }
-
-    setTimeout(() => {
-      dev.newBlock({ count: 3 })
-    }, 1000)
-    {
-      const next = await chain.upcomingBlock({ skipCount: 2 })
-      expect(next.number).toEqual(blockNumber + 5)
-    }
-
-    setTimeout(() => {
-      dev.newBlock()
-    }, 1000)
-    {
-      // no block is built within 1 sec
-      await expect(chain.upcomingBlock({ timeout: 1_000 })).rejects.toThrowError('Timeout has occurred')
-
-      const next = await chain.upcomingBlock({ timeout: 10_000 })
-      expect(next.number).toEqual(blockNumber + 6)
-    }
-
-    setTimeout(() => {
-      dev.newBlock()
-    }, 1000)
-    {
-      // second block is never built
-      await expect(chain.upcomingBlock({ skipCount: 1, timeout: 10_000 })).rejects.toThrowError('Timeout has occurred')
-      expect(chain.head.number).toEqual(blockNumber + 7)
-    }
-
-    await delay(1000)
+    await Promise.all(promises)
   })
 })

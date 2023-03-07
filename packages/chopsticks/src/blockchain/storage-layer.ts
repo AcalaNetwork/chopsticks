@@ -161,7 +161,6 @@ export class StorageLayer implements StorageLayerProvider {
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     if (!this.#deletedPrefix.some((prefix) => startKey.startsWith(prefix))) {
-      await this.fold()
       // TODO: maintain a list of fetched ranges to avoid fetching the same range multiple times
       const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
       for (const key of remote) {

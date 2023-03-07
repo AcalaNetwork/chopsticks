@@ -28,6 +28,6 @@ export const connectDownward = async (relaychain: Blockchain, parachain: Blockch
     if (downwardMessages.length === 0) return
 
     logger.debug({ downwardMessages }, 'downward_message')
-    await parachain.newBlock({ inherent: { downwardMessages } })
+    parachain.submitDownwardMessages(downwardMessages)
   })
 }

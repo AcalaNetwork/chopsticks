@@ -1,14 +1,29 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { u8aToHex } from '@polkadot/util'
 
-import { api, dev, env, expectJson, setupApi, testingPairs, ws } from './helper'
+import { expectJson, testingPairs } from './helper'
+import networks from './networks'
 
-setupApi(env.mandala)
+describe('dev rpc', async () => {
+  const { alice, test1 } = testingPairs()
 
-describe('dev rpc', () => {
+  const acala = await networks.acala()
+  const { api, dev, ws } = acala
+
+  await acala.dev.setStorage({
+    System: {
+      Account: [[[alice.address], { data: { free: 10 * 1e12 } }]],
+    },
+    Sudo: {
+      Key: alice.address,
+    },
+  })
+
+  afterAll(async () => {
+    await acala.teardown()
+  })
+
   it('setStorage', async () => {
-    const { alice, test1 } = testingPairs()
-
     await expectJson(api.query.sudo.key()).toMatchSnapshot()
 
     await dev.setStorage([[api.query.sudo.key.key(), u8aToHex(alice.addressRaw)]])
@@ -83,18 +98,18 @@ describe('dev rpc', () => {
   })
 
   it('setHead', async () => {
-    const blockNumber = 189520
-    const hash = '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1'
+    const blockNumber = acala.chain.head.number
+    const hash = acala.chain.head.hash
     await dev.newBlock({ count: 3 })
     await dev.setHead(hash)
     expect((await api.rpc.chain.getBlockHash()).toHex()).toBe(hash)
     await dev.setHead(blockNumber - 3)
-    expect((await api.rpc.chain.getBlockHash()).toHex()).toBe(
-      '0x171ce46fb43bbf79154bc732a1b9744e1b3f63781cbf8e3fd75b60547e782ea2'
+    expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
+      '"0xfab81f03d3275189a7dc02b0e4fabfab3916ff9a729ba3ec6ad84e029f0a74e7"'
     )
     await dev.setHead(-3)
-    expect((await api.rpc.chain.getBlockHash()).toHex()).toBe(
-      '0x546ac3389579a024c1ccbf73768ad9d43b6084af76cc24096d324b5bd4c7b32e'
+    expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
+      '"0xb5297d01adb0964d5195f9f17a3cf6e99ef8622e71863456eeb9296d5681292b"'
     )
   })
 })

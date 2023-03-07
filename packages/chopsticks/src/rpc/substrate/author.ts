@@ -38,7 +38,7 @@ const handlers: Handlers = {
       if (!extrisnics.includes(extrinsic)) return
 
       logger.debug({ block: block.hash }, 'author_extrinsicUpdate')
-      // for now just assume tx is always included on next block
+
       callback({
         InBlock: block.hash,
       })

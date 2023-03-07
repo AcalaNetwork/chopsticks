@@ -1,5 +1,6 @@
 import '@polkadot/types-codec'
 import { Block } from '../blockchain/block'
+import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
@@ -22,12 +23,11 @@ const getCache = (uid: string): Record<HexString, StorageEntry> => {
   return _CACHE[uid]
 }
 
-const getStorageEntry = async (block: Block, key: HexString) => {
+const getStorageEntry = (meta: DecoratedMeta, block: Block, key: HexString) => {
   const cache = getCache(block.chain.uid)
   for (const [prefix, storageEntry] of Object.entries(cache)) {
     if (key.startsWith(prefix)) return storageEntry
   }
-  const meta = await block.meta
   for (const module of Object.values(meta.query)) {
     for (const storage of Object.values(module)) {
       const keyPrefix = u8aToHex(storage.keyPrefix())
@@ -37,15 +37,15 @@ const getStorageEntry = async (block: Block, key: HexString) => {
       }
     }
   }
-  throw new Error(`Cannot find key ${key}`)
+  return undefined
 }
 
-export const decodeKey = async (
+export const decodeKey = (
+  meta: DecoratedMeta,
   block: Block,
   key: HexString
-): Promise<{ storage?: StorageEntry; decodedKey?: StorageKey }> => {
-  const meta = await block.meta
-  const storage = await getStorageEntry(block, key).catch(() => undefined)
+): { storage?: StorageEntry; decodedKey?: StorageKey } => {
+  const storage = getStorageEntry(meta, block, key)
   const decodedKey = meta.registry.createType('StorageKey', key)
   if (storage) {
     decodedKey.setMeta(storage.meta)
@@ -54,9 +54,8 @@ export const decodeKey = async (
   return {}
 }
 
-export const decodeKeyValue = async (block: Block, key: HexString, value?: HexString | null) => {
-  const meta = await block.meta
-  const { storage, decodedKey } = await decodeKey(block, key)
+export const decodeKeyValue = (meta: DecoratedMeta, block: Block, key: HexString, value?: HexString | null) => {
+  const { storage, decodedKey } = decodeKey(meta, block, key)
 
   if (!storage || !decodedKey) {
     return { [key]: value }
@@ -103,9 +102,10 @@ export const decodeKeyValue = async (block: Block, key: HexString, value?: HexSt
 export const decodeStorageDiff = async (block: Block, diff: [HexString, HexString | null][]) => {
   const oldState = {}
   const newState = {}
+  const meta = await block.meta
   for (const [key, value] of diff) {
-    _.merge(oldState, await decodeKeyValue(block, key, (await block.get(key)) as any))
-    _.merge(newState, await decodeKeyValue(block, key, value))
+    _.merge(oldState, decodeKeyValue(meta, block, key, (await block.get(key)) as any))
+    _.merge(newState, decodeKeyValue(meta, block, key, value))
   }
   const oldStateWithoutEvents = _.cloneDeep(oldState)
   if (oldStateWithoutEvents['system']?.['events']) {

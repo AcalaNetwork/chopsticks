@@ -9,7 +9,7 @@ import {
 import { Block, TaskCallResponse } from './block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { StorageValueKind } from './storage-layer'
+import { StorageLayer, StorageValueKind } from './storage-layer'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
@@ -84,6 +84,7 @@ export const newHeader = async (head: Block) => {
     ]
 
     if (meta.query.randomness) {
+      // TODO: shouldn't modify existing head
       // reset notFirstBlock so randomness will skip validation
       head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
     }
@@ -116,11 +117,14 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
     logger.trace(truncate(storageDiff), 'Initialize block')
   }
 
+  const layers: StorageLayer[] = []
   // apply inherents
   for (const extrinsic of inherents) {
     try {
       const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
-      newBlock.pushStorageLayer().setAll(storageDiff)
+      const layer = newBlock.pushStorageLayer()
+      layer.setAll(storageDiff)
+      layers.push(layer)
       logger.trace(truncate(storageDiff), 'Applied inherent')
     } catch (e) {
       logger.warn('Failed to apply inherents %o %s', e, e)
@@ -128,18 +132,22 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
     }
   }
 
-  return newBlock
+  return {
+    block: newBlock,
+    layers: layers,
+  }
 }
 
 export const buildBlock = async (
   head: Block,
   inherents: HexString[],
   extrinsics: HexString[],
+  ump: Record<number, HexString[]>,
   onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
   const header = await newHeader(head)
-  const newBlock = await initNewBlock(head, header, inherents)
+  const { block: newBlock } = await initNewBlock(head, header, inherents)
 
   logger.info(
     {
@@ -153,17 +161,45 @@ export const buildBlock = async (
   const pendingExtrinsics: HexString[] = []
   const includedExtrinsic: HexString[] = []
 
+  // apply ump via storage override hack
+  if (Object.keys(ump).length > 0) {
+    const meta = await head.meta
+    const layer = head.pushStorageLayer()
+    for (const [paraId, upwardMessages] of Object.entries(ump)) {
+      const queueSize = meta.registry.createType('(u32, u32)', [
+        upwardMessages.length,
+        upwardMessages.map((x) => x.length).reduce((s, i) => s + i, 0),
+      ])
+
+      const messages = meta.registry.createType('Vec<Bytes>', upwardMessages)
+
+      // TODO: make sure we append instead of replace
+      layer.setAll([
+        [compactHex(meta.query.ump.relayDispatchQueues(paraId)), messages.toHex()],
+        [compactHex(meta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex()],
+      ])
+    }
+
+    logger.trace(
+      {
+        number: newBlock.number,
+        tempHash: newBlock.hash,
+        ump,
+      },
+      'Upward messages'
+    )
+
+    const needsDispatch = meta.registry.createType('Vec<u32>', Object.keys(ump))
+    layer.set(compactHex(meta.query.ump.needsDispatch()), needsDispatch.toHex())
+  }
+
   // apply extrinsics
   for (const extrinsic of extrinsics) {
     try {
       const { result, storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
       const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
       if (outcome.isErr) {
-        if (outcome.asErr.isInvalid && outcome.asErr.asInvalid.isFuture) {
-          pendingExtrinsics.push(extrinsic)
-        } else {
-          onApplyExtrinsicError(extrinsic, outcome.asErr)
-        }
+        onApplyExtrinsicError(extrinsic, outcome.asErr)
         continue
       }
       newBlock.pushStorageLayer().setAll(storageDiff)
@@ -220,7 +256,7 @@ export const dryRunExtrinsic = async (
 ): Promise<TaskCallResponse> => {
   const registry = await head.registry
   const header = await newHeader(head)
-  const newBlock = await initNewBlock(head, header, inherents)
+  const { block: newBlock } = await initNewBlock(head, header, inherents)
 
   if (typeof extrinsic !== 'string') {
     if (!head.chain.mockSignatureHost) {
@@ -265,6 +301,10 @@ export const dryRunInherents = async (
   inherents: HexString[]
 ): Promise<[HexString, HexString | null][]> => {
   const header = await newHeader(head)
-  const newBlock = await initNewBlock(head, header, inherents)
-  return Object.entries(await newBlock.storageDiff()) as [HexString, HexString | null][]
+  const { layers } = await initNewBlock(head, header, inherents)
+  const stoarge = {}
+  for (const layer of layers) {
+    await layer.mergeInto(stoarge)
+  }
+  return Object.entries(stoarge) as [HexString, HexString | null][]
 }

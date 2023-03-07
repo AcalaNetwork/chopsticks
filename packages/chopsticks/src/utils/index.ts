@@ -54,3 +54,18 @@ export const isUrl = (url: string) => {
     return false
   }
 }
+
+export type Deferred<T> = {
+  resolve: (value: T | PromiseLike<T>) => void
+  reject: (reason?: any) => void
+  promise: Promise<T>
+}
+
+export function defer<T>() {
+  const deferred = {} as Deferred<T>
+  deferred.promise = new Promise((resolve, reject) => {
+    deferred.resolve = resolve
+    deferred.reject = reject
+  })
+  return deferred
+}

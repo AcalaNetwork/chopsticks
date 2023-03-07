@@ -1,17 +1,22 @@
-import { blake2AsHex } from '@polkadot/util-crypto'
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { api, chain, dev, expectJson, setupApi, testingPairs } from './helper'
+import { expectJson, testingPairs } from './helper'
 
-setupApi({
-  endpoint: 'wss://acala-rpc-1.aca-api.network',
-  blockHash: '0x663c25dc86521f4b7f74dcbc26224bb0fac40e316e6b0bcf6a51de373f37afac',
-})
+import networks from './networks'
 
-describe('upgrade', () => {
+describe('upgrade', async () => {
   const { alice, bob } = testingPairs()
+  const acala = await networks.acala({
+    blockNumber: 2000000,
+  })
+  const { api, dev, chain } = acala
+
+  afterAll(async () => {
+    await acala.teardown()
+  })
+
   it('setCode works', async () => {
     await dev.setStorage({
       Sudo: {
@@ -22,15 +27,13 @@ describe('upgrade', () => {
       },
     })
 
-    const runtime = String(readFileSync(path.join(__dirname, '../../blobs/acala-runtime-2101.txt'))).trim()
+    const runtime = readFileSync(path.join(__dirname, '../../blobs/acala-runtime-2101.txt')).toString().trim()
 
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
-    await api.tx.sudo.sudo(api.tx.parachainSystem.authorizeUpgrade(blake2AsHex(runtime))).signAndSend(alice)
-    await dev.newBlock()
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
-    await dev.newBlock()
-    await dev.newBlock()
+    await dev.newBlock({ count: 3 })
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
+    expect(api.runtimeVersion.specVersion).toMatchInlineSnapshot(`2101`)
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
     await dev.newBlock()

@@ -1,5 +1,5 @@
 {
-	"name": "@acala-network/chopsticks-core",
+	"name": "@acala-network/chopsticks-tests",
 	"version": "0.4.2",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
@@ -11,6 +11,9 @@
 		"build": "rm -rf lib && tsc -p ./tsconfig.json",
 		"test": "vitest run",
 		"test:watch": "vitest"
+	},
+	"dependencies": {
+		"@acala-network/chopsticks": "workspaces:*"
 	},
 	"devDependencies": {
 		"@types/prettier": "^2.7.2",
