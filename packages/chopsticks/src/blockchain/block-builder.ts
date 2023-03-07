@@ -9,7 +9,7 @@ import {
 import { Block, TaskCallResponse } from './block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { StorageValueKind } from './storage-layer'
+import { StorageLayer, StorageValueKind } from './storage-layer'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
@@ -117,11 +117,14 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
     logger.trace(truncate(storageDiff), 'Initialize block')
   }
 
+  const layers: StorageLayer[] = []
   // apply inherents
   for (const extrinsic of inherents) {
     try {
       const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
-      newBlock.pushStorageLayer().setAll(storageDiff)
+      const layer = newBlock.pushStorageLayer()
+      layer.setAll(storageDiff)
+      layers.push(layer)
       logger.trace(truncate(storageDiff), 'Applied inherent')
     } catch (e) {
       logger.warn('Failed to apply inherents %o %s', e, e)
@@ -129,7 +132,10 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[])
     }
   }
 
-  return newBlock
+  return {
+    block: newBlock,
+    layers: layers,
+  }
 }
 
 export const buildBlock = async (
@@ -141,7 +147,7 @@ export const buildBlock = async (
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
   const header = await newHeader(head)
-  const newBlock = await initNewBlock(head, header, inherents)
+  const { block: newBlock } = await initNewBlock(head, header, inherents)
 
   logger.info(
     {
@@ -250,7 +256,7 @@ export const dryRunExtrinsic = async (
 ): Promise<TaskCallResponse> => {
   const registry = await head.registry
   const header = await newHeader(head)
-  const newBlock = await initNewBlock(head, header, inherents)
+  const { block: newBlock } = await initNewBlock(head, header, inherents)
 
   if (typeof extrinsic !== 'string') {
     if (!head.chain.mockSignatureHost) {
@@ -295,6 +301,10 @@ export const dryRunInherents = async (
   inherents: HexString[]
 ): Promise<[HexString, HexString | null][]> => {
   const header = await newHeader(head)
-  const newBlock = await initNewBlock(head, header, inherents)
-  return Object.entries(await newBlock.storageDiff()) as [HexString, HexString | null][]
+  const { layers } = await initNewBlock(head, header, inherents)
+  const stoarge = {}
+  for (const layer of layers) {
+    await layer.mergeInto(stoarge)
+  }
+  return Object.entries(stoarge) as [HexString, HexString | null][]
 }

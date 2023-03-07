@@ -39,6 +39,7 @@ const defaultOptions = {
   },
   block: {
     desc: 'Block hash or block number. Default to latest block',
+    string: true,
   },
   'wasm-override': {
     desc: 'Path to wasm override',
