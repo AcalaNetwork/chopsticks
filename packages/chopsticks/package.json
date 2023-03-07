@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
