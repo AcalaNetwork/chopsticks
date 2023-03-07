@@ -2,15 +2,17 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { api, chain, dev, expectJson, setupApi, testingPairs } from './helper'
+import { expectJson, testingPairs } from './helper'
 
-setupApi({
-  endpoint: 'wss://acala-rpc-1.aca-api.network',
-  blockHash: '0x663c25dc86521f4b7f74dcbc26224bb0fac40e316e6b0bcf6a51de373f37afac',
-})
+import networks from './networks'
 
-describe('upgrade', () => {
+describe('upgrade', async () => {
   const { alice, bob } = testingPairs()
+  const acala = await networks.acala({
+    blockNumber: 2000000,
+  })
+  const { api, dev, chain } = acala
+
   it('setCode works', async () => {
     await dev.setStorage({
       Sudo: {

@@ -25,25 +25,13 @@ const horizontalMessages: Record<number, HorizontalMessage[]> = {
   ],
 }
 
-const setupAcala = () => {
-  return networks.acala({
-    blockHash: '0x0defc0c9df164f9c4310239a9cfc4cab5fa6c7d8fa8fea44cc46ab39017e963a',
-  })
-}
-
-const setupPolkadot = () => {
-  return networks.polkadot({
-    blockHash: '0x0a26b277b252fc61efcda02e44e95c73bf7ae21233bacb2d3bd7631212350d59',
-  })
-}
-
 describe('XCM', async () => {
   let acala: Network
   let polkadot: Network
 
   beforeEach(async () => {
-    acala = await setupAcala()
-    polkadot = await setupPolkadot()
+    acala = await networks.acala()
+    polkadot = await networks.polkadot()
 
     return async () => {
       await acala.teardown()

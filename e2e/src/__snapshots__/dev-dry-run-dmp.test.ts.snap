@@ -5,7 +5,7 @@ exports[`dev_dryRun dmp > works 1`] = `
   {
     "event": {
       "data": {
-        "amount": "44,619,385,455",
+        "amount": "44,539,728,928",
         "currencyId": {
           "Token": "AUSD",
         },
@@ -21,23 +21,7 @@ exports[`dev_dryRun dmp > works 1`] = `
   {
     "event": {
       "data": {
-        "amount": "44,619,385,455",
-        "currencyId": {
-          "Token": "AUSD",
-        },
-        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
-      },
-      "index": "0x0b00",
-      "method": "Endowed",
-      "section": "tokens",
-    },
-    "phase": "Initialization",
-    "topics": [],
-  },
-  {
-    "event": {
-      "data": {
-        "amount": "2,990,804,362",
+        "amount": "2,326,657,466",
         "currencyId": {
           "Token": "AUSD",
         },
@@ -53,7 +37,7 @@ exports[`dev_dryRun dmp > works 1`] = `
   {
     "event": {
       "data": {
-        "amount": "1,471,890,122",
+        "amount": "1,151,984,917",
         "currencyId": {
           "Token": "AUSD",
         },
@@ -69,7 +53,7 @@ exports[`dev_dryRun dmp > works 1`] = `
   {
     "event": {
       "data": {
-        "amount": "8,779,155,449",
+        "amount": "6,761,612,127",
         "currencyId": {
           "Token": "AUSD",
         },
@@ -90,7 +74,7 @@ exports[`dev_dryRun dmp > works 1`] = `
           "paysFee": "Yes",
           "weight": {
             "proofSize": "0",
-            "refTime": "244,378,000",
+            "refTime": "260,558,000",
           },
         },
       },
@@ -120,7 +104,7 @@ exports[`dev_dryRun dmp > works 1`] = `
   {
     "event": {
       "data": {
-        "amount": "4,099,997,616,912",
+        "amount": "4,099,998,328,990",
         "currencyId": {
           "Token": "DOT",
         },
@@ -138,7 +122,7 @@ exports[`dev_dryRun dmp > works 1`] = `
   {
     "event": {
       "data": {
-        "amount": "2,383,088",
+        "amount": "1,671,010",
         "currencyId": {
           "Token": "DOT",
         },
@@ -173,7 +157,7 @@ exports[`dev_dryRun dmp > works 1`] = `
   {
     "event": {
       "data": {
-        "dmqHead": "0x842783101bd919c29d091ef3d7e8012cefe31548b848c6558317096f44196cb4",
+        "dmqHead": "0x6db9e5ea6d489bbd516e7923c0534a86c4e61207e523cfd1eb4f7ed3c2c350f7",
         "weightUsed": {
           "proofSize": "0",
           "refTime": "800,000,000",
@@ -196,7 +180,7 @@ exports[`dev_dryRun dmp > works 1`] = `
           "paysFee": "No",
           "weight": {
             "proofSize": "0",
-            "refTime": "86,298,000",
+            "refTime": "98,974,000",
           },
         },
       },

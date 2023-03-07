@@ -5,74 +5,13 @@ exports[`dev rpc > dryRun hrmp 1`] = `
   {
     "event": {
       "data": {
-        "amount": "1,821,974",
-        "currencyId": {
-          "Token": "AUSD",
-        },
-        "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-      },
-      "index": "0x0b0a",
-      "method": "Deposited",
-      "section": "tokens",
-    },
-    "phase": "Initialization",
-    "topics": [],
-  },
-  {
-    "event": {
-      "data": {
-        "amount": "1,821,974",
-        "currencyId": {
-          "Token": "AUSD",
-        },
-        "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-      },
-      "index": "0x0b00",
-      "method": "Endowed",
-      "section": "tokens",
-    },
-    "phase": "Initialization",
-    "topics": [],
-  },
-  {
-    "event": {
-      "data": {
-        "amount": "33,175,527",
-        "currencyId": {
-          "Token": "AUSD",
-        },
-        "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-      },
-      "index": "0x0b0a",
-      "method": "Deposited",
-      "section": "tokens",
-    },
-    "phase": "Initialization",
-    "topics": [],
-  },
-  {
-    "event": {
-      "data": {
-        "amount": "274,469,453",
-        "currencyId": {
-          "Token": "AUSD",
-        },
-        "who": "5EYCAe5fiQJsnopDHfvJYerPqVF1pvpnwJUGmUUrV5Kzp5MZ",
-      },
-      "index": "0x0b0a",
-      "method": "Deposited",
-      "section": "tokens",
-    },
-    "phase": "Initialization",
-    "topics": [],
-  },
-  {
-    "event": {
-      "data": {
         "dispatchInfo": {
           "class": "Mandatory",
           "paysFee": "Yes",
-          "weight": "158,080,000",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "260,558,000",
+          },
         },
       },
       "index": "0x0000",
@@ -87,10 +26,437 @@ exports[`dev rpc > dryRun hrmp 1`] = `
   {
     "event": {
       "data": {
+        "amount": "288,000,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a04",
+      "method": "Reserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "19,200,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a05",
+      "method": "Unreserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "19,200,000,000",
+        "from": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+        "to": "23AdbsfocQWDwv3iKTAHK6WUEqjiiEB6avZwDcfoh7drPmxV",
+      },
+      "index": "0x0a02",
+      "method": "Transfer",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "19,200,000,000",
+        "who": "23AdbsfocQWDwv3iKTAHK6WUEqjiiEB6avZwDcfoh7drPmxV",
+      },
+      "index": "0x0a04",
+      "method": "Reserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "268,800,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a05",
+      "method": "Unreserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "contract": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        "from": "0x8f6cb1db5a3117c84d3a101ee6d473eecc27ad9c",
+        "logs": [
+          {
+            "address": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+            "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x0000000000000000000000008f6cb1db5a3117c84d3a101ee6d473eecc27ad9c",
+              "0x000000000000000000000000000000000000000000ff00000000000000000000",
+            ],
+          },
+        ],
+        "usedGas": "66,669",
+        "usedStorage": "64",
+      },
+      "index": "0x8202",
+      "method": "Executed",
+      "section": "evm",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "1,000,000,000,000,000,000",
+        "currencyId": {
+          "Erc20": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        },
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0c01",
+      "method": "Withdrawn",
+      "section": "currencies",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "1,000,000,000,000,000,000",
+        "currencyId": {
+          "Erc20": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        },
+        "who": "23AdbsfRspW5m6ZXq6SfCsVKyjmEMMWjMKV631MSgxUHoCx3",
+      },
+      "index": "0x0c02",
+      "method": "Deposited",
+      "section": "currencies",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "accountId": "246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE",
+        "evmAddress": "0x69535cb2f9db4fc5f2867a27a1ed8e6612f787ba",
+      },
+      "index": "0x8400",
+      "method": "ClaimAccount",
+      "section": "evmAccounts",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "288,000,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a04",
+      "method": "Reserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "19,200,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a05",
+      "method": "Unreserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "19,200,000,000",
+        "from": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+        "to": "23AdbsfocQWDwv3iKTAHK6WUEqjiiEB6avZwDcfoh7drPmxV",
+      },
+      "index": "0x0a02",
+      "method": "Transfer",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "19,200,000,000",
+        "who": "23AdbsfocQWDwv3iKTAHK6WUEqjiiEB6avZwDcfoh7drPmxV",
+      },
+      "index": "0x0a04",
+      "method": "Reserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "268,800,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a05",
+      "method": "Unreserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "contract": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        "from": "0x000000000000000000ff00000000000000000000",
+        "logs": [
+          {
+            "address": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+            "data": "0x0000000000000000000000000000000000000000000000000dddd79c9d4c2000",
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000000000000000000000ff00000000000000000000",
+              "0x00000000000000000000000069535cb2f9db4fc5f2867a27a1ed8e6612f787ba",
+            ],
+          },
+        ],
+        "usedGas": "66,909",
+        "usedStorage": "64",
+      },
+      "index": "0x8202",
+      "method": "Executed",
+      "section": "evm",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "999,191,760,000,000,000",
+        "currencyId": {
+          "Erc20": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        },
+        "who": "23AdbsfRspW5m6ZXq6SfCsVKyjmEMMWjMKV631MSgxUHoCx3",
+      },
+      "index": "0x0c01",
+      "method": "Withdrawn",
+      "section": "currencies",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "999,191,760,000,000,000",
+        "currencyId": {
+          "Erc20": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        },
+        "who": "246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE",
+      },
+      "index": "0x0c02",
+      "method": "Deposited",
+      "section": "currencies",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "288,000,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a04",
+      "method": "Reserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "19,200,000,000",
+        "destinationStatus": "Reserved",
+        "from": "23AdbsfocQWDwv3iKTAHK6WUEqjiiEB6avZwDcfoh7drPmxV",
+        "to": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a06",
+      "method": "ReserveRepatriated",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "307,200,000,000",
+        "who": "23UvQ3ZWXwinF3JfBcxFBFadwDAAw9wwjAGbUVb1Ttf88vWw",
+      },
+      "index": "0x0a05",
+      "method": "Unreserved",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "contract": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        "from": "0x000000000000000000ff00000000000000000000",
+        "logs": [
+          {
+            "address": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+            "data": "0x0000000000000000000000000000000000000000000000000002df170a17e000",
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000000000000000000000ff00000000000000000000",
+              "0x000000000000000000000000e341097cdb37dbbfd566439ea5a2a67301e673ef",
+            ],
+          },
+        ],
+        "usedGas": "49,797",
+        "usedStorage": "-64",
+      },
+      "index": "0x8202",
+      "method": "Executed",
+      "section": "evm",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "808,240,000,000,000",
+        "currencyId": {
+          "Erc20": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        },
+        "who": "23AdbsfRspW5m6ZXq6SfCsVKyjmEMMWjMKV631MSgxUHoCx3",
+      },
+      "index": "0x0c01",
+      "method": "Withdrawn",
+      "section": "currencies",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "808,240,000,000,000",
+        "currencyId": {
+          "Erc20": "0x54a37a01cd75b616d63e0ab665bffdb0143c52ae",
+        },
+        "who": "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+      },
+      "index": "0x0c02",
+      "method": "Deposited",
+      "section": "currencies",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "messageHash": "0x147af19c52dfae52f48151e041e04811a01b068c226339308a8889cd10214586",
+        "weight": {
+          "proofSize": "0",
+          "refTime": "800,000,000",
+        },
+      },
+      "index": "0x3200",
+      "method": "Success",
+      "section": "xcmpQueue",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
         "dispatchInfo": {
           "class": "Mandatory",
-          "paysFee": "Yes",
-          "weight": "0",
+          "paysFee": "No",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "98,974,000",
+          },
         },
       },
       "index": "0x0000",
@@ -105,9 +471,9 @@ exports[`dev rpc > dryRun hrmp 1`] = `
 ]
 `;
 
-exports[`dev rpc > setStorage 1`] = `"5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn"`;
+exports[`dev rpc > setStorage 1`] = `"23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG"`;
 
-exports[`dev rpc > setStorage 2`] = `"5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu"`;
+exports[`dev rpc > setStorage 2`] = `"23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG"`;
 
 exports[`dev rpc > setStorage 3`] = `
 {

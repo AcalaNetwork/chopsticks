@@ -15,7 +15,7 @@ exports[`XCM > Acala handles downward messages > system events 1`] = `
   },
   {
     "data": {
-      "amount": "(rounded 2500000000)",
+      "amount": "(rounded 2300000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -37,7 +37,7 @@ exports[`XCM > Acala handles downward messages > system events 1`] = `
   },
   {
     "data": {
-      "amount": "(rounded 7100000000)",
+      "amount": "(rounded 6800000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -142,7 +142,7 @@ exports[`XCM > Acala handles horizonal messages > system events 1`] = `
   },
   {
     "data": {
-      "amount": "(rounded 2500000000)",
+      "amount": "(rounded 2300000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -164,7 +164,7 @@ exports[`XCM > Acala handles horizonal messages > system events 1`] = `
   },
   {
     "data": {
-      "amount": "(rounded 7100000000)",
+      "amount": "(rounded 6800000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -222,7 +222,7 @@ exports[`XCM > Acala handles horizonal messages > system events 1`] = `
   },
   {
     "data": {
-      "amount": "(rounded 1600000000)",
+      "amount": "(rounded 2100000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -274,7 +274,7 @@ exports[`XCM > Acala send upward messages to Polkadot > system events 1`] = `
   },
   {
     "data": {
-      "amount": "(rounded 2500000000)",
+      "amount": "(rounded 2300000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -296,7 +296,7 @@ exports[`XCM > Acala send upward messages to Polkadot > system events 1`] = `
   },
   {
     "data": {
-      "amount": "(rounded 7100000000)",
+      "amount": "(rounded 6800000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -443,7 +443,10 @@ exports[`XCM > Acala send upward messages to Polkadot > system events 2`] = `
       "dispatchInfo": {
         "class": "Mandatory",
         "paysFee": "Yes",
-        "weight": "(rounded 220000000)",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 230000000)",
+        },
       },
     },
     "method": "ExtrinsicSuccess",
@@ -454,7 +457,10 @@ exports[`XCM > Acala send upward messages to Polkadot > system events 2`] = `
       "dispatchInfo": {
         "class": "Mandatory",
         "paysFee": "Yes",
-        "weight": "(rounded 85000000)",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 98000000)",
+        },
       },
     },
     "method": "ExtrinsicSuccess",
@@ -531,7 +537,10 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 1`] = `
       "dispatchInfo": {
         "class": "Mandatory",
         "paysFee": "Yes",
-        "weight": "(rounded 220000000)",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 230000000)",
+        },
       },
     },
     "method": "ExtrinsicSuccess",
@@ -542,7 +551,10 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 1`] = `
       "dispatchInfo": {
         "class": "Mandatory",
         "paysFee": "Yes",
-        "weight": "(rounded 85000000)",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 98000000)",
+        },
       },
     },
     "method": "ExtrinsicSuccess",
@@ -592,7 +604,7 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 1`] = `
   {
     "data": {
       "amount": "(rounded 37000000)",
-      "who": "12HFymxpDmi4XXPHaEMp74CNpRhkqwG5qxnrgikkhon1XMrj",
+      "who": "12ZNJzjPBZUh8VV5cuJFkbbwMttFNkH39EhoeYcgGHsJd4MG",
     },
     "method": "Deposit",
     "section": "balances",
@@ -611,7 +623,10 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 1`] = `
       "dispatchInfo": {
         "class": "Normal",
         "paysFee": "Yes",
-        "weight": "(rounded 1200000000)",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 1200000000)",
+        },
       },
     },
     "method": "ExtrinsicSuccess",
@@ -635,7 +650,7 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 2`] = `
   },
   {
     "data": {
-      "amount": "(rounded 2500000000)",
+      "amount": "(rounded 2300000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -657,7 +672,7 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 2`] = `
   },
   {
     "data": {
-      "amount": "(rounded 7100000000)",
+      "amount": "(rounded 6800000000)",
       "currencyId": {
         "Token": "AUSD",
       },
@@ -682,53 +697,10 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 2`] = `
   },
   {
     "data": {
-      "count": 2,
+      "count": 1,
     },
     "method": "DownwardMessagesReceived",
     "section": "parachainSystem",
-  },
-  {
-    "data": {
-      "amount": "(rounded 240000000000)",
-      "currencyId": {
-        "Token": "DOT",
-      },
-      "who": "23e3iqWXzeCN5H3aJzDmqk2bz1mZ9pRG94PM1NJdfBaMj6ZR",
-    },
-    "method": "Endowed",
-    "section": "tokens",
-  },
-  {
-    "data": {
-      "amount": "(rounded 240000000000)",
-      "currencyId": {
-        "Token": "DOT",
-      },
-      "who": "23e3iqWXzeCN5H3aJzDmqk2bz1mZ9pRG94PM1NJdfBaMj6ZR",
-    },
-    "method": "Deposited",
-    "section": "tokens",
-  },
-  {
-    "data": {
-      "amount": "(rounded 1700000)",
-      "currencyId": {
-        "Token": "DOT",
-      },
-      "who": "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
-    },
-    "method": "Deposited",
-    "section": "tokens",
-  },
-  {
-    "data": {
-      "messageId": "(hash)",
-      "outcome": {
-        "Complete": 800000000,
-      },
-    },
-    "method": "ExecutedDownward",
-    "section": "dmpQueue",
   },
   {
     "data": {
@@ -785,7 +757,7 @@ exports[`XCM > Polkadot send downward messages to Acala > system events 2`] = `
       "dmqHead": "(hash)",
       "weightUsed": {
         "proofSize": 0,
-        "refTime": 1600000000,
+        "refTime": 800000000,
       },
     },
     "method": "DownwardMessagesProcessed",

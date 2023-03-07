@@ -1,12 +1,30 @@
 import { SubmittableResult } from '@polkadot/api'
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 
-import { api, defer, dev, env, expectJson, mockCallback, setupApi, testingPairs } from './helper'
+import { defer, expectJson, mockCallback, testingPairs } from './helper'
+import networks from './networks'
 
-setupApi(env.mandala)
-
-describe('author rpc', () => {
+describe('author rpc', async () => {
   const { alice, bob } = testingPairs()
+  const acala = await networks.acala()
+  const { api, dev } = acala
+
+  await acala.dev.setStorage({
+    System: {
+      Account: [
+        [[alice.address], { data: { free: 10 * 1e12 } }],
+        [[bob.address], { data: { free: 10 * 1e12 } }],
+      ],
+
+    },
+    Sudo: {
+      Key: alice.address,
+    },
+  })
+
+  afterAll(async () => {
+    await acala.teardown()
+  })
 
   it('works', async () => {
     {
