@@ -69,3 +69,9 @@ Make sure you have setup Rust environment (>= 1.64).
 ```bash
 yarn start xcm --relaychain=configs/kusama.yml --parachain=configs/karura.yml --parachain=configs/statemine.yml
 ```
+
+## Documentation
+
+External documentation on Chopsticks can be found at the following links:  
+
+- [Moonbeam documentation site](https://docs.moonbeam.network/builders/build/substrate-api/chopsticks/){target=_blank}
