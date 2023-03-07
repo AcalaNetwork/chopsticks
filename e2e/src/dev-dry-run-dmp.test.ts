@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { setupApi, ws } from './helper'
 
 setupApi({
-  endpoint: 'wss://acala-rpc-1.aca-api.network',
+  endpoint: 'wss://acala-rpc-0.aca-api.network',
   blockHash: '0x1d9223c88161b512ebaac53c2c7df6dc6bd2731b12273b898f582af929cc5331',
 })
 
@@ -22,6 +22,6 @@ describe('dev_dryRun dmp', () => {
       },
     ]
     const resp = await ws.send('dev_dryRun', params)
-    expect(resp.new.system.events).toMatchSnapshot()
+    expect(resp).toMatchSnapshot()
   })
 })

@@ -84,6 +84,7 @@ export const newHeader = async (head: Block) => {
     ]
 
     if (meta.query.randomness) {
+      // TODO: shouldn't modify existing head
       // reset notFirstBlock so randomness will skip validation
       head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
     }

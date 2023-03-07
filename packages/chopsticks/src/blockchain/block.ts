@@ -53,17 +53,19 @@ export class Block {
     this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db)
     this.#storages = []
 
-    const storageDiff = block?.storageDiff || {}
+    const storageDiff = block?.storageDiff
 
-    // if code doesn't change then reuse parent block's meta
-    if (!storageDiff[stringToHex(':code')]) {
-      this.#runtimeVersion = parentBlock?.runtimeVersion
-      this.#metadata = parentBlock?.metadata
-      this.#registry = parentBlock?.registry
-      this.#meta = parentBlock?.meta
+    if (storageDiff) {
+      // if code doesn't change then reuse parent block's meta
+      if (!storageDiff?.[stringToHex(':code')]) {
+        this.#runtimeVersion = parentBlock?.runtimeVersion
+        this.#metadata = parentBlock?.metadata
+        this.#registry = parentBlock?.registry
+        this.#meta = parentBlock?.meta
+      }
+
+      this.pushStorageLayer().setAll(storageDiff)
     }
-
-    this.pushStorageLayer().setAll(storageDiff)
   }
 
   get chain(): Blockchain {

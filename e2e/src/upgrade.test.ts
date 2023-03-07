@@ -1,4 +1,3 @@
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -25,8 +24,6 @@ describe('upgrade', () => {
     const runtime = String(readFileSync(path.join(__dirname, '../../blobs/acala-runtime-2101.txt'))).trim()
 
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
-    await api.tx.sudo.sudo(api.tx.parachainSystem.authorizeUpgrade(blake2AsHex(runtime))).signAndSend(alice)
-    await dev.newBlock()
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
     await dev.newBlock()
     await dev.newBlock()

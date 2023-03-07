@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, it } from 'vitest'
 
 import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks/src/blockchain/txpool'
 import { connectDownward } from '@acala-network/chopsticks/src/xcm/downward'

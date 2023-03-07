@@ -22,10 +22,10 @@ const handlers: Handlers = {
     for (let i = 0; i < finalCount; i++) {
       const block = await context.chain
         .newBlock({
-          transactions: transactions || [],
-          horizontalMessages: hrmp || {},
-          upwardMessages: ump || {},
-          downwardMessages: dmp || [],
+          transactions,
+          horizontalMessages: hrmp,
+          upwardMessages: ump,
+          downwardMessages: dmp,
         })
         .catch((error) => {
           throw new ResponseError(1, error.toString())
