@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`upgrade > setCode works 1`] = `
+exports[`upgrade > setCode works 2`] = `
 {
   "consumers": 0,
   "data": {
@@ -15,7 +15,7 @@ exports[`upgrade > setCode works 1`] = `
 }
 `;
 
-exports[`upgrade > setCode works 2`] = `
+exports[`upgrade > setCode works 3`] = `
 {
   "consumers": 0,
   "data": {

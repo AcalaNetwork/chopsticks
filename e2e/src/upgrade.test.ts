@@ -2,12 +2,12 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { testingPairs } from './helper'
+import { expectJson, testingPairs } from './helper'
 
 import networks from './networks'
 
 describe('upgrade', async () => {
-  const { alice } = testingPairs()
+  const { alice, bob } = testingPairs()
   const acala = await networks.acala({
     blockNumber: 2000000,
   })
@@ -31,8 +31,16 @@ describe('upgrade', async () => {
 
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
-    await dev.newBlock()
-    await dev.newBlock()
+    await dev.newBlock({ count: 3})
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
+    expect(api.runtimeVersion.specVersion).toMatchInlineSnapshot(`2101`)
+
+    await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
+    await dev.newBlock()
+    await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
+
+    await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
+    await dev.newBlock()
+    await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
   })
 })
