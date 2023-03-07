@@ -41,8 +41,8 @@ const handlers: Handlers = {
     const registry = await head.registry
     const account = registry.createType('AccountId', address)
     const result = await head.call('AccountNonceApi_account_nonce', [account.toHex()])
-    const account_nonce = registry.createType<Index>('Index', hexToU8a(result.result)).toNumber()
-    return account_nonce + context.chain.txPool.pendingExtrinsicsBy(address).length
+    const nonce = registry.createType<Index>('Index', hexToU8a(result.result)).toNumber()
+    return nonce + context.chain.txPool.pendingExtrinsicsBy(address).length
   },
 }
 
