@@ -3,10 +3,7 @@ import { getCurrentTimestamp, getSlotDuration, timeTravel } from '@acala-network
 
 import networks from './networks'
 
-describe.each([
-  'polkadot',
-  'acala',
-])('Can time-travel on %s', async (name) => {
+describe.each(['polkadot', 'acala'])('Can time-travel on %s', async (name) => {
   const { chain, ws } = await networks[name as keyof typeof networks]()
 
   it.each(['Nov 30, 2022', 'Dec 22, 2022', 'Jan 1, 2024'])('%s', async (date) => {

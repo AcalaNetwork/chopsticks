@@ -12,10 +12,7 @@ describe('dev rpc', async () => {
 
   await acala.dev.setStorage({
     System: {
-      Account: [
-        [[alice.address], { data: { free: 10 * 1e12 } }],
-      ],
-
+      Account: [[[alice.address], { data: { free: 10 * 1e12 } }]],
     },
     Sudo: {
       Key: alice.address,
@@ -107,8 +104,12 @@ describe('dev rpc', async () => {
     await dev.setHead(hash)
     expect((await api.rpc.chain.getBlockHash()).toHex()).toBe(hash)
     await dev.setHead(blockNumber - 3)
-    expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot('"0xfab81f03d3275189a7dc02b0e4fabfab3916ff9a729ba3ec6ad84e029f0a74e7"')
+    expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
+      '"0xfab81f03d3275189a7dc02b0e4fabfab3916ff9a729ba3ec6ad84e029f0a74e7"'
+    )
     await dev.setHead(-3)
-    expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot('"0xb5297d01adb0964d5195f9f17a3cf6e99ef8622e71863456eeb9296d5681292b"')
+    expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
+      '"0xb5297d01adb0964d5195f9f17a3cf6e99ef8622e71863456eeb9296d5681292b"'
+    )
   })
 })

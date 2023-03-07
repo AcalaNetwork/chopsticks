@@ -15,7 +15,6 @@ describe('author rpc', async () => {
         [[alice.address], { data: { free: 10 * 1e12 } }],
         [[bob.address], { data: { free: 10 * 1e12 } }],
       ],
-
     },
     Sudo: {
       Key: alice.address,
