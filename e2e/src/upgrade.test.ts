@@ -31,7 +31,7 @@ describe('upgrade', async () => {
 
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
-    await dev.newBlock({ count: 3})
+    await dev.newBlock({ count: 3 })
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
     expect(api.runtimeVersion.specVersion).toMatchInlineSnapshot(`2101`)
 
