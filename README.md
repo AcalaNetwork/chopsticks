@@ -74,4 +74,4 @@ yarn start xcm --relaychain=configs/kusama.yml --parachain=configs/karura.yml --
 
 External documentation on Chopsticks can be found at the following links:  
 
-- [Moonbeam documentation site](https://docs.moonbeam.network/builders/build/substrate-api/chopsticks/){target=_blank}
+- [Moonbeam documentation site](https://docs.moonbeam.network/builders/build/substrate-api/chopsticks/)
