@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-tests",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
@@ -13,7 +13,7 @@
 		"test:watch": "vitest"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks": "workspaces:*"
+		"@acala-network/chopsticks": "^0.5.1"
 	},
 	"devDependencies": {
 		"@types/prettier": "^2.7.2",
