@@ -22,7 +22,7 @@ describe.each([
     await teardownAll()
   })
 
-  it.skip('build blocks', async () => {
+  it('build blocks', async () => {
     const { chain, ws, teardown } = await setup()
     const blockNumber = chain.head.number
     await ws.send('dev_newBlock', [{ count: 2 }])
