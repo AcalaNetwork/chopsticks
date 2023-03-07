@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
@@ -12,6 +12,10 @@ describe('upgrade', async () => {
     blockNumber: 2000000,
   })
   const { api, dev, chain } = acala
+
+  afterAll(async () => {
+    await acala.teardown()
+  })
 
   it('setCode works', async () => {
     await dev.setStorage({
