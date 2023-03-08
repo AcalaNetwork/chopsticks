@@ -19,8 +19,8 @@
 		"baseUrl": ".",
 		"composite": true,
 		"paths": {
-			"@acala-network/chopsticks": ["chopsticks/src"],
-			"@acala-network/chopsticks/*": ["chopsticks/src/*"]
+			"@acala-network/chopsticks": ["packages/chopsticks/src"],
+			"@acala-network/chopsticks/*": ["packages/chopsticks/src/*"]
 		}
 	}
 }

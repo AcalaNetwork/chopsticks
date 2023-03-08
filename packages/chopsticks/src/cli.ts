@@ -220,6 +220,12 @@ yargs(hideBin(process.argv))
       }
     }
   )
+  .command({
+    command: '*',
+    handler() {
+      yargs.showHelp()
+    },
+  })
   .strict()
   .help()
   .alias('help', 'h').argv

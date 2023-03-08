@@ -7,9 +7,8 @@
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
 	"scripts": {
-		"build": "rm -rf lib && tsc -p ./tsconfig.json",
-		"test": "vitest run",
-		"test:watch": "vitest",
+		"clean": "rm -rf lib tsconfig.tsbuildinfo",
+		"build": "yarn clean && tsc -p ./tsconfig.json",
 		"script:start": "cd ../..; ts-node --transpile-only packages/chopsticks/src/cli.ts",
 		"script:run": "LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/dev.yml",
 		"dev:karura": "ts-node-dev --transpile-only --inspect --notify=false src/cli.ts -- dev --config=../../configs/karura.yml",
@@ -48,8 +47,7 @@
 		"@types/yargs": "^17.0.22",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
-		"typescript": "^4.9.5",
-		"vitest": "^0.29.2"
+		"typescript": "^4.9.5"
 	},
 	"files": [
 		"lib",

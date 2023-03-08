@@ -1,7 +1,9 @@
 {
+	"name": "chopsticks-monorepo",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"packageManager": "yarn@3.2.4",
+	"private": true,
 	"workspaces": [
 		"packages/*",
 		"executor/pkg",
@@ -11,6 +13,7 @@
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
+		"clean": "yarn workspaces foreach run clean",
 		"build": "yarn workspaces foreach run build",
 		"build-wasm": "wasm-pack build executor --target nodejs --scope acala-network",
 		"build-wasm-logging": "yarn build-wasm --features=logging",
@@ -33,6 +36,7 @@
 		"*.{js,ts,css,md}": "prettier --write"
 	},
 	"devDependencies": {
+		"@swc/core": "^1.3.38",
 		"@types/node": "^18.14.2",
 		"@types/prettier": "^2.7.2",
 		"@typescript-eslint/eslint-plugin": "^5.54.0",
@@ -45,6 +49,8 @@
 		"husky": "^8.0.3",
 		"prettier": "^2.8.4",
 		"typescript": "^4.9.5",
+		"unplugin-swc": "^1.3.2",
+		"vite-tsconfig-paths": "^4.0.5",
 		"vitest": "^0.29.2",
 		"wasm-pack": "^0.10.3"
 	}
