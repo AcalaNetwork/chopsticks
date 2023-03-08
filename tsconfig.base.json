@@ -3,7 +3,7 @@
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
 		"lib": ["esnext"],
-		"module": "CommonJS",
+		"module": "ES6",
 		"moduleResolution": "node",
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,

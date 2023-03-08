@@ -10,8 +10,10 @@
 		"build": "yarn clean && tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks": "^0.5.4",
-		"chai": "^4.3.7"
+		"@acala-network/chopsticks": "^0.5.4"
+	},
+	"peerDependencies": {
+		"vitest": "^0.29.2"
 	},
 	"devDependencies": {
 		"@types/chai": "^4",
