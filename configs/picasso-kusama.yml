@@ -1,7 +1,7 @@
-endpoint: wss://rpc.composablefinance.ninja
+endpoint: wss://rpc.composablenodes.tech
 mock-signature-host: true
-block: 1100526
-db: ./dali.rococo.db.sqlite
+block: 1935395
+db: ./picasso.kusama.db.sqlite
 # wasm-override: ../../ComposableFi/composable/result/lib/runtime.optimized.wasm
 
 import-storage:
