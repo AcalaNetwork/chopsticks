@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-tests",
-	"version": "0.5.5",
+	"version": "0.5.6",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
@@ -10,7 +10,7 @@
 		"build": "yarn clean && tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks": "^0.5.5"
+		"@acala-network/chopsticks": "^0.5.6"
 	},
 	"peerDependencies": {
 		"vitest": "^0.29.2"
