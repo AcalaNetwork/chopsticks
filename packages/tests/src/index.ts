@@ -4,7 +4,7 @@ import { BuildBlockMode, setupWithServer } from '@acala-network/chopsticks'
 import { Codec } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
-import { StorageValues } from '@acala-network/chopsticks/src/utils/set-storage'
+import { StorageValues } from '@acala-network/chopsticks/utils/set-storage'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { expect } from 'vitest'
 
