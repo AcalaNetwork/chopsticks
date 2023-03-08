@@ -1,1 +1,7 @@
 vitest.config.ts
+.eslintrc.js
+node_modules/
+executor/
+vendor/
+lib/
+chopsticks.js

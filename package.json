@@ -8,8 +8,8 @@
 		"e2e"
 	],
 	"scripts": {
-		"lint": "yarn workspaces foreach run lint",
-		"fix": "yarn workspaces foreach run fix",
+		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
+		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
 		"build": "yarn workspaces foreach run build",
 		"build-wasm": "wasm-pack build executor --target nodejs --scope acala-network",
@@ -33,7 +33,17 @@
 		"*.{js,ts,css,md}": "prettier --write"
 	},
 	"devDependencies": {
+		"@types/node": "^18.14.2",
+		"@types/prettier": "^2.7.2",
+		"@typescript-eslint/eslint-plugin": "^5.54.0",
+		"@typescript-eslint/parser": "^5.53.0",
+		"eslint": "^8.34.0",
+		"eslint-config-prettier": "^8.6.0",
+		"eslint-plugin-import": "^2.27.5",
+		"eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
 		"husky": "^8.0.3",
+		"prettier": "^2.8.4",
+		"typescript": "^4.9.5",
 		"vitest": "^0.29.2",
 		"wasm-pack": "^0.10.3"
 	}

@@ -1,6 +1,6 @@
 import { AccountInfo } from '@polkadot/types/interfaces'
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { BuildBlockMode, setupWithServer } from '@acala-network/chopsticks/src'
+import { BuildBlockMode, setupWithServer } from '@acala-network/chopsticks'
 import { Codec } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'

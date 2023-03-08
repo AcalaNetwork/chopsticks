@@ -5,3 +5,6 @@ executor/
 vendor/
 .pnp.cjs
 .pnp.loader.mjs
+lib/
+preview/
+tsconfig.json
