@@ -54,13 +54,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-tests@workspace:packages/tests"
   dependencies:
-    "@acala-network/chopsticks": ^0.5.1
+    "@acala-network/chopsticks": ^0.5.2
     typescript: ^4.9.5
     vitest: ^0.29.2
   languageName: unknown
   linkType: soft
 
-"@acala-network/chopsticks@^0.5.1, @acala-network/chopsticks@workspace:*, @acala-network/chopsticks@workspace:packages/chopsticks":
+"@acala-network/chopsticks@^0.5.2, @acala-network/chopsticks@workspace:*, @acala-network/chopsticks@workspace:packages/chopsticks":
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks@workspace:packages/chopsticks"
   dependencies:
