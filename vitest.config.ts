@@ -6,7 +6,5 @@ export default defineConfig({
     hookTimeout: 30000,
     testTimeout: 120000,
   },
-  plugins: [
-    swc.vite(),
-  ]
+  plugins: [swc.vite()],
 })

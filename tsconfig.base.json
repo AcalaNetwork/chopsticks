@@ -2,9 +2,7 @@
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"lib": [
-			"esnext"
-		],
+		"lib": ["esnext"],
 		"module": "CommonJS",
 		"moduleResolution": "node",
 		"noUnusedLocals": true,
@@ -17,16 +15,12 @@
 		"experimentalDecorators": true,
 		"declaration": true,
 		"resolveJsonModule": true,
-		"types": [
-			"node",
-			"@polkadot/types-known",
-			"@polkadot/types-codec"
-		],
+		"types": ["node", "@polkadot/types-known", "@polkadot/types-codec"],
 		"baseUrl": ".",
 		"composite": true,
 		"paths": {
 			"@acala-network/chopsticks": ["chopsticks/src"],
-			"@acala-network/chopsticks/*": ["chopsticks/src/*"],
+			"@acala-network/chopsticks/*": ["chopsticks/src/*"]
 		}
-	},
+	}
 }
