@@ -10,7 +10,7 @@
 		"build": "yarn clean && tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks": "^0.5.2"
+		"@acala-network/chopsticks": "^0.5.3"
 	},
 	"devDependencies": {
 		"typescript": "^4.9.5"
