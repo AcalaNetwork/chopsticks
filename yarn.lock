@@ -34,12 +34,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-tests@workspace:packages/tests"
   dependencies:
-    "@acala-network/chopsticks": ^0.5.2
+    "@acala-network/chopsticks": ^0.5.3
+    "@types/chai": ^4
+    chai: ^4.3.7
     typescript: ^4.9.5
   languageName: unknown
   linkType: soft
 
-"@acala-network/chopsticks@^0.5.2, @acala-network/chopsticks@workspace:*, @acala-network/chopsticks@workspace:packages/chopsticks":
+"@acala-network/chopsticks@^0.5.3, @acala-network/chopsticks@workspace:*, @acala-network/chopsticks@workspace:packages/chopsticks":
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks@workspace:packages/chopsticks"
   dependencies:
@@ -1071,7 +1073,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chai@npm:*, @types/chai@npm:^4.3.4":
+"@types/chai@npm:*, @types/chai@npm:^4, @types/chai@npm:^4.3.4":
   version: 4.3.4
   resolution: "@types/chai@npm:4.3.4"
   checksum: 571184967beb03bf64c4392a13a7d44e72da9af5a1e83077ff81c39cf59c0fda2a5c78d2005084601cf8f3d11726608574d8b5b4a0e3e9736792807afd926cd0

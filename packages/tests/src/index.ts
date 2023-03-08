@@ -6,7 +6,7 @@ import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
 import { StorageValues } from '@acala-network/chopsticks/utils/set-storage'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
-import { expect } from 'vitest'
+import { expect } from 'chai'
 
 export type SetupOption = {
   endpoint: string
