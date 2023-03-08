@@ -3,8 +3,6 @@
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"scripts": {
-		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
-		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
