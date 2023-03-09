@@ -4,7 +4,7 @@
 		"outDir": "lib",
 		"rootDir": "src",
 	},
-	"exclude": ["node_modules", "src/**/*.test.ts", "vitest.config.ts", "lib"],
+	"exclude": ["node_modules", "lib"],
 	"references": [
 		{ "path": "../chopsticks" },
 		{ "path": "../tests" },
