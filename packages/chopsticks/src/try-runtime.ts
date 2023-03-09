@@ -6,7 +6,6 @@ import { openHtml } from './utils/open-html'
 import { setup } from './setup'
 
 export const tryRuntime = async (argv: Config) => {
-  if (argv['wasm-override'] === undefined) throw Error('`wasm-override` with `try-runtime` feature must be defined')
   const context = await setup(argv)
   const block = context.chain.head
   const registry = await block.registry

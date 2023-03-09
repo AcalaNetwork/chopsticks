@@ -89,6 +89,11 @@ yargs(hideBin(process.argv))
     (yargs) =>
       yargs.options({
         ...defaultOptions,
+        'wasm-override': {
+          desc: 'Path to WASM built with feature `try-runtime` enabled',
+          string: true,
+          required: true,
+        },
         'output-path': {
           desc: 'File path to print output',
           string: true,
