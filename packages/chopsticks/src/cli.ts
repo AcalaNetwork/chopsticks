@@ -64,12 +64,12 @@ yargs(hideBin(process.argv))
     (yargs) =>
       yargs.options({
         ...defaultOptions,
-        port: {
-          desc: 'Port to listen on',
-          number: true,
-        },
         'output-path': {
           desc: 'File path to print output',
+          string: true,
+        },
+        'import-storage': {
+          desc: 'Pre-defined JSON/YAML storage file path',
           string: true,
         },
         html: {
