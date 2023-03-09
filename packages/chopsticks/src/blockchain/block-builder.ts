@@ -10,7 +10,6 @@ import { Block, TaskCallResponse } from './block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageLayer, StorageValueKind } from './storage-layer'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate } from '../logger'
@@ -108,7 +107,11 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[],
   const hash: HexString = `0x${Math.round(Math.random() * 100000000)
     .toString(16)
     .padEnd(64, '0')}`
-  const newBlock = new Block(head.chain, blockNumber, hash, head, { header, extrinsics: [], storage: storageLayer ?? head.storage })
+  const newBlock = new Block(head.chain, blockNumber, hash, head, {
+    header,
+    extrinsics: [],
+    storage: storageLayer ?? head.storage,
+  })
 
   {
     // initialize block
