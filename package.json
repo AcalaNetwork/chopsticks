@@ -53,5 +53,10 @@
 		"vite-tsconfig-paths": "^4.0.5",
 		"vitest": "^0.29.2",
 		"wasm-pack": "^0.10.3"
+	},
+	"exports": {
+		".": "./lib/index.js",
+		"./*": "./lib/*.js",
+		"./package.json": "./package.json"
 	}
 }
