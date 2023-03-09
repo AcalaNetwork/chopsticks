@@ -6,8 +6,7 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
-		"executor/pkg",
-		"e2e"
+		"executor/pkg"
 	],
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",

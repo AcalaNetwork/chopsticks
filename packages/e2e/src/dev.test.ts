@@ -24,20 +24,20 @@ describe('dev rpc', async () => {
   })
 
   it('setStorage', async () => {
-    await expectJson(api.query.sudo.key()).toMatchSnapshot()
+    expectJson(await api.query.sudo.key()).toMatchSnapshot()
 
     await dev.setStorage([[api.query.sudo.key.key(), u8aToHex(alice.addressRaw)]])
 
-    await expectJson(api.query.sudo.key()).toMatchSnapshot()
+    expectJson(await api.query.sudo.key()).toMatchSnapshot()
 
     await api.tx.sudo.sudo(api.tx.balances.setBalance(test1.address, 1000000000000, 0)).signAndSend(alice)
     const hash = await dev.newBlock()
 
-    await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
 
     await dev.setStorage([[api.query.system.account.key(test1.address), null]], hash)
 
-    await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
 
     await dev.setStorage({
       System: {
@@ -45,7 +45,7 @@ describe('dev rpc', async () => {
       },
     })
 
-    await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
   })
 
   it('setStorage handle errors', async () => {

@@ -26,13 +26,13 @@ describe('genesis provider works', () => {
       },
     })
 
-    await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
 
     await api.tx.currencies.transferNativeCurrency(test2.address, 100 * 1e12).signAndSend(test1)
 
     await dev.newBlock()
 
-    await expectJson(api.query.system.account(test1.address)).toMatchSnapshot()
-    await expectJson(api.query.system.account(test2.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(test2.address)).toMatchSnapshot()
   })
 })

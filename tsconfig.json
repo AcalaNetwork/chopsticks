@@ -3,7 +3,8 @@
 	"references": [
 		{ "path": "./packages/chopsticks" },
 		{ "path": "./packages/core" },
-		{ "path": "./packages/tests" }
+		{ "path": "./packages/tests" },
+		{ "path": "./packages/e2e" },
 	],
 	"exclude": ["**/node_modules", "**/lib"],
 	"include": ["./packages/**/*.{ts,json}", "./e2e/**/*.{ts,json}"]

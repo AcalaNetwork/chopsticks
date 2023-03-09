@@ -4,7 +4,7 @@ import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
-import { Api } from '@acala-network/chopsticks/api'
+import { Api } from '@acala-network/chopsticks'
 import { Blockchain } from '@acala-network/chopsticks/blockchain'
 import { BuildBlockMode } from '@acala-network/chopsticks/blockchain/txpool'
 import { GenesisProvider } from '@acala-network/chopsticks/genesis-provider'
@@ -20,6 +20,8 @@ import { StorageValues } from '@acala-network/chopsticks/utils/set-storage'
 import { createServer } from '@acala-network/chopsticks/server'
 import { defer } from '@acala-network/chopsticks/utils'
 import { handler } from '@acala-network/chopsticks/rpc'
+
+export { expectJson, expectHex, expectHuman } from '@acala-network/chopsticks-tests'
 
 export type SetupOption = {
   endpoint?: string
@@ -138,14 +140,6 @@ export const setupApi = (option: SetupOption) => {
 }
 
 type CodecOrArray = Codec | Codec[]
-
-export const expectJson = (codec: CodecOrArray | Promise<CodecOrArray>) => {
-  return expect(Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toJSON()) : x.toJSON()))).resolves
-}
-
-export const expectHex = (codec: CodecOrArray | Promise<CodecOrArray>) => {
-  return expect(Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toHex()) : x.toHex()))).resolves
-}
 
 export const matchSnapshot = (codec: CodecOrArray | Promise<CodecOrArray>) => {
   return expect(

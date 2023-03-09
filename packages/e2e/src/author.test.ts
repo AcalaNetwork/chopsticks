@@ -36,9 +36,9 @@ describe('author rpc', async () => {
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
 
-      await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
-      await expectJson(api.query.system.account(alice.address)).toMatchSnapshot()
-      await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
+      expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
+      expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
+      expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
     }
 
     {
@@ -51,9 +51,9 @@ describe('author rpc', async () => {
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
 
-      await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
-      await expectJson(api.query.system.account(alice.address)).toMatchSnapshot()
-      await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
+      expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
+      expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
+      expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
     }
 
     {
@@ -66,9 +66,9 @@ describe('author rpc', async () => {
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
 
-      await expectJson(api.rpc.chain.getBlock()).toMatchSnapshot()
-      await expectJson(api.query.system.account(alice.address)).toMatchSnapshot()
-      await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
+      expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
+      expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
+      expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
     }
   })
 

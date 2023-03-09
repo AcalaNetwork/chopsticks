@@ -2,6 +2,7 @@
 	"name": "@acala-network/chopsticks-e2e",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
+	"private": true,
 	"scripts": {
 		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
 	},

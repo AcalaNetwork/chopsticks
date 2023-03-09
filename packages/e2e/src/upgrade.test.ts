@@ -37,10 +37,10 @@ describe('upgrade', async () => {
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
     await dev.newBlock()
-    await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
     await dev.newBlock()
-    await expectJson(api.query.system.account(bob.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
   })
 })

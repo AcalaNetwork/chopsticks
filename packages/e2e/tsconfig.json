@@ -4,12 +4,10 @@
 		"baseUrl": "..",
 		"outDir": "lib",
 		"rootDir": "src",
-		"module": "ES2022",
 	},
 	"exclude": ["node_modules", "src/**/*.test.ts", "vitest.config.ts", "lib"],
 	"references": [
-		{
-		  "path": "../chopsticks"
-		}
+		{ "path": "../chopsticks" },
+		{ "path": "../tests" },
 	],
 }
