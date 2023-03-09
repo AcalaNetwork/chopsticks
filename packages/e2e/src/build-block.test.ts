@@ -22,9 +22,7 @@ describe.each([
     await teardownAll()
   })
 
-  // this is slow and flacky
-  // TODO: enable this only for nightly tests
-  it.skip('build blocks', async () => {
+  it.skipIf(!process.env.RUN_ALL_TESTS)('build blocks', async () => {
     const { chain, ws, teardown } = await setup()
     const blockNumber = chain.head.number
     await ws.send('dev_newBlock', [{ count: 2 }])
