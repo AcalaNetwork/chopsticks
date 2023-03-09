@@ -1,6 +1,6 @@
 [package]
 name = "chopsticks-executor"
-version = "0.5.8"
+version = "0.5.9"
 description = "Chopsticks executor"
 repository = "https://github.com/AcalaNetwork/chopsticks"
 license = "Apache-2.0"
