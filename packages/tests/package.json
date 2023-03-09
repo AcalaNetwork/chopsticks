@@ -5,7 +5,7 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"build": "yarn clean && tsc -p ./tsconfig.json"
+		"build": "tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks": "^0.5.9"
