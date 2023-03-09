@@ -10,7 +10,6 @@ import { Block, TaskCallResponse } from './block'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageLayer, StorageValueKind } from './storage-layer'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex } from '@polkadot/util'
 import { compactHex } from '../utils'
 import { defaultLogger, truncate } from '../logger'
@@ -103,12 +102,16 @@ export const newHeader = async (head: Block) => {
   return header
 }
 
-const initNewBlock = async (head: Block, header: Header, inherents: HexString[]) => {
+const initNewBlock = async (head: Block, header: Header, inherents: HexString[], storageLayer?: StorageLayer) => {
   const blockNumber = header.number.toNumber()
   const hash: HexString = `0x${Math.round(Math.random() * 100000000)
     .toString(16)
     .padEnd(64, '0')}`
-  const newBlock = new Block(head.chain, blockNumber, hash, head, { header, extrinsics: [], storage: head.storage })
+  const newBlock = new Block(head.chain, blockNumber, hash, head, {
+    header,
+    extrinsics: [],
+    storage: storageLayer ?? head.storage,
+  })
 
   {
     // initialize block
@@ -147,24 +150,12 @@ export const buildBlock = async (
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
   const header = await newHeader(head)
-  const { block: newBlock } = await initNewBlock(head, header, inherents)
 
-  logger.info(
-    {
-      number: newBlock.number,
-      extrinsicsCount: extrinsics.length,
-      tempHash: newBlock.hash,
-    },
-    `Try building block #${newBlock.number.toLocaleString()}`
-  )
-
-  const pendingExtrinsics: HexString[] = []
-  const includedExtrinsic: HexString[] = []
-
+  let layer: StorageLayer | undefined
   // apply ump via storage override hack
   if (Object.keys(ump).length > 0) {
     const meta = await head.meta
-    const layer = head.pushStorageLayer()
+    layer = new StorageLayer(head.storage)
     for (const [paraId, upwardMessages] of Object.entries(ump)) {
       const queueSize = meta.registry.createType('(u32, u32)', [
         upwardMessages.length,
@@ -178,20 +169,28 @@ export const buildBlock = async (
         [compactHex(meta.query.ump.relayDispatchQueues(paraId)), messages.toHex()],
         [compactHex(meta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex()],
       ])
-    }
 
-    logger.trace(
-      {
-        number: newBlock.number,
-        tempHash: newBlock.hash,
-        ump,
-      },
-      'Upward messages'
-    )
+      logger.trace({ paraId, upwardMessages: truncate(upwardMessages) }, 'Pushed UMP')
+    }
 
     const needsDispatch = meta.registry.createType('Vec<u32>', Object.keys(ump))
     layer.set(compactHex(meta.query.ump.needsDispatch()), needsDispatch.toHex())
   }
+
+  const { block: newBlock } = await initNewBlock(head, header, inherents, layer)
+
+  logger.info(
+    {
+      number: newBlock.number,
+      extrinsicsCount: extrinsics.length,
+      umpCount: Object.keys(ump).length,
+      tempHash: newBlock.hash,
+    },
+    `Try building block #${newBlock.number.toLocaleString()}`
+  )
+
+  const pendingExtrinsics: HexString[] = []
+  const includedExtrinsic: HexString[] = []
 
   // apply extrinsics
   for (const extrinsic of extrinsics) {
@@ -238,12 +237,13 @@ export const buildBlock = async (
 
   logger.info(
     {
-      hash: finalBlock.hash,
-      extrinsics: includedExtrinsic.map((x) => blake2AsHex(x, 256)),
-      pendingExtrinsics: pendingExtrinsics.length,
       number: newBlock.number,
+      hash: finalBlock.hash,
+      extrinsics: truncate(includedExtrinsic),
+      pendingExtrinsicsCount: pendingExtrinsics.length,
+      ump: truncate(ump),
     },
-    `Block built #${newBlock.number.toLocaleString()} hash ${finalBlock.hash}`
+    'Block built'
   )
 
   return [finalBlock, pendingExtrinsics]

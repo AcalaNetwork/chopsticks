@@ -454,6 +454,55 @@ exports[`XCM > Acala send upward messages to Polkadot > system events 2`] = `
   },
   {
     "data": {
+      "amount": 100000000000,
+      "who": "13YMK2eYoAvStnzReuxBjMrAvPXmmdsURwZvc62PrdXimbNy",
+    },
+    "method": "Withdraw",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "amount": "(rounded 100000000000)",
+      "who": "146SvjUZXoMaemdeiecyxgALeYMm8ZWh1yrGo8RtpoPfe7WL",
+    },
+    "method": "Deposit",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "account": "146SvjUZXoMaemdeiecyxgALeYMm8ZWh1yrGo8RtpoPfe7WL",
+    },
+    "method": "NewAccount",
+    "section": "system",
+  },
+  {
+    "data": {
+      "account": "146SvjUZXoMaemdeiecyxgALeYMm8ZWh1yrGo8RtpoPfe7WL",
+      "freeBalance": "(rounded 100000000000)",
+    },
+    "method": "Endowed",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "amount": "(rounded 410000000)",
+      "who": "12ZNJzjPBZUh8VV5cuJFkbbwMttFNkH39EhoeYcgGHsJd4MG",
+    },
+    "method": "Deposit",
+    "section": "balances",
+  },
+  {
+    "data": [
+      "(hash)",
+      {
+        "Complete": 4000000000,
+      },
+    ],
+    "method": "ExecutedUpward",
+    "section": "ump",
+  },
+  {
+    "data": {
       "dispatchInfo": {
         "class": "Mandatory",
         "paysFee": "Yes",
@@ -520,12 +569,12 @@ exports[`XCM > Acala send upward messages to Polkadot 5`] = `
   "consumers": "0",
   "data": {
     "feeFrozen": "0",
-    "free": "0",
+    "free": "99,591,353,032",
     "miscFrozen": "0",
     "reserved": "0",
   },
   "nonce": "0",
-  "providers": "0",
+  "providers": "1",
   "sufficients": "0",
 }
 `;

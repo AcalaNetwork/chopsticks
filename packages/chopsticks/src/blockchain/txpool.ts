@@ -1,12 +1,15 @@
 import { EventEmitter } from 'node:stream'
+import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
 import { Blockchain } from '.'
 import { Deferred, defer } from '../utils'
-import { GenericExtrinsic } from '@polkadot/types'
 import { InherentProvider } from './inherent'
 import { buildBlock } from './block-builder'
+import { defaultLogger, truncate } from '../logger'
+
+const logger = defaultLogger.child({ name: 'txpool' })
 
 export const APPLY_EXTRINSIC_ERROR = 'TxPool::ApplyExtrinsicError'
 
@@ -64,6 +67,8 @@ export class TxPool {
   }
 
   async submitExtrinsic(extrinsic: HexString) {
+    logger.debug({ extrinsic: truncate(extrinsic) }, 'submit extrinsic')
+
     this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })
 
     this.#maybeBuildBlock()
@@ -76,6 +81,8 @@ export class TxPool {
   }
 
   submitUpwardMessages(id: number, ump: HexString[]) {
+    logger.debug({ id, ump: truncate(ump) }, 'submit upward messages')
+
     if (!this.#ump[id]) {
       this.#ump[id] = []
     }
@@ -85,12 +92,16 @@ export class TxPool {
   }
 
   submitDownwardMessages(dmp: DownwardMessage[]) {
+    logger.debug({ dmp: truncate(dmp) }, 'submit downward messages')
+
     this.#dmp.push(...dmp)
 
     this.#maybeBuildBlock()
   }
 
   submitHorizontalMessages(id: number, hrmp: HorizontalMessage[]) {
+    logger.debug({ id, hrmp: truncate(hrmp) }, 'submit horizontal messages')
+
     if (!this.#hrmp[id]) {
       this.#hrmp[id] = []
     }
@@ -176,6 +187,8 @@ export class TxPool {
       throw new Error('Unreachable')
     }
     const { params, deferred } = pending
+
+    logger.trace({ params }, 'build block')
 
     const head = this.#chain.head
     const inherents = await this.#inherentProvider.createInherents(head, params)
