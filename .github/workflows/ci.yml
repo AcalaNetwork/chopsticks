@@ -9,6 +9,8 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    env:
+      RUN_ALL_TESTS: ${{ github.ref_name == 'master' }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -40,4 +42,5 @@ jobs:
     - run: yarn build
     - run: yarn test
     - name: Test substrate-api-sidecard with chopsticks node
+      if: ${{ github.ref_name == 'master' }}
       run: yarn workspace @acala-network/chopsticks-e2e run sidecar
