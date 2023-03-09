@@ -27,7 +27,7 @@ describe('upgrade', async () => {
       },
     })
 
-    const runtime = readFileSync(path.join(__dirname, '../../blobs/acala-runtime-2101.txt')).toString().trim()
+    const runtime = readFileSync(path.join(__dirname, '../blobs/acala-runtime-2101.txt')).toString().trim()
 
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)

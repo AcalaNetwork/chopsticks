@@ -36,7 +36,7 @@ describe('import-storage', () => {
   it('wasm override works', async () => {
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
     const oldWasm = await chain.head.wasm
-    await overrideWasm(chain, path.join(__dirname, '../../../blobs/acala-runtime-2101.txt'))
+    await overrideWasm(chain, path.join(__dirname, '../../blobs/acala-runtime-2101.txt'))
     expect(await chain.head.wasm).not.eq(oldWasm)
     expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
     const blockNumber = chain.head.number
