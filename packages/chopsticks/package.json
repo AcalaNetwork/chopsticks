@@ -1,8 +1,6 @@
 {
 	"name": "@acala-network/chopsticks",
 	"version": "0.5.7",
-	"main": "./lib/index.js",
-	"types": "./lib/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
@@ -53,5 +51,18 @@
 		"lib",
 		"template",
 		"chopsticks.js"
-	]
+	],
+	"exports": {
+		".": {
+			"import": "./lib/index.js",
+			"require": "./lib/index.js",
+			"types": "./lib/index.d.ts"
+		},
+		"./*": {
+			"import": "./lib/*.js",
+			"require": "./lib/*.js",
+			"types": "./lib/*.d.ts"
+		},
+		"./package.json": "./package.json"
+	}
 }
