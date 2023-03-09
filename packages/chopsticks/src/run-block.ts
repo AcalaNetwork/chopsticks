@@ -8,7 +8,7 @@ import { runTask, taskHandler } from './executor'
 import { setup } from './setup'
 
 export const runBlock = async (argv: Config) => {
-  const context = await setup(argv)
+  const context = await setup(argv, true)
 
   const header = await context.chain.head.header
   const wasm = await context.chain.head.wasm

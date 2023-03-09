@@ -6,7 +6,7 @@ import { Blockchain } from '../blockchain'
 import { StorageValues, setStorage } from './set-storage'
 import { defaultLogger } from '../logger'
 
-export const importStorage = async (chain: Blockchain, storage?: string | StorageValues) => {
+export const importStorage = async (chain: Blockchain, storage?: string | StorageValues, at?: HexString) => {
   if (storage == null) {
     return
   }
@@ -17,11 +17,11 @@ export const importStorage = async (chain: Blockchain, storage?: string | Storag
   } else {
     storageValue = storage
   }
-  const blockHash = await setStorage(chain, storageValue)
+  const blockHash = await setStorage(chain, storageValue, at)
   defaultLogger.trace({ blockHash, storage }, 'ImportStorage')
 }
 
-export const overrideWasm = async (chain: Blockchain, wasmPath?: string) => {
+export const overrideWasm = async (chain: Blockchain, wasmPath?: string, at?: HexString) => {
   if (wasmPath == null) {
     return
   }
@@ -33,5 +33,11 @@ export const overrideWasm = async (chain: Blockchain, wasmPath?: string) => {
   } else {
     wasmHex = '0x' + wasm.toString('hex')
   }
-  chain.head.setWasm(wasmHex as HexString)
+  if (at) {
+    const block = await chain.getBlock(at)
+    if (!block) throw new Error(`Cannot find block ${at}`)
+    block.setWasm(wasmHex as HexString)
+  } else {
+    chain.head.setWasm(wasmHex as HexString)
+  }
 }
