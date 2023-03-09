@@ -19,10 +19,10 @@
 		"baseUrl": ".",
 		"composite": true,
 		"paths": {
-			"@acala-network/chopsticks": ["chopsticks/src"],
-			"@acala-network/chopsticks/*": ["chopsticks/src/*"],
-			"@acala-network/chopsticks-tests": ["tests/src"],
-			"@acala-network/chopsticks-tests/*": ["tests/src/*"]
+			"@acala-network/chopsticks": ["packages/chopsticks/src"],
+			"@acala-network/chopsticks/*": ["packages/chopsticks/src/*"],
+			"@acala-network/chopsticks-tests": ["packages/tests/src"],
+			"@acala-network/chopsticks-tests/*": ["packages/tests/src/*"]
 		}
 	}
 }
