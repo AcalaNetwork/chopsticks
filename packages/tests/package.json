@@ -20,16 +20,16 @@
 	"files": [
 		"lib"
 	],
+	"main": "./lib/index.js",
+	"types": "./lib/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./lib/index.js",
-			"require": "./lib/index.js",
-			"types": "./lib/index.d.ts"
+			"types": "./lib/index.d.ts",
+			"default": "./lib/index.js"
 		},
 		"./*": {
-			"import": "./lib/*.js",
-			"require": "./lib/*.js",
-			"types": "./lib/*.d.ts"
+			"types": "./lib/*.d.ts",
+			"default": "./lib/*.js"
 		},
 		"./package.json": "./package.json"
 	}

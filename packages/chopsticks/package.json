@@ -30,7 +30,6 @@
 		"pino": "^8.11.0",
 		"pino-pretty": "^9.4.0",
 		"reflect-metadata": "^0.1.13",
-		"rxjs": "^7.8.0",
 		"sqlite3": "^5.1.4",
 		"typeorm": "^0.3.12",
 		"ws": "^8.12.1",
@@ -52,16 +51,16 @@
 		"template",
 		"chopsticks.js"
 	],
+	"main": "./lib/index.js",
+	"types": "./lib/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./lib/index.js",
-			"require": "./lib/index.js",
-			"types": "./lib/index.d.ts"
+			"types": "./lib/index.d.ts",
+			"default": "./lib/index.js"
 		},
 		"./*": {
-			"import": "./lib/*.js",
-			"require": "./lib/*.js",
-			"types": "./lib/*.d.ts"
+			"types": "./lib/*.d.ts",
+			"default": "./lib/*.js"
 		},
 		"./package.json": "./package.json"
 	}
