@@ -138,7 +138,7 @@ export const createServer = async (handler: Handler, port?: number) => {
         send({
           id: req.id,
           jsonrpc: '2.0',
-          result: resp || null,
+          result: resp ?? null,
         })
       } catch (e) {
         logger.info('Error handling request: %s %o', e, (e as Error).stack)
