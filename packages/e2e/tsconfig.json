@@ -7,6 +7,6 @@
 	"exclude": ["node_modules", "lib"],
 	"references": [
 		{ "path": "../chopsticks" },
-		{ "path": "../tests" },
+		{ "path": "../testing" },
 	],
 }
