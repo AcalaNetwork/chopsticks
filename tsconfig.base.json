@@ -21,8 +21,8 @@
 		"paths": {
 			"@acala-network/chopsticks": ["packages/chopsticks/src"],
 			"@acala-network/chopsticks/*": ["packages/chopsticks/src/*"],
-			"@acala-network/chopsticks-tests": ["packages/tests/src"],
-			"@acala-network/chopsticks-tests/*": ["packages/tests/src/*"]
+			"@acala-network/chopsticks-testing": ["packages/testing/src"],
+			"@acala-network/chopsticks-testing/*": ["packages/testing/src/*"]
 		}
 	}
 }

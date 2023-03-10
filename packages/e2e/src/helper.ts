@@ -21,7 +21,7 @@ import { createServer } from '@acala-network/chopsticks/server'
 import { defer } from '@acala-network/chopsticks/utils'
 import { handler } from '@acala-network/chopsticks/rpc'
 
-export { expectJson, expectHex, expectHuman } from '@acala-network/chopsticks-tests'
+export { expectJson, expectHex, expectHuman } from '@acala-network/chopsticks-testing'
 
 export type SetupOption = {
   endpoint?: string
