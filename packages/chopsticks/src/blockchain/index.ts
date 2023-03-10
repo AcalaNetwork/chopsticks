@@ -26,6 +26,7 @@ export interface Options {
   header: { number: number; hash: HexString }
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
+  runtimeLogLevel?: number
   registeredTypes: RegisteredTypes
 }
 
@@ -35,6 +36,7 @@ export class Blockchain {
   readonly db: DataSource | undefined
   readonly mockSignatureHost: boolean
   readonly allowUnresolvedImports: boolean
+  readonly runtimeLogLevel: number
   readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
@@ -55,12 +57,14 @@ export class Blockchain {
     header,
     mockSignatureHost = false,
     allowUnresolvedImports = false,
+    runtimeLogLevel = 0,
     registeredTypes = {},
   }: Options) {
     this.api = api
     this.db = db
     this.mockSignatureHost = mockSignatureHost
     this.allowUnresolvedImports = allowUnresolvedImports
+    this.runtimeLogLevel = runtimeLogLevel
     this.registeredTypes = registeredTypes
 
     this.#head = new Block(this, header.number, header.hash)

@@ -12,10 +12,12 @@ import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, S
 import { compactHex } from '../utils'
 import { getRuntimeVersion, runTask, taskHandler } from '../executor'
 import type { RuntimeVersion } from '../executor'
+import { defaultLogger } from '../logger'
 
 export type TaskCallResponse = {
   result: HexString
   storageDiff: [HexString, HexString | null][]
+  runtimeLogs: string[],
 }
 
 export class Block {
@@ -233,10 +235,17 @@ export class Block {
         storage,
         mockSignatureHost: this.#chain.mockSignatureHost,
         allowUnresolvedImports: this.#chain.allowUnresolvedImports,
+        runtimeLogLevel: this.#chain.runtimeLogLevel
       },
       taskHandler(this)
     )
-    if (response.Call) return response.Call
+    if (response.Call) {
+      const {runtimeLogs} = response.Call
+      for (const log of runtimeLogs) {
+        defaultLogger.info(`RuntimeLogs:\n${log}`)
+      }
+      return response.Call
+    }
     if (response.Error) throw Error(response.Error)
     throw Error('Unexpected response')
   }
