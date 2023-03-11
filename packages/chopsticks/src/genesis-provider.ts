@@ -153,7 +153,7 @@ export class GenesisProvider implements ProviderInterface {
             storage: [],
             mockSignatureHost: false,
             allowUnresolvedImports: true,
-            runtimeLogLevel: 0
+            runtimeLogLevel: 0,
           },
           this._jsCallback
         )

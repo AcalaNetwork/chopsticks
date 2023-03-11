@@ -10,14 +10,14 @@ import type { HexString } from '@polkadot/util/types'
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
+import { defaultLogger } from '../logger'
 import { getRuntimeVersion, runTask, taskHandler } from '../executor'
 import type { RuntimeVersion } from '../executor'
-import { defaultLogger } from '../logger'
 
 export type TaskCallResponse = {
   result: HexString
   storageDiff: [HexString, HexString | null][]
-  runtimeLogs: string[],
+  runtimeLogs: string[]
 }
 
 export class Block {
@@ -235,12 +235,12 @@ export class Block {
         storage,
         mockSignatureHost: this.#chain.mockSignatureHost,
         allowUnresolvedImports: this.#chain.allowUnresolvedImports,
-        runtimeLogLevel: this.#chain.runtimeLogLevel
+        runtimeLogLevel: this.#chain.runtimeLogLevel,
       },
       taskHandler(this)
     )
     if (response.Call) {
-      const {runtimeLogs} = response.Call
+      const { runtimeLogs } = response.Call
       for (const log of runtimeLogs) {
         defaultLogger.info(`RuntimeLogs:\n${log}`)
       }

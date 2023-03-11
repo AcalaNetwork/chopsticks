@@ -79,7 +79,7 @@ export const dryRunPreimage = async (argv: Config) => {
       storage: [],
       mockSignatureHost: false,
       allowUnresolvedImports: false,
-      runtimeLogLevel: argv['runtime-log-level'] || 0
+      runtimeLogLevel: argv['runtime-log-level'] || 0,
     },
     taskHandler(block)
   )
