@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use smoldot::{
     executor::{
         host::{Config, HeapPages, HostVmPrototype},
-        runtime_host::{self, RuntimeHostVm},
+        runtime_host::{self, MaxLogLevel, RuntimeHostVm},
         storage_diff::StorageDiff,
         CoreVersionRef,
     },
@@ -56,6 +56,31 @@ impl RuntimeVersion {
     }
 }
 
+#[derive(Serialize, Deserialize, Default, Debug)]
+#[serde(rename_all = "camelCase")]
+pub enum RuntimeLogLevel {
+    #[default]
+    Off,
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
+}
+
+impl From<RuntimeLogLevel> for MaxLogLevel {
+    fn from(value: RuntimeLogLevel) -> Self {
+        match value {
+            RuntimeLogLevel::Off => MaxLogLevel::Off,
+            RuntimeLogLevel::Error => MaxLogLevel::Error,
+            RuntimeLogLevel::Warn => MaxLogLevel::Warn,
+            RuntimeLogLevel::Info => MaxLogLevel::Info,
+            RuntimeLogLevel::Debug => MaxLogLevel::Debug,
+            RuntimeLogLevel::Trace => MaxLogLevel::Trace,
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskCall {
@@ -64,7 +89,7 @@ pub struct TaskCall {
     storage: Vec<(HexString, Option<HexString>)>,
     mock_signature_host: bool,
     allow_unresolved_imports: bool,
-    runtime_log_level: u32,
+    runtime_log_level: RuntimeLogLevel,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -104,6 +129,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
     let mut runtime_logs: Vec<String> = vec![];
 
+    let max_log_level = task.runtime_log_level.into();
+
     for (call, params) in task.calls {
         let mut vm = runtime_host::run(runtime_host::Config {
             virtual_machine: vm_proto.clone(),
@@ -112,7 +139,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             top_trie_root_calculation_cache: None,
             storage_top_trie_changes,
             offchain_storage_changes,
-            max_log_level: task.runtime_log_level,
+            max_log_level,
         })
         .unwrap();
 

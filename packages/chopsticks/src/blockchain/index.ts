@@ -15,6 +15,7 @@ import { StorageValue } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder'
+import { RuntimeLogLevel } from '../executor'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -26,7 +27,7 @@ export interface Options {
   header: { number: number; hash: HexString }
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
-  runtimeLogLevel?: number
+  runtimeLogLevel?: RuntimeLogLevel
   registeredTypes: RegisteredTypes
 }
 
@@ -36,7 +37,7 @@ export class Blockchain {
   readonly db: DataSource | undefined
   readonly mockSignatureHost: boolean
   readonly allowUnresolvedImports: boolean
-  readonly runtimeLogLevel: number
+  readonly runtimeLogLevel: RuntimeLogLevel
   readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
@@ -57,7 +58,7 @@ export class Blockchain {
     header,
     mockSignatureHost = false,
     allowUnresolvedImports = false,
-    runtimeLogLevel = 0,
+    runtimeLogLevel = 'off',
     registeredTypes = {},
   }: Options) {
     this.api = api

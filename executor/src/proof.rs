@@ -4,7 +4,7 @@ use smoldot::{
         bytes_to_nibbles,
         proof_decode::{decode_and_verify_proof, Config},
         proof_encode::ProofBuilder,
-        proof_node_codec, trie_structure, Nibble,
+        trie_node, trie_structure, Nibble,
     },
 };
 use std::collections::BTreeMap;
@@ -63,10 +63,10 @@ pub fn create_proof(
     }
 
     for (key, value) in decoded.iter_ordered() {
-        let decoded_value = proof_node_codec::decode(value.node_value).unwrap();
+        let decoded_value = trie_node::decode(value.node_value).unwrap();
 
         if let trie_structure::Entry::Vacant(vacant) = trie.node(key.iter().map(|x| x.to_owned())) {
-            if let proof_node_codec::StorageValue::Unhashed(value) = decoded_value.storage_value {
+            if let trie_node::StorageValue::Unhashed(value) = decoded_value.storage_value {
                 vacant.insert_storage_value().insert(value.to_vec(), vec![]);
             }
         }
@@ -100,7 +100,7 @@ pub fn create_proof(
             vec![]
         };
 
-        let decoded = proof_node_codec::Decoded {
+        let decoded = trie_node::Decoded {
             children: std::array::from_fn(|nibble| {
                 let nibble = Nibble::try_from(u8::try_from(nibble).unwrap()).unwrap();
                 if trie
@@ -121,13 +121,13 @@ pub fn create_proof(
                 .collect::<Vec<_>>()
                 .into_iter(),
             storage_value: if has_storage_value {
-                proof_node_codec::StorageValue::Unhashed(&storage_value[..])
+                trie_node::StorageValue::Unhashed(&storage_value[..])
             } else {
-                proof_node_codec::StorageValue::None
+                trie_node::StorageValue::None
             },
         };
 
-        let node_value = proof_node_codec::encode_to_vec(decoded)
+        let node_value = trie_node::encode_to_vec(decoded)
             .map_err(|e| format!("Failed to encode node proof {:?}", e.to_string()))?;
 
         proof_builder.set_node_value(&key, &node_value, None)

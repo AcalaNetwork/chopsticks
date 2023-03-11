@@ -61,6 +61,8 @@ export const createProof = async (
   return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }
 
+export type RuntimeLogLevel = "off" | "error" | "warn" | "info" | "debug" | "trace"
+
 export const runTask = async (
   task: {
     wasm: HexString
@@ -68,7 +70,7 @@ export const runTask = async (
     storage: [HexString, HexString | null][]
     mockSignatureHost: boolean
     allowUnresolvedImports: boolean,
-    runtimeLogLevel: number
+    runtimeLogLevel: RuntimeLogLevel
   },
   callback: JsCallback = emptyTaskHandler
 ) => {
@@ -116,7 +118,7 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: R
     storage: [],
     mockSignatureHost: false,
     allowUnresolvedImports: false,
-    runtimeLogLevel: 0,
+    runtimeLogLevel: 'off',
   })
 
   if (!result.Call) throw new Error(result.Error)

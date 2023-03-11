@@ -31,7 +31,7 @@ export const runBlock = async (argv: Config) => {
       storage: [],
       mockSignatureHost: false,
       allowUnresolvedImports: false,
-      runtimeLogLevel: argv['runtime-log-level'] || 0
+      runtimeLogLevel: argv['runtime-log-level'] || 'off'
     },
     taskHandler(parent)
   )
