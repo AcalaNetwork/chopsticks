@@ -30,7 +30,7 @@
 		"pino": "^8.11.0",
 		"pino-pretty": "^9.4.0",
 		"reflect-metadata": "^0.1.13",
-		"sqlite3": "^5.1.4",
+		"sqlite3": "^5.1.5",
 		"typeorm": "^0.3.12",
 		"ws": "^8.12.1",
 		"yargs": "^17.7.1",

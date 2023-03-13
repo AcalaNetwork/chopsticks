@@ -66,7 +66,7 @@ __metadata:
     pino: ^8.11.0
     pino-pretty: ^9.4.0
     reflect-metadata: ^0.1.13
-    sqlite3: ^5.1.4
+    sqlite3: ^5.1.5
     ts-node: ^10.9.1
     ts-node-dev: ^2.0.0
     typeorm: ^0.3.12
@@ -5168,9 +5168,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sqlite3@npm:^5.1.4":
-  version: 5.1.4
-  resolution: "sqlite3@npm:5.1.4"
+"sqlite3@npm:^5.1.5":
+  version: 5.1.5
+  resolution: "sqlite3@npm:5.1.5"
   dependencies:
     "@mapbox/node-pre-gyp": ^1.0.0
     node-addon-api: ^4.2.0
@@ -5184,7 +5184,7 @@ __metadata:
   peerDependenciesMeta:
     node-gyp:
       optional: true
-  checksum: a265220515b0168cb166ece9b7fd3b230fe93fe9dabea8f426b0bfbb833bf39be1177fba4e161a7796e471caace6ca2c312fb3fc44c1f053a3b5617b250a5575
+  checksum: b7df68c8d4a16cd1d8d42e34035973c2e4cff33e0b917ff8830fa21c84e3bc0d16beaf51589a4a45df9c52e30bf0224122e6c67d0f17ff1d776be738d8706b02
   languageName: node
   linkType: hard
 
