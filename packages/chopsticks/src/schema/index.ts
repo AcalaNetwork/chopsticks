@@ -27,6 +27,7 @@ export const configSchema = z
     genesis: z.union([z.string(), genesisSchema]).optional(),
     timestamp: z.number().optional(),
     'registered-types': z.any().optional(),
+    'runtime-log-level': z.number().min(0).max(5).optional(),
   })
   .strict()
 

@@ -54,6 +54,10 @@ const defaultOptions = {
     desc: 'Path to config file',
     string: true,
   },
+  'runtime-log-level': {
+    desc: 'Runtime maximum log level [off = 0; error = 1; warn = 2; info = 3; debug = 4; trace = 5]',
+    number: true,
+  },
 }
 
 yargs(hideBin(process.argv))

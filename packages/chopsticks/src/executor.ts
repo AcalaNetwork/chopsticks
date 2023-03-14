@@ -68,6 +68,7 @@ export const runTask = async (
     storage: [HexString, HexString | null][]
     mockSignatureHost: boolean
     allowUnresolvedImports: boolean
+    runtimeLogLevel: number
   },
   callback: JsCallback = emptyTaskHandler
 ) => {
@@ -115,6 +116,7 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: R
     storage: [],
     mockSignatureHost: false,
     allowUnresolvedImports: false,
+    runtimeLogLevel: 0,
   })
 
   if (!result.Call) throw new Error(result.Error)

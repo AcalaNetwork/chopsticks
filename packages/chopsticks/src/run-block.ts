@@ -2,6 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import { writeFileSync } from 'node:fs'
 
 import { Config } from './schema'
+import { defaultLogger } from './logger'
 import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
 import { openHtml } from './utils/open-html'
 import { runTask, taskHandler } from './executor'
@@ -31,12 +32,17 @@ export const runBlock = async (argv: Config) => {
       storage: [],
       mockSignatureHost: false,
       allowUnresolvedImports: false,
+      runtimeLogLevel: argv['runtime-log-level'] || 0,
     },
     taskHandler(parent)
   )
 
   if (result.Error) {
     throw new Error(result.Error)
+  }
+
+  for (const logs of result.Call.runtimeLogs) {
+    defaultLogger.info(`RuntimeLogs:\n${logs}`)
   }
 
   if (argv['html']) {

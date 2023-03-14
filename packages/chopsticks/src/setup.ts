@@ -73,6 +73,7 @@ export const setup = async (argv: Config, runBlock = false) => {
     },
     mockSignatureHost: argv['mock-signature-host'],
     allowUnresolvedImports: argv['allow-unresolved-imports'],
+    runtimeLogLevel: argv['runtime-log-level'],
     registeredTypes: argv['registered-types'],
   })
 

@@ -15,9 +15,9 @@ export const dryRun = async (argv: Config) => {
 
   if (outcome.isErr) {
     throw new Error(outcome.asErr.toString())
-  } else {
-    defaultLogger.info(outcome.toHuman(), 'dry_run_outcome')
   }
+
+  defaultLogger.info(outcome.toHuman(), 'dry_run_outcome')
 
   if (argv['html']) {
     const filePath = await generateHtmlDiffPreviewFile(

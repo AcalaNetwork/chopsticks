@@ -64,6 +64,7 @@ pub struct TaskCall {
     storage: Vec<(HexString, Option<HexString>)>,
     mock_signature_host: bool,
     allow_unresolved_imports: bool,
+    runtime_log_level: u32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -71,6 +72,7 @@ pub struct TaskCall {
 pub struct CallResponse {
     result: HexString,
     storage_diff: Vec<(HexString, Option<HexString>)>,
+    runtime_logs: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -100,6 +102,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     })
     .unwrap();
     let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
+    let mut runtime_logs: Vec<String> = vec![];
 
     for (call, params) in task.calls {
         let mut vm = runtime_host::run(runtime_host::Config {
@@ -109,6 +112,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             top_trie_root_calculation_cache: None,
             storage_top_trie_changes,
             offchain_storage_changes,
+            max_log_level: task.runtime_log_level,
         })
         .unwrap();
 
@@ -186,6 +190,10 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
 
                 storage_top_trie_changes = success.storage_top_trie_changes;
                 offchain_storage_changes = success.offchain_storage_changes;
+
+                if !success.logs.is_empty() {
+                    runtime_logs.push(success.logs);
+                }
             }
             Err(err) => {
                 ret = Err(err.to_string());
@@ -204,6 +212,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
         TaskResponse::Call(CallResponse {
             result: HexString(ret),
             storage_diff: diff,
+            runtime_logs,
         })
     }))
 }
