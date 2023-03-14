@@ -88,6 +88,10 @@ export const dryRunPreimage = async (argv: Config) => {
     throw new Error(result.Error)
   }
 
+  if (result.Call.runtimeLogs.length) {
+    defaultLogger.info(`RuntimeLogs:\n${result.Call.runtimeLogs}`)
+  }
+
   const filePath = await generateHtmlDiffPreviewFile(block, result.Call.storageDiff, hash)
   console.log(`Generated preview ${filePath}`)
   if (argv['open']) {
@@ -99,12 +103,15 @@ export const dryRunPreimage = async (argv: Config) => {
   if (argv['extrinsic']) {
     await context.chain.newBlock()
     const input = argv['address'] ? { call: argv['extrinsic'], address: argv['address'] } : argv['extrinsic']
-    const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(input)
+    const { outcome, storageDiff, runtimeLogs } = await context.chain.dryRunExtrinsic(input)
     if (outcome.isErr) {
       throw new Error(outcome.asErr.toString())
-    } else {
-      defaultLogger.info(outcome.toHuman(), 'dry_run_outcome')
     }
+
+    if (runtimeLogs.length) {
+      defaultLogger.info(`RuntimeLogs:\n${runtimeLogs}`)
+    }
+    defaultLogger.info(outcome.toHuman(), 'dry_run_outcome')
 
     const filePath = await generateHtmlDiffPreviewFile(
       context.chain.head,
