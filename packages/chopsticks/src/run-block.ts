@@ -2,6 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import { writeFileSync } from 'node:fs'
 
 import { Config } from './schema'
+import { defaultLogger } from './logger'
 import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
 import { openHtml } from './utils/open-html'
 import { runTask, taskHandler } from './executor'
@@ -38,6 +39,10 @@ export const runBlock = async (argv: Config) => {
 
   if (result.Error) {
     throw new Error(result.Error)
+  }
+
+  if (result.Call.runtimeLogs.length) {
+    defaultLogger.info(`RuntimeLogs:\n${result.Call.runtimeLogs}`)
   }
 
   if (argv['html']) {
