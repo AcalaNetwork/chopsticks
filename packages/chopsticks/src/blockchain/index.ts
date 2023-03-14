@@ -11,7 +11,6 @@ import { Block } from './block'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
-import { RuntimeLogLevel } from '../executor'
 import { StorageValue } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
@@ -27,7 +26,7 @@ export interface Options {
   header: { number: number; hash: HexString }
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
-  runtimeLogLevel?: RuntimeLogLevel
+  runtimeLogLevel?: number
   registeredTypes: RegisteredTypes
 }
 
