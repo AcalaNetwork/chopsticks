@@ -11,15 +11,12 @@ export const dryRun = async (argv: Config) => {
   const context = await setup(argv)
 
   const input = argv['address'] ? { call: argv['extrinsic'], address: argv['address'] } : argv['extrinsic']
-  const { outcome, storageDiff, runtimeLogs } = await context.chain.dryRunExtrinsic(input, argv['at'])
+  const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(input, argv['at'])
 
   if (outcome.isErr) {
     throw new Error(outcome.asErr.toString())
   }
 
-  if (runtimeLogs.length) {
-    defaultLogger.info(`RuntimeLogs:\n${runtimeLogs}`)
-  }
   defaultLogger.info(outcome.toHuman(), 'dry_run_outcome')
 
   if (argv['html']) {

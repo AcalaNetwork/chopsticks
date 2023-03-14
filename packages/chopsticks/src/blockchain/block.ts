@@ -240,8 +240,7 @@ export class Block {
       taskHandler(this)
     )
     if (response.Call) {
-      const { runtimeLogs } = response.Call
-      for (const log of runtimeLogs) {
+      for (const log of response.Call.runtimeLogs) {
         defaultLogger.info(`RuntimeLogs:\n${log}`)
       }
       return response.Call

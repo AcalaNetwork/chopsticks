@@ -202,7 +202,7 @@ export class Blockchain {
   async dryRunExtrinsic(
     extrinsic: HexString | { call: HexString; address: string },
     at?: HexString
-  ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][]; runtimeLogs: string[] }> {
+  ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][] }> {
     await this.api.isReady
     const head = at ? await this.getBlock(at) : this.head
     if (!head) {
@@ -215,9 +215,9 @@ export class Blockchain {
       upwardMessages: [],
       horizontalMessages: {},
     })
-    const { result, storageDiff, runtimeLogs } = await dryRunExtrinsic(head, inherents, extrinsic)
+    const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
     const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
-    return { outcome, storageDiff, runtimeLogs }
+    return { outcome, storageDiff }
   }
 
   async dryRunHrmp(

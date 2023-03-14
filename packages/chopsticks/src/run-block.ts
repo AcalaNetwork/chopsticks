@@ -41,8 +41,8 @@ export const runBlock = async (argv: Config) => {
     throw new Error(result.Error)
   }
 
-  if (result.Call.runtimeLogs.length) {
-    defaultLogger.info(`RuntimeLogs:\n${result.Call.runtimeLogs}`)
+  for (const logs of result.Call.runtimeLogs) {
+    defaultLogger.info(`RuntimeLogs:\n${logs}`)
   }
 
   if (argv['html']) {
