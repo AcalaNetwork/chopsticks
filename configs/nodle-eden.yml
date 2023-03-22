@@ -1,4 +1,4 @@
-endpoint: wss://eden-rpc.dwellir.com
+endpoint: wss://nodle-parachain.api.onfinality.io/public-ws
 mock-signature-host: true
 db: ./db.sqlite
 
