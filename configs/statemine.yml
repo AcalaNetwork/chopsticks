@@ -1,6 +1,6 @@
 endpoint: wss://statemine-rpc.polkadot.io
 mock-signature-host: true
-block: 3657000
+block: ${env.STATEMINE_BLOCK_NUMBER}
 db: ./db.sqlite
 
 import-storage:

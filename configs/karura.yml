@@ -1,6 +1,6 @@
 endpoint: wss://karura-rpc.dwellir.com
 mock-signature-host: true
-block: 3772450
+block: ${env.KARURA_BLOCK_NUMBER}
 db: ./db.sqlite
 # wasm-override: karura-2100.wasm
 
