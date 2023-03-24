@@ -62,6 +62,29 @@ export class TxPool {
     return this.#pool.map(({ extrinsic }) => extrinsic)
   }
 
+  get ump(): Record<number, HexString[]> {
+    return this.#ump
+  }
+
+  get dmp(): DownwardMessage[] {
+    return this.#dmp
+  }
+
+  get hrmp(): Record<number, HorizontalMessage[]> {
+    return this.#hrmp
+  }
+
+  clear() {
+    this.#pool.length = 0
+    for (const id of Object.keys(this.#ump)) {
+      delete this.#ump[id]
+    }
+    this.#dmp.length = 0
+    for (const id of Object.keys(this.#hrmp)) {
+      delete this.#hrmp[id]
+    }
+  }
+
   pendingExtrinsicsBy(address: string): HexString[] {
     return this.#pool.filter(({ signer }) => signer === address).map(({ extrinsic }) => extrinsic)
   }
