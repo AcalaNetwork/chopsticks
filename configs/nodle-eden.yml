@@ -1,5 +1,6 @@
 endpoint: wss://nodle-parachain.api.onfinality.io/public-ws
 mock-signature-host: true
+block: ${env.NODLE_BLOCK_NUMBER}
 db: ./db.sqlite
 
 import-storage:

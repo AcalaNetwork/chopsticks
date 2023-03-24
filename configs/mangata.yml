@@ -1,5 +1,6 @@
 endpoint: wss://mangata-x.api.onfinality.io/public-ws
 mock-signature-host: true
+block: ${env.MANGATA_BLOCK_NUMBER}
 db: ./mangata.db.sqlite
 
 registered-types:

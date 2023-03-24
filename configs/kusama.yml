@@ -1,6 +1,6 @@
 endpoint: wss://kusama-rpc.dwellir.com
 mock-signature-host: true
-block: 16855000
+block: ${env.KUSAMA_BLOCK_NUMBER}
 db: ./db.sqlite
 # wasm-override: kusama_runtime-v9380.compact.compressed.wasm
 

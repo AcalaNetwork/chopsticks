@@ -1,6 +1,6 @@
 endpoint: wss://rpc.composablenodes.tech
 mock-signature-host: true
-block: 1935395
+block: ${env.PICASSO_BLOCK_NUMBER}
 db: ./picasso.kusama.db.sqlite
 # wasm-override: ../../ComposableFi/composable/result/lib/runtime.optimized.wasm
 
