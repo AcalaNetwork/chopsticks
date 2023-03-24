@@ -10,7 +10,7 @@
 		"build": "tsc -p ./tsconfig.json"
 	},
 	"devDependencies": {
-		"typescript": "^4.9.5"
+		"typescript": "^5.0.2"
 	},
 	"files": [
 		"lib"

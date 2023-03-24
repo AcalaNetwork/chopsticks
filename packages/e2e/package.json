@@ -12,9 +12,9 @@
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-testing": "workspace:*",
-		"@polkadot/api": "^9.14.2"
+		"@polkadot/api": "^10.1.4"
 	},
 	"devDependencies": {
-		"typescript": "^4.9.5"
+		"typescript": "^5.0.2"
 	}
 }
