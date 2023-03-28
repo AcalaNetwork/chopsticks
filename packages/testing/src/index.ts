@@ -14,9 +14,10 @@ export type SetupOption = {
   blockHash?: HexString
   wasmOverride?: string
   db?: string
+  timeout?: number
 }
 
-export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverride, db }: SetupOption) => {
+export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverride, db, timeout }: SetupOption) => {
   // random port
   const port = Math.floor(Math.random() * 10000) + 10000
   const config = {
@@ -30,7 +31,7 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
   }
   const { chain, listenPort, close } = await setupWithServer(config)
 
-  const ws = new WsProvider(`ws://localhost:${listenPort}`)
+  const ws = new WsProvider(`ws://localhost:${listenPort}`, undefined, undefined, timeout)
   const api = await ApiPromise.create({
     provider: ws,
     signedExtensions: {
