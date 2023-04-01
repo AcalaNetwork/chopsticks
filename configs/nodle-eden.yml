@@ -1,6 +1,6 @@
-endpoint: wss://rococo-rpc.polkadot.io
+endpoint: wss://nodle-parachain.api.onfinality.io/public-ws
 mock-signature-host: true
-block: ${env.ROCOCO_BLOCK_NUMBER}
+block: ${env.NODLE_BLOCK_NUMBER}
 db: ./db.sqlite
 
 import-storage:
@@ -10,14 +10,7 @@ import-storage:
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
         - data:
-            free: '10000000000000000000'
-  Council:
-    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
-  PhragmenElection:
-    Members:
-      - who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        stake: 1000000000000
-        deposit: 1000000000000
+            free: "10000000000000000000000"
   TechnicalCommittee:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
   TechnicalMembership:

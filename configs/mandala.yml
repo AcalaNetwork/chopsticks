@@ -1,6 +1,6 @@
 endpoint: wss://mandala-rpc.aca-staging.network/ws
 mock-signature-host: true
-block: 457700
+block: ${env.MANDALA_BLOCK_NUMBER}
 db: ./db.sqlite
 # wasm-override: acala-2101.wasm
 

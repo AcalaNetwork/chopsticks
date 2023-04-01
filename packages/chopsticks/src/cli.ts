@@ -1,7 +1,9 @@
 import { HexString } from '@polkadot/util/types'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync } from 'node:fs'
+import _ from 'lodash'
 import axios from 'axios'
+import dotenv from 'dotenv'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
@@ -14,6 +16,8 @@ import { isUrl } from './utils'
 import { runBlock } from './run-block'
 import { tryRuntime } from './try-runtime'
 
+dotenv.config()
+
 const processConfig = async (path: string) => {
   let file: string
   if (isUrl(path)) {
@@ -21,7 +25,7 @@ const processConfig = async (path: string) => {
   } else {
     file = readFileSync(path, 'utf8')
   }
-  const config = yaml.load(file) as any
+  const config = yaml.load(_.template(file, { variable: 'env' })(process.env)) as any
   return configSchema.parse(config)
 }
 

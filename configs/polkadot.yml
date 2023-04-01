@@ -1,6 +1,6 @@
 endpoint: wss://rpc.polkadot.io
 mock-signature-host: true
-block: 14523000
+block: ${env.POLKADOT_BLOCK_NUMBER}
 db: ./db.sqlite
 # wasm-override: polkadot_runtime-v9380.compact.compressed.wasm
 

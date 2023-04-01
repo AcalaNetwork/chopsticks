@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-core",
-	"version": "0.5.10",
+	"version": "0.6.0",
 	"main": "./lib/index.js",
 	"types": "./lib/index.d.ts",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
@@ -10,7 +10,7 @@
 		"build": "tsc -p ./tsconfig.json"
 	},
 	"devDependencies": {
-		"typescript": "^4.9.5"
+		"typescript": "^5.0.3"
 	},
 	"files": [
 		"lib"

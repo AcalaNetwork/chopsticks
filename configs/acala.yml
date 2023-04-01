@@ -1,6 +1,6 @@
 endpoint: wss://acala-rpc.dwellir.com
 mock-signature-host: true
-block: 3000000
+block: ${env.ACALA_BLOCK_NUMBER}
 db: ./db.sqlite
 # wasm-override: acala-2101.wasm
 
