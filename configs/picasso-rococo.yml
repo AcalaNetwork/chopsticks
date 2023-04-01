@@ -1,7 +1,7 @@
-endpoint: wss://rpc.composablenodes.tech
+endpoint: wss://picasso-rococo-rpc-lb.composablenodes.tech
 mock-signature-host: true
-block: 2104914
-db: ./picasso-kusama.db.sqlite
+block: 65507
+db: ./picasso-rococo.db.sqlite
 # wasm-override: ../../ComposableFi/composable/result/lib/runtime.optimized.wasm
 
 import-storage:

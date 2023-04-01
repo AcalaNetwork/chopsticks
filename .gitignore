@@ -120,6 +120,7 @@ dist
 .idea
 
 *.sqlite
+*.sqlite-journal
 *.wasm
 
 .DS_store
