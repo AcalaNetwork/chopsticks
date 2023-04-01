@@ -1608,12 +1608,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.21.1":
-  version: 0.21.4
-  resolution: "axios@npm:0.21.4"
+"axios@npm:^0.26.1":
+  version: 0.26.1
+  resolution: "axios@npm:0.26.1"
   dependencies:
-    follow-redirects: ^1.14.0
-  checksum: 44245f24ac971e7458f3120c92f9d66d1fc695e8b97019139de5b0cc65d9b8104647db01e5f46917728edfc0cfd88eb30fc4c55e6053eef4ace76768ce95ff3c
+    follow-redirects: ^1.14.8
+  checksum: d9eb58ff4bc0b36a04783fc9ff760e9245c829a5a1052ee7ca6013410d427036b1d10d04e7380c02f3508c5eaf3485b1ae67bd2adbfec3683704745c8d7a6e1a
   languageName: node
   linkType: hard
 
@@ -1649,14 +1649,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"binary-install@npm:^0.1.0":
-  version: 0.1.1
-  resolution: "binary-install@npm:0.1.1"
+"binary-install@npm:^1.0.1":
+  version: 1.0.6
+  resolution: "binary-install@npm:1.0.6"
   dependencies:
-    axios: ^0.21.1
+    axios: ^0.26.1
     rimraf: ^3.0.2
-    tar: ^6.1.0
-  checksum: a3df9c07a3ab81533cff610527263181c4c34a44efb115555be910b6011ac047bf875ad57469cc2259dfaba58e971c7ba2958038e9d222c546eef7b58b826ecc
+    tar: ^6.1.11
+  checksum: d972be7366b23f3fb0d9e4697acc8c84ced30d5ede1524a3707e42c6a642eb93c1f36c420c7789a240f2debf2e4b0b52a0e330a4edac18f8996a05596d02b9ee
   languageName: node
   linkType: hard
 
@@ -1870,7 +1870,7 @@ __metadata:
     unplugin-swc: ^1.3.2
     vite-tsconfig-paths: ^4.0.7
     vitest: ^0.29.7
-    wasm-pack: ^0.10.3
+    wasm-pack: ^0.11.0
   languageName: unknown
   linkType: soft
 
@@ -2785,7 +2785,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.15.0":
+"follow-redirects@npm:^1.14.8, follow-redirects@npm:^1.15.0":
   version: 1.15.2
   resolution: "follow-redirects@npm:1.15.2"
   peerDependenciesMeta:
@@ -3882,13 +3882,6 @@ __metadata:
   dependencies:
     yallist: ^4.0.0
   checksum: f89f02bcaa0e0e4bb4c44ec796008e69fbca62db0aba6ead1bc57d25bdaefdf42102130f4f9ecb7d9c6b6cd35ff7b0c7b97d001d3435da8e629fb68af3aea57e
-  languageName: node
-  linkType: hard
-
-"minipass@npm:^4.0.0":
-  version: 4.2.5
-  resolution: "minipass@npm:4.2.5"
-  checksum: 4f9c19af23a5d4a9e7156feefc9110634b178a8cff8f8271af16ec5ebf7e221725a97429952c856f5b17b30c2065ebd24c81722d90c93d2122611d75b952b48f
   languageName: node
   linkType: hard
 
@@ -5170,20 +5163,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:^6.1.0":
-  version: 6.1.13
-  resolution: "tar@npm:6.1.13"
-  dependencies:
-    chownr: ^2.0.0
-    fs-minipass: ^2.0.0
-    minipass: ^4.0.0
-    minizlib: ^2.1.1
-    mkdirp: ^1.0.3
-    yallist: ^4.0.0
-  checksum: 8a278bed123aa9f53549b256a36b719e317c8b96fe86a63406f3c62887f78267cea9b22dc6f7007009738509800d4a4dccc444abd71d762287c90f35b002eb1c
-  languageName: node
-  linkType: hard
-
 "text-table@npm:^0.2.0":
   version: 0.2.0
   resolution: "text-table@npm:0.2.0"
@@ -5800,14 +5779,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wasm-pack@npm:^0.10.3":
-  version: 0.10.3
-  resolution: "wasm-pack@npm:0.10.3"
+"wasm-pack@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "wasm-pack@npm:0.11.0"
   dependencies:
-    binary-install: ^0.1.0
+    binary-install: ^1.0.1
   bin:
-    wasm-pack: run.js
-  checksum: b980b33fc8adcd208556a1f5c4656b02d1ae584792259874f09ab5647dd52d0cdd3179d970ba99eed72ac1a422445c3c81122a3e9d7c05ebb2a3ff83bd7ec7db
+    wasm-pack: node ./run.js
+  checksum: 08d53507604000cccd66da643aa1abc7cab0ac4ab0b61c04a2a0bd30be1920cb2596410fd8c482fdbacc2cd4b785f9182f3daba8ceb94151fe7ed4dc68919288
   languageName: node
   linkType: hard
 
