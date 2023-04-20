@@ -1,4 +1,5 @@
 import { HexString } from '@polkadot/util/types'
+import { basename, extname } from 'node:path'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync } from 'node:fs'
 import _ from 'lodash'
@@ -13,17 +14,33 @@ import { decodeKey } from './utils/decoder'
 import { dryRun } from './dry-run'
 import { dryRunPreimage } from './dry-run-preimage'
 import { isUrl } from './utils'
+import { logger } from './rpc/shared'
 import { runBlock } from './run-block'
 import { tryRuntime } from './try-runtime'
 
 dotenv.config()
+
+const CONFIGS_BASE_URL = 'https://raw.githubusercontent.com/AcalaNetwork/chopsticks/master/configs/'
 
 const processConfig = async (path: string) => {
   let file: string
   if (isUrl(path)) {
     file = await axios.get(path).then((x) => x.data)
   } else {
-    file = readFileSync(path, 'utf8')
+    try {
+      file = readFileSync(path, 'utf8')
+    } catch (err) {
+      if (basename(path) === path && ['', '.yml', '.yaml', '.json'].includes(extname(path))) {
+        if (extname(path) === '') {
+          path += '.yml'
+        }
+        const url = CONFIGS_BASE_URL + path
+        logger.info(`Loading config file ${url}`)
+        file = await axios.get(url).then((x) => x.data)
+      } else {
+        throw err
+      }
+    }
   }
   const config = yaml.load(_.template(file, { variable: 'env' })(process.env)) as any
   return configSchema.parse(config)
