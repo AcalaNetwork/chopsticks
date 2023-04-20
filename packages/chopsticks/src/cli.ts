@@ -1,7 +1,7 @@
 import { HexString } from '@polkadot/util/types'
-import { readFileSync } from 'node:fs'
 import { basename, extname } from 'node:path'
 import { hideBin } from 'yargs/helpers'
+import { readFileSync } from 'node:fs'
 import _ from 'lodash'
 import axios from 'axios'
 import dotenv from 'dotenv'
