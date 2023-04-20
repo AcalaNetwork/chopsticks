@@ -1,5 +1,5 @@
 import { HexString } from '@polkadot/util/types'
-import { accessSync, constants, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { basename, extname } from 'node:path'
 import { hideBin } from 'yargs/helpers'
 import _ from 'lodash'
@@ -28,7 +28,6 @@ const processConfig = async (path: string) => {
     file = await axios.get(path).then((x) => x.data)
   } else {
     try {
-      accessSync(path, constants.R_OK)
       file = readFileSync(path, 'utf8')
     } catch (err) {
       if (basename(path) === path && ['', '.yml', '.yaml', '.json'].includes(extname(path))) {
