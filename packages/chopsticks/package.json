@@ -11,6 +11,7 @@
 		"script:run": "cd ../..; LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- dev --config=configs/dev.yml",
 		"dev:karura": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- dev --config=configs/karura.yml",
 		"dev:acala": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- dev --config=configs/acala.yml",
+		"dev:polkadot": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- dev --config=configs/polkadot.yml",
 		"dev:moonriver": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- dev --config=configs/moonriver.yml",
 		"dev:moonbeam": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- dev --config=configs/moonbeam.yml"
 	},

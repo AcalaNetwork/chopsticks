@@ -59,6 +59,8 @@ import-storage:
     Members:
       - [[5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], rank: 7]
     Voting: []
+  ParasDisputes:
+    $removePrefix: ['disputes'] # those can makes block building super slow
   # Configuration:
   #   ActiveConfig: {
   #     "maxCodeSize": 10485760,

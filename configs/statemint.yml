@@ -1,6 +1,6 @@
-endpoint: wss://statemine-rpc.polkadot.io
+endpoint: wss://statemint-rpc.polkadot.io
 mock-signature-host: true
-block: ${env.STATEMINE_BLOCK_NUMBER}
+block: ${env.STATEMINT_BLOCK_NUMBER}
 db: ./db.sqlite
 
 import-storage:
@@ -14,4 +14,6 @@ import-storage:
   Assets:
     Account:
       - [[1984, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], { balance: 1000000000 }]
+      - [[21, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], { balance: 1000000000 }]
+    Asset: [[[21], { supply: 1000000000 }]]
 
