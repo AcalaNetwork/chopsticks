@@ -2,7 +2,7 @@ endpoint: wss://rpc.polkadot.io
 mock-signature-host: true
 block: ${env.POLKADOT_BLOCK_NUMBER}
 db: ./db.sqlite
-# wasm-override: polkadot_runtime-v9380.compact.compressed.wasm
+# wasm-override: polkadot_runtime-v9381.compact.compressed.wasm
 
 import-storage:
   System:
@@ -23,3 +23,5 @@ import-storage:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
   TechnicalMembership:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+  ParasDisputes:
+    $removePrefix: ['disputes'] # those can makes block building super slow
