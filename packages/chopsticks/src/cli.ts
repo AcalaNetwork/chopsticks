@@ -81,20 +81,52 @@ const defaultOptions = {
   },
 }
 
+const mockOptions = {
+  'import-storage': {
+    desc: 'Pre-defined JSON/YAML storage file path',
+    string: true,
+  },
+  'mock-signature-host': {
+    desc: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
+    boolean: true,
+  },
+}
+
 yargs(hideBin(process.argv))
   .scriptName('chopsticks')
+  .command(
+    '*',
+    'Dev mode, fork off a chain',
+    (yargs) =>
+      yargs.options({
+        ...defaultOptions,
+        ...mockOptions,
+        port: {
+          desc: 'Port to listen on',
+          number: true,
+        },
+        'build-block-mode': {
+          desc: 'Build block mode. Default to Batch',
+          enum: [BuildBlockMode.Batch, BuildBlockMode.Manual, BuildBlockMode.Instant],
+        },
+        'allow-unresolved-imports': {
+          desc: 'Allow wasm unresolved imports',
+          boolean: true,
+        },
+      }),
+    async (argv) => {
+      await setupWithServer(await processArgv(argv))
+    }
+  )
   .command(
     'run-block',
     'Replay a block',
     (yargs) =>
       yargs.options({
         ...defaultOptions,
+        ...mockOptions,
         'output-path': {
           desc: 'File path to print output',
-          string: true,
-        },
-        'import-storage': {
-          desc: 'Pre-defined JSON/YAML storage file path',
           string: true,
         },
         html: {
@@ -177,37 +209,6 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'dev',
-    'Dev mode',
-    (yargs) =>
-      yargs.options({
-        ...defaultOptions,
-        port: {
-          desc: 'Port to listen on',
-          number: true,
-        },
-        'build-block-mode': {
-          desc: 'Build block mode. Default to Batch',
-          enum: [BuildBlockMode.Batch, BuildBlockMode.Manual, BuildBlockMode.Instant],
-        },
-        'import-storage': {
-          desc: 'Pre-defined JSON/YAML storage file path',
-          string: true,
-        },
-        'mock-signature-host': {
-          desc: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
-          boolean: true,
-        },
-        'allow-unresolved-imports': {
-          desc: 'Allow wasm unresolved imports',
-          boolean: true,
-        },
-      }),
-    async (argv) => {
-      await setupWithServer(await processArgv(argv))
-    }
-  )
-  .command(
     'decode-key <key>',
     'Deocde a key',
     (yargs) =>
@@ -272,12 +273,17 @@ yargs(hideBin(process.argv))
       }
     }
   )
-  .command({
-    command: '*',
-    handler() {
-      yargs.showHelp()
-    },
-  })
   .strict()
   .help()
-  .alias('help', 'h').argv
+  .alias('help', 'h')
+  .alias('version', 'v')
+  .alias('config', 'c')
+  .alias('endpoint', 'e')
+  .alias('port', 'p')
+  .alias('block', 'b')
+  .alias('import-storage', 's')
+  .alias('wasm-override', 'w')
+  .alias('relaychain', 'r')
+  .alias('parachain', 'p')
+  .usage('Usage: $0 <command> [options]')
+  .example('$0', '-c acala').argv
