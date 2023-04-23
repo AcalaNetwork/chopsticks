@@ -100,7 +100,7 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --prei
 **_NOTE:_** You can also connect multiple parachains without a relaychain
 
 ```bash
-npx @acala-network/chopsticks@latest xcm --relaychain=configs/kusama.yml --parachain=configs/karura.yml --parachain=configs/statemine.yml
+npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 ```
 
 ## Documentation

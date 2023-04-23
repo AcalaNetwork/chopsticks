@@ -242,18 +242,21 @@ yargs(hideBin(process.argv))
     'xcm',
     'XCM setup with relaychain and parachains',
     (yargs) =>
-      yargs.options({
-        relaychain: {
-          desc: 'Relaychain config file path',
-          string: true,
-        },
-        parachain: {
-          desc: 'Parachain config file path',
-          type: 'array',
-          string: true,
-          required: true,
-        },
-      }),
+      yargs
+        .options({
+          relaychain: {
+            desc: 'Relaychain config file path',
+            string: true,
+          },
+          parachain: {
+            desc: 'Parachain config file path',
+            type: 'array',
+            string: true,
+            required: true,
+          },
+        })
+        .alias('relaychain', 'r')
+        .alias('parachain', 'p'),
     async (argv) => {
       const parachains: Blockchain[] = []
       for (const config of argv.parachain) {
@@ -283,7 +286,5 @@ yargs(hideBin(process.argv))
   .alias('block', 'b')
   .alias('import-storage', 's')
   .alias('wasm-override', 'w')
-  .alias('relaychain', 'r')
-  .alias('parachain', 'p')
   .usage('Usage: $0 <command> [options]')
   .example('$0', '-c acala').argv
