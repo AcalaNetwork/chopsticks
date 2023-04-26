@@ -1,0 +1,28 @@
+endpoint: wss://shiden.api.onfinality.io/public-ws
+mock-signature-host: true
+block: ${env.SHIDEN_BLOCK_NUMBER}
+db: ./db.sqlite
+# wasm-override: shiden-96.wasm
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - data:
+            free: '100000000000000000000000'
+  Assets:
+    Account:
+      -
+        -
+          - '340282366920938463463374607431768211455'
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - balance: '100000000000000000'
+      -
+        -
+          - '4294969280'
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - balance: 100000000000
