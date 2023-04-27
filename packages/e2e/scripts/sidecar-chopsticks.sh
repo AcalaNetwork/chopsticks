@@ -1,23 +1,44 @@
 #!/usr/bin/env bash
 
-set -xe
-
-rm -rf substrate-api-sidecar
+set -x
 
 # clone sidecard
 git clone https://github.com/paritytech/substrate-api-sidecar.git
+(cd substrate-api-sidecar && gh pr checkout 1273) # TODO: remove this once the pr is merged
 
 # run chopsticks node
-yarn script:start dev --endpoint wss://rpc.polkadot.io --port 8011 & POLKADOT_PID=$!
-yarn script:start dev --endpoint wss://statemint-rpc.polkadot.io --port 8012 & STATEMINT_PID=$!
+yarn dev:acala --port 8011 & ACALA_PID=$!
+yarn dev:karura --port 8012 & KARURA_PID=$!
 
-# run tests
-(cd substrate-api-sidecar && \
-yarn && \
-yarn test:latest-e2e-tests --local ws://localhost:8011 --chain polkadot && \
-yarn test:latest-e2e-tests --local ws://localhost:8012 --chain statemint)
+# prepare sidecar
+cd substrate-api-sidecar
+
+yarn
+
+SAS_SUBSTRATE_URL=ws://127.0.0.1:8011 SAS_EXPRESS_PORT=8111 yarn ts-node src/main.ts & ACALA_SIDECAR_PID=$!
+SAS_SUBSTRATE_URL=ws://127.0.0.1:8012 SAS_EXPRESS_PORT=8112 yarn ts-node src/main.ts & KARURA_SIDECAR_PID=$!
+
+# wait a bit for it to be ready
+sleep 5
+
+# run the tests
+yarn ts-node e2e-tests/latest/index.ts --chain acala --url http://127.0.0.1:8111
+ACALA_TEST_RESULT=$?
+
+yarn ts-node e2e-tests/latest/index.ts --chain karura --url http://127.0.0.1:8112
+KARURA_TEST_RESULT=$?
+
+cd ..
 
 # cleanup
+kill $ACALA_SIDECAR_PID
+kill $KARURA_SIDECAR_PID
+kill $ACALA_PID
+kill $KARURA_PID
+
 rm -rf substrate-api-sidecar
-kill $POLKADOT_PID
-kill $STATEMINT_PID
+
+# exit with error code if any of the tests failed
+if [ $ACALA_TEST_RESULT -ne 0 ] || [ $KARURA_TEST_RESULT -ne 0 ]; then
+  exit 1
+fi
