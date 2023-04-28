@@ -8,9 +8,38 @@ Fork Acala mainnet: `npx @acala-network/chopsticks@latest --endpoint=wss://acala
 
 It is recommended to use config file. You can check [configs](configs/) for examples.
 
-You can run a test node with config with `npx @acala-network/chopsticks@latest --config=<url | path | config_file_name>` [configs can be found here](configs/)
+Run node using config file
 
-`npx @acala-network/chopsticks@latest -c acala`
+```bash
+# npx @acala-network/chopsticks@latest --config= url | path | config_file_name
+# i.e: using configs/acala.yml
+
+npx @acala-network/chopsticks@latest -c acala
+```
+
+### Example configs can be found here
+
+- [acala](configs/acala.yml)
+- [astar](configs/astar.yml)
+- [basilisk](configs/basilisk.yml)
+- [composable-polkadot](configs/composable-polkadot.yml)
+- [hydradx](configs/hydradx.yml)
+- [karura](configs/karura.yml)
+- [kusama](configs/kusama.yml)
+- [mandala-genesis](configs/mandala-genesis.yml)
+- [mandala](configs/mandala.yml)
+- [mangata](configs/mangata.yml)
+- [moonbase-alpha](configs/moonbase-alpha.yml)
+- [moonbeam](configs/moonbeam.yml)
+- [moonriver](configs/moonriver.yml)
+- [nodle-eden](configs/nodle-eden.yml)
+- [picasso-kusama](configs/picasso-kusama.yml)
+- [picasso-rococo](configs/picasso-rococo.yml)
+- [polkadot](configs/polkadot.yml)
+- [rococo](configs/rococo.yml)
+- [shiden](configs/shiden.yml)
+- [statemine](configs/statemine.yml)
+- [statemint](configs/statemint.yml)
 
 ## Install
 
