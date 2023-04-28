@@ -105,7 +105,7 @@ npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 
 ## Dev
 
-You can setup chocksticks to run continuously by using the Dev mode.
+You can setup Chopsticks to run continuously by using the Dev mode.
 You can also utilise existing [configs found here](configs/) by referencing the yml file name.
 
 ```bash
