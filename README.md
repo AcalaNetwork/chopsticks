@@ -103,6 +103,15 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --prei
 npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 ```
 
+## Dev
+
+You can setup chocksticks to run continuously by using the Dev mode.
+You can also utilise existing [configs found here](configs/) by referencing the yml file name.
+
+```bash
+npx @acala-network/chopsticks@latest dev --config=astar.yml
+```
+
 ## Documentation
 
 External documentation on Chopsticks can be found at the following links:
