@@ -4,7 +4,6 @@ set -x
 
 # clone sidecard
 git clone https://github.com/paritytech/substrate-api-sidecar.git
-(cd substrate-api-sidecar && gh pr checkout 1273) # TODO: remove this once the pr is merged
 
 # run chopsticks node
 yarn dev:acala --port 8011 & ACALA_PID=$!
