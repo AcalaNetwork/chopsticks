@@ -17,13 +17,7 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
-		"@polkadot/api": "^10.2.1",
-		"@polkadot/rpc-provider": "^10.2.1",
-		"@polkadot/types": "^10.2.1",
-		"@polkadot/types-codec": "^10.2.1",
-		"@polkadot/types-known": "^10.2.1",
-		"@polkadot/util": "^11.1.2",
-		"@polkadot/util-crypto": "^11.1.2",
+		"@polkadot/api": "^10.5.1",
 		"axios": "^1.4.0",
 		"js-yaml": "^4.1.0",
 		"jsondiffpatch": "^0.4.1",
@@ -34,18 +28,18 @@
 		"sqlite3": "^5.1.6",
 		"typeorm": "^0.3.15",
 		"ws": "^8.13.0",
-		"yargs": "^17.7.1",
+		"yargs": "^17.7.2",
 		"zod": "^3.21.4"
 	},
 	"devDependencies": {
 		"@types/js-yaml": "^4.0.5",
 		"@types/lodash": "^4.14.194",
-		"@types/node": "^18.15.11",
+		"@types/node": "^18.16.3",
 		"@types/ws": "^8.5.4",
 		"@types/yargs": "^17.0.24",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
-		"typescript": "^5.0.3"
+		"typescript": "^5.0.4"
 	},
 	"files": [
 		"lib",
