@@ -1,7 +1,6 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { Codec } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
-import { Keyring } from '@polkadot/keyring'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
@@ -21,7 +20,7 @@ import { createServer } from '@acala-network/chopsticks/server'
 import { defer } from '@acala-network/chopsticks/utils'
 import { handler } from '@acala-network/chopsticks/rpc'
 
-export { expectJson, expectHex, expectHuman } from '@acala-network/chopsticks-testing'
+export { expectJson, expectHex, testingPairs } from '@acala-network/chopsticks-testing'
 
 export type SetupOption = {
   endpoint?: string
@@ -178,26 +177,5 @@ export const mockCallback = () => {
 }
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-export const testingPairs = (ss58Format?: number) => {
-  const keyring = new Keyring({ type: 'ed25519', ss58Format }) // cannot use sr25519 as it is non determinstic
-  const alice = keyring.addFromUri('//Alice')
-  const bob = keyring.addFromUri('//Bob')
-  const charlie = keyring.addFromUri('//Charlie')
-  const dave = keyring.addFromUri('//Dave')
-  const eve = keyring.addFromUri('//Eve')
-  const test1 = keyring.addFromUri('//test1')
-  const test2 = keyring.addFromUri('//test2')
-  return {
-    alice,
-    bob,
-    charlie,
-    dave,
-    eve,
-    test1,
-    test2,
-    keyring,
-  }
-}
 
 export { defer }

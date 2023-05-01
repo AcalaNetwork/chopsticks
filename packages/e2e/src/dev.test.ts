@@ -5,7 +5,7 @@ import { expectJson, testingPairs } from './helper'
 import networks from './networks'
 
 describe('dev rpc', async () => {
-  const { alice, test1 } = testingPairs()
+  const { alice, bob } = testingPairs()
 
   const acala = await networks.acala()
   const { api, dev, ws } = acala
@@ -30,22 +30,22 @@ describe('dev rpc', async () => {
 
     expectJson(await api.query.sudo.key()).toMatchSnapshot()
 
-    await api.tx.sudo.sudo(api.tx.balances.setBalance(test1.address, 1000000000000, 0)).signAndSend(alice)
+    await api.tx.sudo.sudo(api.tx.balances.setBalance(bob.address, 1000000000000, 0)).signAndSend(alice)
     const hash = await dev.newBlock()
 
-    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
 
-    await dev.setStorage([[api.query.system.account.key(test1.address), null]], hash)
+    await dev.setStorage([[api.query.system.account.key(bob.address), null]], hash)
 
-    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
 
     await dev.setStorage({
       System: {
-        Account: [[[test1.address], { data: { free: 100000 }, nonce: 1 }]],
+        Account: [[[bob.address], { data: { free: 100000 }, nonce: 1 }]],
       },
     })
 
-    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
   })
 
   it('setStorage handle errors', async () => {

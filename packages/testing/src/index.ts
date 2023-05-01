@@ -1,12 +1,13 @@
-import { AccountInfo } from '@polkadot/types/interfaces'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { BuildBlockMode, setupWithServer } from '@acala-network/chopsticks'
 import { Codec } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
-import { Keyring } from '@polkadot/keyring'
+import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { StorageValues } from '@acala-network/chopsticks/utils/set-storage'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { expect } from 'vitest'
+
+export * from './check'
 
 export type SetupOption = {
   endpoint: string
@@ -31,7 +32,8 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
   }
   const { chain, listenPort, close } = await setupWithServer(config)
 
-  const ws = new WsProvider(`ws://localhost:${listenPort}`, undefined, undefined, timeout)
+  const url = `ws://localhost:${listenPort}`
+  const ws = new WsProvider(url, undefined, undefined, timeout)
   const api = await ApiPromise.create({
     provider: ws,
     signedExtensions: {
@@ -45,6 +47,7 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
   await api.isReady
 
   return {
+    url,
     chain,
     ws,
     api,
@@ -66,6 +69,14 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
       await api.disconnect()
       await close()
     },
+    async pause() {
+      await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])
+
+      // log a bit later to ensure the message is visible
+      setTimeout(() => console.log(`Test paused. Polkadot.js apps URL: https://polkadot.js.org/apps/?rpc=${url}`), 100)
+
+      return new Promise((_resolve) => {}) // wait forever
+    },
   }
 }
 
@@ -78,28 +89,12 @@ const toHuman = (codec: CodecOrArray) => processCodecOrArray(codec, (c) => c?.to
 const toJson = (codec: CodecOrArray) => processCodecOrArray(codec, (c) => c?.toJSON?.() ?? c)
 const toHex = (codec: CodecOrArray) => processCodecOrArray(codec, (c) => c?.toHex?.() ?? c)
 
-export const expectEvent = (codec: CodecOrArray, event: any) => {
-  return expect(toHuman(codec)).toEqual(expect.arrayContaining([expect.objectContaining(event)]))
-}
-
-export const expectHuman = (codec: CodecOrArray) => {
-  return expect(toHuman(codec))
-}
-
 export const expectJson = (codec: CodecOrArray) => {
   return expect(toJson(codec))
 }
 
 export const expectHex = (codec: CodecOrArray) => {
   return expect(toHex(codec))
-}
-
-export const matchJson = (codec: CodecOrArray) => {
-  return expect(toJson(codec)).toMatchSnapshot()
-}
-
-export const matchHuman = (codec: CodecOrArray) => {
-  return expect(toHuman(codec)).toMatchSnapshot()
 }
 
 type EventFilter = string | { method: string; section: string }
@@ -127,21 +122,6 @@ export const matchEvents = async (events: Promise<Codec[] | Codec>, ...filters: 
 
 export const matchSystemEvents = async ({ api }: { api: ApiPromise }, ...filters: EventFilter[]) => {
   await _matchEvents('system events', redact(api.query.system.events()), ...filters)
-}
-
-export const matchUmp = async ({ api }: { api: ApiPromise }) => {
-  const ump = await api.query.parachainSystem.upwardMessages()
-  const decoded = (ump.toJSON() as string[]).map((msg) => api.createType('XcmVersionedXcm', msg))
-  expect(decoded).toMatchSnapshot('ump')
-}
-
-export const matchHrmp = async ({ api }: { api: ApiPromise }) => {
-  const hrmp = await api.query.parachainSystem.hrmpOutboundMessages()
-  const decoded = (hrmp.toJSON() as any[]).map(({ recipient, data }) => ({
-    data: api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data),
-    recipient,
-  }))
-  expect(decoded).toMatchSnapshot('hrmp')
 }
 
 export const redact = async (data: any | Promise<any>) => {
@@ -197,7 +177,8 @@ export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'
   const signed = await tx
   const deferred = defer<Codec[]>()
   await signed.send((status) => {
-    if (status.isCompleted) {
+    console.log('tranaction status: ', status.status.toHuman())
+    if (status.isInBlock || status.isFinalized) {
       deferred.resolve(status.events)
     }
     if (status.isError) {
@@ -210,28 +191,24 @@ export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'
   }
 }
 
-export const balance = async (api: ApiPromise, address: string) => {
-  const account = await api.query.system.account<AccountInfo>(address)
-  return account.data.toJSON()
-}
-
-export const testingPairs = (ss58Format?: number) => {
-  const keyring = new Keyring({ type: 'ed25519', ss58Format }) // cannot use sr25519 as it is non determinstic
-  const alice = keyring.addFromUri('//Alice')
-  const bob = keyring.addFromUri('//Bob')
-  const charlie = keyring.addFromUri('//Charlie')
-  const dave = keyring.addFromUri('//Dave')
-  const eve = keyring.addFromUri('//Eve')
-  const test1 = keyring.addFromUri('//test1')
-  const test2 = keyring.addFromUri('//test2')
+export const testingPairs = (keyringType: 'ed25519' | 'sr25519' = 'ed25519') => {
+  const keyringEth = createTestKeyring({ type: 'ethereum' })
+  // default to ed25519 because sr25519 signature is non-deterministic
+  const keyring = new Keyring({ type: keyringType })
   return {
-    alice,
-    bob,
-    charlie,
-    dave,
-    eve,
-    test1,
-    test2,
+    alice: keyring.addFromUri('//Alice'),
+    bob: keyring.addFromUri('//Bob'),
+    charlie: keyring.addFromUri('//Charlie'),
+    dave: keyring.addFromUri('//Dave'),
+    eve: keyring.addFromUri('//Eve'),
+
+    alith: keyringEth.getPair('0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac'),
+    baltathar: keyringEth.getPair('0x3Cd0A705a2DC65e5b1E1205896BaA2be8A07c6e0'),
+    charleth: keyringEth.getPair('0x798d4Ba9baf0064Ec19eB4F0a1a45785ae9D6DFc'),
+    dorothy: keyringEth.getPair('0x773539d4Ac0e786233D90A233654ccEE26a613D9'),
+    ethan: keyringEth.getPair('0xFf64d3F6efE2317EE2807d223a0Bdc4c0c49dfDB'),
+
     keyring,
+    keyringEth,
   }
 }
