@@ -31,7 +31,8 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
   }
   const { chain, listenPort, close } = await setupWithServer(config)
 
-  const ws = new WsProvider(`ws://localhost:${listenPort}`, undefined, undefined, timeout)
+  const url = `ws://localhost:${listenPort}`
+  const ws = new WsProvider(url, undefined, undefined, timeout)
   const api = await ApiPromise.create({
     provider: ws,
     signedExtensions: {
@@ -45,6 +46,7 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
   await api.isReady
 
   return {
+    url,
     chain,
     ws,
     api,
@@ -65,6 +67,14 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
     async teardown() {
       await api.disconnect()
       await close()
+    },
+    async pause() {
+      await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])
+
+      // log a bit later to ensure the message is visible
+      setTimeout(() => console.log(`Test paused. Polkadot.js apps URL: https://polkadot.js.org/apps/?rpc=${url}`), 100)
+
+      return new Promise((_resolve) => {}) // wait forever
     },
   }
 }
@@ -197,7 +207,8 @@ export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'
   const signed = await tx
   const deferred = defer<Codec[]>()
   await signed.send((status) => {
-    if (status.isCompleted) {
+    console.log('tranaction status: ', status.status.toHuman())
+    if (status.isInBlock || status.isFinalized) {
       deferred.resolve(status.events)
     }
     if (status.isError) {

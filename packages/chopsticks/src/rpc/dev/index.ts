@@ -2,6 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
 import { Block } from '../../blockchain/block'
+import { BuildBlockMode } from '@acala-network/chopsticks/blockchain/txpool'
 import { Handlers, ResponseError } from '../shared'
 import { StorageValues, setStorage } from '../../utils/set-storage'
 import { defaultLogger } from '../../logger'
@@ -71,6 +72,15 @@ const handlers: Handlers = {
     return block.hash
   },
   dev_dryRun,
+  dev_setBlockBuildMode: async (context, [mode]) => {
+    logger.debug({ mode }, 'dev_setBlockBuildMode')
+
+    if (BuildBlockMode[mode] === undefined) {
+      throw new ResponseError(1, `Invalid mode ${mode}`)
+    }
+
+    context.chain.txPool.mode = mode
+  },
 }
 
 export default handlers
