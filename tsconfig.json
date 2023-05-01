@@ -1,11 +1,5 @@
 {
 	"extends": "./tsconfig.base.json",
-	"references": [
-		{ "path": "./packages/chopsticks" },
-		{ "path": "./packages/core" },
-		{ "path": "./packages/testing" },
-		{ "path": "./packages/e2e" },
-	],
 	"exclude": ["**/node_modules", "**/lib"],
-	"include": ["./packages/**/*.{ts,json}"]
+	"include": ["./packages/**/*"]
 }

@@ -10,7 +10,7 @@ setupApi({
 describe('dry-run-extrinsic', () => {
   it('dry run extrinsic', async () => {
     const properties = await chain.api.chainProperties
-    const { alice, bob } = testingPairs(properties.ss58Format)
+    const { alice, bob } = testingPairs('ed25519', properties.ss58Format)
 
     await dev.setStorage({
       System: {

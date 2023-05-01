@@ -191,10 +191,10 @@ export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'
   }
 }
 
-export const testingPairs = (keyringType: 'ed25519' | 'sr25519' = 'ed25519') => {
+export const testingPairs = (keyringType: 'ed25519' | 'sr25519' = 'ed25519', ss58Format?: number) => {
   const keyringEth = createTestKeyring({ type: 'ethereum' })
   // default to ed25519 because sr25519 signature is non-deterministic
-  const keyring = new Keyring({ type: keyringType })
+  const keyring = new Keyring({ type: keyringType, ss58Format })
   return {
     alice: keyring.addFromUri('//Alice'),
     bob: keyring.addFromUri('//Bob'),
