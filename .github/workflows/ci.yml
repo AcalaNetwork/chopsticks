@@ -9,8 +9,6 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    env:
-      RUN_ALL_TESTS: ${{ github.ref_name == 'master' }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -44,3 +42,35 @@ jobs:
     - name: Test substrate-api-sidecard with chopsticks node
       if: ${{ github.ref_name == 'master' }}
       run: yarn workspace @acala-network/chopsticks-e2e run sidecar
+  build-block-tests:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_name == 'master' }}
+    env:
+      BUILD_BLOCK_TEST: true
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          executor/target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Install toolchain
+      uses: dtolnay/rust-toolchain@nightly
+      with:
+        toolchain: nightly-2022-10-30
+        components: rustfmt
+        target: wasm32-unknown-unknown
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'yarn'
+    - run: yarn --immutable
+    - run: yarn build-wasm
+    - run: yarn test build-block

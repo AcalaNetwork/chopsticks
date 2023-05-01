@@ -22,7 +22,7 @@ describe.each([
     await teardownAll()
   })
 
-  it.skipIf(process.env.RUN_ALL_TESTS !== 'true')('build blocks', async () => {
+  it.skipIf(process.env.BUILD_BLOCK_TEST !== 'true')('build blocks', async () => {
     const { chain, ws, teardown } = await setup()
     const blockNumber = chain.head.number
     await ws.send('dev_newBlock', [{ count: 2 }])
