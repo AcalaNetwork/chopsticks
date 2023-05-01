@@ -17,22 +17,21 @@ describe('genesis provider works', () => {
   it('handles tx', async () => {
     await dev.newBlock()
 
-    const properties = await chain.api.chainProperties
-    const { test1, test2 } = testingPairs(properties.ss58Format)
+    const { alice, bob } = testingPairs()
 
     await dev.setStorage({
       System: {
-        Account: [[[test1.address], { data: { free: 1000 * 1e12 } }]],
+        Account: [[[alice.address], { data: { free: 1000 * 1e12 } }]],
       },
     })
 
-    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
 
-    await api.tx.currencies.transferNativeCurrency(test2.address, 100 * 1e12).signAndSend(test1)
+    await api.tx.currencies.transferNativeCurrency(bob.address, 100 * 1e12).signAndSend(alice)
 
     await dev.newBlock()
 
-    expectJson(await api.query.system.account(test1.address)).toMatchSnapshot()
-    expectJson(await api.query.system.account(test2.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
   })
 })
