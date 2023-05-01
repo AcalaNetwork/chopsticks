@@ -32,7 +32,8 @@ export class GenesisProvider implements ProviderInterface {
       Object.entries(this.#genesis.genesis.raw.top).reduce((accu, item) => {
         accu.push(item as any)
         return accu
-      }, [] as [HexString, HexString][])
+      }, [] as [HexString, HexString][]),
+      1
     )
 
     this.#eventemitter = new EventEmitter()

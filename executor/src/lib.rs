@@ -1,6 +1,6 @@
 extern crate console_error_panic_hook;
 
-use smoldot::json_rpc::methods::{HashHexString, HexString};
+use smoldot::{json_rpc::methods::{HashHexString, HexString}, trie::TrieEntryVersion};
 use std::collections::BTreeMap;
 use wasm_bindgen::prelude::*;
 
@@ -41,11 +41,13 @@ pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
-pub async fn calculate_state_root(entries: JsValue) -> Result<JsValue, JsValue> {
+pub async fn calculate_state_root(entries: JsValue, trie_version: JsValue) -> Result<JsValue, JsValue> {
     setup_console();
 
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
-    let hash = task::calculate_state_root(entries);
+	let trie_version = serde_wasm_bindgen::from_value::<u8>(trie_version)?;
+	let trie_version = TrieEntryVersion::try_from(trie_version).map_err(|_| "invalid trie version")?;
+    let hash = task::calculate_state_root(entries, trie_version);
     let result = serde_wasm_bindgen::to_value(&hash)?;
 
     Ok(result)
