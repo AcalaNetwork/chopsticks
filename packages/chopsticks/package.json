@@ -21,7 +21,7 @@
 		"@polkadot/rpc-provider": "^10.2.1",
 		"@polkadot/types": "^10.2.1",
 		"@polkadot/types-codec": "^10.2.1",
-		"@polkadot/types-known": "^10.2.1",
+		"@polkadot/types-known": "^10.5.1",
 		"@polkadot/util": "^11.1.2",
 		"@polkadot/util-crypto": "^11.1.2",
 		"axios": "^1.4.0",
