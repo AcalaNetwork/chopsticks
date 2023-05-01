@@ -40,8 +40,12 @@ export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion
   })
 }
 
-export const calculateStateRoot = async (entries: [HexString, HexString][]): Promise<HexString> => {
-  return calculate_state_root(entries)
+// trie_version: 0 for old trie, 1 for new trie
+export const calculateStateRoot = async (
+  entries: [HexString, HexString][],
+  trie_version: number
+): Promise<HexString> => {
+  return calculate_state_root(entries, trie_version)
 }
 
 export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
