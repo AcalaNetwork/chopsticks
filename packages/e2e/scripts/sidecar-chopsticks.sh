@@ -18,7 +18,7 @@ SAS_SUBSTRATE_URL=ws://127.0.0.1:8011 SAS_EXPRESS_PORT=8111 yarn ts-node src/mai
 SAS_SUBSTRATE_URL=ws://127.0.0.1:8012 SAS_EXPRESS_PORT=8112 yarn ts-node src/main.ts & KARURA_SIDECAR_PID=$!
 
 # wait a bit for it to be ready
-sleep 5
+sleep 10
 
 # run the tests
 yarn ts-node e2e-tests/latest/index.ts --chain acala --url http://127.0.0.1:8111
