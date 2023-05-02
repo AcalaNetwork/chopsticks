@@ -36,25 +36,26 @@ jobs:
     - run: yarn check
     - run: yarn build-wasm
     - run: yarn build
+
+    # Make sure chopsticks and executor version are the same
     - run: node -e "assert(require('./packages/chopsticks/package.json').version === require('./executor/pkg/package.json').version, 'Chopsticks and executor version not the same. Please update Cargo.toml version')"
-    # Writes token to .yarnrc.yml. If written directly in .yarnrc.yml, it will cause an error
-    - run: |
-          echo npmAuthToken: "\${NPM_AUTH_TOKEN}" >> ./.yarnrc.yml
+
     - name: Publish @acala-network/chopsticks
       run: yarn workspace @acala-network/chopsticks npm publish --tolerate-republish --access public
       env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
     # - name: Publish @acala-network/chopsticks-core
     #   run: yarn workspace @acala-network/chopsticks-core npm publish --tolerate-republish --access public
     #   env:
     #       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
     - name: Publish @acala-network/chopsticks-executor
       run: yarn workspace @acala-network/chopsticks-executor npm publish --tolerate-republish --access public
       env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
     - name: Publish @acala-network/chopsticks-testing
       run: yarn workspace @acala-network/chopsticks-testing npm publish --tolerate-republish --access public
       env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-    - run: |
-          git checkout ./.yarnrc.yml
