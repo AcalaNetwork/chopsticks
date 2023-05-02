@@ -4,7 +4,7 @@ use smoldot::{
     executor::{
         host::{Config, HeapPages, HostVmPrototype},
         runtime_host::{self, RuntimeHostVm},
-        storage_diff::StorageDiff,
+        storage_diff::TrieDiff,
         CoreVersionRef,
     },
     json_rpc::methods::HexString,
@@ -87,12 +87,12 @@ fn is_magic_signature(signature: &[u8]) -> bool {
 }
 
 pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, String> {
-    let mut storage_top_trie_changes = StorageDiff::from_iter(
+    let mut storage_main_trie_changes = TrieDiff::from_iter(
         task.storage
             .into_iter()
             .map(|(key, value)| (key.0, value.map(|x| x.0), ())),
     );
-    let mut offchain_storage_changes = StorageDiff::empty();
+    let mut offchain_storage_changes = TrieDiff::empty();
 
     let vm_proto = HostVmPrototype::new(Config {
         module: &task.wasm,
@@ -109,8 +109,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             virtual_machine: vm_proto.clone(),
             function_to_call: call.as_str(),
             parameter: params.into_iter().map(|x| x.0),
-            top_trie_root_calculation_cache: None,
-            storage_top_trie_changes,
+            main_trie_root_calculation_cache: None,
+            storage_main_trie_changes,
             offchain_storage_changes,
             max_log_level: task.runtime_log_level,
         })
@@ -187,7 +187,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             Ok(success) => {
                 ret = Ok(success.virtual_machine.value().as_ref().to_vec());
 
-                storage_top_trie_changes = success.storage_top_trie_changes;
+                storage_main_trie_changes = success.storage_main_trie_changes;
                 offchain_storage_changes = success.offchain_storage_changes;
 
                 if !success.logs.is_empty() {
@@ -196,14 +196,14 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             }
             Err(err) => {
                 ret = Err(err.to_string());
-                storage_top_trie_changes = StorageDiff::empty();
+                storage_main_trie_changes = TrieDiff::empty();
                 break;
             }
         }
     }
 
     Ok(ret.map_or_else(TaskResponse::Error, move |ret| {
-        let diff = storage_top_trie_changes
+        let diff = storage_main_trie_changes
             .diff_into_iter_unordered()
             .map(|(k, v, _)| (HexString(k), v.map(HexString)))
             .collect();
