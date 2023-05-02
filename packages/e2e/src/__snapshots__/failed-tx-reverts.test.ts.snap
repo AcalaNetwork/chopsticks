@@ -1,0 +1,200 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`failed tx should revert storage changes > works 1`] = `
+[
+  {
+    "event": {
+      "data": {
+        "amount": "34,791,905,410",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "2,094,143,382",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "730,450,466",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "6,226,051,275",
+        "currencyId": {
+          "Token": "AUSD",
+        },
+        "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+      },
+      "index": "0x0b0a",
+      "method": "Deposited",
+      "section": "tokens",
+    },
+    "phase": "Initialization",
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "dispatchInfo": {
+          "class": "Mandatory",
+          "paysFee": "Yes",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "260,558,000",
+          },
+        },
+      },
+      "index": "0x0000",
+      "method": "ExtrinsicSuccess",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "0",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "dispatchInfo": {
+          "class": "Mandatory",
+          "paysFee": "No",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "98,974,000",
+          },
+        },
+      },
+      "index": "0x0000",
+      "method": "ExtrinsicSuccess",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "1",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "2,150,036,882",
+        "who": "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+      },
+      "index": "0x0a08",
+      "method": "Withdraw",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "2",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "amount": "2,150,036,882",
+        "who": "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+      },
+      "index": "0x0a07",
+      "method": "Deposit",
+      "section": "balances",
+    },
+    "phase": {
+      "ApplyExtrinsic": "2",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "value": "2,150,036,882",
+      },
+      "index": "0x1406",
+      "method": "Deposit",
+      "section": "treasury",
+    },
+    "phase": {
+      "ApplyExtrinsic": "2",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "actualFee": "2,150,036,882",
+        "actualSurplus": "0",
+        "actualTip": "0",
+        "who": "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+      },
+      "index": "0x0e03",
+      "method": "TransactionFeePaid",
+      "section": "transactionPayment",
+    },
+    "phase": {
+      "ApplyExtrinsic": "2",
+    },
+    "topics": [],
+  },
+  {
+    "event": {
+      "data": {
+        "dispatchError": {
+          "Module": {
+            "error": "0x06000000",
+            "index": "200",
+          },
+        },
+        "dispatchInfo": {
+          "class": "Normal",
+          "paysFee": "Yes",
+          "weight": {
+            "proofSize": "0",
+            "refTime": "3,749,356,000",
+          },
+        },
+      },
+      "index": "0x0001",
+      "method": "ExtrinsicFailed",
+      "section": "system",
+    },
+    "phase": {
+      "ApplyExtrinsic": "2",
+    },
+    "topics": [],
+  },
+]
+`;
