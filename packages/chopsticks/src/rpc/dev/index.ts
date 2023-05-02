@@ -2,7 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
 import { Block } from '../../blockchain/block'
-import { BuildBlockMode } from '@acala-network/chopsticks/blockchain/txpool'
+import { BuildBlockMode } from '../../blockchain/txpool'
 import { Handlers, ResponseError } from '../shared'
 import { StorageValues, setStorage } from '../../utils/set-storage'
 import { defaultLogger } from '../../logger'
