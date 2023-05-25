@@ -6,7 +6,7 @@ dotenv.config()
 
 const endpoints = {
   polkadot: 'wss://rpc.polkadot.io',
-  acala: 'wss://acala-rpc-0.aca-api.network',
+  acala: 'wss://acala-rpc-1.aca-api.network',
 }
 
 const toNumber = (value: string | undefined): number | undefined => {
