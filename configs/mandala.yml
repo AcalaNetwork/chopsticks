@@ -12,7 +12,8 @@ import-storage:
       -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        - data:
+        - providers: 1
+          data:
             free: 1000000000000000
   Tokens:
     Accounts:
