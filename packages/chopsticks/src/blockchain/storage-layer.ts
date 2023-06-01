@@ -199,7 +199,7 @@ export class StorageLayer implements StorageLayerProvider {
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     if (!this.#deletedPrefix.some((prefix) => startKey.startsWith(prefix))) {
-      const remote = await this.#parent?.getKeysPaged(prefix, pageSize, startKey) ?? []
+      const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
       for (const key of remote) {
         if (this.#deletedPrefix.some((prefix) => key.startsWith(prefix))) {
           continue

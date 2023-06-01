@@ -18,7 +18,7 @@ export default class KeyCache {
 
       if (ranges.length === 0) {
         // no existing range with prefix
-        this.ranges.push({ prefix, keys: keys.map(i => i.slice(PREFIX_LENGTH)) })
+        this.ranges.push({ prefix, keys: keys.map((i) => i.slice(PREFIX_LENGTH)) })
         continue
       }
 
@@ -27,14 +27,14 @@ export default class KeyCache {
         const startPosition = _.sortedIndex(range.keys, startKey)
         if (startPosition >= 0 && range.keys[startPosition] === startKey) {
           // found existing range with prefix
-          range.keys.splice(startPosition, keys.length, ...keys.map(i => i.slice(PREFIX_LENGTH)))
+          range.keys.splice(startPosition, keys.length, ...keys.map((i) => i.slice(PREFIX_LENGTH)))
           merged = true
           break
         }
         const endPosition = _.sortedIndex(range.keys, endKey)
         if (endPosition >= 0 && range.keys[endPosition] === endKey) {
           // found existing range with prefix
-          range.keys.splice(0, endPosition + 1, ...keys.map(i => i.slice(PREFIX_LENGTH)))
+          range.keys.splice(0, endPosition + 1, ...keys.map((i) => i.slice(PREFIX_LENGTH)))
           merged = true
           break
         }
@@ -42,7 +42,7 @@ export default class KeyCache {
 
       // insert new prefix with range
       if (!merged) {
-        this.ranges.push({ prefix, keys: keys.map(i => i.slice(PREFIX_LENGTH)) })
+        this.ranges.push({ prefix, keys: keys.map((i) => i.slice(PREFIX_LENGTH)) })
       }
     }
 
