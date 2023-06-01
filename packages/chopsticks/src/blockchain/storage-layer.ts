@@ -3,8 +3,11 @@ import _ from 'lodash'
 
 import { Api } from '../api'
 import { defaultLogger } from '../logger'
+import KeyCache from '../utils/key-cache'
 
 const logger = defaultLogger.child({ name: 'layer' })
+
+const BATCH_SIZE = 1000
 
 export const enum StorageValueKind {
   Deleted = 'Deleted',
@@ -25,6 +28,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   readonly #api: Api
   readonly #at: string
   readonly #db: DataSource | undefined
+  readonly #keyCache = new KeyCache()
 
   constructor(api: Api, at: string, db: DataSource | undefined) {
     this.#api = api
@@ -51,8 +55,42 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   async fold(): Promise<void> {}
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
+    if (pageSize > BATCH_SIZE) throw new Error(`pageSize must be less or equal to ${BATCH_SIZE}`)
     logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoteStorageLayer getKeysPaged')
-    return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
+    // can't handle keyCache without prefix
+    if (prefix.length < 66) {
+      return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
+    }
+
+    let batchComplete = false
+    const keysPaged: string[] = []
+    while (keysPaged.length < pageSize) {
+      const nextKey = await this.#keyCache.next(startKey as any)
+      if (nextKey) {
+        keysPaged.push(nextKey)
+        startKey = nextKey
+        continue
+      }
+      // batch fetch was completed
+      if (batchComplete) {
+        break
+      }
+
+      // fetch a batch of keys
+      const batch = await this.#api.getKeysPaged(prefix, BATCH_SIZE, startKey, this.#at)
+      batchComplete = batch.length < BATCH_SIZE
+
+      // feed the key cache
+      if (batch.length > 0) {
+        this.#keyCache.feed([startKey, ...(batch as any)])
+      }
+
+      if (batch.length === 0) {
+        // no more keys were found
+        break
+      }
+    }
+    return keysPaged
   }
 }
 
@@ -161,8 +199,7 @@ export class StorageLayer implements StorageLayerProvider {
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     if (!this.#deletedPrefix.some((prefix) => startKey.startsWith(prefix))) {
-      // TODO: maintain a list of fetched ranges to avoid fetching the same range multiple times
-      const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
+      const remote = await this.#parent?.getKeysPaged(prefix, pageSize, startKey) ?? []
       for (const key of remote) {
         if (this.#deletedPrefix.some((prefix) => key.startsWith(prefix))) {
           continue

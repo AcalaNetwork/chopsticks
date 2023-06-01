@@ -2,6 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import { hexToString, hexToU8a } from '@polkadot/util'
 
 import { Block } from './blockchain/block'
+import { PREFIX_LENGTH } from './utils/key-cache'
 import { Registry } from '@polkadot/types-codec/types'
 import {
   calculate_state_root,
@@ -87,16 +88,24 @@ export const runTask = async (
 }
 
 export const taskHandler = (block: Block): JsCallback => {
+  const batchSize = 1000
   return {
     getStorage: async function (key: HexString) {
       return block.get(key)
     },
     getPrefixKeys: async function (key: HexString) {
-      return block.getKeysPaged({ prefix: key, pageSize: 1000, startKey: key })
+      let keys: string[] = []
+      let startKey = key as string
+      while (startKey) {
+        const batch = await block.getKeysPaged({ prefix: key.slice(0, PREFIX_LENGTH), pageSize: batchSize, startKey })
+        keys = keys.concat(batch)
+        startKey = batch[batchSize - 1]
+      }
+      return keys
     },
     getNextKey: async function (key: HexString) {
-      const keys = await block.getKeysPaged({ prefix: '0x', pageSize: 1, startKey: key })
-      return keys[0]
+      const [nextKey] = await block.getKeysPaged({ prefix: key.slice(0, PREFIX_LENGTH), pageSize: 1, startKey: key })
+      return nextKey
     },
   }
 }
