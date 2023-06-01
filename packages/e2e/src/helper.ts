@@ -40,7 +40,8 @@ export const env = {
     blockHash: '0xd7fef00504decd41d5d2e9a04346f6bc639fd428083e3ca941f636a8f88d456a' as HexString,
   },
   mandalaGenesis: {
-    genesis: 'https://raw.githubusercontent.com/AcalaNetwork/Acala/master/resources/mandala-dist.json',
+    genesis:
+      'https://raw.githubusercontent.com/AcalaNetwork/Acala/2c43dbbb380136f2c35bd0db08b286f346b71d61/resources/mandala-dist.json',
   },
 }
 
