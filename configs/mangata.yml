@@ -28,46 +28,57 @@ import-storage:
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 0
         - free: '1000000000000000000000000000000' # MGA
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 14
         - free: '1000000000000000000000000000000' # BNC
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 30
         - free: '1000000000000000000000000000000' # USDT
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 7
         - free: '1000000000000000000000000000000' # TUR
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 26
         - free: '1000000000000000000000000000000' # ZLK
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 16
         - free: '1000000000000000000000000000000' # vsKSM
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 31
         - free: '1000000000000000000000000000000' # RMRK
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 15
         - free: '1000000000000000000000000000000' # vKSM
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 6
         - free: '1000000000000000000000000000000' # KAR
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 11
         - free: '1000000000000000000000000000000' # IMBU
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 23
         - free: '1000000000000000000000000000000' # vBNC
+      -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - token: 4
