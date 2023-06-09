@@ -206,8 +206,8 @@ export class TxPool {
       await this.#buildBlock()
     } finally {
       this.#isBuilding = false
-      this.#buildBlockIfNeeded()
     }
+    this.#buildBlockIfNeeded()
   }
 
   async #buildBlock() {

@@ -33,7 +33,7 @@
 			"name": "Server",
 			"type": "node",
 			"request": "launch",
-			"args": ["${workspaceRoot}/src/index.ts", "dev", "--endpoint=wss://acala-rpc-2.aca-api.network/ws"],
+			"args": ["${workspaceRoot}/packages/chopsticks/src/cli.ts", "--config=${workspaceRoot}/configs/polkadot.yml"],
 			"runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
 			"sourceMaps": true,
 			"cwd": "${workspaceRoot}",
