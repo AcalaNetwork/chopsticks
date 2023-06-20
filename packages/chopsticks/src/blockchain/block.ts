@@ -17,6 +17,7 @@ import type { RuntimeVersion } from '../executor'
 export type TaskCallResponse = {
   result: HexString
   storageDiff: [HexString, HexString | null][]
+  offchainStorageDiff: [HexString, HexString | null][]
   runtimeLogs: string[]
 }
 

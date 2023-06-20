@@ -72,6 +72,7 @@ pub struct TaskCall {
 pub struct CallResponse {
     result: HexString,
     storage_diff: Vec<(HexString, Option<HexString>)>,
+    offchain_storage_diff: Vec<(HexString, Option<HexString>)>,
     runtime_logs: Vec<String>,
 }
 
@@ -135,7 +136,6 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     } else {
                         None
                     };
-                    // ExternalStorageGet will drop trie_version so we're passing V1 as default
                     req.inject_value(value.map(|x| (iter::once(x), TrieEntryVersion::V1)))
                 }
                 RuntimeHostVm::PrefixKeys(req) => {
@@ -178,6 +178,46 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         req.verify_and_resume()
                     }
                 }
+                RuntimeHostVm::OffchainStorageGet(req) => {
+                    let key = HexString(req.key().as_ref().to_vec());
+                    let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
+                    let value = js.offchain_get_storage(key).await;
+                    let value = if value.is_string() {
+                        let encoded = serde_wasm_bindgen::from_value::<HexString>(value)
+                            .map(|x| x.0)
+                            .map_err(|e| e.to_string())?;
+                        Some(encoded)
+                    } else {
+                        None
+                    };
+                    req.inject_value(value.map(|x| iter::once(x)))
+                }
+                RuntimeHostVm::OffchainTimestamp(req) => {
+                    let value = js.offchain_timestamp().await;
+                    let timestamp =
+                        serde_wasm_bindgen::from_value::<u64>(value).map_err(|e| e.to_string())?;
+                    req.inject_timestamp(timestamp)
+                }
+                RuntimeHostVm::OffchainRandomSeed(req) => {
+                    let value = js.offchain_random_seed().await;
+                    let random = serde_wasm_bindgen::from_value::<HexString>(value)
+                        .map_err(|e| e.to_string())?;
+                    let value: [u8; 32] = random
+                        .0
+                        .try_into()
+                        .map_err(|_| "invalid random seed value")?;
+                    req.inject_random_seed(value)
+                }
+                RuntimeHostVm::OffchainSubmitTransaction(req) => {
+                    let tx = serde_wasm_bindgen::to_value(&HexString(
+                        req.transaction().as_ref().to_vec(),
+                    ))
+                    .map_err(|e| e.to_string())?;
+                    let outcome = js.offchain_submit_transaction(tx).await;
+                    let hash = serde_wasm_bindgen::from_value::<HexString>(outcome)
+                        .map_err(|e| e.to_string())?;
+                    req.inject_outcome(hash.0.as_ref())
+                }
             }
         };
 
@@ -197,6 +237,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             Err(err) => {
                 ret = Err(err.to_string());
                 storage_main_trie_changes = TrieDiff::empty();
+                offchain_storage_changes = TrieDiff::empty();
                 break;
             }
         }
@@ -208,9 +249,15 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             .map(|(k, v, _)| (HexString(k), v.map(HexString)))
             .collect();
 
+        let offchain_diff = offchain_storage_changes
+            .diff_into_iter_unordered()
+            .map(|(k, v, _)| (HexString(k), v.map(HexString)))
+            .collect();
+
         TaskResponse::Call(CallResponse {
             result: HexString(ret),
             storage_diff: diff,
+            offchain_storage_diff: offchain_diff,
             runtime_logs,
         })
     }))
@@ -230,7 +277,10 @@ pub async fn runtime_version(wasm: HexString) -> Result<RuntimeVersion, String> 
     Ok(RuntimeVersion::new(core_version))
 }
 
-pub fn calculate_state_root(entries: Vec<(HexString, HexString)>, trie_version: TrieEntryVersion) -> HexString {
+pub fn calculate_state_root(
+    entries: Vec<(HexString, HexString)>,
+    trie_version: TrieEntryVersion,
+) -> HexString {
     let mut calc = root_merkle_value(None);
     let map = entries
         .into_iter()

@@ -15,6 +15,7 @@ import { StorageValue } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder'
+import { OffchainWorker } from '../offchain'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -48,6 +49,8 @@ export class Blockchain {
   readonly #loadingBlocks: Record<string, Promise<void>> = {}
 
   readonly headState: HeadState
+
+  readonly offchainWorker = new OffchainWorker()
 
   constructor({
     api,
@@ -152,19 +155,24 @@ export class Blockchain {
     this.#head = block
     this.#registerBlock(block)
     await this.headState.setHead(block)
+
+    await this.offchainWorker.run(block)
   }
 
   async submitExtrinsic(extrinsic: HexString): Promise<HexString> {
-    const source = '0x02' // External
-    const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
-    const res = await this.head.call('TaggedTransactionQueue_validate_transaction', [args])
-    const registry = await this.head.registry
-    const validity: TransactionValidity = registry.createType('TransactionValidity', res.result)
+    const validity = await this.validateExtrinsic(extrinsic)
     if (validity.isOk) {
       await this.#txpool.submitExtrinsic(extrinsic)
       return blake2AsHex(extrinsic, 256)
     }
     throw validity.asErr
+  }
+
+  async validateExtrinsic(extrinsic: HexString, source: '0x00' | '0x01' | '0x02' = '0x02' /** External */): Promise<TransactionValidity> {
+    const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
+    const res = await this.head.call('TaggedTransactionQueue_validate_transaction', [args])
+    const registry = await this.head.registry
+    return registry.createType<TransactionValidity>('TransactionValidity', res.result)
   }
 
   submitUpwardMessages(id: number, ump: HexString[]) {

@@ -12,7 +12,7 @@ import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
-import { calculateStateRoot, runTask } from './executor'
+import { calculateStateRoot, runTask, JsCallback, emptyTaskHandler } from './executor'
 import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {
@@ -121,9 +121,10 @@ export class GenesisProvider implements ProviderInterface {
     }
   }
 
-  get _jsCallback() {
+  get _jsCallback(): JsCallback {
     const storage = this.#genesis.genesis.raw.top
     return {
+      ...emptyTaskHandler,
       getStorage: async function (key: HexString) {
         return storage[key]
       },

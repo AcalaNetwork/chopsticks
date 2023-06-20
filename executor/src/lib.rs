@@ -1,6 +1,9 @@
 extern crate console_error_panic_hook;
 
-use smoldot::{json_rpc::methods::{HashHexString, HexString}, trie::TrieEntryVersion};
+use smoldot::{
+    json_rpc::methods::{HashHexString, HexString},
+    trie::TrieEntryVersion,
+};
 use std::collections::BTreeMap;
 use wasm_bindgen::prelude::*;
 
@@ -27,6 +30,18 @@ extern "C" {
 
     #[wasm_bindgen(structural, method, js_name = "getNextKey")]
     pub async fn get_next_key(this: &JsCallback, key: JsValue) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainGetStorage")]
+    pub async fn offchain_get_storage(this: &JsCallback, key: JsValue) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainTimestamp")]
+    pub async fn offchain_timestamp(this: &JsCallback) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainRandomSeed")]
+    pub async fn offchain_random_seed(this: &JsCallback) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainSubmitTransaction")]
+    pub async fn offchain_submit_transaction(this: &JsCallback, tx: JsValue) -> JsValue;
 }
 
 #[wasm_bindgen]
@@ -41,12 +56,16 @@ pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
-pub async fn calculate_state_root(entries: JsValue, trie_version: JsValue) -> Result<JsValue, JsValue> {
+pub async fn calculate_state_root(
+    entries: JsValue,
+    trie_version: JsValue,
+) -> Result<JsValue, JsValue> {
     setup_console();
 
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
-	let trie_version = serde_wasm_bindgen::from_value::<u8>(trie_version)?;
-	let trie_version = TrieEntryVersion::try_from(trie_version).map_err(|_| "invalid trie version")?;
+    let trie_version = serde_wasm_bindgen::from_value::<u8>(trie_version)?;
+    let trie_version =
+        TrieEntryVersion::try_from(trie_version).map_err(|_| "invalid trie version")?;
     let hash = task::calculate_state_root(entries, trie_version);
     let result = serde_wasm_bindgen::to_value(&hash)?;
 

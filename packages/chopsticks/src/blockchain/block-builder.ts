@@ -177,17 +177,16 @@ export const buildBlock = async (
     layer.set(compactHex(meta.query.ump.needsDispatch()), needsDispatch.toHex())
   }
 
-  const { block: newBlock } = await initNewBlock(head, header, inherents, layer)
-
   logger.info(
     {
-      number: newBlock.number,
+      number: head.number + 1,
       extrinsicsCount: extrinsics.length,
       umpCount: Object.keys(ump).length,
-      tempHash: newBlock.hash,
     },
-    `Try building block #${newBlock.number.toLocaleString()}`
+    `Try building block #${(head.number + 1).toLocaleString()}`
   )
+
+  const { block: newBlock } = await initNewBlock(head, header, inherents, layer)
 
   const pendingExtrinsics: HexString[] = []
   const includedExtrinsic: HexString[] = []
