@@ -515,7 +515,7 @@ exports[`dev rpc > setStorage 5`] = `
     "reserved": 0,
   },
   "nonce": 1,
-  "providers": 0,
+  "providers": 1,
   "sufficients": 0,
 }
 `;

@@ -75,6 +75,7 @@ export const setup = async (argv: Config, runBlock = false) => {
     allowUnresolvedImports: argv['allow-unresolved-imports'],
     runtimeLogLevel: argv['runtime-log-level'],
     registeredTypes: argv['registered-types'],
+    offchainWorker: argv['offchain-worker'],
   })
 
   if (argv.timestamp) await timeTravel(chain, argv.timestamp)

@@ -3,27 +3,18 @@ import { hexToString, hexToU8a } from '@polkadot/util'
 import { randomAsHex } from '@polkadot/util-crypto'
 
 import { Block } from './blockchain/block'
-import { PREFIX_LENGTH } from './utils/key-cache'
-import { Registry } from '@polkadot/types-codec/types'
 import {
+  JsCallback,
   calculate_state_root,
   create_proof,
   decode_proof,
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
+import { PREFIX_LENGTH } from './utils/key-cache'
+import { Registry } from '@polkadot/types-codec/types'
 import { defaultLogger, truncate } from './logger'
 import _ from 'lodash'
-
-export interface JsCallback {
-  getStorage: (key: HexString) => Promise<string | undefined>
-  getPrefixKeys: (key: HexString) => Promise<string[]>
-  getNextKey: (key: HexString) => Promise<string | undefined>
-  offchainGetStorage: (key: HexString) => Promise<string | undefined>
-  offchainTimestamp(): Promise<number>
-  offchainRandomSeed(): Promise<HexString>
-  offchainSubmitTransaction: (tx: HexString) => Promise<HexString>
-}
 
 export type RuntimeVersion = {
   specName: string
@@ -123,7 +114,7 @@ export const taskHandler = (block: Block): JsCallback => {
     },
     offchainSubmitTransaction: async function (tx: HexString) {
       return block.chain.offchainWorker.pushExtrinsic(block, tx)
-    }
+    },
   }
 }
 
@@ -148,7 +139,7 @@ export const emptyTaskHandler = {
   },
   offchainSubmitTransaction: async function (_tx: HexString) {
     throw new Error('Method not implemented')
-  }
+  },
 }
 
 export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: Registry): Promise<number> => {

@@ -12,8 +12,8 @@ describe('author rpc', async () => {
   await acala.dev.setStorage({
     System: {
       Account: [
-        [[alice.address], { data: { free: 10 * 1e12 } }],
-        [[bob.address], { data: { free: 10 * 1e12 } }],
+        [[alice.address], { providers: 1, data: { free: 10 * 1e12 } }],
+        [[bob.address], { providers: 1, data: { free: 10 * 1e12 } }],
       ],
     },
     Sudo: {

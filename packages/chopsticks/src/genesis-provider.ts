@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { HexString } from '@polkadot/util/types'
+import { JsCallback } from '@acala-network/chopsticks-executor'
 import {
   ProviderInterface,
   ProviderInterfaceCallback,
@@ -12,7 +13,7 @@ import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
-import { calculateStateRoot, runTask, JsCallback, emptyTaskHandler } from './executor'
+import { calculateStateRoot, emptyTaskHandler, runTask } from './executor'
 import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {

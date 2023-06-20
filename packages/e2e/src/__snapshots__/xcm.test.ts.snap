@@ -543,7 +543,7 @@ exports[`XCM > Acala send upward messages to Polkadot 2`] = `
     "reserved": "0",
   },
   "nonce": "0",
-  "providers": "0",
+  "providers": "1",
   "sufficients": "0",
 }
 `;

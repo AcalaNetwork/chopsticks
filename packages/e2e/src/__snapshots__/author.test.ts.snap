@@ -172,7 +172,7 @@ exports[`author rpc > works 3`] = `
     "reserved": 0,
   },
   "nonce": 1,
-  "providers": 0,
+  "providers": 1,
   "sufficients": 0,
 }
 `;
@@ -187,7 +187,7 @@ exports[`author rpc > works 4`] = `
     "reserved": 0,
   },
   "nonce": 0,
-  "providers": 0,
+  "providers": 1,
   "sufficients": 0,
 }
 `;
@@ -364,7 +364,7 @@ exports[`author rpc > works 7`] = `
     "reserved": 0,
   },
   "nonce": 2,
-  "providers": 0,
+  "providers": 1,
   "sufficients": 0,
 }
 `;
@@ -379,7 +379,7 @@ exports[`author rpc > works 8`] = `
     "reserved": 0,
   },
   "nonce": 0,
-  "providers": 0,
+  "providers": 1,
   "sufficients": 0,
 }
 `;
@@ -556,7 +556,7 @@ exports[`author rpc > works 11`] = `
     "reserved": 0,
   },
   "nonce": 3,
-  "providers": 0,
+  "providers": 1,
   "sufficients": 0,
 }
 `;
@@ -571,7 +571,7 @@ exports[`author rpc > works 12`] = `
     "reserved": 0,
   },
   "nonce": 0,
-  "providers": 0,
+  "providers": 1,
   "sufficients": 0,
 }
 `;

@@ -9,7 +9,7 @@ describe('failed tx should revert storage changes', async () => {
 
   await dev.setStorage({
     System: {
-      Account: [[[alice.address], { data: { free: 1000 * 1e12 } }]],
+      Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e12 } }]],
     },
     Tokens: {
       Accounts: [

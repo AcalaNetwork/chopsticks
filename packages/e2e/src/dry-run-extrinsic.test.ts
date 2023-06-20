@@ -14,7 +14,7 @@ describe('dry-run-extrinsic', () => {
 
     await dev.setStorage({
       System: {
-        Account: [[[alice.address], { data: { free: 1000 * 1e12 } }]],
+        Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e12 } }]],
       },
     })
     const extrinsic = await api.tx.balances.transfer(bob.address, 1e12).signAsync(alice)

@@ -11,11 +11,11 @@ import { Block } from './block'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
+import { OffchainWorker } from '../offchain'
 import { StorageValue } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder'
-import { OffchainWorker } from '../offchain'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -29,6 +29,7 @@ export interface Options {
   allowUnresolvedImports?: boolean
   runtimeLogLevel?: number
   registeredTypes: RegisteredTypes
+  offchainWorker?: boolean
 }
 
 export class Blockchain {
@@ -50,7 +51,7 @@ export class Blockchain {
 
   readonly headState: HeadState
 
-  readonly offchainWorker = new OffchainWorker()
+  readonly offchainWorker: OffchainWorker | undefined
 
   constructor({
     api,
@@ -62,6 +63,7 @@ export class Blockchain {
     allowUnresolvedImports = false,
     runtimeLogLevel = 0,
     registeredTypes = {},
+    offchainWorker = false,
   }: Options) {
     this.api = api
     this.db = db
@@ -77,6 +79,10 @@ export class Blockchain {
     this.#inherentProvider = inherentProvider
 
     this.headState = new HeadState(this.#head)
+
+    if (offchainWorker) {
+      this.offchainWorker = new OffchainWorker()
+    }
   }
 
   #registerBlock(block: Block) {
@@ -156,7 +162,9 @@ export class Blockchain {
     this.#registerBlock(block)
     await this.headState.setHead(block)
 
-    await this.offchainWorker.run(block)
+    if (this.offchainWorker) {
+      await this.offchainWorker.run(block)
+    }
   }
 
   async submitExtrinsic(extrinsic: HexString): Promise<HexString> {
@@ -168,7 +176,10 @@ export class Blockchain {
     throw validity.asErr
   }
 
-  async validateExtrinsic(extrinsic: HexString, source: '0x00' | '0x01' | '0x02' = '0x02' /** External */): Promise<TransactionValidity> {
+  async validateExtrinsic(
+    extrinsic: HexString,
+    source: '0x00' | '0x01' | '0x02' = '0x02' /** External */
+  ): Promise<TransactionValidity> {
     const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
     const res = await this.head.call('TaggedTransactionQueue_validate_transaction', [args])
     const registry = await this.head.registry

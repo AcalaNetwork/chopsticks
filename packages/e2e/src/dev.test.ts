@@ -12,7 +12,7 @@ describe('dev rpc', async () => {
 
   await acala.dev.setStorage({
     System: {
-      Account: [[[alice.address], { data: { free: 10 * 1e12 } }]],
+      Account: [[[alice.address], { providers: 1, data: { free: 10 * 1e12 } }]],
     },
     Sudo: {
       Key: alice.address,
@@ -41,7 +41,7 @@ describe('dev rpc', async () => {
 
     await dev.setStorage({
       System: {
-        Account: [[[bob.address], { data: { free: 100000 }, nonce: 1 }]],
+        Account: [[[bob.address], { providers: 1, data: { free: 100000 }, nonce: 1 }]],
       },
     })
 

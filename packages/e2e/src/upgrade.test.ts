@@ -23,7 +23,7 @@ describe('upgrade', async () => {
         Key: alice.address,
       },
       System: {
-        Account: [[[alice.address], { data: { free: 1000 * 1e12 } }]],
+        Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e12 } }]],
       },
     })
 

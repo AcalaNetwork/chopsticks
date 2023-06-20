@@ -56,7 +56,7 @@ describe('XCM', async () => {
 
     polkadot.dev.setStorage({
       System: {
-        Account: [[[alice.address], { data: { free: 1000 * 1e10 } }]],
+        Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e10 } }]],
       },
     })
 
@@ -98,7 +98,7 @@ describe('XCM', async () => {
 
     await setStorage(acala.chain, {
       System: {
-        Account: [[[alice.address], { data: { free: 1000 * 1e10 } }]],
+        Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e10 } }]],
       },
       Tokens: {
         Accounts: [[[alice.address, { token: 'DOT' }], { free: 1000e10 }]],

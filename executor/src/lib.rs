@@ -18,8 +18,23 @@ fn setup_console() {
     }
 }
 
+#[wasm_bindgen(typescript_custom_section)]
+const _: &'static str = r#"
+import { HexString } from '@polkadot/util/types';
+interface JsCallback {
+	getStorage: (key: HexString) => Promise<string | undefined>
+	getPrefixKeys: (key: HexString) => Promise<string[]>
+	getNextKey: (key: HexString) => Promise<string | undefined>
+	offchainGetStorage: (key: HexString) => Promise<string | undefined>
+	offchainTimestamp: () => Promise<number>
+	offchainRandomSeed: () => Promise<HexString>
+	offchainSubmitTransaction: (tx: HexString) => Promise<HexString>
+}
+"#;
+
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(typescript_type = "JsCallback")]
     pub type JsCallback;
 
     #[wasm_bindgen(structural, method, js_name = "getStorage")]
