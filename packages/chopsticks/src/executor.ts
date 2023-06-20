@@ -104,6 +104,7 @@ export const taskHandler = (block: Block): JsCallback => {
       return nextKey
     },
     offchainGetStorage: async function (key: HexString) {
+      if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
       return block.chain.offchainWorker.get(key) as string
     },
     offchainTimestamp: async function () {
@@ -113,6 +114,7 @@ export const taskHandler = (block: Block): JsCallback => {
       return randomAsHex(32)
     },
     offchainSubmitTransaction: async function (tx: HexString) {
+      if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
       return block.chain.offchainWorker.pushExtrinsic(block, tx)
     },
   }
