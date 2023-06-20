@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { api, env, setupApi, testingPairs } from './helper'
+import { api, dev, env, setupApi, testingPairs } from './helper'
 
 setupApi({
   ...env.mandala,
@@ -11,6 +11,13 @@ setupApi({
 describe('mock signature', () => {
   it('accept valid signature', async () => {
     const { alice, bob } = testingPairs()
+
+    await dev.setStorage({
+      System: {
+        Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e12 } }]],
+      },
+    })
+
     const tx = api.tx.balances.transfer(bob.address, 100)
 
     await tx.signAsync(alice)
@@ -35,6 +42,13 @@ describe('mock signature', () => {
 
   it('accept mock signature', async () => {
     const { alice, bob } = testingPairs()
+
+    await dev.setStorage({
+      System: {
+        Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e12 } }]],
+      },
+    })
+
     const { nonce } = await api.query.system.account(alice.address)
     const tx = api.tx.balances.transfer(bob.address, 100)
 

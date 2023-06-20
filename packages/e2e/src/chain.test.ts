@@ -6,9 +6,9 @@ setupApi(env.mandala)
 
 describe('chain rpc', () => {
   it('getXXX', async () => {
-    const hashHead = '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1'
-    const hash0 = '0x23fc729c2cdb7bd6770a4e8c58748387cc715fcf338f1f74a16833d90383f4b0'
-    const hash1000 = '0x7fbf942ac7a197ed6c9ecb7733bb1d42347b7b88c32973857cc13bd98febbbab'
+    const hashHead = '0xb0d0c3a59a08e21090211be38f5cac5162c7bf58b0cc751e0efc7ee8e10b3432'
+    const hash0 = '0x3035b88c212be330a1a724c675d56d53a5016ec32af1790738832db0227ac54c'
+    const hash1000 = '0xe56f236c84a86ebd36f07a2119156d83b28b5a0a02fbd3dfe2a2f333468838eb'
 
     expectHex(await api.rpc.chain.getBlockHash()).toMatch(hashHead)
     expectHex(await api.rpc.chain.getBlockHash(0)).toMatch(hash0)

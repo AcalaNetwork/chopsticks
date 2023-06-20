@@ -24,12 +24,12 @@ describe('dry-run-extrinsic', () => {
   })
 
   it('dry run extrinsic with fake signature', async () => {
-    const ALICE = '5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu'
+    const ALICE = '5F9wnAAXTdeKxprAbEvgVvP1GeonyBQeUN16ei9NkgyVh1FC'
 
     await dev.setStorage({ Sudo: { Key: ALICE } })
 
-    // sudo.sudo(system.fillBlock(10000000))
-    const call = '0xff00000080969800'
+    // sudo.sudo(system.remark(0x01))
+    const call = '0xff0000000401'
     const { outcome, storageDiff } = await chain.dryRunExtrinsic({ call, address: ALICE })
 
     expect(outcome.toHuman()).toMatchSnapshot()
