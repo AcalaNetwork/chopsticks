@@ -2,23 +2,17 @@ import { HexString } from '@polkadot/util/types'
 import { hexToString, hexToU8a } from '@polkadot/util'
 
 import { Block } from './blockchain/block'
-import { PREFIX_LENGTH } from './utils/key-cache'
-import { Registry } from '@polkadot/types-codec/types'
 import {
+  JsCallback,
   calculate_state_root,
   create_proof,
   decode_proof,
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
+import { Registry } from '@polkadot/types-codec/types'
 import { defaultLogger, truncate } from './logger'
 import _ from 'lodash'
-
-interface JsCallback {
-  getStorage: (key: HexString) => Promise<string | undefined>
-  getPrefixKeys: (key: HexString) => Promise<string[]>
-  getNextKey: (key: HexString) => Promise<string | undefined>
-}
 
 export type RuntimeVersion = {
   specName: string
@@ -57,12 +51,8 @@ export const decodeProof = async (trieRootHash: HexString, keys: HexString[], no
   }, {} as Record<HexString, HexString | null>)
 }
 
-export const createProof = async (
-  trieRootHash: HexString,
-  nodes: HexString[],
-  entries: [HexString, HexString | null][]
-) => {
-  const result = await create_proof(trieRootHash, nodes, entries)
+export const createProof = async (nodes: HexString[], entries: [HexString, HexString | null][]) => {
+  const result = await create_proof(nodes, entries)
   return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
 }
 
@@ -88,23 +78,16 @@ export const runTask = async (
 }
 
 export const taskHandler = (block: Block): JsCallback => {
-  const batchSize = 1000
   return {
     getStorage: async function (key: HexString) {
       return block.get(key)
     },
-    getPrefixKeys: async function (key: HexString) {
-      let keys: string[] = []
-      let startKey = key as string
-      while (startKey) {
-        const batch = await block.getKeysPaged({ prefix: key.slice(0, PREFIX_LENGTH), pageSize: batchSize, startKey })
-        keys = keys.concat(batch)
-        startKey = batch[batchSize - 1]
-      }
-      return keys
+    getStateRoot: async function () {
+      const header = await block.header
+      return header.stateRoot.toHex()
     },
-    getNextKey: async function (key: HexString) {
-      const [nextKey] = await block.getKeysPaged({ prefix: key.slice(0, PREFIX_LENGTH), pageSize: 1, startKey: key })
+    getNextKey: async function (prefix: HexString, key: HexString) {
+      const [nextKey] = await block.getKeysPaged({ prefix, pageSize: 1, startKey: key })
       return nextKey
     },
   }
@@ -114,10 +97,10 @@ export const emptyTaskHandler = {
   getStorage: async function (_key: HexString) {
     throw new Error('Method not implemented')
   },
-  getPrefixKeys: async function (_key: HexString) {
+  getStateRoot: async function () {
     throw new Error('Method not implemented')
   },
-  getNextKey: async function (_key: HexString) {
+  getNextKey: async function (_prefix: HexString, _key: HexString) {
     throw new Error('Method not implemented')
   },
 }

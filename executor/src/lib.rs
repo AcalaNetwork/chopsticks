@@ -1,6 +1,9 @@
 extern crate console_error_panic_hook;
 
-use smoldot::{json_rpc::methods::{HashHexString, HexString}, trie::TrieEntryVersion};
+use smoldot::{
+    json_rpc::methods::{HashHexString, HexString},
+    trie::TrieEntryVersion,
+};
 use std::collections::BTreeMap;
 use wasm_bindgen::prelude::*;
 
@@ -15,18 +18,29 @@ fn setup_console() {
     }
 }
 
+#[wasm_bindgen(typescript_custom_section)]
+const _: &'static str = r#"
+import { HexString } from '@polkadot/util/types';
+export interface JsCallback {
+	getStorage: (key: HexString) => Promise<string | undefined>
+	getStateRoot: () => Promise<string>
+	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
+}
+"#;
+
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(typescript_type = "JsCallback")]
     pub type JsCallback;
 
     #[wasm_bindgen(structural, method, js_name = "getStorage")]
     pub async fn get_storage(this: &JsCallback, key: JsValue) -> JsValue;
 
-    #[wasm_bindgen(structural, method, js_name = "getPrefixKeys")]
-    pub async fn get_prefix_keys(this: &JsCallback, key: JsValue) -> JsValue;
+    #[wasm_bindgen(structural, method, js_name = "getStateRoot")]
+    pub async fn get_state_root(this: &JsCallback) -> JsValue;
 
     #[wasm_bindgen(structural, method, js_name = "getNextKey")]
-    pub async fn get_next_key(this: &JsCallback, key: JsValue) -> JsValue;
+    pub async fn get_next_key(this: &JsCallback, prefix: JsValue, key: JsValue) -> JsValue;
 }
 
 #[wasm_bindgen]
@@ -41,12 +55,16 @@ pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsValue> {
 }
 
 #[wasm_bindgen]
-pub async fn calculate_state_root(entries: JsValue, trie_version: JsValue) -> Result<JsValue, JsValue> {
+pub async fn calculate_state_root(
+    entries: JsValue,
+    trie_version: JsValue,
+) -> Result<JsValue, JsValue> {
     setup_console();
 
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
-	let trie_version = serde_wasm_bindgen::from_value::<u8>(trie_version)?;
-	let trie_version = TrieEntryVersion::try_from(trie_version).map_err(|_| "invalid trie version")?;
+    let trie_version = serde_wasm_bindgen::from_value::<u8>(trie_version)?;
+    let trie_version =
+        TrieEntryVersion::try_from(trie_version).map_err(|_| "invalid trie version")?;
     let hash = task::calculate_state_root(entries, trie_version);
     let result = serde_wasm_bindgen::to_value(&hash)?;
 
@@ -75,14 +93,9 @@ pub async fn decode_proof(
 }
 
 #[wasm_bindgen]
-pub async fn create_proof(
-    root_trie_hash: JsValue,
-    nodes: JsValue,
-    entries: JsValue,
-) -> Result<JsValue, JsValue> {
+pub async fn create_proof(nodes: JsValue, entries: JsValue) -> Result<JsValue, JsValue> {
     setup_console();
 
-    let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
     let proof = serde_wasm_bindgen::from_value::<Vec<HexString>>(nodes)?;
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, Option<HexString>)>>(entries)?;
     let entries = BTreeMap::from_iter(
@@ -90,11 +103,7 @@ pub async fn create_proof(
             .into_iter()
             .map(|(key, value)| (key.0, value.map(|x| x.0))),
     );
-    let proof = proof::create_proof(
-        root_trie_hash,
-        proof.into_iter().map(|x| x.0).collect(),
-        entries,
-    )?;
+    let proof = proof::create_proof(proof.into_iter().map(|x| x.0).collect(), entries)?;
     let result = serde_wasm_bindgen::to_value(&proof)?;
 
     Ok(result)
