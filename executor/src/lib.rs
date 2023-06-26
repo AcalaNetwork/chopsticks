@@ -25,6 +25,10 @@ export interface JsCallback {
 	getStorage: (key: HexString) => Promise<string | undefined>
 	getStateRoot: () => Promise<string>
 	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
+	offchainGetStorage: (key: HexString) => Promise<string | undefined>
+	offchainTimestamp: () => Promise<number>
+	offchainRandomSeed: () => Promise<HexString>
+	offchainSubmitTransaction: (tx: HexString) => Promise<HexString>
 }
 "#;
 
@@ -41,6 +45,18 @@ extern "C" {
 
     #[wasm_bindgen(structural, method, js_name = "getNextKey")]
     pub async fn get_next_key(this: &JsCallback, prefix: JsValue, key: JsValue) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainGetStorage")]
+    pub async fn offchain_get_storage(this: &JsCallback, key: JsValue) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainTimestamp")]
+    pub async fn offchain_timestamp(this: &JsCallback) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainRandomSeed")]
+    pub async fn offchain_random_seed(this: &JsCallback) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainSubmitTransaction")]
+    pub async fn offchain_submit_transaction(this: &JsCallback, tx: JsValue) -> JsValue;
 }
 
 #[wasm_bindgen]

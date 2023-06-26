@@ -1,5 +1,6 @@
 import { HexString } from '@polkadot/util/types'
 import { hexToString, hexToU8a } from '@polkadot/util'
+import { randomAsHex } from '@polkadot/util-crypto'
 
 import { Block } from './blockchain/block'
 import {
@@ -90,6 +91,20 @@ export const taskHandler = (block: Block): JsCallback => {
       const [nextKey] = await block.getKeysPaged({ prefix, pageSize: 1, startKey: key })
       return nextKey
     },
+    offchainGetStorage: async function (key: HexString) {
+      if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
+      return block.chain.offchainWorker.get(key) as string
+    },
+    offchainTimestamp: async function () {
+      return Date.now()
+    },
+    offchainRandomSeed: async function () {
+      return randomAsHex(32)
+    },
+    offchainSubmitTransaction: async function (tx: HexString) {
+      if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
+      return block.chain.offchainWorker.pushExtrinsic(block, tx)
+    },
   }
 }
 
@@ -101,6 +116,18 @@ export const emptyTaskHandler = {
     throw new Error('Method not implemented')
   },
   getNextKey: async function (_prefix: HexString, _key: HexString) {
+    throw new Error('Method not implemented')
+  },
+  offchainGetStorage: async function (_key: HexString) {
+    throw new Error('Method not implemented')
+  },
+  offchainTimestamp: async function () {
+    throw new Error('Method not implemented')
+  },
+  offchainRandomSeed: async function () {
+    throw new Error('Method not implemented')
+  },
+  offchainSubmitTransaction: async function (_tx: HexString) {
     throw new Error('Method not implemented')
   },
 }

@@ -172,10 +172,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a40729d2133846d9ed0ea60a8b9541bccddab49cd30f0715a1da672fe9a2524"
 
 [[package]]
-name = "atomic-take"
-version = "1.1.0"
+name = "atomic"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8ab6b55fe97976e46f91ddbed8d147d966475dc29b2032757ba47e02376fbc3"
+checksum = "c59bdb34bc650a32731b31bd8f0829cc15d24a708ee31559e0bb34f2bc320cba"
 
 [[package]]
 name = "atomic-waker"
@@ -850,9 +850,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.11.0"
+version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1c173a5686ce8bfa551b3563d0c2170bf24ca44da99c7ca4bfdab5418c3fe57"
+checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
 dependencies = [
  "either",
 ]
@@ -1426,7 +1426,7 @@ version = "0.8.0"
 dependencies = [
  "arrayvec 0.7.4",
  "async-lock",
- "atomic-take",
+ "atomic",
  "base64 0.21.2",
  "bip39",
  "blake2-rfc",
@@ -1438,7 +1438,6 @@ dependencies = [
  "event-listener",
  "fnv",
  "futures-channel",
- "futures-lite",
  "futures-util",
  "hashbrown 0.14.0",
  "hex",
