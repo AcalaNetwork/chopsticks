@@ -74,7 +74,6 @@ pub struct TaskCall {
 pub struct CallResponse {
     result: HexString,
     storage_diff: Vec<(HexString, Option<HexString>)>,
-    offchain_storage_diff: Vec<(HexString, Option<HexString>)>,
     runtime_logs: Vec<String>,
 }
 
@@ -194,7 +193,6 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             Err(err) => {
                 ret = Err(err.to_string());
                 storage_main_trie_changes = TrieDiff::empty();
-                offchain_storage_changes = HashMap::default();
                 break;
             }
         }
@@ -206,15 +204,9 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             .map(|(k, v, _)| (HexString(k), v.map(HexString)))
             .collect();
 
-        let offchain_diff = offchain_storage_changes
-            .into_iter()
-            .map(|(k, v)| (HexString(k), v.map(HexString)))
-            .collect();
-
         TaskResponse::Call(CallResponse {
             result: HexString(ret),
             storage_diff: diff,
-            offchain_storage_diff: offchain_diff,
             runtime_logs,
         })
     }))
