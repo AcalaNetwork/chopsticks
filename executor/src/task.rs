@@ -150,11 +150,16 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         // root_calculation, skip
                         req.inject_key(None::<Vec<_>>.map(|x| x.into_iter()))
                     } else {
+                        let prefix = HexString(
+                            nibbles_to_bytes_suffix_extend(req.prefix()).collect::<Vec<_>>(),
+                        );
                         let key = HexString(
                             nibbles_to_bytes_suffix_extend(req.key()).collect::<Vec<_>>(),
                         );
+                        let prefix =
+                            serde_wasm_bindgen::to_value(&prefix).map_err(|e| e.to_string())?;
                         let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
-                        let value = js.get_next_key(key).await;
+                        let value = js.get_next_key(prefix, key).await;
                         let value = if value.is_string() {
                             serde_wasm_bindgen::from_value::<HexString>(value)
                                 .map(|x| Some(x.0))

@@ -10,7 +10,6 @@ import {
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
-import { PREFIX_LENGTH } from './utils/key-cache'
 import { Registry } from '@polkadot/types-codec/types'
 import { defaultLogger, truncate } from './logger'
 import _ from 'lodash'
@@ -87,8 +86,8 @@ export const taskHandler = (block: Block): JsCallback => {
       const header = await block.header
       return header.stateRoot.toHex()
     },
-    getNextKey: async function (key: HexString) {
-      const [nextKey] = await block.getKeysPaged({ prefix: key.slice(0, PREFIX_LENGTH), pageSize: 1, startKey: key })
+    getNextKey: async function (prefix: HexString, key: HexString) {
+      const [nextKey] = await block.getKeysPaged({ prefix, pageSize: 1, startKey: key })
       return nextKey
     },
   }
@@ -101,7 +100,7 @@ export const emptyTaskHandler = {
   getStateRoot: async function () {
     throw new Error('Method not implemented')
   },
-  getNextKey: async function (_key: HexString) {
+  getNextKey: async function (_prefix: HexString, _key: HexString) {
     throw new Error('Method not implemented')
   },
 }

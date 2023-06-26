@@ -21,10 +21,10 @@ fn setup_console() {
 #[wasm_bindgen(typescript_custom_section)]
 const _: &'static str = r#"
 import { HexString } from '@polkadot/util/types';
-interface JsCallback {
+export interface JsCallback {
 	getStorage: (key: HexString) => Promise<string | undefined>
 	getStateRoot: () => Promise<string>
-	getNextKey: (key: HexString) => Promise<string | undefined>
+	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
 }
 "#;
 
@@ -40,7 +40,7 @@ extern "C" {
     pub async fn get_state_root(this: &JsCallback) -> JsValue;
 
     #[wasm_bindgen(structural, method, js_name = "getNextKey")]
-    pub async fn get_next_key(this: &JsCallback, key: JsValue) -> JsValue;
+    pub async fn get_next_key(this: &JsCallback, prefix: JsValue, key: JsValue) -> JsValue;
 }
 
 #[wasm_bindgen]
