@@ -98,7 +98,7 @@ export const emptyTaskHandler = {
   getStorage: async function (_key: HexString) {
     throw new Error('Method not implemented')
   },
-  getStateRoot: async function (_key: HexString) {
+  getStateRoot: async function () {
     throw new Error('Method not implemented')
   },
   getNextKey: async function (_key: HexString) {
