@@ -1874,7 +1874,7 @@ __metadata:
     unplugin-swc: ^1.3.2
     vite-tsconfig-paths: ^4.2.0
     vitest: ^0.31.3
-    wasm-pack: ^0.11.1
+    wasm-pack: ^0.12.0
   languageName: unknown
   linkType: soft
 
@@ -5764,14 +5764,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wasm-pack@npm:^0.11.1":
-  version: 0.11.1
-  resolution: "wasm-pack@npm:0.11.1"
+"wasm-pack@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "wasm-pack@npm:0.12.0"
   dependencies:
     binary-install: ^1.0.1
   bin:
     wasm-pack: run.js
-  checksum: 14849d054d7ef4e6498b4f8d44f8cb25dd93d5e84373798a26e4deb88edabadd467b2aa754ffa2c8976f718581fbb75a9da143cddd40e01fb871c27f59c12462
+  checksum: 1ce87351b3a7e7b03aa31787237097caef6f4894a639566330e92075a9e37a06224e3deb787a40bf09ac78fba4ce19ddac9159d9188da60d694fa4ccb84de514
   languageName: node
   linkType: hard
 

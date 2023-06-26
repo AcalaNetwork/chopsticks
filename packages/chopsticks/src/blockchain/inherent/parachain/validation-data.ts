@@ -219,11 +219,7 @@ export class SetValidationData implements CreateInherents {
         newEntries.push([upgradeKey, null])
       }
 
-      const { trieRootHash, nodes } = await createProof(
-        extrinsic.validationData.relayParentStorageRoot,
-        extrinsic.relayChainState.trieNodes,
-        newEntries
-      )
+      const { trieRootHash, nodes } = await createProof(extrinsic.relayChainState.trieNodes, newEntries)
 
       newData = {
         ...extrinsic,

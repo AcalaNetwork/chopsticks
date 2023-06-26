@@ -151,6 +151,15 @@ export const buildBlock = async (
   const registry = await head.registry
   const header = await newHeader(head)
 
+  logger.info(
+    {
+      number: head.number + 1,
+      extrinsicsCount: extrinsics.length,
+      umpCount: Object.keys(ump).length,
+    },
+    `Try building block #${(head.number + 1).toLocaleString()}`
+  )
+
   let layer: StorageLayer | undefined
   // apply ump via storage override hack
   if (Object.keys(ump).length > 0) {
@@ -231,16 +240,6 @@ export const buildBlock = async (
   }
 
   const { block: newBlock } = await initNewBlock(head, header, inherents, layer)
-
-  logger.info(
-    {
-      number: newBlock.number,
-      extrinsicsCount: extrinsics.length,
-      umpCount: Object.keys(ump).length,
-      tempHash: newBlock.hash,
-    },
-    `Try building block #${newBlock.number.toLocaleString()}`
-  )
 
   const pendingExtrinsics: HexString[] = []
   const includedExtrinsic: HexString[] = []

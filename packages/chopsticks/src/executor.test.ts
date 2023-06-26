@@ -127,7 +127,7 @@ describe('wasm', () => {
     expect(config.toJSON()).toMatchSnapshot()
 
     const goAhead = registry.createType('UpgradeGoAhead', 'GoAhead')
-    const { trieRootHash, nodes } = await createProof(ROOT_TRIE_HASH, NODES, [
+    const { trieRootHash, nodes } = await createProof(NODES, [
       [WELL_KNOWN_KEYS.ACTIVE_CONFIG, originalDecoded[WELL_KNOWN_KEYS.ACTIVE_CONFIG]],
       [WELL_KNOWN_KEYS.CURRENT_BLOCK_RANDOMNESS, originalDecoded[WELL_KNOWN_KEYS.CURRENT_BLOCK_RANDOMNESS]],
       [upgradeKey, goAhead.toHex()],

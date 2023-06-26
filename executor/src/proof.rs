@@ -15,7 +15,6 @@ pub fn decode_proof(
     nodes: Vec<Vec<u8>>,
 ) -> Result<Vec<(HexString, Option<HexString>)>, String> {
     let config = Config::<Vec<u8>> {
-        trie_root_hash: &hash.0,
         proof: encode_proofs(nodes),
     };
     let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
@@ -23,8 +22,8 @@ pub fn decode_proof(
     let entries = keys
         .into_iter()
         .map(|key| {
-            let value = decoded.storage_value(key.as_ref());
-            if let Some(value) = value {
+            let value = decoded.storage_value(&hash.0, key.as_ref());
+            if let Ok(value) = value {
                 return (key, value.map(|(value, _)| HexString(value.to_owned())));
             }
             (key, None)
@@ -35,12 +34,10 @@ pub fn decode_proof(
 }
 
 pub fn create_proof(
-    hash: HashHexString,
     nodes: Vec<Vec<u8>>,
     entries: BTreeMap<Vec<u8>, Option<Vec<u8>>>,
 ) -> Result<(HashHexString, Vec<HexString>), String> {
     let config = Config::<Vec<u8>> {
-        trie_root_hash: &hash.0,
         proof: encode_proofs(nodes),
     };
     let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
@@ -62,10 +59,12 @@ pub fn create_proof(
         }
     }
 
-    for (key, value) in decoded.iter_ordered() {
+    for (entry_key, value) in decoded.iter_ordered() {
         let decoded_value = trie_node::decode(value.node_value).unwrap();
 
-        if let trie_structure::Entry::Vacant(vacant) = trie.node(key.iter().map(|x| x.to_owned())) {
+        if let trie_structure::Entry::Vacant(vacant) =
+            trie.node(entry_key.key.iter().map(|x| x.to_owned()))
+        {
             if let trie_node::StorageValue::Unhashed(value) = decoded_value.storage_value {
                 vacant.insert_storage_value().insert(value.to_vec(), vec![]);
             }
@@ -202,16 +201,12 @@ fn create_proof_works() {
     );
     let active_config_value = HexString(hex!("00005000005000000a00000000c8000000c800000a0000000a000000c8000000640000000000500000c800000700e8764817020040010a0000000000000000c0220fca950300000000000000000000c0220fca9503000000000000000000e8030000009001000a00000000000000009001008070000000000000000000000a000000050000000500000001000000010500000001c800000006000000580200005802000002000000280000000000000002000000010000000700c817a8040200400101020000000f000000").to_vec());
 
-    let root = HashHexString(hex!(
-        "4a8902b29241020b24b4a1620d0154f756b81ffbcf739a9f06d3447df8123ebd"
-    ));
-
     let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
         (active_config.clone().0, Some(active_config_value.clone().0)),
         (upgrade_go_ahead_signal.clone().0, Some(hex!("01").to_vec())),
     ]);
 
-    let (hash, nodes) = create_proof(root.clone(), get_proof(), entries).unwrap();
+    let (hash, nodes) = create_proof(get_proof(), entries).unwrap();
 
     let keys = vec![
         dmq_mqc_head.clone(),
@@ -234,7 +229,7 @@ fn create_proof_works() {
     // delete entries
     let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([(dmq_mqc_head.clone().0, None)]);
 
-    let (hash, nodes) = create_proof(root, get_proof(), entries).unwrap();
+    let (hash, nodes) = create_proof(get_proof(), entries).unwrap();
     let keys = vec![dmq_mqc_head.clone(), active_config, upgrade_go_ahead_signal];
     let decoded = decode_proof(
         hash,

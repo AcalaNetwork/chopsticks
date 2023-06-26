@@ -127,11 +127,11 @@ export class GenesisProvider implements ProviderInterface {
       getStorage: async function (key: HexString) {
         return storage[key]
       },
+      getStateRoot: async function () {
+        return '0x49416764844ff0d8bad851e8abe686dff9dd2de78621180ef8e9f99bb7a480f1'
+      },
       getNextKey: async function (_key: HexString) {
         return '0x'
-      },
-      getPrefixKeys: async function (_key: HexString) {
-        return []
       },
     }
   }

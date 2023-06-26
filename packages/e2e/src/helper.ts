@@ -31,9 +31,10 @@ export type SetupOption = {
 }
 
 export const env = {
-  mandala: {
-    endpoint: 'wss://mandala-rpc.aca-staging.network/ws',
-    blockHash: '0x062327512615cd62ea8c57652a04a6c937b112f1410520d83e2fafb9776cdbe1' as HexString,
+  acala: {
+    endpoint: 'wss://acala-rpc-0.aca-api.network',
+    // 3,800,000
+    blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
   },
   rococo: {
     endpoint: 'wss://rococo-rpc.polkadot.io',

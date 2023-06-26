@@ -1,6 +1,6 @@
 [package]
 name = "chopsticks-executor"
-version = "0.6.6"
+version = "0.6.5"
 description = "Chopsticks executor"
 repository = "https://github.com/AcalaNetwork/chopsticks"
 license = "Apache-2.0"
@@ -18,6 +18,7 @@ serde = { version = "1.0.151", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 hex = { version = "0.4.3", default-features = false }
 hex-literal = "0.4.1"
+hashbrown = { version = "0.14.0", default-features = false, features = ["serde"] }
 wasm-bindgen = "0.2.83"
 serde-wasm-bindgen = "0.5.0"
 wasm-bindgen-futures = "0.4.33"
