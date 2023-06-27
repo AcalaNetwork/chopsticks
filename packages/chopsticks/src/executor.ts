@@ -11,6 +11,7 @@ import {
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
+import { PREFIX_LENGTH } from './utils/key-cache'
 import { Registry } from '@polkadot/types-codec/types'
 import { defaultLogger, truncate } from './logger'
 import _ from 'lodash'
@@ -88,7 +89,11 @@ export const taskHandler = (block: Block): JsCallback => {
       return header.stateRoot.toHex()
     },
     getNextKey: async function (prefix: HexString, key: HexString) {
-      const [nextKey] = await block.getKeysPaged({ prefix, pageSize: 1, startKey: key })
+      const [nextKey] = await block.getKeysPaged({
+        prefix: prefix.length === 2 /** 0x */ ? key.slice(0, PREFIX_LENGTH) : prefix,
+        pageSize: 1,
+        startKey: key,
+      })
       return nextKey
     },
     offchainGetStorage: async function (key: HexString) {
