@@ -268,20 +268,19 @@ pub async fn run_offchain(
                 req.inject_value(value)
             }
             OffchainRuntimeHostVm::NextKey(req) => {
-                    let prefix = HexString(req.prefix().as_ref().to_vec());
-                    let key = HexString(req.key().as_ref().to_vec());
-                    let prefix =
-                        serde_wasm_bindgen::to_value(&prefix).map_err(|e| e.to_string())?;
-                    let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
-                    let value = js.get_next_key(prefix, key).await;
-                    let value = if value.is_string() {
-                        serde_wasm_bindgen::from_value::<HexString>(value)
-                            .map(|x| Some(x.0))
-                            .map_err(|e| e.to_string())?
-                    } else {
-                        None
-                    };
-                    req.inject_key(value)
+                let prefix = HexString(req.prefix().as_ref().to_vec());
+                let key = HexString(req.key().as_ref().to_vec());
+                let prefix = serde_wasm_bindgen::to_value(&prefix).map_err(|e| e.to_string())?;
+                let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
+                let value = js.get_next_key(prefix, key).await;
+                let value = if value.is_string() {
+                    serde_wasm_bindgen::from_value::<HexString>(value)
+                        .map(|x| Some(x.0))
+                        .map_err(|e| e.to_string())?
+                } else {
+                    None
+                };
+                req.inject_key(value)
             }
             OffchainRuntimeHostVm::OffchainStorageGet(req) => {
                 let key = HexString(req.key().as_ref().to_vec());
