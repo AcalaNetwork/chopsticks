@@ -9,6 +9,7 @@ import {
   create_proof,
   decode_proof,
   get_runtime_version,
+  run_offchain,
   run_task,
 } from '@acala-network/chopsticks-executor'
 import { PREFIX_LENGTH } from './utils/key-cache'
@@ -71,6 +72,16 @@ export const runTask = async (
 ) => {
   logger.trace(truncate(task), 'taskRun')
   const response = await run_task(task, callback)
+  if (response.Call) {
+    logger.trace(truncate(response.Call), 'taskResponse')
+  } else {
+    logger.trace({ response }, 'taskResponse')
+  }
+  return response
+}
+
+export const runOffchain = async (wasm: HexString, params: HexString[], callback: JsCallback) => {
+  const response = await run_offchain(wasm, params, callback)
   if (response.Call) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {

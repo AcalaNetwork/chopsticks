@@ -11,7 +11,7 @@ import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
-import { getRuntimeVersion, runTask, taskHandler } from '../executor'
+import { getRuntimeVersion, runOffchain, runTask, taskHandler } from '../executor'
 import type { RuntimeVersion } from '../executor'
 
 export type TaskCallResponse = {
@@ -244,6 +244,17 @@ export class Block {
       for (const log of response.Call.runtimeLogs) {
         defaultLogger.info(`RuntimeLogs:\n${log}`)
       }
+      return response.Call
+    }
+    if (response.Error) throw Error(response.Error)
+    throw Error('Unexpected response')
+  }
+
+  async offchainWorker(): Promise<TaskCallResponse> {
+    const wasm = await this.wasm
+    const header = await this.header
+    const response = await runOffchain(wasm, [header.toHex()], taskHandler(this))
+    if (response.Call) {
       return response.Call
     }
     if (response.Error) throw Error(response.Error)

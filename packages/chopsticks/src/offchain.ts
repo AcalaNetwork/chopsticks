@@ -22,8 +22,7 @@ export class OffchainWorker {
       `Run Offchain Worker for block #${block.number.toLocaleString()}`
     )
 
-    const header = await block.header
-    const result = await block.call('OffchainWorkerApi_offchain_worker', [header.toHex()])
+    const result = await block.offchainWorker()
 
     for (const [key, value] of result.offchainStorageDiff) {
       this.set(key, value)
