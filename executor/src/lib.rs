@@ -135,20 +135,3 @@ pub async fn run_task(task: JsValue, js: JsCallback) -> Result<JsValue, JsValue>
 
     Ok(result)
 }
-
-#[wasm_bindgen]
-pub async fn run_offchain(
-    code: JsValue,
-    params: JsValue,
-    js: JsCallback,
-) -> Result<JsValue, JsValue> {
-    setup_console();
-
-    let code = serde_wasm_bindgen::from_value::<HexString>(code)?;
-    let params = serde_wasm_bindgen::from_value::<Vec<HexString>>(params)?;
-    let params = params.into_iter().map(|x| x.0).collect();
-    let result = task::run_offchain(&code.0, &params, js).await?;
-    let result = serde_wasm_bindgen::to_value(&result)?;
-
-    Ok(result)
-}
