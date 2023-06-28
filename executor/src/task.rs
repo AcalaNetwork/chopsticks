@@ -185,7 +185,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
                 }
 
-                RuntimeHostVm::Offchain(req) => match req {
+                RuntimeHostVm::Offchain(ctx) => match ctx {
                     OffchainContext::StorageGet(req) => {
                         let key = HexString(req.key().as_ref().to_vec());
                         let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
