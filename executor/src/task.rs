@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use smoldot::{
     executor::{
         host::{Config, HeapPages, HostVmPrototype},
-        runtime_host::{self, RuntimeHostVm},
+        runtime_host::{self, OffchainContext, RuntimeHostVm},
         storage_diff::TrieDiff,
         CoreVersionRef,
     },
@@ -125,6 +125,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                 RuntimeHostVm::Finished(res) => {
                     break res;
                 }
+
                 RuntimeHostVm::StorageGet(req) => {
                     let key = HexString(req.key().as_ref().to_vec());
                     let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
@@ -139,6 +140,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     };
                     req.inject_value(value.map(|x| (iter::once(x), TrieEntryVersion::V1)))
                 }
+
                 RuntimeHostVm::ClosestDescendantMerkleValue(req) => {
                     let value = js.get_state_root().await;
                     let value = serde_wasm_bindgen::from_value::<HexString>(value)
@@ -146,6 +148,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         .map_err(|e| e.to_string())?;
                     req.inject_merkle_value(Some(value.as_ref()))
                 }
+
                 RuntimeHostVm::NextKey(req) => {
                     if req.branch_nodes() {
                         // root_calculation, skip
@@ -171,6 +174,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         req.inject_key(value.map(|x| bytes_to_nibbles(x.into_iter())))
                     }
                 }
+
                 RuntimeHostVm::SignatureVerification(req) => {
                     let bypass =
                         task.mock_signature_host && is_magic_signature(req.signature().as_ref());
@@ -180,46 +184,52 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         req.verify_and_resume()
                     }
                 }
-                RuntimeHostVm::OffchainStorageGet(req) => {
-                    let key = HexString(req.key().as_ref().to_vec());
-                    let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
-                    let value = js.offchain_get_storage(key).await;
-                    let value = if value.is_string() {
-                        let encoded = serde_wasm_bindgen::from_value::<HexString>(value)
-                            .map(|x| x.0)
+
+                RuntimeHostVm::Offchain(req) => match req {
+                    OffchainContext::StorageGet(req) => {
+                        let key = HexString(req.key().as_ref().to_vec());
+                        let key = serde_wasm_bindgen::to_value(&key).map_err(|e| e.to_string())?;
+                        let value = js.offchain_get_storage(key).await;
+                        let value = if value.is_string() {
+                            let encoded = serde_wasm_bindgen::from_value::<HexString>(value)
+                                .map(|x| x.0)
+                                .map_err(|e| e.to_string())?;
+                            Some(encoded)
+                        } else {
+                            None
+                        };
+                        req.inject_value(value)
+                    }
+
+                    OffchainContext::Timestamp(req) => {
+                        let value = js.offchain_timestamp().await;
+                        let timestamp = serde_wasm_bindgen::from_value::<u64>(value)
                             .map_err(|e| e.to_string())?;
-                        Some(encoded)
-                    } else {
-                        None
-                    };
-                    req.inject_value(value.map(|x| iter::once(x)))
-                }
-                RuntimeHostVm::OffchainTimestamp(req) => {
-                    let value = js.offchain_timestamp().await;
-                    let timestamp =
-                        serde_wasm_bindgen::from_value::<u64>(value).map_err(|e| e.to_string())?;
-                    req.inject_timestamp(timestamp)
-                }
-                RuntimeHostVm::OffchainRandomSeed(req) => {
-                    let value = js.offchain_random_seed().await;
-                    let random = serde_wasm_bindgen::from_value::<HexString>(value)
+                        req.inject_timestamp(timestamp)
+                    }
+
+                    OffchainContext::RandomSeed(req) => {
+                        let value = js.offchain_random_seed().await;
+                        let random = serde_wasm_bindgen::from_value::<HexString>(value)
+                            .map_err(|e| e.to_string())?;
+                        let value: [u8; 32] = random
+                            .0
+                            .try_into()
+                            .map_err(|_| "invalid random seed value")?;
+                        req.inject_random_seed(value)
+                    }
+
+                    OffchainContext::SubmitTransaction(req) => {
+                        let tx = serde_wasm_bindgen::to_value(&HexString(
+                            req.transaction().as_ref().to_vec(),
+                        ))
                         .map_err(|e| e.to_string())?;
-                    let value: [u8; 32] = random
-                        .0
-                        .try_into()
-                        .map_err(|_| "invalid random seed value")?;
-                    req.inject_random_seed(value)
-                }
-                RuntimeHostVm::OffchainSubmitTransaction(req) => {
-                    let tx = serde_wasm_bindgen::to_value(&HexString(
-                        req.transaction().as_ref().to_vec(),
-                    ))
-                    .map_err(|e| e.to_string())?;
-                    let outcome = js.offchain_submit_transaction(tx).await;
-                    let hash = serde_wasm_bindgen::from_value::<HexString>(outcome)
-                        .map_err(|e| e.to_string())?;
-                    req.inject_outcome(hash.0.as_ref())
-                }
+                        let outcome = js.offchain_submit_transaction(tx).await;
+                        let hash = serde_wasm_bindgen::from_value::<HexString>(outcome)
+                            .map_err(|e| e.to_string())?;
+                        req.inject_outcome(hash.0)
+                    }
+                },
             }
         };
 
