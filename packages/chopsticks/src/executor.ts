@@ -109,12 +109,12 @@ export const taskHandler = (block: Block): JsCallback => {
     offchainSubmitTransaction: async function (tx: HexString) {
       if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
       try {
-        const hash = await block.chain.offchainWorker.pushExtrinsic(block, tx);
+        const hash = await block.chain.offchainWorker.pushExtrinsic(block, tx)
         logger.trace({ hash }, 'offchainSubmitTransaction')
-        return true;
+        return true
       } catch (error) {
         logger.trace({ error }, 'offchainSubmitTransaction')
-        return false;
+        return false
       }
     },
   }
