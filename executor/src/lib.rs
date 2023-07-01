@@ -28,7 +28,7 @@ export interface JsCallback {
 	offchainGetStorage: (key: HexString) => Promise<string | undefined>
 	offchainTimestamp: () => Promise<number>
 	offchainRandomSeed: () => Promise<HexString>
-	offchainSubmitTransaction: (tx: HexString) => Promise<HexString>
+	offchainSubmitTransaction: (tx: HexString) => Promise<bool>
 }
 "#;
 

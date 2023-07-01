@@ -224,10 +224,10 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                             req.transaction().as_ref().to_vec(),
                         ))
                         .map_err(|e| e.to_string())?;
-                        let outcome = js.offchain_submit_transaction(tx).await;
-                        let hash = serde_wasm_bindgen::from_value::<HexString>(outcome)
+                        let success = js.offchain_submit_transaction(tx).await;
+                        let success = serde_wasm_bindgen::from_value::<bool>(success)
                             .map_err(|e| e.to_string())?;
-                        req.inject_outcome(hash.0)
+                        req.resume(success)
                     }
                 },
             }
