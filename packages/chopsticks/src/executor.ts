@@ -70,7 +70,7 @@ export const runTask = async (
   callback: JsCallback = emptyTaskHandler
 ) => {
   logger.trace(truncate(task), 'taskRun')
-  const response = await run_task(task, callback)
+  const response = await run_task(task, callback, process.env.RUST_LOG)
   if (response.Call) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {
