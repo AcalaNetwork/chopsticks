@@ -23,11 +23,7 @@ export class OffchainWorker {
     )
 
     const header = await block.header
-    const result = await block.call('OffchainWorkerApi_offchain_worker', [header.toHex()])
-
-    for (const [key, value] of result.offchainStorageDiff) {
-      this.set(key, value)
-    }
+    await block.call('OffchainWorkerApi_offchain_worker', [header.toHex()])
 
     logger.info(`Offchain Worker complete for block #${block.number.toLocaleString()}`)
 

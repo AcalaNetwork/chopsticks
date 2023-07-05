@@ -244,6 +244,14 @@ export class Block {
       for (const log of response.Call.runtimeLogs) {
         defaultLogger.info(`RuntimeLogs:\n${log}`)
       }
+
+      if (this.chain.offchainWorker) {
+        // apply offchain storage
+        for (const [key, value] of response.Call.offchainStorageDiff) {
+          this.chain.offchainWorker.set(key, value)
+        }
+      }
+
       return response.Call
     }
     if (response.Error) throw Error(response.Error)
