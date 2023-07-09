@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { WsProvider } from '@polkadot/api'
+import { initialize as tunnelInitialize } from 'global-tunnel-ng'
 
 import { Api } from './api'
 import { Blockchain } from './blockchain'
@@ -22,6 +23,7 @@ import { openDb } from './db'
 import { timeTravel } from './utils/time-travel'
 
 export const setup = async (argv: Config, runBlock = false) => {
+  tunnelInitialize()
   let provider: ProviderInterface
   if (argv.genesis) {
     if (typeof argv.genesis === 'string') {

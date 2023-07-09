@@ -52,6 +52,8 @@ Make sure you have setup Rust environment (>= 1.64).
 - Build wasm
   - `yarn build-wasm`
 
+For webstorm users, you may need to run `yarn build-wasm` in terminal rather than webstorm's build-in run tool.
+
 ## Run
 
 - Replay latest block
@@ -131,6 +133,12 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --prei
 ```bash
 npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 ```
+
+## Proxy
+
+Chopsticks respect `http_proxy` and `https_proxy` environment variables.
+Set env `DEBUG=global-tunnel` to see the proxy logs.
+To learn more, see https://www.npmjs.com/package/global-tunnel-ng
 
 ## Documentation
 
