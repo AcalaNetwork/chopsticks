@@ -223,17 +223,12 @@ export class Block {
     return this.#meta
   }
 
-  async call(
-    method: string,
-    args: HexString[],
-    storage: [HexString, HexString | null][] = []
-  ): Promise<TaskCallResponse> {
+  async call(method: string, args: HexString[]): Promise<TaskCallResponse> {
     const wasm = await this.wasm
     const response = await runTask(
       {
         wasm,
         calls: [[method, args]],
-        storage,
         mockSignatureHost: this.#chain.mockSignatureHost,
         allowUnresolvedImports: this.#chain.allowUnresolvedImports,
         runtimeLogLevel: this.#chain.runtimeLogLevel,

@@ -153,7 +153,6 @@ export class GenesisProvider implements ProviderInterface {
           {
             wasm: code,
             calls: [['Metadata_metadata', []]],
-            storage: [],
             mockSignatureHost: false,
             allowUnresolvedImports: true,
             runtimeLogLevel: 0,

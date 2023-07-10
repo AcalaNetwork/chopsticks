@@ -29,7 +29,6 @@ export const runBlock = async (argv: Config) => {
     {
       wasm,
       calls,
-      storage: [],
       mockSignatureHost: false,
       allowUnresolvedImports: false,
       runtimeLogLevel: argv['runtime-log-level'] || 0,

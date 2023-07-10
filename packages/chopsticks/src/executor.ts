@@ -62,7 +62,6 @@ export const runTask = async (
   task: {
     wasm: HexString
     calls: [string, HexString[]][]
-    storage: [HexString, HexString | null][]
     mockSignatureHost: boolean
     allowUnresolvedImports: boolean
     runtimeLogLevel: number
@@ -148,7 +147,6 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: R
   const result = await runTask({
     wasm,
     calls: [['AuraApi_slot_duration', []]],
-    storage: [],
     mockSignatureHost: false,
     allowUnresolvedImports: false,
     runtimeLogLevel: 0,

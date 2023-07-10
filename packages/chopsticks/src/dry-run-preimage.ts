@@ -76,7 +76,6 @@ export const dryRunPreimage = async (argv: Config) => {
     {
       wasm: await block.wasm,
       calls,
-      storage: [],
       mockSignatureHost: false,
       allowUnresolvedImports: false,
       runtimeLogLevel: argv['runtime-log-level'] || 0,
