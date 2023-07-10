@@ -137,8 +137,8 @@ npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 ## Proxy
 
 Chopsticks respect `http_proxy` and `https_proxy` environment variables.
-Set env `DEBUG=global-tunnel` to see the proxy logs.
-To learn more, see https://www.npmjs.com/package/global-tunnel-ng
+Export `ROARR_LOG=true` environment variable to enable log printing to stdout.
+To learn more, see https://www.npmjs.com/package/global-agent?activeTab=readme
 
 ## Documentation
 
