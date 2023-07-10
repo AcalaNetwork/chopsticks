@@ -49,10 +49,8 @@ Make sure you have setup Rust environment (>= 1.64).
   - `git clone --recurse-submodules https://github.com/AcalaNetwork/chopsticks.git && cd chopsticks`
 - Install deps
   - `yarn`
-- Build wasm
+- Build wasm. Please do not use IDE's built-in tools to build wasm.
   - `yarn build-wasm`
-
-For webstorm users, you may need to run `yarn build-wasm` in terminal rather than webstorm's build-in run tool.
 
 ## Run
 
