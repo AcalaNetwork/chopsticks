@@ -12,10 +12,10 @@ export const runBlock = async (argv: Config) => {
   const context = await setup(argv, true)
 
   const header = await context.chain.head.header
-  const wasm = await context.chain.head.wasm
   const block = context.chain.head
   const parent = await block.parentBlock
   if (!parent) throw Error('cant find parent block')
+  const wasm = await parent.wasm
 
   const calls: [string, HexString[]][] = [['Core_initialize_block', [header.toHex()]]]
 
