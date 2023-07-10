@@ -17,6 +17,7 @@ import type { RuntimeVersion } from '../executor'
 export type TaskCallResponse = {
   result: HexString
   storageDiff: [HexString, HexString | null][]
+  offchainStorageDiff: [HexString, HexString | null][]
   runtimeLogs: string[]
 }
 
@@ -222,17 +223,12 @@ export class Block {
     return this.#meta
   }
 
-  async call(
-    method: string,
-    args: HexString[],
-    storage: [HexString, HexString | null][] = []
-  ): Promise<TaskCallResponse> {
+  async call(method: string, args: HexString[]): Promise<TaskCallResponse> {
     const wasm = await this.wasm
     const response = await runTask(
       {
         wasm,
         calls: [[method, args]],
-        storage,
         mockSignatureHost: this.#chain.mockSignatureHost,
         allowUnresolvedImports: this.#chain.allowUnresolvedImports,
         runtimeLogLevel: this.#chain.runtimeLogLevel,
@@ -243,6 +239,14 @@ export class Block {
       for (const log of response.Call.runtimeLogs) {
         defaultLogger.info(`RuntimeLogs:\n${log}`)
       }
+
+      if (this.chain.offchainWorker) {
+        // apply offchain storage
+        for (const [key, value] of response.Call.offchainStorageDiff) {
+          this.chain.offchainWorker.set(key, value)
+        }
+      }
+
       return response.Call
     }
     if (response.Error) throw Error(response.Error)

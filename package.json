@@ -15,7 +15,6 @@
 		"clean": "yarn workspaces foreach -pvit run clean",
 		"build": "yarn workspaces foreach -pvit run build",
 		"build-wasm": "wasm-pack build executor --target nodejs --scope acala-network && echo '' >> executor/pkg/package.json",
-		"build-wasm-logging": "wasm-pack build executor --target nodejs --scope acala-network --features=logging",
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest run",
 		"test:watch": "vitest",
