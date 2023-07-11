@@ -16,9 +16,10 @@ export type SetupOption = {
   wasmOverride?: string
   db?: string
   timeout?: number
+  buildBlockMode?: BuildBlockMode
 }
 
-export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverride, db, timeout }: SetupOption) => {
+export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverride, db, timeout, buildBlockMode }: SetupOption) => {
   // random port
   const port = Math.floor(Math.random() * 10000) + 10000
   const config = {
@@ -26,7 +27,7 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
     port,
     block: blockNumber || blockHash,
     mockSignatureHost: true,
-    'build-block-mode': BuildBlockMode.Manual,
+    'build-block-mode': buildBlockMode ?? BuildBlockMode.Manual,
     db,
     'wasm-override': wasmOverride,
   }
@@ -65,17 +66,17 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
         return ws.send('dev_setHead', [hashOrNumber])
       },
     },
-    async teardown() {
+    async teardown () {
       await api.disconnect()
       await close()
     },
-    async pause() {
+    async pause () {
       await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])
 
       // log a bit later to ensure the message is visible
       setTimeout(() => console.log(`Test paused. Polkadot.js apps URL: https://polkadot.js.org/apps/?rpc=${url}`), 100)
 
-      return new Promise((_resolve) => {}) // wait forever
+      return new Promise((_resolve) => { }) // wait forever
     },
   }
 }
@@ -164,7 +165,7 @@ export const redact = async (data: any | Promise<any>) => {
   return process(json)
 }
 
-export function defer<T>() {
+export function defer<T> () {
   const deferred = {} as { resolve: (value: any) => void; reject: (reason: any) => void; promise: Promise<T> }
   deferred.promise = new Promise((resolve, reject) => {
     deferred.resolve = resolve
