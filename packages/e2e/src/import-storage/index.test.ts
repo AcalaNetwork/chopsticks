@@ -26,10 +26,10 @@ describe('import-storage', () => {
     const notExist = path.join(__dirname, 'does_not_exist.yml')
     await expect(importStorage(chain, notExist)).rejects.toThrowError(`File ${notExist} does not exist`)
     await expect(importStorage(chain, path.join(__dirname, 'storage.error.pallet.yml'))).rejects.toThrowError(
-      'Cannot find pallet TTechnicalCommittee'
+      'Cannot find pallet TTechnicalCommittee',
     )
     await expect(importStorage(chain, path.join(__dirname, 'storage.error.storage.yml'))).rejects.toThrowError(
-      'Cannot find storage MMembers in pallet TechnicalCommittee'
+      'Cannot find storage MMembers in pallet TechnicalCommittee',
     )
   })
 

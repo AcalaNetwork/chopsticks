@@ -156,7 +156,7 @@ export class Blockchain {
         number: block.number,
         hash: block.hash,
       },
-      'setHead'
+      'setHead',
     )
     this.#head = block
     this.#registerBlock(block)
@@ -178,7 +178,7 @@ export class Blockchain {
 
   async validateExtrinsic(
     extrinsic: HexString,
-    source: '0x00' | '0x01' | '0x02' = '0x02' /** External */
+    source: '0x00' | '0x01' | '0x02' = '0x02' /** External */,
   ): Promise<TransactionValidity> {
     const args = u8aToHex(u8aConcat(source, extrinsic, this.head.hash))
     const res = await this.head.call('TaggedTransactionQueue_validate_transaction', [args])
@@ -220,7 +220,7 @@ export class Blockchain {
 
   async dryRunExtrinsic(
     extrinsic: HexString | { call: HexString; address: string },
-    at?: HexString
+    at?: HexString,
   ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][] }> {
     await this.api.isReady
     const head = at ? await this.getBlock(at) : this.head
@@ -241,7 +241,7 @@ export class Blockchain {
 
   async dryRunHrmp(
     hrmp: Record<number, HorizontalMessage[]>,
-    at?: HexString
+    at?: HexString,
   ): Promise<[HexString, HexString | null][]> {
     await this.api.isReady
     const head = at ? await this.getBlock(at) : this.head

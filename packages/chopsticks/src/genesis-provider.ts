@@ -30,11 +30,14 @@ export class GenesisProvider implements ProviderInterface {
   constructor(genesis: Genesis) {
     this.#genesis = genesis
     this.#stateRoot = calculateStateRoot(
-      Object.entries(this.#genesis.genesis.raw.top).reduce((accu, item) => {
-        accu.push(item as any)
-        return accu
-      }, [] as [HexString, HexString][]),
-      1
+      Object.entries(this.#genesis.genesis.raw.top).reduce(
+        (accu, item) => {
+          accu.push(item as any)
+          return accu
+        },
+        [] as [HexString, HexString][],
+      ),
+      1,
     )
 
     this.#eventemitter = new EventEmitter()
@@ -157,7 +160,7 @@ export class GenesisProvider implements ProviderInterface {
             allowUnresolvedImports: true,
             runtimeLogLevel: 0,
           },
-          this._jsCallback
+          this._jsCallback,
         )
       }
       case 'chain_getHeader':
@@ -180,7 +183,7 @@ export class GenesisProvider implements ProviderInterface {
     _type: string,
     _method: string,
     _params: unknown[],
-    _cb: ProviderInterfaceCallback
+    _cb: ProviderInterfaceCallback,
   ): Promise<number | string> => {
     throw Error('unimplemented')
   }

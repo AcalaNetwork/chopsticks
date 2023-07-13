@@ -52,13 +52,13 @@ describe('dev rpc', async () => {
     await expect(
       dev.setStorage({
         SSystem: { Account: [] },
-      })
+      }),
     ).rejects.toThrowError('1: Error: Cannot find pallet SSystem')
 
     await expect(
       dev.setStorage({
         System: { AAccount: [] },
-      })
+      }),
     ).rejects.toThrowError('1: Error: Cannot find storage AAccount in pallet System')
   })
 
@@ -105,11 +105,11 @@ describe('dev rpc', async () => {
     expect((await api.rpc.chain.getBlockHash()).toHex()).toBe(hash)
     await dev.setHead(blockNumber - 3)
     expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
-      '"0xfab81f03d3275189a7dc02b0e4fabfab3916ff9a729ba3ec6ad84e029f0a74e7"'
+      '"0xfab81f03d3275189a7dc02b0e4fabfab3916ff9a729ba3ec6ad84e029f0a74e7"',
     )
     await dev.setHead(-3)
     expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
-      '"0xb5297d01adb0964d5195f9f17a3cf6e99ef8622e71863456eeb9296d5681292b"'
+      '"0xb5297d01adb0964d5195f9f17a3cf6e99ef8622e71863456eeb9296d5681292b"',
     )
   })
 })

@@ -19,7 +19,7 @@ export const connectUpward = async (parachain: Blockchain, relaychain: Blockchai
 
     relaychain.submitUpwardMessages(
       paraId,
-      upwardMessages.map((x) => x.toHex())
+      upwardMessages.map((x) => x.toHex()),
     )
   })
 }

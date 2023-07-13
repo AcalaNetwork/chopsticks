@@ -33,7 +33,7 @@ export const runBlock = async (argv: Config) => {
       allowUnresolvedImports: false,
       runtimeLogLevel: argv['runtime-log-level'] || 0,
     },
-    taskHandler(parent)
+    taskHandler(parent),
   )
 
   if (result.Error) {

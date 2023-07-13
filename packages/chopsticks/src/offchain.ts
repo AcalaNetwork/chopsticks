@@ -19,7 +19,7 @@ export class OffchainWorker {
   async run(block: Block) {
     logger.info(
       { number: block.number, hash: block.hash },
-      `Run Offchain Worker for block #${block.number.toLocaleString()}`
+      `Run Offchain Worker for block #${block.number.toLocaleString()}`,
     )
 
     const header = await block.header
@@ -35,7 +35,7 @@ export class OffchainWorker {
           await block.chain.txPool.buildBlock({ transactions })
         },
         100,
-        txs
+        txs,
       )
     }
   }

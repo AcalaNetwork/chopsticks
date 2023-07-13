@@ -210,7 +210,7 @@ export const checkSystemEvents = ({ api }: Api, ...filters: EventFilter[]) =>
 
 export const checkUmp = ({ api }: Api) =>
   check(api.query.parachainSystem.upwardMessages(), 'ump').map((value) =>
-    api.createType('Vec<XcmVersionedXcm>', value).toJSON()
+    api.createType('Vec<XcmVersionedXcm>', value).toJSON(),
   )
 
 export const checkHrmp = ({ api }: Api) =>
@@ -218,5 +218,5 @@ export const checkHrmp = ({ api }: Api) =>
     (value as any[]).map(({ recipient, data }) => ({
       data: api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data),
       recipient,
-    }))
+    })),
   )

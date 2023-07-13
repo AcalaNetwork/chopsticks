@@ -80,7 +80,7 @@ describe('XCM', async () => {
             },
           ],
         },
-        0
+        0,
       )
       .signAndSend(alice)
 
@@ -130,7 +130,7 @@ describe('XCM', async () => {
         },
         {
           Unlimited: null,
-        }
+        },
       )
       .signAndSend(alice)
 

@@ -14,7 +14,7 @@ export const generateHtmlDiff = async (block: Block, diff: [HexString, HexString
 export const generateHtmlDiffPreviewFile = async (
   block: Block,
   diff: [HexString, HexString | null][],
-  filename: string
+  filename: string,
 ) => {
   const html = await generateHtmlDiff(block, diff)
   mkdirSync('./preview', { recursive: true })

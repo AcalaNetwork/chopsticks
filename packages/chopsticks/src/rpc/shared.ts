@@ -32,6 +32,6 @@ export interface SubscriptionManager {
 export type Handler = (
   context: Context,
   params: any[],
-  subscriptionManager: SubscriptionManager
+  subscriptionManager: SubscriptionManager,
 ) => Promise<object | string | number | void | undefined | null>
 export type Handlers = Record<string, Handler>
