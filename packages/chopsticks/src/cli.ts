@@ -9,7 +9,7 @@ import yaml from 'js-yaml'
 import yargs from 'yargs'
 
 import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setup, setupWithServer } from '.'
-import { configSchema } from './schema'
+import { Config, configSchema } from './schema'
 import { decodeKey } from './utils/decoder'
 import { dryRun } from './dry-run'
 import { dryRunPreimage } from './dry-run-preimage'
@@ -22,7 +22,7 @@ dotenvConfig()
 
 const CONFIGS_BASE_URL = 'https://raw.githubusercontent.com/AcalaNetwork/chopsticks/master/configs/'
 
-const processConfig = async (path: string) => {
+export const fetchConfig = async (path: string): Promise<Config> => {
   let file: string
   if (isUrl(path)) {
     file = await axios.get(path).then((x) => x.data)
@@ -48,7 +48,7 @@ const processConfig = async (path: string) => {
 
 const processArgv = async (argv: any) => {
   if (argv.config) {
-    argv = { ...(await processConfig(argv.config)), ...argv }
+    argv = { ...(await fetchConfig(argv.config)), ...argv }
   }
   argv.port = argv.port ?? (process.env.PORT ? Number(process.env.PORT) : 8000)
   return argv
@@ -264,7 +264,7 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const parachains: Blockchain[] = []
       for (const config of argv.parachain) {
-        const { chain } = await setupWithServer(await processConfig(config))
+        const { chain } = await setupWithServer(await fetchConfig(config))
         parachains.push(chain)
       }
 
@@ -273,7 +273,7 @@ yargs(hideBin(process.argv))
       }
 
       if (argv.relaychain) {
-        const { chain: relaychain } = await setupWithServer(await processConfig(argv.relaychain))
+        const { chain: relaychain } = await setupWithServer(await fetchConfig(argv.relaychain))
         for (const parachain of parachains) {
           await connectVertical(relaychain, parachain)
         }
