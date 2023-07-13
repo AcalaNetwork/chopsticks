@@ -47,7 +47,7 @@ const handlers: Handlers = {
         hash,
         values,
       },
-      'dev_setStorage'
+      'dev_setStorage',
     )
     return hash
   },

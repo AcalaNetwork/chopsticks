@@ -22,7 +22,7 @@ describe('storage', () => {
         '23RDJ7SyVgpKqC6M9ad8wvbBsbSr3R4Xqr5NQAKEhWPHbLbs',
         '249QskFMEcb5WcgHF7BH5MesVGHq3imsUACq2RPgtBBdCPMa',
         '263KsUutx8qhRmG7hq6fEaSKE3fdi3KeeEKafkAMJ1cg1AYc',
-      ])
+      ]),
     ).toMatchSnapshot()
 
     const apiAt = await api.at('0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c')
@@ -32,7 +32,7 @@ describe('storage', () => {
         '23RDJ7SyVgpKqC6M9ad8wvbBsbSr3R4Xqr5NQAKEhWPHbLbs',
         '249QskFMEcb5WcgHF7BH5MesVGHq3imsUACq2RPgtBBdCPMa',
         '263KsUutx8qhRmG7hq6fEaSKE3fdi3KeeEKafkAMJ1cg1AYc',
-      ])
+      ]),
     ).toMatchSnapshot()
   })
 
@@ -73,7 +73,7 @@ describe('storage', () => {
     callback.mockClear()
 
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0xa08ebd83c5b4d941bf9c6853c0af2bc6620a1878a5d2ce302d09f40feea8ef98"'
+      '"0xa08ebd83c5b4d941bf9c6853c0af2bc6620a1878a5d2ce302d09f40feea8ef98"',
     )
 
     await next()
@@ -84,7 +84,7 @@ describe('storage', () => {
     unsub()
 
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0x018ba9714f720e785ed94f4c86cee723fe3f16eb53598f6725fac0b4f4ae5955"'
+      '"0x018ba9714f720e785ed94f4c86cee723fe3f16eb53598f6725fac0b4f4ae5955"',
     )
 
     await delay(100)

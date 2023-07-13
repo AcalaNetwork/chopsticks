@@ -230,7 +230,7 @@ export class TxPool {
       params.upwardMessages,
       (extrinsic, error) => {
         this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
-      }
+      },
     )
     for (const extrinsic of pendingExtrinsics) {
       this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })

@@ -97,7 +97,7 @@ export class SetValidationData implements CreateInherents {
       const decoded = await decodeProof(
         extrinsic.validationData.relayParentStorageRoot,
         [...Object.values(WELL_KNOWN_KEYS), dmqMqcHeadKey, hrmpIngressChannelIndexKey, hrmpEgressChannelIndexKey],
-        extrinsic.relayChainState.trieNodes
+        extrinsic.relayChainState.trieNodes,
       )
 
       for (const key of Object.values(WELL_KNOWN_KEYS)) {
@@ -115,9 +115,9 @@ export class SetValidationData implements CreateInherents {
             u8aConcat(
               meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
               meta.registry.createType('BlockNumber', sentAt).toU8a(),
-              blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256)
+              blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256),
             ),
-            256
+            256,
           )
 
           downwardMessages.push({
@@ -155,7 +155,7 @@ export class SetValidationData implements CreateInherents {
         const decoded = await decodeProof(
           extrinsic.validationData.relayParentStorageRoot,
           [hrmpChannelKey],
-          extrinsic.relayChainState.trieNodes
+          extrinsic.relayChainState.trieNodes,
         )
         const abridgedHrmpRaw = decoded[hrmpChannelKey]
         if (!abridgedHrmpRaw) throw new Error('Canoot find hrmp channels from validation data')
@@ -172,9 +172,9 @@ export class SetValidationData implements CreateInherents {
             u8aConcat(
               meta.registry.createType('Hash', abridgedHrmp.mqcHead).toU8a(),
               meta.registry.createType('BlockNumber', sentAt).toU8a(),
-              blake2AsU8a(bytes.toU8a(), 256)
+              blake2AsU8a(bytes.toU8a(), 256),
             ),
-            256
+            256,
           )
           abridgedHrmp.msgCount = (abridgedHrmp.msgCount as number) + 1
           abridgedHrmp.totalSize = (abridgedHrmp.totalSize as number) + bytes.length
@@ -203,7 +203,7 @@ export class SetValidationData implements CreateInherents {
         const decoded = await decodeProof(
           extrinsic.validationData.relayParentStorageRoot,
           [hrmpChannelKey],
-          extrinsic.relayChainState.trieNodes
+          extrinsic.relayChainState.trieNodes,
         )
         newEntries.push([hrmpChannelKey, decoded[hrmpChannelKey]])
       }

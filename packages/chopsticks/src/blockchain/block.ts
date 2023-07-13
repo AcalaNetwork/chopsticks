@@ -47,7 +47,7 @@ export class Block {
       extrinsics: HexString[]
       storage?: StorageLayerProvider
       storageDiff?: Record<string, StorageValue | null>
-    }
+    },
   ) {
     this.#chain = chain
     this.#parentBlock = parentBlock
@@ -78,7 +78,7 @@ export class Block {
   get header(): Header | Promise<Header> {
     if (!this.#header) {
       this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(([registry, header]) =>
-        registry.createType<Header>('Header', header)
+        registry.createType<Header>('Header', header),
       )
     }
     return this.#header
@@ -190,8 +190,8 @@ export class Block {
           objectSpread<ExtDef>(
             {},
             getSpecExtensions(registry, chain, version.specName),
-            this.#chain.api.signedExtensions
-          )
+            this.#chain.api.signedExtensions,
+          ),
         )
         return registry
       })
@@ -233,7 +233,7 @@ export class Block {
         allowUnresolvedImports: this.#chain.allowUnresolvedImports,
         runtimeLogLevel: this.#chain.runtimeLogLevel,
       },
-      taskHandler(this)
+      taskHandler(this),
     )
     if (response.Call) {
       for (const log of response.Call.runtimeLogs) {

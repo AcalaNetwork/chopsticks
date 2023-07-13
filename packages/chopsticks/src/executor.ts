@@ -40,17 +40,20 @@ export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion
 // trie_version: 0 for old trie, 1 for new trie
 export const calculateStateRoot = async (
   entries: [HexString, HexString][],
-  trie_version: number
+  trie_version: number,
 ): Promise<HexString> => {
   return calculate_state_root(entries, trie_version)
 }
 
 export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
   const decoded: [HexString, HexString | null][] = await decode_proof(trieRootHash, keys, nodes)
-  return decoded.reduce((accum, [key, value]) => {
-    accum[key] = value
-    return accum
-  }, {} as Record<HexString, HexString | null>)
+  return decoded.reduce(
+    (accum, [key, value]) => {
+      accum[key] = value
+      return accum
+    },
+    {} as Record<HexString, HexString | null>,
+  )
 }
 
 export const createProof = async (nodes: HexString[], entries: [HexString, HexString | null][]) => {
@@ -66,7 +69,7 @@ export const runTask = async (
     allowUnresolvedImports: boolean
     runtimeLogLevel: number
   },
-  callback: JsCallback = emptyTaskHandler
+  callback: JsCallback = emptyTaskHandler,
 ) => {
   logger.trace(truncate(task), 'taskRun')
   const response = await run_task(task, callback, process.env.RUST_LOG)

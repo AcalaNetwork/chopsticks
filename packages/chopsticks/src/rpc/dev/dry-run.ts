@@ -18,7 +18,7 @@ const dryRunSchema = z.object({
       z.object({
         call: zHex,
         address: zHex,
-      })
+      }),
     )
     .optional(),
   hrmp: z
@@ -29,9 +29,9 @@ const dryRunSchema = z.object({
           z.object({
             sentAt: z.number(),
             data: zHex,
-          })
+          }),
         )
-        .min(1)
+        .min(1),
     )
     .optional(),
   dmp: z
@@ -39,7 +39,7 @@ const dryRunSchema = z.object({
       z.object({
         sentAt: z.number(),
         msg: zHex,
-      })
+      }),
     )
     .min(1)
     .optional(),

@@ -7,7 +7,7 @@ setupApi(env.mandalaGenesis)
 describe('genesis provider works', () => {
   it('build blocks', async () => {
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0xcacc274d53b81070033e1b14b4162917be2754ecffaa31943cff06c39d2a8720"'
+      '"0xcacc274d53b81070033e1b14b4162917be2754ecffaa31943cff06c39d2a8720"',
     )
     const block = await chain.getBlock('0xcacc274d53b81070033e1b14b4162917be2754ecffaa31943cff06c39d2a8720')
     expect(block).toBeTruthy

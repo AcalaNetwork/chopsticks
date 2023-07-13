@@ -1,10 +1,10 @@
 import { HexString } from '@polkadot/util/types'
 import { basename, extname } from 'node:path'
+import { config as dotenvConfig } from 'dotenv'
 import { hideBin } from 'yargs/helpers'
 import { readFileSync } from 'node:fs'
 import _ from 'lodash'
 import axios from 'axios'
-import dotenv from 'dotenv'
 import yaml from 'js-yaml'
 import yargs from 'yargs'
 
@@ -18,7 +18,7 @@ import { logger } from './rpc/shared'
 import { runBlock } from './run-block'
 import { tryRuntime } from './try-runtime'
 
-dotenv.config()
+dotenvConfig()
 
 const CONFIGS_BASE_URL = 'https://raw.githubusercontent.com/AcalaNetwork/chopsticks/master/configs/'
 
@@ -120,7 +120,7 @@ yargs(hideBin(process.argv))
       }),
     async (argv) => {
       await setupWithServer(await processArgv(argv))
-    }
+    },
   )
   .command(
     'run-block',
@@ -142,7 +142,7 @@ yargs(hideBin(process.argv))
       }),
     async (argv) => {
       await runBlock(await processArgv(argv))
-    }
+    },
   )
   .command(
     'try-runtime',
@@ -168,7 +168,7 @@ yargs(hideBin(process.argv))
       }),
     async (argv) => {
       await tryRuntime(await processArgv(argv))
-    }
+    },
   )
   .command(
     'dry-run',
@@ -210,7 +210,7 @@ yargs(hideBin(process.argv))
       } else {
         await dryRun(config)
       }
-    }
+    },
   )
   .command(
     'decode-key <key>',
@@ -229,18 +229,18 @@ yargs(hideBin(process.argv))
       const { storage, decodedKey } = decodeKey(
         await context.chain.head.meta,
         context.chain.head,
-        argv.key as HexString
+        argv.key as HexString,
       )
       if (storage && decodedKey) {
         console.log(
           `${storage.section}.${storage.method}`,
-          decodedKey.args.map((x) => JSON.stringify(x.toHuman())).join(', ')
+          decodedKey.args.map((x) => JSON.stringify(x.toHuman())).join(', '),
         )
       } else {
         console.log('Unknown')
       }
       process.exit(0)
-    }
+    },
   )
   .command(
     'xcm',
@@ -278,7 +278,7 @@ yargs(hideBin(process.argv))
           await connectVertical(relaychain, parachain)
         }
       }
-    }
+    },
   )
   .strict()
   .help()

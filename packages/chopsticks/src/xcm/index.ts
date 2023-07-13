@@ -11,7 +11,7 @@ export const connectVertical = async (relaychain: Blockchain, parachain: Blockch
   await connectDownward(relaychain, parachain)
   await connectUpward(parachain, relaychain)
   logger.info(
-    `Connected relaychain '${await relaychain.api.getSystemChain()}' with parachain '${await parachain.api.getSystemChain()}'`
+    `Connected relaychain '${await relaychain.api.getSystemChain()}' with parachain '${await parachain.api.getSystemChain()}'`,
   )
 }
 

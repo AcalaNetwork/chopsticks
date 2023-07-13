@@ -23,7 +23,7 @@ export const dryRun = async (argv: Config) => {
     const filePath = await generateHtmlDiffPreviewFile(
       context.chain.head,
       storageDiff,
-      blake2AsHex(argv['extrinsic'], 256)
+      blake2AsHex(argv['extrinsic'], 256),
     )
     console.log(`Generated preview ${filePath}`)
     if (argv['open']) {
