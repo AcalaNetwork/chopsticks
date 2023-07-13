@@ -122,7 +122,7 @@ export const setupNetworks = async (networkOptions: Partial<Record<string, Confi
     wasmOverriden ||= config['wasm-override'] != null
   }
 
-  const relaychainName = Object.keys(ret).filter((x) => x.startsWith('polkadot') || x.startsWith('kusama'))[0]
+  const relaychainName = Object.keys(ret).filter((x) => ['polkadot', 'kusama'].includes(x.toLocaleLowerCase()))[0]
   const { [relaychainName]: relaychain, ...parachains } = ret
 
   if (relaychain) {
