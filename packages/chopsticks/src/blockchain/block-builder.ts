@@ -146,7 +146,7 @@ export const buildBlock = async (
   inherents: HexString[],
   extrinsics: HexString[],
   ump: Record<number, HexString[]>,
-  onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void
+  onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void,
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
   const header = await newHeader(head)
@@ -157,7 +157,7 @@ export const buildBlock = async (
       extrinsicsCount: extrinsics.length,
       umpCount: Object.keys(ump).length,
     },
-    `Try building block #${(head.number + 1).toLocaleString()}`
+    `Try building block #${(head.number + 1).toLocaleString()}`,
   )
 
   let layer: StorageLayer | undefined
@@ -278,7 +278,7 @@ export const buildBlock = async (
   const storageDiff = await newBlock.storageDiff()
   logger.trace(
     Object.entries(storageDiff).map(([key, value]) => [key, truncate(value)]),
-    'Final block'
+    'Final block',
   )
   const finalBlock = new Block(head.chain, newBlock.number, blockData.hash.toHex(), head, {
     header,
@@ -295,7 +295,7 @@ export const buildBlock = async (
       pendingExtrinsicsCount: pendingExtrinsics.length,
       ump: truncate(ump),
     },
-    'Block built'
+    'Block built',
   )
 
   return [finalBlock, pendingExtrinsics]
@@ -304,7 +304,7 @@ export const buildBlock = async (
 export const dryRunExtrinsic = async (
   head: Block,
   inherents: HexString[],
-  extrinsic: HexString | { call: HexString; address: string }
+  extrinsic: HexString | { call: HexString; address: string },
 ): Promise<TaskCallResponse> => {
   const registry = await head.registry
   const header = await newHeader(head)
@@ -313,7 +313,7 @@ export const dryRunExtrinsic = async (
   if (typeof extrinsic !== 'string') {
     if (!head.chain.mockSignatureHost) {
       throw new Error(
-        'Cannot fake signature because mock signature host is not enabled. Start chain with `mockSignatureHost: true`'
+        'Cannot fake signature because mock signature host is not enabled. Start chain with `mockSignatureHost: true`',
       )
     }
 
@@ -343,14 +343,14 @@ export const dryRunExtrinsic = async (
 
   defaultLogger.info(
     { call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toHuman() },
-    'dry_run_extrinsic'
+    'dry_run_extrinsic',
   )
   return newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
 }
 
 export const dryRunInherents = async (
   head: Block,
-  inherents: HexString[]
+  inherents: HexString[],
 ): Promise<[HexString, HexString | null][]> => {
   const header = await newHeader(head)
   const { layers } = await initNewBlock(head, header, inherents)

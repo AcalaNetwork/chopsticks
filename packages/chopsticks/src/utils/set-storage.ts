@@ -55,7 +55,7 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
 export const setStorage = async (
   chain: Blockchain,
   storage: StorageValues,
-  blockHash?: HexString
+  blockHash?: HexString,
 ): Promise<HexString> => {
   const block = await chain.getBlock(blockHash)
   if (!block) throw Error(`Cannot find block ${blockHash || 'latest'}`)

@@ -71,7 +71,7 @@ const handlers: Handlers = {
         (keys as string[]).map(async (key) => {
           const val = await context.chain.head.get(key)
           return [key, val]
-        })
+        }),
       )
       callback({
         block: context.chain.head.hash,

@@ -18,7 +18,7 @@ export const tryRuntime = async (argv: Config) => {
   })
 
   const select_none = registry.createType('UpgradeCheckSelect', 'None')
-  const result = await block.call('TryRuntime_on_runtime_upgrade', [select_none.toHex()], [])
+  const result = await block.call('TryRuntime_on_runtime_upgrade', [select_none.toHex()])
 
   if (argv['html']) {
     const filePath = await generateHtmlDiffPreviewFile(block, result.storageDiff, block.hash)

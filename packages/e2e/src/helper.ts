@@ -144,7 +144,7 @@ type CodecOrArray = Codec | Codec[]
 
 export const matchSnapshot = (codec: CodecOrArray | Promise<CodecOrArray>) => {
   return expect(
-    Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toHuman()) : x.toHuman()))
+    Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toHuman()) : x.toHuman())),
   ).resolves.toMatchSnapshot()
 }
 

@@ -43,7 +43,7 @@ const getStorageEntry = (meta: DecoratedMeta, block: Block, key: HexString) => {
 export const decodeKey = (
   meta: DecoratedMeta,
   block: Block,
-  key: HexString
+  key: HexString,
 ): { storage?: StorageEntry; decodedKey?: StorageKey } => {
   const storage = getStorageEntry(meta, block, key)
   const decodedKey = meta.registry.createType('StorageKey', key)

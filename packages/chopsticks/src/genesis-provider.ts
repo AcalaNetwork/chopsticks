@@ -13,7 +13,7 @@ import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
-import { calculateStateRoot, runTask } from './executor'
+import { calculateStateRoot, emptyTaskHandler, runTask } from './executor'
 import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {
@@ -30,11 +30,14 @@ export class GenesisProvider implements ProviderInterface {
   constructor(genesis: Genesis) {
     this.#genesis = genesis
     this.#stateRoot = calculateStateRoot(
-      Object.entries(this.#genesis.genesis.raw.top).reduce((accu, item) => {
-        accu.push(item as any)
-        return accu
-      }, [] as [HexString, HexString][]),
-      1
+      Object.entries(this.#genesis.genesis.raw.top).reduce(
+        (accu, item) => {
+          accu.push(item as any)
+          return accu
+        },
+        [] as [HexString, HexString][],
+      ),
+      1,
     )
 
     this.#eventemitter = new EventEmitter()
@@ -125,6 +128,7 @@ export class GenesisProvider implements ProviderInterface {
   get _jsCallback(): JsCallback {
     const storage = this.#genesis.genesis.raw.top
     return {
+      ...emptyTaskHandler,
       getStorage: async function (key: HexString) {
         return storage[key]
       },
@@ -152,12 +156,11 @@ export class GenesisProvider implements ProviderInterface {
           {
             wasm: code,
             calls: [['Metadata_metadata', []]],
-            storage: [],
             mockSignatureHost: false,
             allowUnresolvedImports: true,
             runtimeLogLevel: 0,
           },
-          this._jsCallback
+          this._jsCallback,
         )
       }
       case 'chain_getHeader':
@@ -180,7 +183,7 @@ export class GenesisProvider implements ProviderInterface {
     _type: string,
     _method: string,
     _params: unknown[],
-    _cb: ProviderInterfaceCallback
+    _cb: ProviderInterfaceCallback,
   ): Promise<number | string> => {
     throw Error('unimplemented')
   }

@@ -7,7 +7,7 @@ const logger = defaultLogger.child({ name: 'ws' })
 
 export type Handler = (
   data: { method: string; params: string[] },
-  subscriptionManager: SubscriptionManager
+  subscriptionManager: SubscriptionManager,
 ) => Promise<any>
 
 const parseRequest = (request: string) => {
@@ -122,7 +122,7 @@ export const createServer = async (handler: Handler, port?: number) => {
           id: req.id,
           method: req.method,
         },
-        'Received message'
+        'Received message',
       )
 
       try {
@@ -133,7 +133,7 @@ export const createServer = async (handler: Handler, port?: number) => {
             method: req.method,
             result: truncate(resp),
           },
-          'Sending response for request'
+          'Sending response for request',
         )
         send({
           id: req.id,

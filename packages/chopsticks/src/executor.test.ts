@@ -52,11 +52,11 @@ describe('wasm', () => {
   it.each([0, 1])('calculate state root', async (trie_version) => {
     const a = await calculateStateRoot(
       [['0x5301bf5ff0298f5c7b93a446709f8e885f772afdd0d8ba3d4d559a06f0742f12', '0x01']],
-      trie_version
+      trie_version,
     )
     const b = await calculateStateRoot(
       [['0x5301bf5ff0298f5c7b93a446709f8e885f772afdd0d8ba3d4d559a06f0742f12', '0x02']],
-      trie_version
+      trie_version,
     )
     expect(a).to.not.eq(b)
   })
@@ -118,7 +118,7 @@ describe('wasm', () => {
     const originalDecoded = await decodeProof(
       ROOT_TRIE_HASH,
       [headKey, upgradeKey, ingressChannelIndexKey, egressChannelIndexKey, ...Object.values(WELL_KNOWN_KEYS)],
-      NODES
+      NODES,
     )
     expect(originalDecoded).toMatchSnapshot()
     expect(originalDecoded[upgradeKey]).toBeUndefined()
@@ -137,7 +137,7 @@ describe('wasm', () => {
     const decoded = await decodeProof(
       trieRootHash,
       [headKey, upgradeKey, ingressChannelIndexKey, egressChannelIndexKey, ...Object.values(WELL_KNOWN_KEYS)],
-      nodes
+      nodes,
     )
     expect(decoded).toMatchSnapshot()
     expect(decoded[upgradeKey]).toBe('0x01')

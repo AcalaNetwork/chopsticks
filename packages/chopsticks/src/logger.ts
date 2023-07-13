@@ -28,7 +28,7 @@ const innerTruncate =
           return val.map(innerTruncate(level + 1))
         }
         return Object.fromEntries(
-          Object.entries(val.toJSON ? val.toJSON() : val).map(([k, v]) => [k, innerTruncate(level + 1)(v)])
+          Object.entries(val.toJSON ? val.toJSON() : val).map(([k, v]) => [k, innerTruncate(level + 1)(v)]),
         )
       default:
         return val

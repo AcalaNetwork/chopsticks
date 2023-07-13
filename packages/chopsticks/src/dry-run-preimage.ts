@@ -76,12 +76,11 @@ export const dryRunPreimage = async (argv: Config) => {
     {
       wasm: await block.wasm,
       calls,
-      storage: [],
       mockSignatureHost: false,
       allowUnresolvedImports: false,
       runtimeLogLevel: argv['runtime-log-level'] || 0,
     },
-    taskHandler(block)
+    taskHandler(block),
   )
 
   if (result.Error) {
@@ -113,7 +112,7 @@ export const dryRunPreimage = async (argv: Config) => {
     const filePath = await generateHtmlDiffPreviewFile(
       context.chain.head,
       storageDiff,
-      blake2AsHex(argv['extrinsic'], 256)
+      blake2AsHex(argv['extrinsic'], 256),
     )
     console.log(`Generated preview ${filePath}`)
     if (argv['open']) {

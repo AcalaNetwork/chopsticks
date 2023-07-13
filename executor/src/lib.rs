@@ -4,18 +4,16 @@ use smoldot::{
     json_rpc::methods::{HashHexString, HexString},
     trie::TrieEntryVersion,
 };
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, str::FromStr};
 use wasm_bindgen::prelude::*;
 
 mod proof;
 mod task;
 
-fn setup_console() {
+fn setup_console(level: Option<String>) {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    #[cfg(feature = "logging")]
-    {
-        let _ = console_log::init_with_level(log::Level::Trace);
-    }
+    let level = level.map(|x| x.to_uppercase()).unwrap_or("INFO".into());
+    let _ = console_log::init_with_level(log::Level::from_str(level.as_str()).unwrap());
 }
 
 #[wasm_bindgen(typescript_custom_section)]
@@ -25,6 +23,10 @@ export interface JsCallback {
 	getStorage: (key: HexString) => Promise<string | undefined>
 	getStateRoot: () => Promise<string>
 	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
+	offchainGetStorage: (key: HexString) => Promise<string | undefined>
+	offchainTimestamp: () => Promise<number>
+	offchainRandomSeed: () => Promise<HexString>
+	offchainSubmitTransaction: (tx: HexString) => Promise<bool>
 }
 "#;
 
@@ -41,11 +43,23 @@ extern "C" {
 
     #[wasm_bindgen(structural, method, js_name = "getNextKey")]
     pub async fn get_next_key(this: &JsCallback, prefix: JsValue, key: JsValue) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainGetStorage")]
+    pub async fn offchain_get_storage(this: &JsCallback, key: JsValue) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainTimestamp")]
+    pub async fn offchain_timestamp(this: &JsCallback) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainRandomSeed")]
+    pub async fn offchain_random_seed(this: &JsCallback) -> JsValue;
+
+    #[wasm_bindgen(structural, method, js_name = "offchainSubmitTransaction")]
+    pub async fn offchain_submit_transaction(this: &JsCallback, tx: JsValue) -> JsValue;
 }
 
 #[wasm_bindgen]
 pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsValue> {
-    setup_console();
+    setup_console(None);
 
     let code = serde_wasm_bindgen::from_value::<HexString>(code)?;
     let runtime_version = task::runtime_version(code).await?;
@@ -59,7 +73,7 @@ pub async fn calculate_state_root(
     entries: JsValue,
     trie_version: JsValue,
 ) -> Result<JsValue, JsValue> {
-    setup_console();
+    setup_console(None);
 
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
     let trie_version = serde_wasm_bindgen::from_value::<u8>(trie_version)?;
@@ -77,7 +91,7 @@ pub async fn decode_proof(
     keys: JsValue,
     nodes: JsValue,
 ) -> Result<JsValue, JsValue> {
-    setup_console();
+    setup_console(None);
 
     let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
     let keys = serde_wasm_bindgen::from_value::<Vec<HexString>>(keys)?;
@@ -94,7 +108,7 @@ pub async fn decode_proof(
 
 #[wasm_bindgen]
 pub async fn create_proof(nodes: JsValue, entries: JsValue) -> Result<JsValue, JsValue> {
-    setup_console();
+    setup_console(None);
 
     let proof = serde_wasm_bindgen::from_value::<Vec<HexString>>(nodes)?;
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, Option<HexString>)>>(entries)?;
@@ -110,8 +124,12 @@ pub async fn create_proof(nodes: JsValue, entries: JsValue) -> Result<JsValue, J
 }
 
 #[wasm_bindgen]
-pub async fn run_task(task: JsValue, js: JsCallback) -> Result<JsValue, JsValue> {
-    setup_console();
+pub async fn run_task(
+    task: JsValue,
+    js: JsCallback,
+    log_level: Option<String>,
+) -> Result<JsValue, JsValue> {
+    setup_console(log_level);
 
     let task = serde_wasm_bindgen::from_value::<task::TaskCall>(task)?;
     let result = task::run_task(task, js).await?;

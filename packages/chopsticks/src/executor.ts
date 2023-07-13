@@ -1,5 +1,6 @@
 import { HexString } from '@polkadot/util/types'
 import { hexToString, hexToU8a } from '@polkadot/util'
+import { randomAsHex } from '@polkadot/util-crypto'
 
 import { Block } from './blockchain/block'
 import {
@@ -39,17 +40,20 @@ export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion
 // trie_version: 0 for old trie, 1 for new trie
 export const calculateStateRoot = async (
   entries: [HexString, HexString][],
-  trie_version: number
+  trie_version: number,
 ): Promise<HexString> => {
   return calculate_state_root(entries, trie_version)
 }
 
 export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
   const decoded: [HexString, HexString | null][] = await decode_proof(trieRootHash, keys, nodes)
-  return decoded.reduce((accum, [key, value]) => {
-    accum[key] = value
-    return accum
-  }, {} as Record<HexString, HexString | null>)
+  return decoded.reduce(
+    (accum, [key, value]) => {
+      accum[key] = value
+      return accum
+    },
+    {} as Record<HexString, HexString | null>,
+  )
 }
 
 export const createProof = async (nodes: HexString[], entries: [HexString, HexString | null][]) => {
@@ -61,15 +65,14 @@ export const runTask = async (
   task: {
     wasm: HexString
     calls: [string, HexString[]][]
-    storage: [HexString, HexString | null][]
     mockSignatureHost: boolean
     allowUnresolvedImports: boolean
     runtimeLogLevel: number
   },
-  callback: JsCallback = emptyTaskHandler
+  callback: JsCallback = emptyTaskHandler,
 ) => {
   logger.trace(truncate(task), 'taskRun')
-  const response = await run_task(task, callback)
+  const response = await run_task(task, callback, process.env.RUST_LOG)
   if (response.Call) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {
@@ -95,6 +98,27 @@ export const taskHandler = (block: Block): JsCallback => {
       })
       return nextKey
     },
+    offchainGetStorage: async function (key: HexString) {
+      if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
+      return block.chain.offchainWorker.get(key) as string
+    },
+    offchainTimestamp: async function () {
+      return Date.now()
+    },
+    offchainRandomSeed: async function () {
+      return randomAsHex(32)
+    },
+    offchainSubmitTransaction: async function (tx: HexString) {
+      if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
+      try {
+        const hash = await block.chain.offchainWorker.pushExtrinsic(block, tx)
+        logger.trace({ hash }, 'offchainSubmitTransaction')
+        return true
+      } catch (error) {
+        logger.trace({ error }, 'offchainSubmitTransaction')
+        return false
+      }
+    },
   }
 }
 
@@ -108,13 +132,24 @@ export const emptyTaskHandler = {
   getNextKey: async function (_prefix: HexString, _key: HexString) {
     throw new Error('Method not implemented')
   },
+  offchainGetStorage: async function (_key: HexString) {
+    throw new Error('Method not implemented')
+  },
+  offchainTimestamp: async function () {
+    throw new Error('Method not implemented')
+  },
+  offchainRandomSeed: async function () {
+    throw new Error('Method not implemented')
+  },
+  offchainSubmitTransaction: async function (_tx: HexString) {
+    throw new Error('Method not implemented')
+  },
 }
 
 export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: Registry): Promise<number> => {
   const result = await runTask({
     wasm,
     calls: [['AuraApi_slot_duration', []]],
-    storage: [],
     mockSignatureHost: false,
     allowUnresolvedImports: false,
     runtimeLogLevel: 0,
