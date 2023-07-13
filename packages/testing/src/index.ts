@@ -1,6 +1,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { BuildBlockMode, setupWithServer } from '@acala-network/chopsticks'
+import { BuildBlockMode, connectParachains, connectVertical, fetchConfig, setupWithServer } from '@acala-network/chopsticks'
 import { Codec } from '@polkadot/types/types'
+import { Config } from '@acala-network/chopsticks/schema'
 import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { StorageValues } from '@acala-network/chopsticks/utils/set-storage'
@@ -16,20 +17,34 @@ export type SetupOption = {
   wasmOverride?: string
   db?: string
   timeout?: number
+  port?: number
 }
 
-export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverride, db, timeout }: SetupOption) => {
-  // random port
-  const port = Math.floor(Math.random() * 10000) + 10000
-  const config = {
-    endpoint,
-    port,
-    block: blockNumber || blockHash,
-    mockSignatureHost: true,
-    'build-block-mode': BuildBlockMode.Manual,
-    db,
-    'wasm-override': wasmOverride,
-  }
+export type SetupConfig = Config & {
+  timeout?: number
+}
+
+export const createConfig = ( { endpoint, blockNumber, blockHash, wasmOverride, db, timeout, port }: SetupOption): SetupConfig => {
+   // random port if not specified
+   port = port ?? Math.floor(Math.random() * 10000) + 10000
+   const config = {
+     endpoint,
+     port,
+     block: blockNumber || blockHash,
+     mockSignatureHost: true,
+     'build-block-mode': BuildBlockMode.Manual,
+     db,
+     'wasm-override': wasmOverride,
+     timeout,
+   }
+   return config
+}
+
+export const setupContext = async (option: SetupOption) => {
+    return setupContextWithConfig(createConfig(option))
+}
+
+export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig) => {
   const { chain, listenPort, close } = await setupWithServer(config)
 
   const url = `ws://localhost:${listenPort}`
@@ -78,6 +93,51 @@ export const setupContext = async ({ endpoint, blockNumber, blockHash, wasmOverr
       return new Promise((_resolve) => {}) // wait forever
     },
   }
+}
+
+export type NetworkContext = Awaited<ReturnType<typeof setupContext>>
+
+export const setupNetworks = async (
+  networkOptions: Partial<Record<string, Config | string | undefined>>,
+) => {
+  const ret = {} as Record<string, NetworkContext>
+
+  let wasmOverriden = false
+
+  for (const [name, options] of Object.entries(networkOptions) as [string, Config | string | undefined][]) {
+    const config = typeof options === 'string' ? await fetchConfig(options) : (options ?? await fetchConfig(name))
+    ret[name] = await setupContextWithConfig(config)
+    wasmOverriden ||= config['wasm-override'] != null
+  }
+
+  const relaychainName = Object.keys(ret).filter(
+    (x) => x.startsWith('polkadot') || x.startsWith('kusama')
+  )[0]
+  const { [relaychainName]: relaychain, ...parachains } = ret
+
+  if (relaychain) {
+    for (const parachain of Object.values(parachains)) {
+      await connectVertical(relaychain.chain, parachain.chain)
+    }
+  }
+
+  const parachainList = Object.values(parachains).map((i) => i.chain)
+  if (parachainList.length > 0) {
+    await connectParachains(parachainList)
+  }
+
+  if (wasmOverriden) {
+    // trigger runtime upgrade if needed (due to wasm override)
+    for (const chain of Object.values(ret)) {
+      await chain.dev.newBlock()
+    }
+    // handle xcm version message if needed (due to wasm override triggered xcm version upgrade)
+    for (const chain of Object.values(ret)) {
+      await chain.dev.newBlock()
+    }
+  }
+
+  return ret
 }
 
 type CodecOrArray = Codec | Codec[]
