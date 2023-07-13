@@ -1,3 +1,5 @@
+import './utils/tunnel'
+
 import '@polkadot/types-codec'
 import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'

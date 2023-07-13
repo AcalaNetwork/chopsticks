@@ -49,7 +49,7 @@ Make sure you have setup Rust environment (>= 1.64).
   - `git clone --recurse-submodules https://github.com/AcalaNetwork/chopsticks.git && cd chopsticks`
 - Install deps
   - `yarn`
-- Build wasm
+- Build wasm. Please do not use IDE's built-in tools to build wasm.
   - `yarn build-wasm`
 
 ## Run
@@ -131,6 +131,12 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --prei
 ```bash
 npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 ```
+
+## Proxy
+
+Chopsticks respect `http_proxy` and `https_proxy` environment variables.
+Export `ROARR_LOG=true` environment variable to enable log printing to stdout.
+To learn more, see https://www.npmjs.com/package/global-agent?activeTab=readme
 
 ## Documentation
 
