@@ -1,5 +1,11 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { BuildBlockMode, connectParachains, connectVertical, fetchConfig, setupWithServer } from '@acala-network/chopsticks'
+import {
+  BuildBlockMode,
+  connectParachains,
+  connectVertical,
+  fetchConfig,
+  setupWithServer,
+} from '@acala-network/chopsticks'
 import { Codec } from '@polkadot/types/types'
 import { Config } from '@acala-network/chopsticks/schema'
 import { HexString } from '@polkadot/util/types'
@@ -24,24 +30,32 @@ export type SetupConfig = Config & {
   timeout?: number
 }
 
-export const createConfig = ( { endpoint, blockNumber, blockHash, wasmOverride, db, timeout, port }: SetupOption): SetupConfig => {
-   // random port if not specified
-   port = port ?? Math.floor(Math.random() * 10000) + 10000
-   const config = {
-     endpoint,
-     port,
-     block: blockNumber || blockHash,
-     mockSignatureHost: true,
-     'build-block-mode': BuildBlockMode.Manual,
-     db,
-     'wasm-override': wasmOverride,
-     timeout,
-   }
-   return config
+export const createConfig = ({
+  endpoint,
+  blockNumber,
+  blockHash,
+  wasmOverride,
+  db,
+  timeout,
+  port,
+}: SetupOption): SetupConfig => {
+  // random port if not specified
+  port = port ?? Math.floor(Math.random() * 10000) + 10000
+  const config = {
+    endpoint,
+    port,
+    block: blockNumber || blockHash,
+    mockSignatureHost: true,
+    'build-block-mode': BuildBlockMode.Manual,
+    db,
+    'wasm-override': wasmOverride,
+    timeout,
+  }
+  return config
 }
 
 export const setupContext = async (option: SetupOption) => {
-    return setupContextWithConfig(createConfig(option))
+  return setupContextWithConfig(createConfig(option))
 }
 
 export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig) => {
@@ -97,22 +111,18 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
 
 export type NetworkContext = Awaited<ReturnType<typeof setupContext>>
 
-export const setupNetworks = async (
-  networkOptions: Partial<Record<string, Config | string | undefined>>,
-) => {
+export const setupNetworks = async (networkOptions: Partial<Record<string, Config | string | undefined>>) => {
   const ret = {} as Record<string, NetworkContext>
 
   let wasmOverriden = false
 
   for (const [name, options] of Object.entries(networkOptions) as [string, Config | string | undefined][]) {
-    const config = typeof options === 'string' ? await fetchConfig(options) : (options ?? await fetchConfig(name))
+    const config = typeof options === 'string' ? await fetchConfig(options) : options ?? (await fetchConfig(name))
     ret[name] = await setupContextWithConfig(config)
     wasmOverriden ||= config['wasm-override'] != null
   }
 
-  const relaychainName = Object.keys(ret).filter(
-    (x) => x.startsWith('polkadot') || x.startsWith('kusama')
-  )[0]
+  const relaychainName = Object.keys(ret).filter((x) => x.startsWith('polkadot') || x.startsWith('kusama'))[0]
   const { [relaychainName]: relaychain, ...parachains } = ret
 
   if (relaychain) {
