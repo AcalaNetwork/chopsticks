@@ -9,7 +9,7 @@ describe('system rpc', () => {
 
   it('works', async () => {
     expect(await api.rpc.system.chain()).toMatch('Acala')
-    expect(await api.rpc.system.name()).toMatch('Acala Node')
+    expect(await api.rpc.system.name()).toMatch('Subway')
     expect(await api.rpc.system.version()).toBeInstanceOf(String)
     expect(await api.rpc.system.properties()).not.toBeNull()
     expectJson(await api.rpc.system.health()).toMatchObject({
