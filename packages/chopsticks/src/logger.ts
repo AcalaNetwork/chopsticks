@@ -10,15 +10,17 @@ export const defaultLogger = createLogger({
 const innerTruncate =
   (level = 0) =>
   (val: any) => {
+    const verboseLog = !!process.env.VERBOSE_LOG
+    const levelLimit = verboseLog ? 10 : 5
     if (val == null) {
       return val
     }
-    if (level > 5) {
+    if (level > levelLimit) {
       return '( Too Deep )'
     }
     switch (typeof val) {
       case 'string':
-        if (val.length > 66) {
+        if (val.length > 66 && !verboseLog) {
           return val.slice(0, 34) + '…' + val.slice(-32)
         } else {
           return val
