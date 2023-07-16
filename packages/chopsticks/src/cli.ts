@@ -2,7 +2,6 @@ import { HexString } from '@polkadot/util/types'
 
 import { config as dotenvConfig } from 'dotenv'
 import { hideBin } from 'yargs/helpers'
-import _ from 'lodash'
 import yargs from 'yargs'
 
 import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setup, setupWithServer } from '.'

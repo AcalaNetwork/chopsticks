@@ -1,6 +1,7 @@
 import { basename, extname } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { z } from 'zod'
+import _ from 'lodash'
 import axios from 'axios'
 import yaml from 'js-yaml'
 
