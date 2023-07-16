@@ -1,12 +1,12 @@
 import { basename, extname } from 'node:path'
-import { isUrl } from '../utils'
-import { logger } from '../rpc/shared'
 import { readFileSync } from 'node:fs'
 import { z } from 'zod'
 import axios from 'axios'
 import yaml from 'js-yaml'
 
 import { BuildBlockMode } from '../blockchain/txpool'
+import { isUrl } from '../utils'
+import { logger } from '../rpc/shared'
 
 export const genesisSchema = z.object({
   id: z.string(),
