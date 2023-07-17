@@ -30,6 +30,7 @@ npx @acala-network/chopsticks@latest -c acala
 - [basilisk](configs/basilisk.yml)
 - [composable-polkadot](configs/composable-polkadot.yml)
 - [hydradx](configs/hydradx.yml)
+- [interlay](configs/interlay.yml)
 - [karura](configs/karura.yml)
 - [kusama](configs/kusama.yml)
 - [mandala-genesis](configs/mandala-genesis.yml)

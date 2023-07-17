@@ -1,0 +1,45 @@
+endpoint: wss://rpc-interlay.luckyfriday.io/
+mock-signature-host: true
+block: ${env.INTERLAY_BLOCK_NUMBER}
+db: ./interlay.db.sqlite
+# wasm-override: interlay_runtime.compact.compressed.wasm
+
+import-storage:
+  Tokens:
+    Accounts:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: INTR
+        - free: '100000000000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: IBTC
+        - free: '100000000000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: IBTC
+        - free: '100000000000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: DOT
+        - free: '100000000000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: KINT
+        - free: '100000000000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: KBTC
+        - free: '100000000000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - token: KSM
+        - free: '100000000000000000000000000000'
+
