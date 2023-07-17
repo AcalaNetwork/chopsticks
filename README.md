@@ -47,6 +47,7 @@ npx @acala-network/chopsticks@latest -c acala
 - [shiden](configs/shiden.yml)
 - [statemine](configs/statemine.yml)
 - [statemint](configs/statemint.yml)
+- [tinkernet](configs/tinkernet.yml)
 
 ## Install
 
