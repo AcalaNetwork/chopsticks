@@ -17,6 +17,12 @@ Run node using config file
 npx @acala-network/chopsticks@latest -c acala
 ```
 
+## Environment Variables
+
+- `PORT`: Set port for Chopsticks to listen on, default is `8000`
+- `LOG_LEVEL`: Set log level, default is `info`. Available options: `trace`, `debug`, `info`, `warn`, `error`
+- `VERBOSE_LOG`: If set, do not truncating log messages
+
 ### Example configs can be found here
 
 - [acala](configs/acala.yml)

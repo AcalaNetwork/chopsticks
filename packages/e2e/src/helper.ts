@@ -32,7 +32,7 @@ export type SetupOption = {
 
 export const env = {
   acala: {
-    endpoint: 'wss://acala-rpc-0.aca-api.network',
+    endpoint: 'wss://acala-rpc.aca-api.network',
     // 3,800,000
     blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
   },

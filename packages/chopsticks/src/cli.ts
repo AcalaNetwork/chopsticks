@@ -1,54 +1,23 @@
 import { HexString } from '@polkadot/util/types'
-import { basename, extname } from 'node:path'
+
 import { config as dotenvConfig } from 'dotenv'
 import { hideBin } from 'yargs/helpers'
-import { readFileSync } from 'node:fs'
-import _ from 'lodash'
-import axios from 'axios'
-import yaml from 'js-yaml'
 import yargs from 'yargs'
 
 import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setup, setupWithServer } from '.'
-import { configSchema } from './schema'
 import { decodeKey } from './utils/decoder'
 import { dryRun } from './dry-run'
 import { dryRunPreimage } from './dry-run-preimage'
-import { isUrl } from './utils'
-import { logger } from './rpc/shared'
+
+import { fetchConfig } from './schema'
 import { runBlock } from './run-block'
 import { tryRuntime } from './try-runtime'
 
 dotenvConfig()
 
-const CONFIGS_BASE_URL = 'https://raw.githubusercontent.com/AcalaNetwork/chopsticks/master/configs/'
-
-const processConfig = async (path: string) => {
-  let file: string
-  if (isUrl(path)) {
-    file = await axios.get(path).then((x) => x.data)
-  } else {
-    try {
-      file = readFileSync(path, 'utf8')
-    } catch (err) {
-      if (basename(path) === path && ['', '.yml', '.yaml', '.json'].includes(extname(path))) {
-        if (extname(path) === '') {
-          path += '.yml'
-        }
-        const url = CONFIGS_BASE_URL + path
-        logger.info(`Loading config file ${url}`)
-        file = await axios.get(url).then((x) => x.data)
-      } else {
-        throw err
-      }
-    }
-  }
-  const config = yaml.load(_.template(file, { variable: 'env' })(process.env)) as any
-  return configSchema.parse(config)
-}
-
 const processArgv = async (argv: any) => {
   if (argv.config) {
-    argv = { ...(await processConfig(argv.config)), ...argv }
+    argv = { ...(await fetchConfig(argv.config)), ...argv }
   }
   argv.port = argv.port ?? (process.env.PORT ? Number(process.env.PORT) : 8000)
   return argv
@@ -264,7 +233,7 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const parachains: Blockchain[] = []
       for (const config of argv.parachain) {
-        const { chain } = await setupWithServer(await processConfig(config))
+        const { chain } = await setupWithServer(await fetchConfig(config))
         parachains.push(chain)
       }
 
@@ -273,7 +242,7 @@ yargs(hideBin(process.argv))
       }
 
       if (argv.relaychain) {
-        const { chain: relaychain } = await setupWithServer(await processConfig(argv.relaychain))
+        const { chain: relaychain } = await setupWithServer(await fetchConfig(argv.relaychain))
         for (const parachain of parachains) {
           await connectVertical(relaychain, parachain)
         }
