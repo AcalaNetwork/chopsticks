@@ -1,12 +1,12 @@
 import { HexString } from '@polkadot/util/types'
 import { writeFileSync } from 'node:fs'
 
-import { Config } from './schema'
-import { defaultLogger } from './logger'
-import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
-import { openHtml } from './utils/open-html'
-import { runTask, taskHandler } from './executor'
-import { setup } from './setup'
+import { Config } from '../../schema'
+import { defaultLogger } from '../../logger'
+import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
+import { openHtml } from '../../utils/open-html'
+import { runTask, taskHandler } from '../../executor'
+import { setup } from '../../setup'
 
 export const runBlock = async (argv: Config) => {
   const context = await setup(argv, true)

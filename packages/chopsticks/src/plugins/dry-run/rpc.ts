@@ -2,9 +2,9 @@ import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import z from 'zod'
 
-import { Handler, ResponseError } from '../rpc/shared'
-import { decodeStorageDiff } from '../utils/decoder'
-import { generateHtmlDiff } from '../utils/generate-html-diff'
+import { Handler, ResponseError } from '../../rpc/shared'
+import { decodeStorageDiff } from '../../utils/decoder'
+import { generateHtmlDiff } from '../../utils/generate-html-diff'
 
 const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
 const zHash = z.string().length(66).and(zHex)
@@ -47,7 +47,10 @@ const schema = z.object({
   at: zHash.optional(),
 })
 
-export const dev_dryRun: Handler = async (context, [params]) => {
+// custom rpc name (optional). e.g. dryRun will be called as dev_dryRun
+export const name = 'dryRun'
+
+export const rpc: Handler = async (context, [params]) => {
   const { html, extrinsic, hrmp, dmp, ump, raw, at } = schema.parse(params)
   const dryRun = async () => {
     if (extrinsic) {

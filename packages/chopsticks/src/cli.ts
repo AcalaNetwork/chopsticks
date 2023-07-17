@@ -1,21 +1,14 @@
-import { HexString } from '@polkadot/util/types'
-
 import { config as dotenvConfig } from 'dotenv'
 import { hideBin } from 'yargs/helpers'
 import yargs from 'yargs'
 
-import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setup, setupWithServer } from '.'
-import { decodeKey } from './utils/decoder'
-import { dryRun } from './dry-run'
-import { dryRunPreimage } from './dry-run-preimage'
-
+import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setupWithServer } from '.'
 import { fetchConfig } from './schema'
-import { runBlock } from './run-block'
-import { tryRuntime } from './try-runtime'
+import { pluginExtendCli } from './plugins'
 
 dotenvConfig()
 
-const processArgv = async (argv: any) => {
+export const processArgv = async (argv: any) => {
   if (argv.config) {
     argv = { ...(await fetchConfig(argv.config)), ...argv }
   }
@@ -23,7 +16,7 @@ const processArgv = async (argv: any) => {
   return argv
 }
 
-const defaultOptions = {
+export const defaultOptions = {
   endpoint: {
     desc: 'Endpoint to connect to',
     string: true,
@@ -54,7 +47,7 @@ const defaultOptions = {
   },
 }
 
-const mockOptions = {
+export const mockOptions = {
   'import-storage': {
     desc: 'Pre-defined JSON/YAML storage file path',
     string: true,
@@ -65,7 +58,7 @@ const mockOptions = {
   },
 }
 
-yargs(hideBin(process.argv))
+const commands = yargs(hideBin(process.argv))
   .scriptName('chopsticks')
   .command(
     '*',
@@ -89,126 +82,6 @@ yargs(hideBin(process.argv))
       }),
     async (argv) => {
       await setupWithServer(await processArgv(argv))
-    },
-  )
-  .command(
-    'run-block',
-    'Replay a block',
-    (yargs) =>
-      yargs.options({
-        ...defaultOptions,
-        ...mockOptions,
-        'output-path': {
-          desc: 'File path to print output',
-          string: true,
-        },
-        html: {
-          desc: 'Generate html with storage diff',
-        },
-        open: {
-          desc: 'Open generated html',
-        },
-      }),
-    async (argv) => {
-      await runBlock(await processArgv(argv))
-    },
-  )
-  .command(
-    'try-runtime',
-    'Runs runtime upgrade',
-    (yargs) =>
-      yargs.options({
-        ...defaultOptions,
-        'wasm-override': {
-          desc: 'Path to WASM built with feature `try-runtime` enabled',
-          string: true,
-          required: true,
-        },
-        'output-path': {
-          desc: 'File path to print output',
-          string: true,
-        },
-        html: {
-          desc: 'Generate html with storage diff',
-        },
-        open: {
-          desc: 'Open generated html',
-        },
-      }),
-    async (argv) => {
-      await tryRuntime(await processArgv(argv))
-    },
-  )
-  .command(
-    'dry-run',
-    'Dry run an extrinsic',
-    (yargs) =>
-      yargs.options({
-        ...defaultOptions,
-        extrinsic: {
-          desc: 'Extrinsic or call to dry run. If you pass call here then address is required to fake signature',
-          string: true,
-        },
-        address: {
-          desc: 'Address to fake sign extrinsic',
-          string: true,
-        },
-        preimage: {
-          desc: 'Preimage to dry run',
-          string: true,
-        },
-        at: {
-          desc: 'Block hash to dry run',
-          string: true,
-        },
-        'output-path': {
-          desc: 'File path to print output',
-          string: true,
-        },
-        html: {
-          desc: 'Generate html with storage diff',
-        },
-        open: {
-          desc: 'Open generated html',
-        },
-      }),
-    async (argv) => {
-      const config = await processArgv(argv)
-      if (config.preimage) {
-        await dryRunPreimage(config)
-      } else {
-        await dryRun(config)
-      }
-    },
-  )
-  .command(
-    'decode-key <key>',
-    'Deocde a key',
-    (yargs) =>
-      yargs
-        .positional('key', {
-          desc: 'Key to decode',
-          type: 'string',
-        })
-        .options({
-          ...defaultOptions,
-        }),
-    async (argv) => {
-      const context = await setup(await processArgv(argv))
-      const { storage, decodedKey } = decodeKey(
-        await context.chain.head.meta,
-        context.chain.head,
-        argv.key as HexString,
-      )
-      if (storage && decodedKey) {
-        console.log(
-          `${storage.section}.${storage.method}`,
-          decodedKey.args.map((x) => JSON.stringify(x.toHuman())).join(', '),
-        )
-      } else {
-        console.log('Unknown')
-      }
-      process.exit(0)
     },
   )
   .command(
@@ -260,4 +133,8 @@ yargs(hideBin(process.argv))
   .alias('import-storage', 's')
   .alias('wasm-override', 'w')
   .usage('Usage: $0 <command> [options]')
-  .example('$0', '-c acala').argv
+  .example('$0', '-c acala')
+
+pluginExtendCli(commands)
+
+commands.parse()

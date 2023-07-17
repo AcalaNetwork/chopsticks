@@ -1,9 +1,9 @@
 import { writeFileSync } from 'node:fs'
 
-import { Config } from './schema'
-import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
-import { openHtml } from './utils/open-html'
-import { setup } from './setup'
+import { Config } from '../../schema'
+import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
+import { openHtml } from '../../utils/open-html'
+import { setup } from '../../setup'
 
 export const tryRuntime = async (argv: Config) => {
   const context = await setup(argv)

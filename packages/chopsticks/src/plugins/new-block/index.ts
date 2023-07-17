@@ -1,7 +1,7 @@
-import { Handler, ResponseError } from '../rpc/shared'
-import { logger } from '.'
+import { Handler, ResponseError } from '../../rpc/shared'
+import { logger } from '..'
 
-export const dev_newBlock: Handler = async (context, [param]) => {
+export const rpc: Handler = async (context, [param]) => {
   const { count, to, hrmp, ump, dmp, transactions } = param || {}
   const now = context.chain.head.number
   const diff = to ? to - now : count

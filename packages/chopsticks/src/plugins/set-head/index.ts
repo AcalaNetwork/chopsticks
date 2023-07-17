@@ -1,7 +1,7 @@
-import { Block } from '../blockchain/block'
-import { Handler, ResponseError } from '../rpc/shared'
+import { Block } from '../../blockchain/block'
+import { Handler, ResponseError } from '../../rpc/shared'
 
-export const dev_setHead: Handler = async (context, [hashOrNumber]) => {
+export const rpc: Handler = async (context, [hashOrNumber]) => {
   let block: Block | undefined
   if (typeof hashOrNumber === 'number') {
     const blockNumber = hashOrNumber > 0 ? hashOrNumber : context.chain.head.number + hashOrNumber

@@ -2,14 +2,14 @@ import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a } from '@polkadot/util'
 
-import { Config } from './schema'
-import { defaultLogger } from './logger'
-import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
-import { newHeader } from './blockchain/block-builder'
-import { openHtml } from './utils/open-html'
-import { runTask, taskHandler } from './executor'
-import { setStorage } from './utils/set-storage'
-import { setup } from './setup'
+import { Config } from '../../schema'
+import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
+import { logger } from '..'
+import { newHeader } from '../../blockchain/block-builder'
+import { openHtml } from '../../utils/open-html'
+import { runTask, taskHandler } from '../../executor'
+import { setStorage } from '../../utils/set-storage'
+import { setup } from '../../setup'
 
 export const dryRunPreimage = async (argv: Config) => {
   const context = await setup(argv)
@@ -70,7 +70,7 @@ export const dryRunPreimage = async (argv: Config) => {
 
   calls.push(['BlockBuilder_finalize_block', []])
 
-  defaultLogger.info({ preimage: registry.createType('Call', data).toHuman() }, 'Dry run preimage')
+  logger.info({ preimage: registry.createType('Call', data).toHuman() }, 'Dry run preimage')
 
   const result = await runTask(
     {
@@ -88,7 +88,7 @@ export const dryRunPreimage = async (argv: Config) => {
   }
 
   for (const logs of result.Call.runtimeLogs) {
-    defaultLogger.info(`RuntimeLogs:\n${logs}`)
+    logger.info(`RuntimeLogs:\n${logs}`)
   }
 
   const filePath = await generateHtmlDiffPreviewFile(block, result.Call.storageDiff, hash)
@@ -107,7 +107,7 @@ export const dryRunPreimage = async (argv: Config) => {
       throw new Error(outcome.asErr.toString())
     }
 
-    defaultLogger.info(outcome.toHuman(), 'dry_run_outcome')
+    logger.info(outcome.toHuman(), 'dry_run_outcome')
 
     const filePath = await generateHtmlDiffPreviewFile(
       context.chain.head,
