@@ -5,6 +5,14 @@ db: ./hydradx.db.sqlite
 # wasm-override: hydradx_runtime.compact.compressed.wasm
 
 import-storage:
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: 1000000000000000
   Tokens:
     Accounts:
       -
