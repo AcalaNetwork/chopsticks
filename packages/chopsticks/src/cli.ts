@@ -135,6 +135,4 @@ const commands = yargs(hideBin(process.argv))
   .usage('Usage: $0 <command> [options]')
   .example('$0', '-c acala')
 
-pluginExtendCli(commands)
-
-commands.parse()
+pluginExtendCli(commands).then(() => commands.parse())

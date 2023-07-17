@@ -11,19 +11,19 @@ export const pluginHandlers: Handlers = {}
 
 const plugins = readdirSync(__dirname).filter((file) => lstatSync(`${__dirname}/${file}`).isDirectory())
 
-for (const plugin of plugins) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { rpc, name } = require(`./${plugin}`)
-  if (rpc) {
-    const methodName = name || camelCase(plugin)
-    pluginHandlers[`dev_${methodName}`] = rpc
-  }
-}
-
-export const pluginExtendCli = (y: yargs.Argv) => {
+;(async () => {
   for (const plugin of plugins) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { cli } = require(`./${plugin}`)
+    const { rpc, name } = await import(`./${plugin}`)
+    if (rpc) {
+      const methodName = name || camelCase(plugin)
+      pluginHandlers[`dev_${methodName}`] = rpc
+    }
+  }
+})()
+
+export const pluginExtendCli = async (y: yargs.Argv) => {
+  for (const plugin of plugins) {
+    const { cli } = await import(`./${plugin}`)
     if (cli) {
       cli(y)
     }
