@@ -9,23 +9,21 @@ export const logger = defaultLogger.child({ name: 'plugin' })
 
 export const pluginHandlers: Handlers = {}
 
-const dirs = readdirSync(__dirname).filter((file) => lstatSync(`${__dirname}/${file}`).isDirectory())
+const plugins = readdirSync(__dirname).filter((file) => lstatSync(`${__dirname}/${file}`).isDirectory())
 
-for (const dir of dirs) {
-  const path = `${__dirname}/${dir}`
+for (const plugin of plugins) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { rpc, name } = require(path)
+  const { rpc, name } = require(`./${plugin}`)
   if (rpc) {
-    const methodName = name || camelCase(dir)
+    const methodName = name || camelCase(plugin)
     pluginHandlers[`dev_${methodName}`] = rpc
   }
 }
 
 export const pluginExtendCli = (y: yargs.Argv) => {
-  for (const dir of dirs) {
-    const path = `${__dirname}/${dir}`
+  for (const plugin of plugins) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { cli } = require(path)
+    const { cli } = require(`./${plugin}`)
     if (cli) {
       cli(y)
     }
