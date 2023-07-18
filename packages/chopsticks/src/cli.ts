@@ -1,25 +1,26 @@
 import { config as dotenvConfig } from 'dotenv'
 import { hideBin } from 'yargs/helpers'
+import _ from 'lodash'
 import yargs from 'yargs'
 
 import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setupWithServer } from '.'
-import { fetchConfig } from './schema'
+import { Config, fetchConfig } from './schema'
 import { pluginExtendCli } from './plugins'
 
 dotenvConfig()
 
-export const processArgv = async (argv: any) => {
+const processArgv: yargs.MiddlewareFunction<{ config?: string; port?: number }> = async (argv) => {
   if (argv.config) {
-    argv = { ...(await fetchConfig(argv.config)), ...argv }
+    Object.assign(argv, _.defaults(argv, await fetchConfig(argv.config)))
   }
   argv.port = argv.port ?? (process.env.PORT ? Number(process.env.PORT) : 8000)
-  return argv
 }
 
 export const defaultOptions = {
   endpoint: {
     desc: 'Endpoint to connect to',
     string: true,
+    required: true,
   },
   block: {
     desc: 'Block hash or block number. Default to latest block',
@@ -34,7 +35,7 @@ export const defaultOptions = {
     string: true,
   },
   config: {
-    desc: 'Path to config file',
+    desc: 'Path to config file with default options',
     string: true,
   },
   'runtime-log-level': {
@@ -60,6 +61,7 @@ export const mockOptions = {
 
 const commands = yargs(hideBin(process.argv))
   .scriptName('chopsticks')
+  .middleware(processArgv, true)
   .command(
     '*',
     'Dev mode, fork off a chain',
@@ -81,7 +83,7 @@ const commands = yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      await setupWithServer(await processArgv(argv))
+      await setupWithServer(argv as Config)
     },
   )
   .command(

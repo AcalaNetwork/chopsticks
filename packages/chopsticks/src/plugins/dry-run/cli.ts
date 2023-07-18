@@ -1,4 +1,5 @@
-import { defaultOptions, processArgv } from '../../cli'
+import { Config } from '../..'
+import { defaultOptions } from '../../cli'
 import { dryRunExtrinsic } from './dry-run-extrinsic'
 import { dryRunPreimage } from './dry-run-preimage'
 import type yargs from 'yargs'
@@ -38,11 +39,10 @@ export const cli = (y: yargs.Argv) => {
         },
       }),
     async (argv) => {
-      const config = await processArgv(argv)
-      if (config.preimage) {
-        await dryRunPreimage(config)
+      if (argv.preimage) {
+        await dryRunPreimage(argv as Config)
       } else {
-        await dryRunExtrinsic(config)
+        await dryRunExtrinsic(argv as Config)
       }
     },
   )
