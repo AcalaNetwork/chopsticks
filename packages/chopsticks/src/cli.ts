@@ -20,7 +20,6 @@ export const defaultOptions = {
   endpoint: {
     desc: 'Endpoint to connect to',
     string: true,
-    required: true,
   },
   block: {
     desc: 'Block hash or block number. Default to latest block',
