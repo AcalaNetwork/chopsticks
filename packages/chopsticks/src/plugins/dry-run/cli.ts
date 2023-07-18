@@ -1,5 +1,5 @@
 import { Config } from '../..'
-import { defaultOptions } from '../../cli'
+import { defaultOptions } from '../../cli-options'
 import { dryRunExtrinsic } from './dry-run-extrinsic'
 import { dryRunPreimage } from './dry-run-preimage'
 import type yargs from 'yargs'

@@ -1,7 +1,7 @@
 import type yargs from 'yargs'
 
 import { HexString } from '@polkadot/util/types'
-import { defaultOptions, mockOptions } from '../../cli'
+import { defaultOptions, mockOptions } from '../../cli-options'
 import { writeFileSync } from 'node:fs'
 
 import { Config } from '../../schema'

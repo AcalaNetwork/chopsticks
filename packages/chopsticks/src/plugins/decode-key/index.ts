@@ -1,7 +1,7 @@
 import { Config } from '../..'
 import { HexString } from '@polkadot/util/types'
 import { decodeKey } from '../../utils/decoder'
-import { defaultOptions } from '../../cli'
+import { defaultOptions } from '../../cli-options'
 import { setup } from '../../setup'
 import type yargs from 'yargs'
 

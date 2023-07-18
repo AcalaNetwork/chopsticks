@@ -2,7 +2,7 @@ import { writeFileSync } from 'node:fs'
 import type yargs from 'yargs'
 
 import { Config } from '../..'
-import { defaultOptions } from '../../cli'
+import { defaultOptions } from '../../cli-options'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
 import { openHtml } from '../../utils/open-html'
 import { setup } from '../../setup'
