@@ -1,5 +1,5 @@
 import { Handler, ResponseError } from '../../rpc/shared'
-import { logger } from '..'
+import { defaultLogger } from '../../logger'
 
 export const rpc: Handler = async (context, [param]) => {
   const { count, to, hrmp, ump, dmp, transactions } = param || {}
@@ -20,7 +20,7 @@ export const rpc: Handler = async (context, [param]) => {
       .catch((error) => {
         throw new ResponseError(1, error.toString())
       })
-    logger.debug({ hash: block.hash }, 'dev_newBlock')
+    defaultLogger.debug({ hash: block.hash }, 'dev_newBlock')
     finalHash = block.hash
   }
 
