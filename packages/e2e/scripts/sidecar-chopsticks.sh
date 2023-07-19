@@ -13,6 +13,7 @@ yarn dev:karura --port 8012 & KARURA_PID=$!
 cd substrate-api-sidecar
 
 yarn
+yarn add -D ts-node
 
 SAS_SUBSTRATE_URL=ws://127.0.0.1:8011 SAS_EXPRESS_PORT=8111 yarn ts-node src/main.ts & ACALA_SIDECAR_PID=$!
 SAS_SUBSTRATE_URL=ws://127.0.0.1:8012 SAS_EXPRESS_PORT=8112 yarn ts-node src/main.ts & KARURA_SIDECAR_PID=$!

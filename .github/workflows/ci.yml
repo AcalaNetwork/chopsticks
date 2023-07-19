@@ -40,5 +40,5 @@ jobs:
     - run: yarn build
     - run: yarn test
     - name: Test substrate-api-sidecard with chopsticks node
-      if: ${{ github.ref_name == 'master' }}
+      # if: ${{ github.ref_name == 'master' }}
       run: yarn workspace @acala-network/chopsticks-e2e run sidecar
