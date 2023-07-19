@@ -1,6 +1,6 @@
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { SubscriptionManager } from './rpc/shared'
+import { ResponseError, SubscriptionManager } from './rpc/shared'
 import { defaultLogger, truncate } from './logger'
 
 const logger = defaultLogger.child({ name: 'ws' })
@@ -145,7 +145,7 @@ export const createServer = async (handler: Handler, port?: number) => {
         send({
           id: req.id,
           jsonrpc: '2.0',
-          error: e,
+          error: e instanceof ResponseError ? e : { code: -32603, message: `Internal ${e}` },
         })
       }
     })

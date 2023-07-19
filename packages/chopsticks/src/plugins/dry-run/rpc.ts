@@ -2,7 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import z from 'zod'
 
-import { Handler } from '../shared'
+import { Handler, ResponseError } from '../../rpc/shared'
 import { decodeStorageDiff } from '../../utils/decoder'
 import { generateHtmlDiff } from '../../utils/generate-html-diff'
 
@@ -10,7 +10,7 @@ const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
 const zHash = z.string().length(66).and(zHex)
 const zParaId = z.string().regex(/^\d+$/).transform(Number)
 
-const dryRunSchema = z.object({
+const schema = z.object({
   raw: z.boolean().optional(),
   html: z.boolean().optional(),
   extrinsic: zHex
@@ -47,13 +47,16 @@ const dryRunSchema = z.object({
   at: zHash.optional(),
 })
 
-export const dev_dryRun: Handler = async (context, [params]) => {
-  const { html, extrinsic, hrmp, dmp, ump, raw, at } = dryRunSchema.parse(params)
+// custom rpc name (optional). e.g. dryRun will be called as dev_dryRun
+export const name = 'dryRun'
+
+export const rpc: Handler = async (context, [params]) => {
+  const { html, extrinsic, hrmp, dmp, ump, raw, at } = schema.parse(params)
   const dryRun = async () => {
     if (extrinsic) {
       const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(extrinsic, at)
       if (outcome.isErr) {
-        throw new Error(outcome.asErr.toString())
+        throw new ResponseError(1, outcome.asErr.toString())
       }
       return storageDiff
     }
@@ -66,7 +69,7 @@ export const dev_dryRun: Handler = async (context, [params]) => {
     if (ump) {
       return context.chain.dryRunUmp(ump, at)
     }
-    throw new Error('No extrinsic to run')
+    throw new ResponseError(1, 'No extrinsic to run')
   }
   const storageDiff = await dryRun()
   if (html) {

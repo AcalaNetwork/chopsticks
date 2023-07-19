@@ -8,8 +8,8 @@ export class ResponseError extends Error {
 
   constructor(code: number, message: string) {
     super(message)
+    this.name = 'ResponseError'
     this.code = code
-    this.message = message
   }
 
   toJSON() {

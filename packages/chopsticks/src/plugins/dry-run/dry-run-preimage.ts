@@ -2,14 +2,14 @@ import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a } from '@polkadot/util'
 
-import { Config } from './schema'
-import { defaultLogger } from './logger'
-import { generateHtmlDiffPreviewFile } from './utils/generate-html-diff'
-import { newHeader } from './blockchain/block-builder'
-import { openHtml } from './utils/open-html'
-import { runTask, taskHandler } from './executor'
-import { setStorage } from './utils/set-storage'
-import { setup } from './setup'
+import { Config } from '../../schema'
+import { defaultLogger } from '../../logger'
+import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
+import { newHeader } from '../../blockchain/block-builder'
+import { openHtml } from '../../utils/open-html'
+import { runTask, taskHandler } from '../../executor'
+import { setStorage } from '../../utils/set-storage'
+import { setup } from '../../setup'
 
 export const dryRunPreimage = async (argv: Config) => {
   const context = await setup(argv)
