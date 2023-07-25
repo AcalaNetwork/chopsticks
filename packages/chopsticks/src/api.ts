@@ -103,7 +103,9 @@ export class Api {
   }
 
   async getStorage(key: string, hash?: string) {
-    return this.#provider.send<string>('state_getStorage', [key, hash])
+    const params = [key]
+    if (hash) params.push(hash)
+    return this.#provider.send<string>('state_getStorage', params)
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
