@@ -109,6 +109,8 @@ export class Api {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
-    return this.#provider.send<string[]>('state_getKeysPaged', [prefix, pageSize, startKey, hash])
+    const params = [prefix, pageSize, startKey]
+    if (hash) params.push(hash)
+    return this.#provider.send<string[]>('state_getKeysPaged', params)
   }
 }
