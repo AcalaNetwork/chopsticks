@@ -1,6 +1,6 @@
-endpoint: wss://astar.api.onfinality.io/public-ws
+endpoint: wss://shibuya-rpc.dwellir.com
 mock-signature-host: true
-block: ${env.ASTAR_BLOCK_NUMBER}
+block: ${env.SHIBUYA_BLOCK_NUMBER}
 db: ./db.sqlite
 
 import-storage:
@@ -19,13 +19,7 @@ import-storage:
     Account:
       -
         -
-          # DOT
+          # TKY
           - '340282366920938463463374607431768211455'
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        - balance: 1000000000000000
-      -
-        -
-          # USDT
-          - '4294969280'
-          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        - balance: 100000000000
+        - balance: '100000000000000000'
