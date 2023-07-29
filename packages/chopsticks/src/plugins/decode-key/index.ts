@@ -1,4 +1,4 @@
-import { Config } from '../..'
+import { Config } from '../../schema'
 import { HexString } from '@polkadot/util/types'
 import { decodeKey } from '../../utils/decoder'
 import { defaultOptions } from '../../cli-options'

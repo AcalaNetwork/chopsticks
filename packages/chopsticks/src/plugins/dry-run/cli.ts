@@ -1,4 +1,4 @@
-import { Config } from '../..'
+import { Config } from '../../schema'
 import { defaultOptions, mockOptions } from '../../cli-options'
 import { dryRunExtrinsic } from './dry-run-extrinsic'
 import { dryRunPreimage } from './dry-run-preimage'
