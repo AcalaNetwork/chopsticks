@@ -71,10 +71,10 @@ jobs:
           cache: 'yarn'
       - run: yarn --immutable
       - run: yarn build-wasm
-      - name: Test on browser
-        run: |
-          npx playwright install --with-deps
-          yarn workspace @acala-network/web-test test
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: yarn workspace @acala-network/web-test test
       - uses: actions/upload-artifact@v3
         if: always()
         with:
