@@ -73,5 +73,5 @@ jobs:
       - run: yarn build-wasm
       - name: Test on browser
         run: |
-          npx playwright install
+          npx playwright install --with-deps
           yarn workspace @acala-network/web-test test
