@@ -1,12 +1,24 @@
 import './utils/tunnel'
-
 import { Config } from './schema'
 import { HexString } from '@polkadot/util/types'
-import { importStorage, overrideWasm } from './utils/import-storage'
-import { setup } from '@acala-network/chopsticks-core'
+import { overrideStorage, overrideWasm } from './utils/override'
+import { setup, timeTravel } from '@acala-network/chopsticks-core'
 
 export const setupContext = async (argv: Config, overrideParent = false) => {
-  const chain = await setup(argv)
+  const chain = await setup({
+    endpoint: argv.endpoint,
+    block: argv.block,
+    genesis: argv.genesis,
+    buildBlockMode: argv['build-block-mode'],
+    db: argv.db,
+    mockSignatureHost: argv['mock-signature-host'],
+    allowUnresolvedImports: argv['allow-unresolved-imports'],
+    runtimeLogLevel: argv['runtime-log-level'],
+    registeredTypes: argv['registered-types'],
+    offchainWorker: argv['offchain-worker'],
+  })
+
+  if (argv.timestamp) await timeTravel(chain, argv.timestamp)
 
   let at: HexString | undefined
   if (overrideParent) {
@@ -18,7 +30,7 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
 
   // override wasm before importing storage, in case new pallets have been
   // added that have storage imports
-  await importStorage(chain, argv['import-storage'], at)
+  await overrideStorage(chain, argv['import-storage'], at)
   await overrideWasm(chain, argv['wasm-override'], at)
 
   return { chain }

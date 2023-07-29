@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import path from 'path'
 
 import { api, chain, setupApi } from '../helper'
-import { importStorage, overrideWasm } from '@acala-network/chopsticks/utils/import-storage'
+import { overrideStorage, overrideWasm } from '@acala-network/chopsticks/utils/override'
 
 setupApi({
   endpoint: 'wss://acala-rpc-1.aca-api.network',
@@ -17,18 +17,18 @@ describe('import-storage', () => {
 
     expect(await block?.get(sudoKey)).toBe('0x6d6f646c6163612f747273790000000000000000000000000000000000000000')
 
-    await importStorage(chain, path.join(__dirname, './storage.ok.yml'))
+    await overrideStorage(chain, path.join(__dirname, './storage.ok.yml'))
 
     expect(await block?.get(sudoKey)).toBeUndefined()
   })
 
   it('handle errors', async () => {
     const notExist = path.join(__dirname, 'does_not_exist.yml')
-    await expect(importStorage(chain, notExist)).rejects.toThrowError(`File ${notExist} does not exist`)
-    await expect(importStorage(chain, path.join(__dirname, 'storage.error.pallet.yml'))).rejects.toThrowError(
+    await expect(overrideStorage(chain, notExist)).rejects.toThrowError(`File ${notExist} does not exist`)
+    await expect(overrideStorage(chain, path.join(__dirname, 'storage.error.pallet.yml'))).rejects.toThrowError(
       'Cannot find pallet TTechnicalCommittee',
     )
-    await expect(importStorage(chain, path.join(__dirname, 'storage.error.storage.yml'))).rejects.toThrowError(
+    await expect(overrideStorage(chain, path.join(__dirname, 'storage.error.storage.yml'))).rejects.toThrowError(
       'Cannot find storage MMembers in pallet TechnicalCommittee',
     )
   })
@@ -45,7 +45,7 @@ describe('import-storage', () => {
   })
 
   it('able to reset storage map', async () => {
-    await importStorage(chain, {
+    await overrideStorage(chain, {
       Tokens: {
         $removePrefix: ['Accounts'],
         Accounts: [

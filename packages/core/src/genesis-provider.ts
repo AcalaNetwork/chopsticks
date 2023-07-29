@@ -1,3 +1,4 @@
+import { EventEmitter } from 'eventemitter3'
 import { HexString } from '@polkadot/util/types'
 import {
   ProviderInterface,
@@ -9,7 +10,6 @@ import {
 import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
-import { EventEmitter } from './event-emitter'
 import { Genesis, genesisSchema } from './schema'
 import { JsCallback, calculateStateRoot, emptyTaskHandler, runTask } from './executor'
 import { isUrl } from './utils'

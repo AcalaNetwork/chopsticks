@@ -2,12 +2,13 @@ import '@polkadot/types-codec'
 import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { RegisteredTypes } from '@polkadot/types/types'
 import { WsProvider } from '@polkadot/api'
-import _ from 'lodash'
 
 import { Api } from './api'
 import { Blockchain } from './blockchain'
-import { Config } from './schema'
+import { BuildBlockMode } from './blockchain/txpool'
+import { Genesis } from './schema'
 import { GenesisProvider } from './genesis-provider'
 import {
   InherentProviders,
@@ -19,38 +20,50 @@ import {
 } from './blockchain/inherent'
 import { defaultLogger } from './logger'
 import { openDb } from './db'
-import { timeTravel } from './utils/time-travel'
 
-export const setup = async (argv: Config) => {
+type Options = {
+  endpoint?: string
+  block?: string | number | null
+  genesis?: string | Genesis
+  buildBlockMode?: BuildBlockMode
+  db?: string
+  mockSignatureHost?: boolean
+  allowUnresolvedImports?: boolean
+  runtimeLogLevel?: number
+  registeredTypes?: RegisteredTypes
+  offchainWorker?: boolean
+}
+
+export const setup = async (options: Options) => {
   let provider: ProviderInterface
-  if (argv.genesis) {
-    if (typeof argv.genesis === 'string') {
-      provider = await GenesisProvider.fromUrl(argv.genesis)
+  if (options.genesis) {
+    if (typeof options.genesis === 'string') {
+      provider = await GenesisProvider.fromUrl(options.genesis)
     } else {
-      provider = new GenesisProvider(argv.genesis)
+      provider = new GenesisProvider(options.genesis)
     }
   } else {
-    provider = new WsProvider(argv.endpoint)
+    provider = new WsProvider(options.endpoint)
   }
   const api = new Api(provider)
   await api.isReady
 
   let blockHash: string
-  if (argv.block == null) {
+  if (options.block == null) {
     blockHash = await api.getBlockHash()
-  } else if (typeof argv.block === 'string' && argv.block.startsWith('0x')) {
-    blockHash = argv.block as string
-  } else if (Number.isInteger(+argv.block)) {
-    blockHash = await api.getBlockHash(Number(argv.block))
+  } else if (typeof options.block === 'string' && options.block.startsWith('0x')) {
+    blockHash = options.block as string
+  } else if (Number.isInteger(+options.block)) {
+    blockHash = await api.getBlockHash(Number(options.block))
   } else {
-    throw new Error(`Invalid block number or hash: ${argv.block}`)
+    throw new Error(`Invalid block number or hash: ${options.block}`)
   }
 
-  defaultLogger.debug({ ...argv, blockHash }, 'Args')
+  defaultLogger.debug({ ...options, blockHash }, 'Args')
 
   let db: DataSource | undefined
-  if (argv.db) {
-    db = await openDb(argv.db)
+  if (options.db) {
+    db = await openDb(options.db)
   }
 
   const header = await api.getHeader(blockHash)
@@ -62,23 +75,19 @@ export const setup = async (argv: Config) => {
     new SetBabeRandomness(),
   ])
 
-  const chain = new Blockchain({
+  return new Blockchain({
     api,
-    buildBlockMode: argv['build-block-mode'],
+    buildBlockMode: options.buildBlockMode,
     inherentProvider: inherents,
     db,
     header: {
       hash: blockHash as HexString,
       number: Number(header.number),
     },
-    mockSignatureHost: argv['mock-signature-host'],
-    allowUnresolvedImports: argv['allow-unresolved-imports'],
-    runtimeLogLevel: argv['runtime-log-level'],
-    registeredTypes: argv['registered-types'],
-    offchainWorker: argv['offchain-worker'],
+    mockSignatureHost: options.mockSignatureHost,
+    allowUnresolvedImports: options.allowUnresolvedImports,
+    runtimeLogLevel: options.runtimeLogLevel,
+    registeredTypes: options.registeredTypes || {},
+    offchainWorker: options.offchainWorker,
   })
-
-  if (argv.timestamp) await timeTravel(chain, argv.timestamp)
-
-  return chain
 }

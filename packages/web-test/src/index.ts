@@ -6,7 +6,7 @@ import { setup } from '@acala-network/chopsticks-core'
   const chain = await setup({
     endpoint: 'wss://acala-rpc-0.aca-api.network',
     block: 4_000_000,
-    'mock-signature-host': true,
+    mockSignatureHost: true,
   })
   globalThis.chain = chain
   const app = document.getElementById('app')
