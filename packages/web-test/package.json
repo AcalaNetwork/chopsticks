@@ -1,0 +1,22 @@
+{
+	"name": "@acala-network/web-test",
+	"version": "0.7.4-0",
+	"author": "Acala Network <hello@acala.network>",
+	"license": "Apache-2.0",
+	"private": true,
+	"scripts": {
+		"start": "npx vite --port 3000",
+		"test": "playwright test"
+	},
+	"dependencies": {
+		"@acala-network/chopsticks-core": "workspace:*"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.36.2",
+		"@vitest/browser": "^0.33.0",
+		"typescript": "^5.1.6",
+		"vite": "^4.4.7",
+		"webdriverio": "^8.13.13"
+	},
+	"stableVersion": "0.7.3"
+}

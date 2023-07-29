@@ -2,10 +2,11 @@ import { Config } from './schema'
 import { createServer } from './server'
 import { handler } from './rpc'
 import { logger } from './rpc/shared'
-import { setup } from './setup'
+import { setupContext } from './context'
+import _ from 'lodash'
 
 export const setupWithServer = async (argv: Config) => {
-  const context = await setup(argv)
+  const context = await setupContext(argv)
   const port = argv.port ?? 8000
 
   if (argv.genesis) {

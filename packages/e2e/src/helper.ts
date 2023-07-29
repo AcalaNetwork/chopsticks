@@ -4,9 +4,9 @@ import { HexString } from '@polkadot/util/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
-import { Blockchain } from '@acala-network/chopsticks/blockchain'
-import { BuildBlockMode } from '@acala-network/chopsticks/blockchain/txpool'
-import { GenesisProvider } from '@acala-network/chopsticks/genesis-provider'
+import { Blockchain } from '@acala-network/chopsticks-core/blockchain'
+import { BuildBlockMode } from '@acala-network/chopsticks-core/blockchain/txpool'
+import { GenesisProvider } from '@acala-network/chopsticks-core/genesis-provider'
 import {
   InherentProviders,
   ParaInherentEnter,
@@ -14,10 +14,10 @@ import {
   SetNimbusAuthorInherent,
   SetTimestamp,
   SetValidationData,
-} from '@acala-network/chopsticks/blockchain/inherent'
-import { StorageValues } from '@acala-network/chopsticks/utils/set-storage'
+} from '@acala-network/chopsticks-core/blockchain/inherent'
+import { StorageValues } from '@acala-network/chopsticks-core/utils/set-storage'
 import { createServer } from '@acala-network/chopsticks/server'
-import { defer } from '@acala-network/chopsticks/utils'
+import { defer } from '@acala-network/chopsticks-core/utils'
 import { handler } from '@acala-network/chopsticks/rpc'
 
 export { expectJson, expectHex, testingPairs } from '@acala-network/chopsticks-testing'

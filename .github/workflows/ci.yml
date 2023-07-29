@@ -39,6 +39,8 @@ jobs:
     - run: yarn lint
     - run: yarn build
     - run: yarn test
+    - name: Test on browser
+      run: yarn workspace @acala-network/web-test test
     - name: Test substrate-api-sidecard with chopsticks node
       if: ${{ github.ref_name == 'master' }}
       run: yarn workspace @acala-network/chopsticks-e2e run sidecar

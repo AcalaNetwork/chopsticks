@@ -1,18 +1,44 @@
 {
 	"name": "@acala-network/chopsticks-core",
-	"version": "0.7.3",
-	"main": "./lib/index.js",
-	"types": "./lib/index.d.ts",
+	"version": "0.7.4-0",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
 		"build": "tsc -p ./tsconfig.json"
 	},
+	"dependencies": {
+		"@acala-network/chopsticks-executor": "workspace:*",
+		"@polkadot/api": "^10.9.1",
+		"axios": "^1.4.0",
+		"lodash": "^4.17.21",
+		"pino": "^8.14.1",
+		"pino-pretty": "^10.0.1",
+		"reflect-metadata": "^0.1.13",
+		"sql.js": "^1.8.0",
+		"typeorm": "^0.3.17",
+		"zod": "^3.21.4"
+	},
 	"devDependencies": {
+		"@types/lodash": "^4.14.195",
+		"@types/sql.js": "^1",
 		"typescript": "^5.1.6"
 	},
 	"files": [
 		"lib"
-	]
+	],
+	"main": "./lib/index.js",
+	"types": "./lib/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./lib/index.d.ts",
+			"default": "./lib/index.js"
+		},
+		"./*": {
+			"types": "./lib/*.d.ts",
+			"default": "./lib/*.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"stableVersion": "0.7.3"
 }

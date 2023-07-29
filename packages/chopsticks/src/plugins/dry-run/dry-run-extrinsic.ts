@@ -5,10 +5,10 @@ import { Config } from '../../schema'
 import { defaultLogger } from '../../logger'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
 import { openHtml } from '../../utils/open-html'
-import { setup } from '../../setup'
+import { setupContext } from '../../context'
 
 export const dryRunExtrinsic = async (argv: Config) => {
-  const context = await setup(argv)
+  const context = await setupContext(argv)
 
   const input = argv['address'] ? { call: argv['extrinsic'], address: argv['address'] } : argv['extrinsic']
   const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(input, argv['at'])

@@ -3,18 +3,20 @@ import { hexToString, hexToU8a } from '@polkadot/util'
 import { randomAsHex } from '@polkadot/util-crypto'
 
 import { Block } from './blockchain/block'
-import {
-  JsCallback,
+import { PREFIX_LENGTH } from './utils/key-cache'
+import { Registry } from '@polkadot/types-codec/types'
+import { defaultLogger, truncate } from './logger'
+import _ from 'lodash'
+import wasmSetup, {
   calculate_state_root,
   create_proof,
   decode_proof,
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
-import { PREFIX_LENGTH } from './utils/key-cache'
-import { Registry } from '@polkadot/types-codec/types'
-import { defaultLogger, truncate } from './logger'
-import _ from 'lodash'
+import type { JsCallback } from '@acala-network/chopsticks-executor'
+
+export { JsCallback }
 
 export type RuntimeVersion = {
   specName: string
@@ -28,6 +30,11 @@ export type RuntimeVersion = {
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
+
+// init wasm on browser
+if (typeof wasmSetup === 'function') {
+  wasmSetup()
+}
 
 export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion> => {
   return get_runtime_version(code).then((version) => {
@@ -72,7 +79,7 @@ export const runTask = async (
   callback: JsCallback = emptyTaskHandler,
 ) => {
   logger.trace(truncate(task), 'taskRun')
-  const response = await run_task(task, callback, process.env.RUST_LOG)
+  const response = await run_task(task, callback, typeof process === 'object' ? process.env.RUST_LOG : 'info')
   if (response.Call) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {

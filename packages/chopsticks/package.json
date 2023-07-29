@@ -1,34 +1,30 @@
 {
 	"name": "@acala-network/chopsticks",
-	"version": "0.7.3",
+	"version": "0.7.4-0",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
 		"build": "tsc -p ./tsconfig.json",
-		"script:start": "cd ../..; ts-node --transpile-only packages/chopsticks/src/cli.ts",
-		"script:run": "cd ../..; LOG_LEVEL=trace ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/dev.yml",
-		"dev:karura": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/karura.yml",
-		"dev:acala": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/acala.yml",
-		"dev:polkadot": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/polkadot.yml",
-		"dev:moonriver": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/moonriver.yml",
-		"dev:moonbeam": "cd ../..; ts-node-dev --transpile-only --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/moonbeam.yml"
+		"script:start": "cd ../..; ts-node --transpile-only -r tsconfig-paths/register packages/chopsticks/src/cli.ts",
+		"script:run": "cd ../..; LOG_LEVEL=trace ts-node-dev --transpile-only -r tsconfig-paths/register --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/dev.yml",
+		"dev:karura": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/karura.yml",
+		"dev:acala": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/acala.yml",
+		"dev:polkadot": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/polkadot.yml",
+		"dev:moonriver": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/moonriver.yml",
+		"dev:moonbeam": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/moonbeam.yml"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks-executor": "workspace:*",
+		"@acala-network/chopsticks-core": "workspace:*",
 		"@pnpm/npm-conf": "^2.2.2",
 		"@polkadot/api": "^10.9.1",
 		"axios": "^1.4.0",
+		"dotenv": "^16.3.1",
 		"global-agent": "^3.0.0",
 		"js-yaml": "^4.1.0",
 		"jsondiffpatch": "^0.4.1",
 		"lodash": "^4.17.21",
-		"pino": "^8.14.1",
-		"pino-pretty": "^10.0.1",
-		"reflect-metadata": "^0.1.13",
-		"sqlite3": "^5.1.6",
-		"typeorm": "^0.3.17",
 		"ws": "^8.13.0",
 		"yargs": "^17.7.2",
 		"zod": "^3.21.4"
@@ -61,5 +57,6 @@
 			"default": "./lib/*.js"
 		},
 		"./package.json": "./package.json"
-	}
+	},
+	"stableVersion": "0.7.3"
 }

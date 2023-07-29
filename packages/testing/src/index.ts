@@ -1,6 +1,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import {
   BuildBlockMode,
+  StorageValues,
   connectParachains,
   connectVertical,
   fetchConfig,
@@ -10,7 +11,6 @@ import { Codec } from '@polkadot/types/types'
 import { Config } from '@acala-network/chopsticks/schema'
 import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
-import { StorageValues } from '@acala-network/chopsticks/utils/set-storage'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { expect } from 'vitest'
 

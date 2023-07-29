@@ -1,5 +1,5 @@
 import { Handler, ResponseError } from '../../rpc/shared'
-import { timeTravel } from '../../utils/time-travel'
+import { timeTravel } from '@acala-network/chopsticks-core'
 
 export const rpc: Handler = async (context, [date]) => {
   const timestamp = typeof date === 'string' ? Date.parse(date) : date

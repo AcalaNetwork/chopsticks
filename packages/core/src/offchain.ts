@@ -1,8 +1,10 @@
 import { Block } from './blockchain/block'
 import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { logger } from './rpc/shared'
+import { defaultLogger } from './logger'
 import { queueScheduler } from 'rxjs'
+
+const logger = defaultLogger.child({ name: 'offchain' })
 
 export class OffchainWorker {
   readonly pendingExtrinsics: HexString[] = []

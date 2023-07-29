@@ -2,8 +2,7 @@ import { HexString } from '@polkadot/util/types'
 import { existsSync, readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 
-import { Blockchain } from '../blockchain'
-import { StorageValues, setStorage } from './set-storage'
+import { Blockchain, StorageValues, setStorage } from '@acala-network/chopsticks-core'
 import { defaultLogger } from '../logger'
 
 export const importStorage = async (chain: Blockchain, storage?: string | StorageValues, at?: HexString) => {

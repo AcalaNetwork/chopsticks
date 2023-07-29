@@ -1,4 +1,4 @@
-import { BuildBlockMode } from '../../blockchain/txpool'
+import { BuildBlockMode } from '@acala-network/chopsticks-core'
 import { Handler, ResponseError } from '../../rpc/shared'
 import { defaultLogger } from '../../logger'
 

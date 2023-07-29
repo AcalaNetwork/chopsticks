@@ -2,7 +2,7 @@ import { Config } from '../..'
 import { HexString } from '@polkadot/util/types'
 import { decodeKey } from '../../utils/decoder'
 import { defaultOptions } from '../../cli-options'
-import { setup } from '../../setup'
+import { setupContext } from '../../context'
 import type yargs from 'yargs'
 
 export const cli = (y: yargs.Argv) => {
@@ -19,7 +19,7 @@ export const cli = (y: yargs.Argv) => {
           ...defaultOptions,
         }),
     async (argv) => {
-      const context = await setup(argv as Config)
+      const context = await setupContext(argv as Config)
       const { storage, decodedKey } = decodeKey(
         await context.chain.head.meta,
         context.chain.head,

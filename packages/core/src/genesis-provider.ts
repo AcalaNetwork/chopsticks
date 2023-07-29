@@ -1,6 +1,4 @@
-import { EventEmitter } from 'node:events'
 import { HexString } from '@polkadot/util/types'
-import { JsCallback } from '@acala-network/chopsticks-executor'
 import {
   ProviderInterface,
   ProviderInterfaceCallback,
@@ -8,12 +6,12 @@ import {
   ProviderInterfaceEmitted,
   ProviderStats,
 } from '@polkadot/rpc-provider/types'
-import { lstatSync, readFileSync } from 'node:fs'
 import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
+import { EventEmitter } from './event-emitter'
 import { Genesis, genesisSchema } from './schema'
-import { calculateStateRoot, emptyTaskHandler, runTask } from './executor'
+import { JsCallback, calculateStateRoot, emptyTaskHandler, runTask } from './executor'
 import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {
@@ -51,15 +49,19 @@ export class GenesisProvider implements ProviderInterface {
   }
 
   static fromUrl = async (url: string) => {
-    let file: any
-    if (isUrl(url)) {
-      file = await axios.get(url).then((x) => x.data)
-    } else if (lstatSync(url).isFile()) {
-      file = JSON.parse(String(readFileSync(url)))
-    } else {
+    const getFile = async (url: string) => {
+      if (isUrl(url)) {
+        return axios.get(url).then((x) => x.data)
+      } else if (typeof process === 'object') {
+        const { lstatSync, readFileSync } = await import('node:fs')
+        if (lstatSync(url).isFile()) {
+          return JSON.parse(String(readFileSync(url)))
+        }
+      }
       throw Error(`invalid genesis path or url ${url}`)
     }
-    return new GenesisProvider(genesisSchema.parse(file))
+
+    return new GenesisProvider(genesisSchema.parse(await getFile(url)))
   }
 
   get isClonable(): boolean {

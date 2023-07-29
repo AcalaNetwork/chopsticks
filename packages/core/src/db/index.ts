@@ -5,10 +5,11 @@ import * as entities from './entities'
 
 export const openDb = async (dbPath: string): Promise<DataSource> => {
   const source = new DataSource({
-    type: 'sqlite',
-    database: dbPath,
+    type: 'sqljs',
+    location: dbPath,
     entities: Object.values(entities),
     synchronize: true,
+    autoSave: true,
     logging: false,
   })
 

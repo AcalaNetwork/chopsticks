@@ -34,11 +34,7 @@ jobs:
         registry-url: https://registry.npmjs.org/
     - run: yarn --immutable
     - run: yarn check
-    - run: yarn build-wasm
     - run: yarn build
-
-    # Make sure chopsticks and executor version are the same
-    - run: node -e "assert(require('./packages/chopsticks/package.json').version === require('./executor/pkg/package.json').version, 'Chopsticks and executor version not the same. Please update Cargo.toml version')"
 
     # version containing a hyphen, publish as beta, i.e: 1.0.0-1
     - run: |
@@ -54,10 +50,10 @@ jobs:
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
-    # - name: Publish @acala-network/chopsticks-core
-    #   run: yarn workspace @acala-network/chopsticks-core npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
-    #   env:
-    #     NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+    - name: Publish @acala-network/chopsticks-core
+      run: yarn workspace @acala-network/chopsticks-core npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
     - name: Publish @acala-network/chopsticks-executor
       run: yarn workspace @acala-network/chopsticks-executor npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}

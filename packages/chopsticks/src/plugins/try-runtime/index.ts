@@ -5,7 +5,7 @@ import { Config } from '../..'
 import { defaultOptions } from '../../cli-options'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
 import { openHtml } from '../../utils/open-html'
-import { setup } from '../../setup'
+import { setupContext } from '../../context'
 
 export const cli = (y: yargs.Argv) => {
   y.command(
@@ -33,7 +33,7 @@ export const cli = (y: yargs.Argv) => {
         },
       }),
     async (argv) => {
-      const context = await setup(argv as Config)
+      const context = await setupContext(argv as Config)
       const block = context.chain.head
       const registry = await block.registry
       registry.register({

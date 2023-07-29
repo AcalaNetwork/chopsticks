@@ -1,7 +1,7 @@
 import { HexString } from '@polkadot/util/types'
 
 import { Handler, ResponseError } from '../../rpc/shared'
-import { StorageValues, setStorage } from '../../utils/set-storage'
+import { StorageValues, setStorage } from '@acala-network/chopsticks-core'
 import { defaultLogger } from '../../logger'
 
 export const rpc: Handler = async (context, params) => {

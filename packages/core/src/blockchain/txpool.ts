@@ -1,4 +1,4 @@
-import { EventEmitter } from 'node:stream'
+import { EventEmitter } from '../event-emitter'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
