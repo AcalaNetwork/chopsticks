@@ -103,16 +103,14 @@ export class Api {
   }
 
   async getStorage(key: string, hash?: string) {
-    if (hash) {
-      return this.#provider.send<string>('state_getStorageAt', [key, hash])
-    }
-    return this.#provider.send<string>('state_getStorage', [key])
+    const params = [key]
+    if (hash) params.push(hash)
+    return this.#provider.send<string>('state_getStorage', params)
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
-    if (hash) {
-      return this.#provider.send<string[]>('state_getKeysPagedAt', [prefix, pageSize, startKey, hash])
-    }
-    return this.#provider.send<string[]>('state_getKeysPaged', [prefix, pageSize, startKey])
+    const params = [prefix, pageSize, startKey]
+    if (hash) params.push(hash)
+    return this.#provider.send<string[]>('state_getKeysPaged', params)
   }
 }
