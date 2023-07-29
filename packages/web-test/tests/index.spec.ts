@@ -9,7 +9,7 @@ const startServer = async (): Promise<ChildProcessWithoutNullStreams> => {
       reject()
     })
     server.stdout.on('data', (data) => {
-      if (data.toString().includes(`http://127.0.0.1`)) {
+      if (data.toString().includes('Local')) {
         console.log('Server started')
         resolve(server)
       }
