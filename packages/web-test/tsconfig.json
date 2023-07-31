@@ -4,7 +4,8 @@
 		"outDir": "lib",
 		"rootDir": "src",
 		"target": "es2016",
-		"lib": ["es6", "dom", "dom.iterable"]
+		"lib": ["es6", "dom", "dom.iterable"],
+		"sourceMap": true
 	},
 	"include": ["src/**/*"],
 	"references": [

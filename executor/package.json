@@ -9,14 +9,14 @@
 	},
 	"scripts": {
 		"clean": "rm -rf web node",
-		"build": "wasm-pack build --target web --out-dir web; wasm-pack build --target nodejs --out-dir node"
+		"build": "wasm-pack build --target web --out-dir browser; wasm-pack build --target nodejs --out-dir node"
 	},
 	"files": [
-		"web/chopsticks_*",
+		"browser/chopsticks_*",
 		"node/chopsticks_*"
 	],
 	"main": "node/chopsticks_executor.js",
-	"types": "web/chopsticks_executor.d.ts",
-	"module": "web/chopsticks_executor.js",
+	"types": "browser/chopsticks_executor.d.ts",
+	"browser": "browser/chopsticks_executor.js",
 	"stableVersion": "0.7.3"
 }

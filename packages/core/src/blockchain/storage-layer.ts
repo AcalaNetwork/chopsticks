@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { Api } from '../api'
 import { defaultLogger } from '../logger'
 import KeyCache from '../utils/key-cache'
+import { KeyValuePair } from '../db/entities'
 
 const logger = defaultLogger.child({ name: 'layer' })
 
@@ -37,15 +38,16 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   }
 
   async get(key: string): Promise<StorageValue> {
+    const keyValuePair = this.#db?.getRepository(KeyValuePair)
     if (this.#db) {
-      const res = await this.#db.getRepository('KeyValuePair').findOne({ where: { key, blockHash: this.#at } })
+      const res = await keyValuePair?.findOne({ where: { key, blockHash: this.#at } })
       if (res) {
         return res.value
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
     const data = await this.#api.getStorage(key, this.#at)
-    this.#db?.getRepository('KeyValuePair').upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
+    keyValuePair?.upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
     return data
   }
 

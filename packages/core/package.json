@@ -17,6 +17,7 @@
 		"pino-pretty": "^10.0.1",
 		"reflect-metadata": "^0.1.13",
 		"sql.js": "^1.8.0",
+		"sqlite3": "^5.1.6",
 		"typeorm": "^0.3.17",
 		"zod": "^3.21.4"
 	},
