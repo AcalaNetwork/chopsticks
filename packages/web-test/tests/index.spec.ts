@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test'
 const startServer = async (): Promise<ChildProcessWithoutNullStreams> => {
   console.log('Starting server...')
   return new Promise((resolve, reject) => {
-    const server = spawn('yarn', ['start'])
+    const server = spawn('yarn', ['vite:serve'])
     server.stderr.on('data', () => {
       reject()
     })

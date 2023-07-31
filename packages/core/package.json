@@ -15,7 +15,6 @@
 		"lodash": "^4.17.21",
 		"pino": "^8.14.1",
 		"pino-pretty": "^10.0.1",
-		"reflect-metadata": "^0.1.13",
 		"sql.js": "^1.8.0",
 		"sqlite3": "^5.1.6",
 		"typeorm": "^0.3.17",

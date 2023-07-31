@@ -1,13 +1,21 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm'
+import { EntitySchema } from 'typeorm'
 
-@Entity()
-export class KeyValuePair {
-  @PrimaryColumn('text', { nullable: false })
-  blockHash!: string
-
-  @PrimaryColumn('text', { nullable: false })
-  key!: string
-
-  @Column('text', { nullable: true })
-  value!: string
-}
+export const KeyValuePair = new EntitySchema({
+  name: 'KeyValuePair',
+  columns: {
+    blockHash: {
+      primary: true,
+      type: 'varchar',
+      nullable: false,
+    },
+    key: {
+      primary: true,
+      type: 'varchar',
+      nullable: false,
+    },
+    value: {
+      type: 'text',
+      nullable: true,
+    },
+  },
+})

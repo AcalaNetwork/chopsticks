@@ -42,7 +42,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     if (this.#db) {
       const res = await keyValuePair?.findOne({ where: { key, blockHash: this.#at } })
       if (res) {
-        return res.value
+        return res.value as StorageValue
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
