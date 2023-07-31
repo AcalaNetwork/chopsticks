@@ -9,7 +9,7 @@
 		"executor"
 	],
 	"scripts": {
-		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
+		"lint": "tsc --noEmit --project tsconfig.lint.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
 		"clean": "yarn workspaces foreach -pvit run clean",
