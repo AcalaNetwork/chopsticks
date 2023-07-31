@@ -1,5 +1,5 @@
 import initSqlJs from 'sql.js'
-import { DataSource } from 'typeorm/browser'
+import { DataSource } from 'typeorm'
 
 import * as entities from './entities'
 
