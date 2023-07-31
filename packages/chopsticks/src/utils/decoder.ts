@@ -1,5 +1,5 @@
 import '@polkadot/types-codec'
-import { Block } from '../../../core/src/blockchain/block'
+import { Block } from '@acala-network/chopsticks-core'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
