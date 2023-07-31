@@ -15,8 +15,7 @@
 		"@playwright/test": "^1.36.2",
 		"@vitest/browser": "^0.33.0",
 		"typescript": "^5.1.6",
-		"vite": "^4.4.7",
-		"webdriverio": "^8.13.13"
+		"vite": "^4.4.7"
 	},
 	"stableVersion": "0.7.3"
 }
