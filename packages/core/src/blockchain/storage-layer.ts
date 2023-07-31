@@ -2,9 +2,9 @@ import { DataSource } from 'typeorm'
 import _ from 'lodash'
 
 import { Api } from '../api'
+import { KeyValuePair } from '../db/entities'
 import { defaultLogger } from '../logger'
 import KeyCache from '../utils/key-cache'
-import { KeyValuePair } from '../db/entities'
 
 const logger = defaultLogger.child({ name: 'layer' })
 

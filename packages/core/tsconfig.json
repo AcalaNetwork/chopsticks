@@ -4,7 +4,9 @@
 		"outDir": "lib",
 		"rootDir": "src",
 		"target": "es2015",
-		"lib": ["es5", "dom", "dom.iterable"]
+		"lib": ["es5", "dom", "dom.iterable"],
+		"module": "es2020",
+		"isolatedModules": true
 	},
 	"include": ["src/**/*"],
 	"exclude": ["src/**/*.test.ts"],
