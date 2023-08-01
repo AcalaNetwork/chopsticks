@@ -69,7 +69,7 @@ __metadata:
     jsondiffpatch: ^0.4.1
     lodash: ^4.17.21
     pino: ^8.14.2
-    pino-pretty: ^10.0.1
+    pino-pretty: ^10.2.0
     reflect-metadata: ^0.1.13
     sqlite3: ^5.1.6
     ts-node: ^10.9.1
@@ -4912,9 +4912,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino-pretty@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "pino-pretty@npm:10.0.1"
+"pino-pretty@npm:^10.2.0":
+  version: 10.2.0
+  resolution: "pino-pretty@npm:10.2.0"
   dependencies:
     colorette: ^2.0.7
     dateformat: ^4.6.3
@@ -4932,7 +4932,7 @@ __metadata:
     strip-json-comments: ^3.1.1
   bin:
     pino-pretty: bin.js
-  checksum: b156c066c106026cb6a555c1f6ebb6b15636ce5516917cc979a179dcb17fdaaf7361cbe6242ae8f3661e9cfa6c18c35906afde3f9511bd2ec80dc39b6693fdde
+  checksum: 8e8220ab647d11e05349adde37aac116dab1a96ce479297820475b7e2246ea5e56e3764b625c5877821ae66dcea62bdda563cc49eccbd4628c80952998068f48
   languageName: node
   linkType: hard
 
