@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 4,
   reporter: 'html',
   use: {
-    baseURL: 'http://127.0.0.1:3000',
+    baseURL: 'http://localhost:3000',
   },
 
   projects: [
@@ -29,8 +29,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'yarn vite:serve',
-    url: 'http://127.0.0.1:3000',
+    command: 'yarn parcel:serve',
+    url: 'http://localhost:3000',
     reuseExistingServer: true,
   },
 })
