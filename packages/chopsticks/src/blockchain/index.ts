@@ -91,10 +91,6 @@ export class Blockchain {
   }
 
   #registerBlock(block: Block) {
-    // refresh key
-    if (this.#blocksByNumber.has(block.number)) {
-      this.#blocksByNumber.delete(block.number)
-    }
     // if exceed max memory block count, delete the oldest block
     if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
       const firstKey = this.#blocksByNumber.keys().next().value
