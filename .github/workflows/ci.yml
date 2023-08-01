@@ -75,6 +75,8 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: yarn workspace @acala-network/web-test test
+        env:
+          DEBUG: pw:webserve
       - uses: actions/upload-artifact@v3
         if: always()
         with:
