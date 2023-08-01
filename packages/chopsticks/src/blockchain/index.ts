@@ -280,7 +280,7 @@ export class Blockchain {
 
     const needsDispatch = meta.registry.createType('Vec<u32>', Object.keys(ump))
 
-    const stroageValues: [string, StorageValue | null][] = [
+    const storageValues: [string, StorageValue | null][] = [
       [compactHex(meta.query.ump.needsDispatch()), needsDispatch.toHex()],
     ]
 
@@ -293,11 +293,11 @@ export class Blockchain {
         upwardMessages.map((x) => x.byteLength).reduce((s, i) => s + i, 0),
       ])
 
-      stroageValues.push([compactHex(meta.query.ump.relayDispatchQueues(paraId)), upwardMessages.toHex()])
-      stroageValues.push([compactHex(meta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex()])
+      storageValues.push([compactHex(meta.query.ump.relayDispatchQueues(paraId)), upwardMessages.toHex()])
+      storageValues.push([compactHex(meta.query.ump.relayDispatchQueueSize(paraId)), queueSize.toHex()])
     }
 
-    head.pushStorageLayer().setAll(stroageValues)
+    head.pushStorageLayer().setAll(storageValues)
     const inherents = await this.#inherentProvider.createInherents(head, {
       transactions: [],
       downwardMessages: [],
