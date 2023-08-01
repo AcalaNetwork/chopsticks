@@ -33,7 +33,7 @@
 		"@types/global-agent": "^2.1.1",
 		"@types/js-yaml": "^4.0.5",
 		"@types/lodash": "^4.14.195",
-		"@types/node": "^20.4.2",
+		"@types/node": "^20.4.5",
 		"@types/ws": "^8.5.5",
 		"@types/yargs": "^17.0.24",
 		"ts-node": "^10.9.1",
