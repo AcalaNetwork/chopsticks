@@ -3,6 +3,10 @@ import { expect, test } from '@playwright/test'
 test('build blocks successfully', async ({ page }) => {
   test.slow()
 
+  page.on('console', (msg) => {
+    console.log(msg)
+  })
+
   await page.goto('/')
 
   // starts with Loading...
