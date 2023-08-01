@@ -154,6 +154,10 @@ export class Blockchain {
     return this.#blocksByHash[hash]
   }
 
+  blocksInMemory(): Block[] {
+    return Array.from(this.#blocksByNumber.values())
+  }
+
   unregisterBlock(block: Block): void {
     if (block.hash === this.head.hash) {
       throw new Error('Cannot unregister head block')
