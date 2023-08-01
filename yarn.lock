@@ -68,7 +68,7 @@ __metadata:
     js-yaml: ^4.1.0
     jsondiffpatch: ^0.4.1
     lodash: ^4.17.21
-    pino: ^8.14.1
+    pino: ^8.14.2
     pino-pretty: ^10.0.1
     reflect-metadata: ^0.1.13
     sqlite3: ^5.1.6
@@ -4827,9 +4827,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino@npm:^8.14.1":
-  version: 8.14.1
-  resolution: "pino@npm:8.14.1"
+"pino@npm:^8.14.2":
+  version: 8.14.2
+  resolution: "pino@npm:8.14.2"
   dependencies:
     atomic-sleep: ^1.0.0
     fast-redact: ^3.1.1
@@ -4844,7 +4844,7 @@ __metadata:
     thread-stream: ^2.0.0
   bin:
     pino: bin.js
-  checksum: 72dcae8f550d375695bb8745f11b30c42aaa20d0bcab8f546ca5af0684d784453850949fe1b244206793e813a46d72cbbf0dda8aed2cee86e9491ba44a643e3e
+  checksum: 9b777472be2d57a3120f7fd39090d04eacd3af1b25d74ebf606defb9c34fd587820f91ca12bfe52e61330e5fd9f72f67db98293c0ff8c77893e855a65f1dadf0
   languageName: node
   linkType: hard
 
