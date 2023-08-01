@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('build blocks successfully', async ({ page }) => {
   test.slow()
 
-  await page.goto('http://localhost:3000')
+  await page.goto('/')
 
   // starts with Loading...
   await expect(page.locator('div#app')).toHaveText(/Loading.../)
