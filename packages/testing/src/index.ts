@@ -47,6 +47,7 @@ export const createConfig = ({
     block: blockNumber || blockHash,
     mockSignatureHost: true,
     'build-block-mode': BuildBlockMode.Manual,
+    'max-memory-block-count': 200,
     db,
     'wasm-override': wasmOverride,
     timeout,

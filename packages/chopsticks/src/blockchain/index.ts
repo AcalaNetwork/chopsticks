@@ -30,6 +30,7 @@ export interface Options {
   runtimeLogLevel?: number
   registeredTypes: RegisteredTypes
   offchainWorker?: boolean
+  maxMemoryBlockCount?: number
 }
 
 export class Blockchain {
@@ -45,13 +46,14 @@ export class Blockchain {
   readonly #inherentProvider: InherentProvider
 
   #head: Block
-  readonly #blocksByNumber: Block[] = []
+  readonly #blocksByNumber: Map<number, Block> = new Map()
   readonly #blocksByHash: Record<string, Block> = {}
   readonly #loadingBlocks: Record<string, Promise<void>> = {}
 
   readonly headState: HeadState
 
   readonly offchainWorker: OffchainWorker | undefined
+  readonly #maxMemoryBlockCount: number
 
   constructor({
     api,
@@ -64,6 +66,7 @@ export class Blockchain {
     runtimeLogLevel = 0,
     registeredTypes = {},
     offchainWorker = false,
+    maxMemoryBlockCount = 2000,
   }: Options) {
     this.api = api
     this.db = db
@@ -83,10 +86,21 @@ export class Blockchain {
     if (offchainWorker) {
       this.offchainWorker = new OffchainWorker()
     }
+
+    this.#maxMemoryBlockCount = maxMemoryBlockCount
   }
 
   #registerBlock(block: Block) {
-    this.#blocksByNumber[block.number] = block
+    // refresh key
+    if (this.#blocksByNumber.has(block.number)) {
+      this.#blocksByNumber.delete(block.number)
+    }
+    // if exceed max memory block count, delete the oldest block
+    if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
+      const firstKey = this.#blocksByNumber.keys().next().value
+      this.#blocksByNumber.delete(firstKey)
+    }
+    this.#blocksByNumber.set(block.number, block)
     this.#blocksByHash[block.hash] = block
   }
 
@@ -105,12 +119,12 @@ export class Blockchain {
     if (number > this.#head.number) {
       return undefined
     }
-    if (!this.#blocksByNumber[number]) {
+    if (!this.#blocksByNumber.has(number)) {
       const hash = await this.api.getBlockHash(number)
       const block = new Block(this, number, hash)
       this.#registerBlock(block)
     }
-    return this.#blocksByNumber[number]
+    return this.#blocksByNumber.get(number)
   }
 
   async getBlock(hash?: HexString): Promise<Block | undefined> {
@@ -144,8 +158,8 @@ export class Blockchain {
     if (block.hash === this.head.hash) {
       throw new Error('Cannot unregister head block')
     }
-    if (this.#blocksByNumber[block.number]?.hash === block.hash) {
-      delete this.#blocksByNumber[block.number]
+    if (this.#blocksByNumber.get(block.number)?.hash === block.hash) {
+      this.#blocksByNumber.delete(block.number)
     }
     delete this.#blocksByHash[block.hash]
   }

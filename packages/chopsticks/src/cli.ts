@@ -39,6 +39,10 @@ const commands = yargs(hideBin(process.argv))
           desc: 'Allow wasm unresolved imports',
           boolean: true,
         },
+        'max-memory-block-count': {
+          desc: 'Max memory block count',
+          number: true,
+        },
       }),
     async (argv) => {
       await setupWithServer(argv as Config)
