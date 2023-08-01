@@ -3,4 +3,5 @@ node_modules/
 executor/
 vendor/
 lib/
+dist/
 chopsticks.js

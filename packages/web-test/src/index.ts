@@ -15,7 +15,7 @@ globalThis.localforage = localforage.createInstance({ name: 'chopsticks' })
     endpoint: 'wss://acala-rpc-0.aca-api.network',
     block: 4_000_000,
     mockSignatureHost: true,
-    db: !process.env.CI ? 'cache' : undefined,
+    db: 'cache',
   })
   globalThis.chain = chain
 

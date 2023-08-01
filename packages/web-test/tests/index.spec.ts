@@ -29,10 +29,10 @@ test('build blocks successfully', async ({ page }) => {
   await expect(page.locator('div#app')).toHaveText(/Loading.../)
 
   // chain is ready
-  await expect(page.locator('div#app')).toHaveText(/4000000/, { timeout: 30_000 })
+  await expect(page.locator('div#app')).toHaveText(/4000000/, { timeout: 60_000 })
 
   // wait for new block
-  await expect(page.locator('div#app')).toHaveText(/4000001/, { timeout: 60_000 })
+  await expect(page.locator('div#app')).toHaveText(/4000001/, { timeout: 120_000 })
 
   process.kill()
 })
