@@ -8,6 +8,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
+import { Block as BlockEntity } from '../db/entities'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
@@ -90,7 +91,7 @@ export class Blockchain {
     this.#maxMemoryBlockCount = maxMemoryBlockCount
   }
 
-  async #registerBlock(block: Block) {
+  async #registerBlock(block: Block, saveToDB = true) {
     // if exceed max memory block count, delete the oldest block
     if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
       const firstKey = this.#blocksByNumber.keys().next().value
@@ -99,9 +100,8 @@ export class Blockchain {
     this.#blocksByNumber.set(block.number, block)
     this.#blocksByHash[block.hash] = block
     // save to db
-    if (this.db) {
-      const { hash, number, header, extrinsics } = block
-      this.db.getRepository('Block').upsert({ hash, number, header, extrinsics }, ['hash'])
+    if (saveToDB) {
+      await this.#saveBlockToDB(block)
     }
   }
 
@@ -113,6 +113,44 @@ export class Blockchain {
     return this.#txpool
   }
 
+  async #saveBlockToDB(block: Block) {
+    if (this.db) {
+      const { hash, number, header, extrinsics } = block
+      // delete old ones with the same block number if any, keep the latest one
+      await this.db.getRepository(BlockEntity).delete({ number })
+      await this.db.getRepository(BlockEntity).upsert(
+        {
+          hash,
+          number,
+          header,
+          extrinsics: await extrinsics,
+          parentHash: (await block.parentBlock)?.hash,
+          storageDiff: await block.storageDiff(),
+        },
+        ['hash'],
+      )
+    }
+  }
+
+  /**
+   * Try to get block from db, if pass in number, get block by number, else get block by hash
+   */
+  async #getBlockFromDB(key: number | HexString): Promise<Block | undefined> {
+    if (this.db) {
+      const blockData = await this.db
+        .getRepository(BlockEntity)
+        .findOne({ where: { [typeof key === 'number' ? 'number' : 'hash']: key } })
+      if (blockData) {
+        const { hash, number, header, extrinsics, parentHash, storageDiff } = blockData
+        const parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
+        const block = new Block(this, number, hash, parentBlock, { header, extrinsics, storageDiff })
+        await this.#registerBlock(block, false)
+        return block
+      }
+    }
+    return undefined
+  }
+
   async getBlockAt(number?: number): Promise<Block | undefined> {
     if (number === undefined) {
       return this.head
@@ -121,6 +159,10 @@ export class Blockchain {
       return undefined
     }
     if (!this.#blocksByNumber.has(number)) {
+      const blockFromDB = await this.#getBlockFromDB(number)
+      if (blockFromDB) {
+        return blockFromDB
+      }
       const hash = await this.api.getBlockHash(number)
       const block = new Block(this, number, hash)
       await this.#registerBlock(block)
@@ -140,14 +182,8 @@ export class Blockchain {
       } else {
         const loadingBlock = (async () => {
           try {
-            if (this.db) {
-              const blockData = await this.db.getRepository('Block').findOne({ where: { hash } })
-              if (blockData) {
-                const { number, hash, header, extrinsics } = blockData
-                const block = new Block(this, number, hash, undefined, { header, extrinsics })
-                await this.#registerBlock(block)
-              }
-            } else {
+            const blockFromDB = await this.#getBlockFromDB(hash)
+            if (!blockFromDB) {
               const header = await this.api.getHeader(hash)
               const block = new Block(this, Number(header.number), hash)
               await this.#registerBlock(block)
@@ -176,6 +212,10 @@ export class Blockchain {
       this.#blocksByNumber.delete(block.number)
     }
     delete this.#blocksByHash[block.hash]
+    // delete from db
+    if (this.db) {
+      this.db.getRepository(BlockEntity).delete({ hash: block.hash })
+    }
   }
 
   async setHead(block: Block): Promise<void> {

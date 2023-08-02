@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm'
-import { Header } from '@polkadot/types/interfaces'
+import type { Header } from '@polkadot/types/interfaces'
+import type { HexString } from '@polkadot/util/types'
 
 @Entity()
 export class KeyValuePair {
@@ -16,7 +17,7 @@ export class KeyValuePair {
 @Entity()
 export class Block {
   @PrimaryColumn()
-  hash!: string
+  hash!: HexString
 
   @Column()
   number!: number
@@ -25,8 +26,11 @@ export class Block {
   header!: Header
 
   @Column({ nullable: true })
-  parentHash!: string
+  parentHash!: HexString
 
   @Column('simple-array', { nullable: true })
-  extrinsics!: string[]
+  extrinsics!: HexString[]
+
+  @Column({ nullable: true })
+  storageDiff!: Record<HexString, HexString | null>
 }
