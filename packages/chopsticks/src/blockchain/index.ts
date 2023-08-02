@@ -90,7 +90,7 @@ export class Blockchain {
     this.#maxMemoryBlockCount = maxMemoryBlockCount
   }
 
-  #registerBlock(block: Block) {
+  async #registerBlock(block: Block) {
     // if exceed max memory block count, delete the oldest block
     if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
       const firstKey = this.#blocksByNumber.keys().next().value
@@ -98,6 +98,11 @@ export class Blockchain {
     }
     this.#blocksByNumber.set(block.number, block)
     this.#blocksByHash[block.hash] = block
+    // save to db
+    if (this.db) {
+      const { hash, number, header, extrinsics } = block
+      this.db.getRepository('Block').upsert({ hash, number, header, extrinsics }, ['hash'])
+    }
   }
 
   get head(): Block {
@@ -118,7 +123,7 @@ export class Blockchain {
     if (!this.#blocksByNumber.has(number)) {
       const hash = await this.api.getBlockHash(number)
       const block = new Block(this, number, hash)
-      this.#registerBlock(block)
+      await this.#registerBlock(block)
     }
     return this.#blocksByNumber.get(number)
   }
@@ -135,9 +140,18 @@ export class Blockchain {
       } else {
         const loadingBlock = (async () => {
           try {
-            const header = await this.api.getHeader(hash)
-            const block = new Block(this, Number(header.number), hash)
-            this.#registerBlock(block)
+            if (this.db) {
+              const blockData = await this.db.getRepository('Block').findOne({ where: { hash } })
+              if (blockData) {
+                const { number, hash, header, extrinsics } = blockData
+                const block = new Block(this, number, hash, undefined, { header, extrinsics })
+                await this.#registerBlock(block)
+              }
+            } else {
+              const header = await this.api.getHeader(hash)
+              const block = new Block(this, Number(header.number), hash)
+              await this.#registerBlock(block)
+            }
           } catch (e) {
             logger.debug(`getBlock(${hash}) failed: ${e}`)
           }
@@ -173,7 +187,7 @@ export class Blockchain {
       'setHead',
     )
     this.#head = block
-    this.#registerBlock(block)
+    await this.#registerBlock(block)
     await this.headState.setHead(block)
 
     if (this.offchainWorker) {
