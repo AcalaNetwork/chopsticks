@@ -16,7 +16,7 @@ export class KeyValuePair {
 
 @Entity()
 export class Block {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'varchar' })
   hash!: HexString
 
   @Column()
@@ -25,12 +25,12 @@ export class Block {
   @Column({ type: 'simple-json', nullable: true })
   header!: Header
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   parentHash!: HexString
 
   @Column('simple-array', { nullable: true })
   extrinsics!: HexString[]
 
-  @Column({ nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   storageDiff!: Record<HexString, HexString | null>
 }
