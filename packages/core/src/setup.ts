@@ -32,6 +32,7 @@ type Options = {
   runtimeLogLevel?: number
   registeredTypes?: RegisteredTypes
   offchainWorker?: boolean
+  maxMemoryBlockCount?: number
 }
 
 export const setup = async (options: Options) => {
@@ -89,5 +90,6 @@ export const setup = async (options: Options) => {
     runtimeLogLevel: options.runtimeLogLevel,
     registeredTypes: options.registeredTypes || {},
     offchainWorker: options.offchainWorker,
+    maxMemoryBlockCount: options.maxMemoryBlockCount,
   })
 }

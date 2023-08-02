@@ -16,6 +16,7 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     runtimeLogLevel: argv['runtime-log-level'],
     registeredTypes: argv['registered-types'],
     offchainWorker: argv['offchain-worker'],
+    maxMemoryBlockCount: argv['max-memory-block-count'],
   })
 
   if (argv.timestamp) await timeTravel(chain, argv.timestamp)
