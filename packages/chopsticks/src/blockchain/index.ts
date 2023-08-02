@@ -87,17 +87,26 @@ export class Blockchain {
       this.offchainWorker = new OffchainWorker()
     }
 
+    if (maxMemoryBlockCount < 1) {
+      throw new Error('MaxMemoryBlockCount value must be equalOrGreater than 1.')
+    }
+
     this.#maxMemoryBlockCount = maxMemoryBlockCount
   }
 
   #registerBlock(block: Block) {
-    // if exceed max memory block count, delete the oldest block
-    if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
-      const firstKey = this.#blocksByNumber.keys().next().value
-      this.#blocksByNumber.delete(firstKey)
-    }
     this.#blocksByNumber.set(block.number, block)
     this.#blocksByHash[block.hash] = block
+
+    // if exceed max memory block count, delete the earliest block
+    if (this.#blocksByNumber.size > this.#maxMemoryBlockCount) {
+      const earliestBlockNumber = Math.min(...this.#blocksByNumber.keys())
+      const earliestBlock = this.#blocksByNumber.get(earliestBlockNumber)
+      this.#blocksByNumber.delete(earliestBlockNumber)
+      if (earliestBlock) {
+        delete this.#blocksByHash[earliestBlock.hash]
+      }
+    }
   }
 
   get head(): Block {
@@ -173,6 +182,7 @@ export class Blockchain {
       'setHead',
     )
     this.#head = block
+    // TODO: unregister blocks from current head to new head
     this.#registerBlock(block)
     await this.headState.setHead(block)
 
