@@ -135,6 +135,8 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[],
     }
   }
 
+  await head.chain.saveBlockToDB(newBlock)
+
   return {
     block: newBlock,
     layers: layers,
@@ -286,6 +288,8 @@ export const buildBlock = async (
     storage: head.storage,
     storageDiff,
   })
+
+  await head.chain.saveBlockToDB(finalBlock)
 
   logger.info(
     {

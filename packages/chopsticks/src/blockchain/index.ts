@@ -91,7 +91,7 @@ export class Blockchain {
     this.#maxMemoryBlockCount = maxMemoryBlockCount
   }
 
-  async #registerBlock(block: Block, saveToDB = true) {
+  #registerBlock(block: Block) {
     // if exceed max memory block count, delete the oldest block
     if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
       const firstKey = this.#blocksByNumber.keys().next().value
@@ -99,10 +99,6 @@ export class Blockchain {
     }
     this.#blocksByNumber.set(block.number, block)
     this.#blocksByHash[block.hash] = block
-    // save to db
-    if (saveToDB) {
-      await this.#saveBlockToDB(block)
-    }
   }
 
   get head(): Block {
@@ -113,7 +109,7 @@ export class Blockchain {
     return this.#txpool
   }
 
-  async #saveBlockToDB(block: Block) {
+  async saveBlockToDB(block: Block) {
     if (this.db) {
       const { hash, number, header, extrinsics } = block
       // delete old ones with the same block number if any, keep the latest one
@@ -136,7 +132,7 @@ export class Blockchain {
    * Try to load block from db and register it
    * If pass in number, get block by number, else get block by hash
    */
-  async #loadBlockFromDB(key: number | HexString): Promise<Block | undefined> {
+  async loadBlockFromDB(key: number | HexString): Promise<Block | undefined> {
     if (this.db) {
       const blockData = await this.db
         .getRepository(BlockEntity)
@@ -145,7 +141,7 @@ export class Blockchain {
         const { hash, number, header, extrinsics, parentHash, storageDiff } = blockData
         const parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
         const block = new Block(this, number, hash, parentBlock, { header, extrinsics, storageDiff })
-        await this.#registerBlock(block, false)
+        this.#registerBlock(block)
         return block
       }
     }
@@ -160,13 +156,13 @@ export class Blockchain {
       return undefined
     }
     if (!this.#blocksByNumber.has(number)) {
-      const blockFromDB = await this.#loadBlockFromDB(number)
+      const blockFromDB = await this.loadBlockFromDB(number)
       if (blockFromDB) {
         return blockFromDB
       }
       const hash = await this.api.getBlockHash(number)
       const block = new Block(this, number, hash)
-      await this.#registerBlock(block)
+      this.#registerBlock(block)
     }
     return this.#blocksByNumber.get(number)
   }
@@ -183,11 +179,11 @@ export class Blockchain {
       } else {
         const loadingBlock = (async () => {
           try {
-            const blockFromDB = await this.#loadBlockFromDB(hash)
+            const blockFromDB = await this.loadBlockFromDB(hash)
             if (!blockFromDB) {
               const header = await this.api.getHeader(hash)
               const block = new Block(this, Number(header.number), hash)
-              await this.#registerBlock(block)
+              this.#registerBlock(block)
             }
           } catch (e) {
             logger.debug(`getBlock(${hash}) failed: ${e}`)
@@ -228,7 +224,7 @@ export class Blockchain {
       'setHead',
     )
     this.#head = block
-    await this.#registerBlock(block)
+    this.#registerBlock(block)
     await this.headState.setHead(block)
 
     if (this.offchainWorker) {
