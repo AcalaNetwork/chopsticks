@@ -77,7 +77,7 @@ export class HeadState {
         try {
           await cb(head, changed)
         } catch (error) {
-          logger.error(error, 'setHead storaeg diff callback error')
+          logger.error(error, 'setHead storage diff callback error')
         }
       }
     }

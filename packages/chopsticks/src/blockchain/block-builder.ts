@@ -354,9 +354,9 @@ export const dryRunInherents = async (
 ): Promise<[HexString, HexString | null][]> => {
   const header = await newHeader(head)
   const { layers } = await initNewBlock(head, header, inherents)
-  const stoarge = {}
+  const storage = {}
   for (const layer of layers) {
-    await layer.mergeInto(stoarge)
+    await layer.mergeInto(storage)
   }
-  return Object.entries(stoarge) as [HexString, HexString | null][]
+  return Object.entries(storage) as [HexString, HexString | null][]
 }
