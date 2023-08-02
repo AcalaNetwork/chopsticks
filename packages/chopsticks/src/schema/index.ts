@@ -14,6 +14,7 @@ export const configSchema = z
     'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
     'import-storage': z.any().optional(),
     'mock-signature-host': z.boolean().optional(),
+    'max-memory-block-count': z.number().optional(),
     db: z.string().optional(),
     'wasm-override': z.string().optional(),
     genesis: z.union([z.string(), genesisSchema]).optional(),
