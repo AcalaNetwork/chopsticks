@@ -133,9 +133,10 @@ export class Blockchain {
   }
 
   /**
-   * Try to get block from db, if pass in number, get block by number, else get block by hash
+   * Try to load block from db and register it
+   * If pass in number, get block by number, else get block by hash
    */
-  async #getBlockFromDB(key: number | HexString): Promise<Block | undefined> {
+  async #loadBlockFromDB(key: number | HexString): Promise<Block | undefined> {
     if (this.db) {
       const blockData = await this.db
         .getRepository(BlockEntity)
@@ -159,7 +160,7 @@ export class Blockchain {
       return undefined
     }
     if (!this.#blocksByNumber.has(number)) {
-      const blockFromDB = await this.#getBlockFromDB(number)
+      const blockFromDB = await this.#loadBlockFromDB(number)
       if (blockFromDB) {
         return blockFromDB
       }
@@ -182,7 +183,7 @@ export class Blockchain {
       } else {
         const loadingBlock = (async () => {
           try {
-            const blockFromDB = await this.#getBlockFromDB(hash)
+            const blockFromDB = await this.#loadBlockFromDB(hash)
             if (!blockFromDB) {
               const header = await this.api.getHeader(hash)
               const block = new Block(this, Number(header.number), hash)
