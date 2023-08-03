@@ -1,6 +1,11 @@
 import { EntitySchema } from 'typeorm'
+import { HexString } from '@polkadot/util/types'
 
-export const KeyValuePair = new EntitySchema({
+export const KeyValuePair = new EntitySchema<{
+  blockHash: HexString
+  key: HexString
+  value?: string
+}>({
   name: 'KeyValuePair',
   columns: {
     blockHash: {
