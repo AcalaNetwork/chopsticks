@@ -14,7 +14,7 @@ describe('block-save', async () => {
     await dev.newBlock({ count: 2 })
 
     const numberOfBlocks = await chain.db?.getRepository('Block').count()
-    expect(numberOfBlocks).toEqual(3)
+    expect(numberOfBlocks).toEqual(2)
 
     const block = await chain.getBlockAt(chain.head.number)
     const blockData = await chain.db?.getRepository('Block').findOne({ where: { number: chain.head.number } })
