@@ -215,6 +215,11 @@ export class Blockchain {
     }
   }
 
+  async onNewBlock(block: Block): Promise<void> {
+    await this.setHead(block)
+    await this.saveBlockToDB(block)
+  }
+
   async setHead(block: Block): Promise<void> {
     logger.debug(
       {
