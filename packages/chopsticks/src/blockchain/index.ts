@@ -113,18 +113,20 @@ export class Blockchain {
     if (this.db) {
       const { hash, number, header, extrinsics } = block
       // delete old ones with the same block number if any, keep the latest one
-      await this.db.getRepository(BlockEntity).delete({ number })
-      await this.db.getRepository(BlockEntity).upsert(
-        {
-          hash,
-          number,
-          header,
-          extrinsics: await extrinsics,
-          parentHash: (await block.parentBlock)?.hash,
-          storageDiff: await block.storageDiff(),
-        },
-        ['hash'],
-      )
+      await this.db.transaction(async (transactionalEntityManager) => {
+        await transactionalEntityManager.getRepository(BlockEntity).delete({ number })
+        await transactionalEntityManager.getRepository(BlockEntity).upsert(
+          {
+            hash,
+            number,
+            header,
+            extrinsics: await extrinsics,
+            parentHash: (await block.parentBlock)?.hash,
+            storageDiff: await block.storageDiff(),
+          },
+          ['hash'],
+        )
+      })
     }
   }
 
@@ -201,7 +203,7 @@ export class Blockchain {
     return Array.from(this.#blocksByNumber.values())
   }
 
-  unregisterBlock(block: Block): void {
+  async unregisterBlock(block: Block) {
     if (block.hash === this.head.hash) {
       throw new Error('Cannot unregister head block')
     }
@@ -211,7 +213,7 @@ export class Blockchain {
     delete this.#blocksByHash[block.hash]
     // delete from db
     if (this.db) {
-      this.db.getRepository(BlockEntity).delete({ hash: block.hash })
+      await this.db.getRepository(BlockEntity).delete({ hash: block.hash })
     }
   }
 
