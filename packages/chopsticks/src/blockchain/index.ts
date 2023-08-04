@@ -8,6 +8,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
+import { Block as BlockEntity } from '../db/entities'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
@@ -108,6 +109,47 @@ export class Blockchain {
     return this.#txpool
   }
 
+  async saveBlockToDB(block: Block) {
+    if (this.db) {
+      const { hash, number, header, extrinsics } = block
+      // delete old ones with the same block number if any, keep the latest one
+      await this.db.transaction(async (transactionalEntityManager) => {
+        await transactionalEntityManager.getRepository(BlockEntity).delete({ number })
+        await transactionalEntityManager.getRepository(BlockEntity).upsert(
+          {
+            hash,
+            number,
+            header,
+            extrinsics: await extrinsics,
+            parentHash: (await block.parentBlock)?.hash,
+            storageDiff: await block.storageDiff(),
+          },
+          ['hash'],
+        )
+      })
+    }
+  }
+
+  /**
+   * Try to load block from db and register it
+   * If pass in number, get block by number, else get block by hash
+   */
+  async loadBlockFromDB(key: number | HexString): Promise<Block | undefined> {
+    if (this.db) {
+      const blockData = await this.db
+        .getRepository(BlockEntity)
+        .findOne({ where: { [typeof key === 'number' ? 'number' : 'hash']: key } })
+      if (blockData) {
+        const { hash, number, header, extrinsics, parentHash, storageDiff } = blockData
+        const parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
+        const block = new Block(this, number, hash, parentBlock, { header, extrinsics, storageDiff })
+        this.#registerBlock(block)
+        return block
+      }
+    }
+    return undefined
+  }
+
   async getBlockAt(number?: number): Promise<Block | undefined> {
     if (number === undefined) {
       return this.head
@@ -116,6 +158,10 @@ export class Blockchain {
       return undefined
     }
     if (!this.#blocksByNumber.has(number)) {
+      const blockFromDB = await this.loadBlockFromDB(number)
+      if (blockFromDB) {
+        return blockFromDB
+      }
       const hash = await this.api.getBlockHash(number)
       const block = new Block(this, number, hash)
       this.#registerBlock(block)
@@ -135,9 +181,12 @@ export class Blockchain {
       } else {
         const loadingBlock = (async () => {
           try {
-            const header = await this.api.getHeader(hash)
-            const block = new Block(this, Number(header.number), hash)
-            this.#registerBlock(block)
+            const blockFromDB = await this.loadBlockFromDB(hash)
+            if (!blockFromDB) {
+              const header = await this.api.getHeader(hash)
+              const block = new Block(this, Number(header.number), hash)
+              this.#registerBlock(block)
+            }
           } catch (e) {
             logger.debug(`getBlock(${hash}) failed: ${e}`)
           }
@@ -154,7 +203,7 @@ export class Blockchain {
     return Array.from(this.#blocksByNumber.values())
   }
 
-  unregisterBlock(block: Block): void {
+  async unregisterBlock(block: Block) {
     if (block.hash === this.head.hash) {
       throw new Error('Cannot unregister head block')
     }
@@ -162,6 +211,15 @@ export class Blockchain {
       this.#blocksByNumber.delete(block.number)
     }
     delete this.#blocksByHash[block.hash]
+    // delete from db
+    if (this.db) {
+      await this.db.getRepository(BlockEntity).delete({ hash: block.hash })
+    }
+  }
+
+  async onNewBlock(block: Block): Promise<void> {
+    await this.setHead(block)
+    await this.saveBlockToDB(block)
   }
 
   async setHead(block: Block): Promise<void> {
