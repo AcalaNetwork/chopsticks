@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, assert, describe, expect, it } from 'vitest'
 
 import networks from './networks'
 
@@ -18,10 +18,11 @@ describe('block-save', async () => {
 
     const block = await chain.getBlockAt(chain.head.number)
     const blockData = await chain.db!.getRepository('Block').findOne({ where: { number: chain.head.number } })
-    expect(blockData!.hash).toEqual(block!.hash)
-    expect(JSON.stringify(blockData!.header)).toEqual(JSON.stringify(block!.header))
-    expect(blockData!.parentHash).toEqual((await block!.parentBlock)!.hash)
-    expect(JSON.stringify(blockData!.extrinsics)).toEqual(JSON.stringify(await block!.extrinsics))
-    expect(JSON.stringify(blockData!.storageDiff)).toEqual(JSON.stringify(await block!.storageDiff()))
+    assert(block && blockData, 'block and blockData should be defined')
+    expect(blockData.hash).toEqual(block.hash)
+    expect(JSON.stringify(blockData.header)).toEqual(JSON.stringify(block.header))
+    expect(blockData.parentHash).toEqual((await block.parentBlock)!.hash)
+    expect(JSON.stringify(blockData.extrinsics)).toEqual(JSON.stringify(await block.extrinsics))
+    expect(JSON.stringify(blockData.storageDiff)).toEqual(JSON.stringify(await block.storageDiff()))
   })
 })
