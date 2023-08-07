@@ -8,7 +8,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
-import { Block as BlockEntity } from '../db/entities'
+import { BlockEntity } from '../db/entities'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
@@ -119,7 +119,7 @@ export class Blockchain {
           {
             hash,
             number,
-            header,
+            header: await header,
             extrinsics: await extrinsics,
             parentHash: (await block.parentBlock)?.hash,
             storageDiff: await block.storageDiff(),
