@@ -235,7 +235,7 @@ export class TxPool {
     for (const extrinsic of pendingExtrinsics) {
       this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })
     }
-    await this.#chain.setHead(newBlock)
+    await this.#chain.onNewBlock(newBlock)
 
     this.#pendingBlocks.shift()
     deferred.resolve()
