@@ -12,6 +12,7 @@
 		"@polkadot/api": "^10.9.1",
 		"axios": "^1.4.0",
 		"eventemitter3": "^5.0.1",
+		"localforage": "^1.10.0",
 		"lodash": "^4.17.21",
 		"pino": "^8.14.1",
 		"pino-pretty": "^10.0.1",

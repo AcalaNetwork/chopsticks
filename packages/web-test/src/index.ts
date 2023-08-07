@@ -7,15 +7,12 @@ const submit = document.getElementById('submit') as HTMLInputElement
 const result = document.getElementById('result') as HTMLPreElement
 
 import { setStorage, setup } from '@acala-network/chopsticks-core'
-import localforage from 'localforage'
-
-globalThis.localforage = localforage.createInstance({ name: 'chopsticks' })
 ;(async () => {
   const chain = await setup({
     endpoint: 'wss://acala-rpc-0.aca-api.network',
     block: 4_000_000,
     mockSignatureHost: true,
-    // db: 'cache',
+    db: 'cache',
   })
   globalThis.chain = chain
 

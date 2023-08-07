@@ -10,8 +10,7 @@
 		"test": "npx playwright test"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks-core": "workspace:*",
-		"localforage": "^1.10.0"
+		"@acala-network/chopsticks-core": "workspace:*"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.36.2",

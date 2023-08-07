@@ -22,6 +22,7 @@ __metadata:
     "@types/sql.js": ^1
     axios: ^1.4.0
     eventemitter3: ^5.0.1
+    localforage: ^1.10.0
     lodash: ^4.17.21
     pino: ^8.14.1
     pino-pretty: ^10.0.1
@@ -100,7 +101,6 @@ __metadata:
     "@acala-network/chopsticks-core": "workspace:*"
     "@playwright/test": ^1.36.2
     crypto-browserify: ^3.12.0
-    localforage: ^1.10.0
     path-browserify: ^1.0.0
     stream-browserify: ^3.0.0
     typescript: ^5.1.6
