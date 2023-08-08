@@ -3,7 +3,10 @@ import { expect, test } from '@playwright/test'
 test('build blocks successfully', async ({ page }) => {
   test.setTimeout(5 * 60 * 1000) // 5 minutes timeout
 
-  page.on('console', console.log)
+  page.on('console', async (msg) => {
+    const args = await Promise.all(msg.args().map((arg) => arg.jsonValue()))
+    console.log(...args)
+  })
 
   await page.goto('/')
   await page.waitForLoadState()

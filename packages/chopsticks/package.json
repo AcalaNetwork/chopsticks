@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks",
-	"version": "0.7.4-0",
+	"version": "0.8.0-0",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
