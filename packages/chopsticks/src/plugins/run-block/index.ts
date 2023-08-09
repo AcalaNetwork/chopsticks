@@ -8,8 +8,8 @@ import { Config } from '../../schema'
 import { defaultLogger } from '../../logger'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
 import { openHtml } from '../../utils/open-html'
-import { runTask, taskHandler } from '../../executor'
-import { setup } from '../../setup'
+import { runTask, taskHandler } from '@acala-network/chopsticks-core'
+import { setupContext } from '../../context'
 
 export const cli = (y: yargs.Argv) => {
   y.command(
@@ -31,7 +31,7 @@ export const cli = (y: yargs.Argv) => {
         },
       }),
     async (argv) => {
-      const context = await setup(argv as Config, true)
+      const context = await setupContext(argv as Config, true)
 
       const header = await context.chain.head.header
       const block = context.chain.head

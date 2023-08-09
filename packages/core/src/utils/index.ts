@@ -4,6 +4,9 @@ import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
 
 import { Blockchain } from '../blockchain'
 
+export * from './set-storage'
+export * from './time-travel'
+
 export type GetKeys = (startKey?: string) => Promise<StorageKey<any>[]>
 
 export type ProcessKey = (key: StorageKey<any>) => any

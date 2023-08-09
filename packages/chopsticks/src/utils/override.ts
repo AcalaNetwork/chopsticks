@@ -1,12 +1,11 @@
+import { Blockchain, StorageValues, setStorage } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 import { existsSync, readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 
-import { Blockchain } from '../blockchain'
-import { StorageValues, setStorage } from './set-storage'
 import { defaultLogger } from '../logger'
 
-export const importStorage = async (chain: Blockchain, storage?: string | StorageValues, at?: HexString) => {
+export const overrideStorage = async (chain: Blockchain, storage?: string | StorageValues, at?: HexString) => {
   if (storage == null) {
     return
   }
@@ -18,7 +17,7 @@ export const importStorage = async (chain: Blockchain, storage?: string | Storag
     storageValue = storage
   }
   const blockHash = await setStorage(chain, storageValue, at)
-  defaultLogger.trace({ blockHash, storage }, 'ImportStorage')
+  defaultLogger.trace({ blockHash, storage }, 'OverrideStorage')
 }
 
 export const overrideWasm = async (chain: Blockchain, wasmPath?: string, at?: HexString) => {

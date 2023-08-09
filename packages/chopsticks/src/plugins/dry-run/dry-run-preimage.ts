@@ -5,14 +5,12 @@ import { hexToU8a } from '@polkadot/util'
 import { Config } from '../../schema'
 import { defaultLogger } from '../../logger'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
-import { newHeader } from '../../blockchain/block-builder'
+import { newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
 import { openHtml } from '../../utils/open-html'
-import { runTask, taskHandler } from '../../executor'
-import { setStorage } from '../../utils/set-storage'
-import { setup } from '../../setup'
+import { setupContext } from '../../context'
 
 export const dryRunPreimage = async (argv: Config) => {
-  const context = await setup(argv)
+  const context = await setupContext(argv)
 
   const extrinsic = argv['preimage']
 

@@ -6,15 +6,15 @@
 	"private": true,
 	"workspaces": [
 		"packages/*",
-		"executor/pkg"
+		"executor"
 	],
 	"scripts": {
-		"lint": "tsc --noEmit --project tsconfig.json && eslint . --ext .js,.ts && prettier --check .",
+		"lint": "tsc --noEmit --project tsconfig.lint.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
 		"prepare": "husky install",
 		"clean": "yarn workspaces foreach -pvit run clean",
 		"build": "yarn workspaces foreach -pvit run build",
-		"build-wasm": "wasm-pack build executor --target nodejs --scope acala-network && echo '' >> executor/pkg/package.json",
+		"build-wasm": "yarn workspace @acala-network/chopsticks-executor build",
 		"check": "cd executor && cargo check --locked",
 		"test": "vitest run",
 		"test:watch": "vitest",
@@ -51,10 +51,5 @@
 		"vite-tsconfig-paths": "^4.2.0",
 		"vitest": "^0.33.0",
 		"wasm-pack": "^0.12.1"
-	},
-	"exports": {
-		".": "./lib/index.js",
-		"./*": "./lib/*.js",
-		"./package.json": "./package.json"
 	}
 }

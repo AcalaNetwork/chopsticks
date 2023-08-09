@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getCurrentTimestamp, getSlotDuration, timeTravel } from '@acala-network/chopsticks/utils/time-travel'
+import { getCurrentTimestamp, getSlotDuration, timeTravel } from '@acala-network/chopsticks-core/utils/time-travel'
 
 import networks from './networks'
 

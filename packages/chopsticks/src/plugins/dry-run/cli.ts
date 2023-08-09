@@ -1,5 +1,5 @@
-import { Config } from '../..'
-import { defaultOptions } from '../../cli-options'
+import { Config } from '../../schema'
+import { defaultOptions, mockOptions } from '../../cli-options'
 import { dryRunExtrinsic } from './dry-run-extrinsic'
 import { dryRunPreimage } from './dry-run-preimage'
 import type yargs from 'yargs'
@@ -11,6 +11,7 @@ export const cli = (y: yargs.Argv) => {
     (yargs) =>
       yargs.options({
         ...defaultOptions,
+        ...mockOptions,
         extrinsic: {
           desc: 'Extrinsic or call to dry run. If you pass call here then address is required to fake signature',
           string: true,

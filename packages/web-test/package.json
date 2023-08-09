@@ -1,0 +1,22 @@
+{
+	"name": "@acala-network/web-test",
+	"author": "Acala Network <hello@acala.network>",
+	"license": "Apache-2.0",
+	"private": true,
+	"scripts": {
+		"vite:serve": "npx vite --port 3000 --host",
+		"parcel:serve": "npx parcel serve index.html --port 3000",
+		"test": "npx playwright test"
+	},
+	"dependencies": {
+		"@acala-network/chopsticks-core": "workspace:*"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.36.2",
+		"crypto-browserify": "^3.12.0",
+		"path-browserify": "^1.0.0",
+		"stream-browserify": "^3.0.0",
+		"typescript": "^5.1.6"
+	},
+	"stableVersion": "0.7.3"
+}

@@ -1,4 +1,4 @@
-import { Block } from '../../blockchain/block'
+import { Block } from '@acala-network/chopsticks-core'
 import { Handlers, ResponseError } from '../shared'
 import { defaultLogger } from '../../logger'
 

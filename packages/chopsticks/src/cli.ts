@@ -3,10 +3,11 @@ import { hideBin } from 'yargs/helpers'
 import _ from 'lodash'
 import yargs from 'yargs'
 
-import { Blockchain, BuildBlockMode, connectParachains, connectVertical, setupWithServer } from '.'
+import { Blockchain, BuildBlockMode, connectParachains, connectVertical } from '@acala-network/chopsticks-core'
 import { Config, fetchConfig } from './schema'
 import { defaultOptions, mockOptions } from './cli-options'
 import { pluginExtendCli } from './plugins'
+import { setupWithServer } from '.'
 
 dotenvConfig()
 

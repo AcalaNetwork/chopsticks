@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+	<body>
+		<pre>Open console to access <u>chain</u></pre>
+		<div id="app" style="font: 16px monospace">Loading...</div>
+		<div style="display: flex; flex-direction: column; align-items: start">
+			<pre>Caller 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY</pre>
+			<textarea placeholder="Call" id="extrinsic" style="font: 16px monospace"></textarea>
+			<input type="button" id="submit" value="Dry Run Call" />
+			<pre id="result" style="font: 16px monospace"></pre>
+		</div>
+		<script type="module">
+			import { Buffer } from 'buffer'
+			window.Buffer = Buffer
+		</script>
+		<script type="module" src="src/index.ts"></script>
+	</body>
+</html>

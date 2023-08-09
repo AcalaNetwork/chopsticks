@@ -1,26 +1,10 @@
+import { BuildBlockMode, defaultLogger, genesisSchema, isUrl } from '@acala-network/chopsticks-core'
 import { basename, extname } from 'node:path'
 import { readFileSync } from 'node:fs'
 import { z } from 'zod'
 import _ from 'lodash'
 import axios from 'axios'
 import yaml from 'js-yaml'
-
-import { BuildBlockMode } from '../blockchain/txpool'
-import { isUrl } from '../utils'
-import { logger } from '../rpc/shared'
-
-export const genesisSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  properties: z.object({
-    ss58Format: z.number().optional(),
-    tokenDecimals: z.union([z.number(), z.array(z.number())]).optional(),
-    tokenSymbol: z.union([z.string(), z.array(z.string())]).optional(),
-  }),
-  genesis: z.object({ raw: z.object({ top: z.record(z.string()) }) }),
-})
-
-export type Genesis = z.infer<typeof genesisSchema>
 
 export const configSchema = z
   .object({
@@ -58,7 +42,7 @@ export const fetchConfig = async (path: string): Promise<Config> => {
           path += '.yml'
         }
         const url = CONFIGS_BASE_URL + path
-        logger.info(`Loading config file ${url}`)
+        defaultLogger.info(`Loading config file ${url}`)
         file = await axios.get(url).then((x) => x.data)
       } else {
         throw err
