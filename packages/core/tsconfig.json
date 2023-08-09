@@ -3,9 +3,8 @@
 	"compilerOptions": {
 		"outDir": "lib",
 		"rootDir": "src",
-		"target": "es2015",
-		"lib": ["es5", "dom", "dom.iterable"],
-		"module": "es2020",
+		"target": "es2016",
+		"lib": ["es6", "dom", "dom.iterable"],
 		"isolatedModules": true
 	},
 	"include": ["src/**/*"],
