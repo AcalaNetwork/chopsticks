@@ -49,6 +49,10 @@ __metadata:
 "@acala-network/chopsticks-executor@workspace:*, @acala-network/chopsticks-executor@workspace:executor":
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-executor@workspace:executor"
+  dependencies:
+    "@polkadot/util": ^12.3.2
+    "@polkadot/wasm-util": ^7.2.1
+    fflate: ^0.8.0
   languageName: unknown
   linkType: soft
 
@@ -796,7 +800,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/util@npm:12.3.2, @polkadot/util@npm:^12.3.1":
+"@polkadot/util@npm:12.3.2, @polkadot/util@npm:^12.3.1, @polkadot/util@npm:^12.3.2":
   version: 12.3.2
   resolution: "@polkadot/util@npm:12.3.2"
   dependencies:
@@ -3283,6 +3287,13 @@ __metadata:
     node-domexception: ^1.0.0
     web-streams-polyfill: ^3.0.3
   checksum: f19bc28a2a0b9626e69fd7cf3a05798706db7f6c7548da657cbf5026a570945f5eeaedff52007ea35c8bcd3d237c58a20bf1543bc568ab2422411d762dd3d5bf
+  languageName: node
+  linkType: hard
+
+"fflate@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "fflate@npm:0.8.0"
+  checksum: 6215f95ee01d620a41e459247a7de7e7117dd23e78ef017c26b64c26f2a880a90eedc77675918bbf816d18cc990f6505cd71be933c67cc48cc1e7ebbff1589ea
   languageName: node
   linkType: hard
 
