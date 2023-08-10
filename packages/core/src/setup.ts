@@ -26,7 +26,7 @@ type Options = {
   block?: string | number | null
   genesis?: string | Genesis
   buildBlockMode?: BuildBlockMode
-  db?: string
+  db?: string | URL
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
   runtimeLogLevel?: number
@@ -64,6 +64,11 @@ export const setup = async (options: Options) => {
 
   let db: DataSource | undefined
   if (options.db) {
+    if (typeof window !== 'undefined') {
+      if (!(options.db instanceof URL)) {
+        throw new Error('options.db must be an URL to sql-wasm.wasm when running in browser')
+      }
+    }
     db = await openDb(options.db)
   }
 

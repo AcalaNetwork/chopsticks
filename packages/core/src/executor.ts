@@ -5,15 +5,15 @@ import { randomAsHex } from '@polkadot/util-crypto'
 import { Block } from './blockchain/block'
 import { PREFIX_LENGTH } from './utils/key-cache'
 import { Registry } from '@polkadot/types-codec/types'
-import { defaultLogger, truncate } from './logger'
-import _ from 'lodash'
-import wasmSetup, {
+import {
   calculate_state_root,
   create_proof,
   decode_proof,
   get_runtime_version,
   run_task,
 } from '@acala-network/chopsticks-executor'
+import { defaultLogger, truncate } from './logger'
+import _ from 'lodash'
 import type { JsCallback } from '@acala-network/chopsticks-executor'
 
 export { JsCallback }
@@ -30,11 +30,6 @@ export type RuntimeVersion = {
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
-
-// init wasm on browser
-if (typeof wasmSetup === 'function') {
-  wasmSetup()
-}
 
 export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion> => {
   return get_runtime_version(code).then((version) => {

@@ -9,14 +9,23 @@
 	},
 	"scripts": {
 		"clean": "rm -rf web node",
-		"build": "wasm-pack build --target web --out-dir browser; wasm-pack build --target nodejs --out-dir node"
+		"build": "wasm-pack build --target web --out-dir browser; wasm-pack build --target nodejs --out-dir node; scripts/pack-wasm.js"
+	},
+	"dependencies": {
+		"@polkadot/wasm-util": "^7.2.1"
+	},
+	"devDependencies": {
+		"@polkadot/util": "^12.3.2",
+		"fflate": "^0.8.0"
 	},
 	"files": [
-		"browser/chopsticks_*",
+		"browser/index.js",
+		"browser/chopsticks_executor.js",
+		"browser/chopsticks_executor_bg.wasm",
 		"node/chopsticks_*"
 	],
 	"main": "node/chopsticks_executor.js",
-	"types": "browser/chopsticks_executor.d.ts",
-	"browser": "browser/chopsticks_executor.js",
+	"types": "node/chopsticks_executor.d.ts",
+	"browser": "browser/index.js",
 	"stableVersion": "0.7.3"
 }
