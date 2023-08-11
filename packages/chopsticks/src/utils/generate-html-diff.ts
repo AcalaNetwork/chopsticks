@@ -6,9 +6,9 @@ import { template } from 'lodash'
 import path from 'node:path'
 
 export const generateHtmlDiff = async (block: Block, diff: [HexString, HexString | null][]) => {
-  const [left, _right, delta] = await decodeStorageDiff(block, diff)
+  const { oldState, delta } = await decodeStorageDiff(block, diff)
   const htmlTemplate = readFileSync(path.join(__dirname, '../../template/diff.html'), 'utf-8')
-  return template(htmlTemplate)({ left: JSON.stringify(left), delta: JSON.stringify(delta) })
+  return template(htmlTemplate)({ left: JSON.stringify(oldState), delta: JSON.stringify(delta) })
 }
 
 export const generateHtmlDiffPreviewFile = async (

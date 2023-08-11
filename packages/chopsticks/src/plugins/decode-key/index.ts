@@ -1,6 +1,6 @@
 import { Config } from '../../schema'
 import { HexString } from '@polkadot/util/types'
-import { decodeKey } from '../../utils/decoder'
+import { decodeKey } from '@acala-network/chopsticks-core'
 import { defaultOptions } from '../../cli-options'
 import { setupContext } from '../../context'
 import type yargs from 'yargs'

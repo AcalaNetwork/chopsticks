@@ -78,10 +78,10 @@ export const rpc: Handler = async (context, [params]) => {
   if (raw) {
     return storageDiff
   }
-  const [oldData, newData, delta] = await decodeStorageDiff(context.chain.head, storageDiff)
+  const { oldState, newState, delta } = await decodeStorageDiff(context.chain.head, storageDiff)
   return {
-    old: oldData,
-    new: newData,
+    old: oldState,
+    new: newState,
     delta,
   }
 }

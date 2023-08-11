@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import { decodeKey, decodeKeyValue } from '@acala-network/chopsticks/utils/decoder'
+import { decodeKey, decodeKeyValue } from '@acala-network/chopsticks-core/utils/decoder'
 
 import networks from './networks'
 
