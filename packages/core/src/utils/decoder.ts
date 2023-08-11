@@ -8,25 +8,25 @@ import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
-const _CACHE: Record<string, Record<HexString, StorageEntry>> = {}
+const _CACHE: Record<string, Map<HexString, StorageEntry>> = {}
 
-const getCache = (uid: string): Record<HexString, StorageEntry> => {
+const getCache = (uid: string): Map<HexString, StorageEntry> => {
   if (!_CACHE[uid]) {
-    _CACHE[uid] = {}
+    _CACHE[uid] = new Map()
   }
   return _CACHE[uid]
 }
 
 const getStorageEntry = (meta: DecoratedMeta, block: Block, key: HexString) => {
   const cache = getCache(block.chain.uid)
-  for (const [prefix, storageEntry] of Object.entries(cache)) {
+  for (const [prefix, storageEntry] of cache.entries()) {
     if (key.startsWith(prefix)) return storageEntry
   }
   for (const module of Object.values(meta.query)) {
     for (const storage of Object.values(module)) {
       const keyPrefix = u8aToHex(storage.keyPrefix())
       if (key.startsWith(keyPrefix)) {
-        cache[keyPrefix] = storage
+        cache.set(keyPrefix, storage)
         return storage
       }
     }
