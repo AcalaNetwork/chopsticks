@@ -3,15 +3,15 @@ import { createInstance } from 'localforage'
 import initSqlJs from 'sql.js'
 
 import * as entities from './entities'
+import { SQL_WASM_BYTES } from './sql-wasm'
 
-export const openDb = async (sqlWasmUrl: URL): Promise<DataSource> => {
+export const openDb = async (location: string): Promise<DataSource> => {
   if (!globalThis.localforage) {
     globalThis.localforage = createInstance({ name: 'chopsticks' })
   }
-  const wasmBinary = await fetch(sqlWasmUrl).then((response) => response.arrayBuffer())
   const source = new DataSource({
     type: 'sqljs',
-    location: 'cache',
+    location,
     entities: Object.values(entities),
     synchronize: true,
     autoSave: true,
@@ -19,7 +19,7 @@ export const openDb = async (sqlWasmUrl: URL): Promise<DataSource> => {
     useLocalForage: true,
     driver: initSqlJs,
     sqlJsConfig: {
-      wasmBinary,
+      wasmBinary: SQL_WASM_BYTES,
     },
   })
 
