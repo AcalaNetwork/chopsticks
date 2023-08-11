@@ -19,8 +19,9 @@ const BYTES = '${base64}';
 import { base64Decode, unzlibSync } from '@polkadot/wasm-util';
 const WASM_BYTES = unzlibSync(base64Decode(BYTES, new Uint8Array(LEN_IN)), new Uint8Array(LEN_OUT));
 
-import { initSync } from "./chopsticks_executor.js";
-initSync(WASM_BYTES);
+import wasmInit from "./chopsticks_executor.js";
+const blob = new Blob([WASM_BYTES], { type: "application/wasm" });
+wasmInit(URL.createObjectURL(blob));
 
 export * from "./chopsticks_executor.js";
 `);

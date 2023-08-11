@@ -12,7 +12,7 @@ import { setStorage, setup } from '@acala-network/chopsticks-core'
     endpoint: 'wss://acala-rpc-0.aca-api.network',
     block: 4_000_000,
     mockSignatureHost: true,
-    db: new URL('../../../node_modules/sql.js/dist/sql-wasm.wasm', import.meta.url),
+    db: 'cache',
   })
   globalThis.chain = chain
 

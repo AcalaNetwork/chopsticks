@@ -1,11 +1,12 @@
 {
 	"name": "@acala-network/chopsticks-core",
-	"version": "0.8.0-2",
+	"version": "0.8.0-3",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"build": "tsc -p ./tsconfig.json"
+		"pack-wasm": "scripts/pack-wasm.js",
+		"build": "yarn pack-wasm; tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
@@ -14,16 +15,17 @@
 		"eventemitter3": "^5.0.1",
 		"localforage": "^1.10.0",
 		"lodash": "^4.17.21",
-		"pino": "^8.14.1",
-		"pino-pretty": "^10.0.1",
+		"pino": "^8.15.0",
+		"pino-pretty": "^10.2.0",
 		"sql.js": "^1.8.0",
 		"sqlite3": "^5.1.6",
 		"typeorm": "^0.3.17",
 		"zod": "^3.21.4"
 	},
 	"devDependencies": {
-		"@types/lodash": "^4.14.195",
-		"@types/sql.js": "^1",
+		"@types/lodash": "^4.14.197",
+		"@types/sql.js": "^1.4.4",
+		"fflate": "^0.8.0",
 		"typescript": "^5.1.6"
 	},
 	"files": [

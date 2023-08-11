@@ -4,4 +4,5 @@ executor/
 vendor/
 lib/
 dist/
+packages/core/scripts/
 chopsticks.js
