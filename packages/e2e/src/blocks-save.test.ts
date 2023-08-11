@@ -1,9 +1,10 @@
 import { afterAll, assert, describe, expect, it } from 'vitest'
-
+import { resolve } from 'node:path'
+import { tmpdir } from 'node:os'
 import networks from './networks'
 
 describe('block-save', async () => {
-  const acala = await networks.acala({ db: 'db.sqlite' })
+  const acala = await networks.acala({ db: resolve(tmpdir(), 'db.sqlite') })
   const { chain, dev } = acala
 
   afterAll(async () => {
