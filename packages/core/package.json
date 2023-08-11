@@ -6,7 +6,7 @@
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
 		"pack-wasm": "scripts/pack-wasm.js",
-		"build": "pack-wasm; tsc -p ./tsconfig.json"
+		"build": "yarn pack-wasm; tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
