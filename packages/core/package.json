@@ -5,7 +5,8 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"build": " scripts/pack-wasm.js; tsc -p ./tsconfig.json"
+		"pack-wasm": "scripts/pack-wasm.js",
+		"build": "pack-wasm; tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
