@@ -20,7 +20,10 @@ export const setupWithServer = async (argv: Config) => {
 
   return {
     ...context,
-    close,
     listenPort,
+    async close() {
+      await context.chain.close()
+      await close()
+    },
   }
 }
