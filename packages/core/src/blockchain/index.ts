@@ -389,4 +389,8 @@ export class Blockchain {
     })
     return inherents
   }
+
+  async close() {
+    await this.db?.destroy()
+  }
 }
