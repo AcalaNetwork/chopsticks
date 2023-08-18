@@ -46,7 +46,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
-    const data = await this.#api.getStorage(key, this.#at)
+    const data = await this.#api.getStorage(key, this.#at).then((data) => data ?? undefined)
     keyValuePair?.upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
     return data
   }
@@ -61,7 +61,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoteStorageLayer getKeysPaged')
     // can't handle keyCache without prefix
     if (prefix.length < 66) {
-      return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
+      return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at).then((keys) => keys ?? [])
     }
 
     let batchComplete = false
@@ -79,7 +79,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
 
       // fetch a batch of keys
-      const batch = await this.#api.getKeysPaged(prefix, BATCH_SIZE, startKey, this.#at)
+      const batch = await this.#api.getKeysPaged(prefix, BATCH_SIZE, startKey, this.#at).then((keys) => keys ?? [])
       batchComplete = batch.length < BATCH_SIZE
 
       // feed the key cache

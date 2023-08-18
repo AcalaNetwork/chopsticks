@@ -87,30 +87,33 @@ export class Api {
   }
 
   async getMetadata(hash?: string) {
-    return this.#provider.send<string>('state_getMetadata', hash ? [hash] : [])
+    return this.#provider.send<string | null>('state_getMetadata', hash ? [hash] : [])
   }
 
   async getBlockHash(blockNumber?: number) {
-    return this.#provider.send<HexString>('chain_getBlockHash', Number.isInteger(blockNumber) ? [blockNumber] : [])
+    return this.#provider.send<HexString | null>(
+      'chain_getBlockHash',
+      Number.isInteger(blockNumber) ? [blockNumber] : [],
+    )
   }
 
   async getHeader(hash?: string) {
-    return this.#provider.send<Header>('chain_getHeader', hash ? [hash] : [])
+    return this.#provider.send<Header | null>('chain_getHeader', hash ? [hash] : [])
   }
 
   async getBlock(hash?: string) {
-    return this.#provider.send<SignedBlock>('chain_getBlock', hash ? [hash] : [])
+    return this.#provider.send<SignedBlock | null>('chain_getBlock', hash ? [hash] : [])
   }
 
   async getStorage(key: string, hash?: string) {
     const params = [key]
     if (hash) params.push(hash)
-    return this.#provider.send<string>('state_getStorage', params)
+    return this.#provider.send<string | null>('state_getStorage', params)
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
     const params = [prefix, pageSize, startKey]
     if (hash) params.push(hash)
-    return this.#provider.send<string[]>('state_getKeysPaged', params)
+    return this.#provider.send<string[] | null>('state_getKeysPaged', params)
   }
 }

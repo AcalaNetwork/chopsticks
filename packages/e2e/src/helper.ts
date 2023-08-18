@@ -60,6 +60,9 @@ export const setupAll = async ({
   await api.isReady
 
   const header = await api.getHeader(blockHash)
+  if (!header) {
+    throw new Error(`Cannot find header for ${blockHash}`)
+  }
 
   return {
     async setup() {
@@ -70,12 +73,17 @@ export const setupAll = async ({
         new SetBabeRandomness(),
       ])
 
+      blockHash ??= await api.getBlockHash().then((hash) => hash ?? undefined)
+      if (!blockHash) {
+        throw new Error('Cannot find block hash')
+      }
+
       const chain = new Blockchain({
         api,
         buildBlockMode: BuildBlockMode.Manual,
         inherentProvider: inherents,
         header: {
-          hash: blockHash || (await api.getBlockHash()),
+          hash: blockHash,
           number: Number(header.number),
         },
         mockSignatureHost,

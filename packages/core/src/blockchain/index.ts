@@ -163,6 +163,9 @@ export class Blockchain {
         return blockFromDB
       }
       const hash = await this.api.getBlockHash(number)
+      if (!hash) {
+        return undefined
+      }
       const block = new Block(this, number, hash)
       this.#registerBlock(block)
     }
@@ -184,6 +187,9 @@ export class Blockchain {
             const blockFromDB = await this.loadBlockFromDB(hash)
             if (!blockFromDB) {
               const header = await this.api.getHeader(hash)
+              if (!header) {
+                throw new Error(`Block ${hash} not found`)
+              }
               const block = new Block(this, Number(header.number), hash)
               this.#registerBlock(block)
             }
