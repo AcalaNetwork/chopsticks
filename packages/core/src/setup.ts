@@ -78,12 +78,10 @@ export const setup = async (options: Options) => {
     db = await openDb(options.db)
   }
 
-  const header = await api.getHeader(blockHash).then((header) => {
-    if (!header) {
-      throw new Error(`Cannot find header for ${blockHash}`)
-    }
-    return header
-  })
+  const header = await api.getHeader(blockHash)
+  if (!header) {
+    throw new Error(`Cannot find header for ${blockHash}`)
+  }
 
   const inherents = new InherentProviders(new SetTimestamp(), [
     new SetValidationData(),
