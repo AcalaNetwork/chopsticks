@@ -46,9 +46,9 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
-    const data = await this.#api.getStorage(key, this.#at).then((data) => data ?? undefined)
+    const data = await this.#api.getStorage(key, this.#at)
     keyValuePair?.upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
-    return data
+    return data ?? undefined
   }
 
   async foldInto(_into: StorageLayer): Promise<StorageLayerProvider> {
@@ -61,7 +61,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoteStorageLayer getKeysPaged')
     // can't handle keyCache without prefix
     if (prefix.length < 66) {
-      return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at).then((keys) => keys ?? [])
+      return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
     let batchComplete = false
