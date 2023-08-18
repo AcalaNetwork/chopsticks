@@ -56,6 +56,9 @@ export const setup = async (options: Options) => {
     blockHash = options.block as string
   } else if (Number.isInteger(+options.block)) {
     blockHash = await api.getBlockHash(Number(options.block))
+    if (!blockHash) {
+      throw new Error(`Cannot find block hash for ${options.block}`)
+    }
   } else {
     throw new Error(`Invalid block number or hash: ${options.block}`)
   }
