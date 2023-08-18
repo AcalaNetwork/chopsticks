@@ -42,13 +42,13 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     if (this.#db) {
       const res = await keyValuePair?.findOne({ where: { key, blockHash: this.#at } })
       if (res) {
-        return res.value
+        return res.value ?? undefined
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
     const data = await this.#api.getStorage(key, this.#at)
     keyValuePair?.upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
-    return data
+    return data ?? undefined
   }
 
   async foldInto(_into: StorageLayer): Promise<StorageLayerProvider> {

@@ -7,11 +7,10 @@ import {
   ProviderInterfaceEmitted,
   ProviderStats,
 } from '@polkadot/rpc-provider/types'
-import { stringToHex } from '@polkadot/util'
 import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
-import { JsCallback, calculateStateRoot, emptyTaskHandler, runTask } from './executor'
+import { JsCallback, calculateStateRoot, emptyTaskHandler } from './executor'
 import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {
@@ -152,19 +151,6 @@ export class GenesisProvider implements ProviderInterface {
         return this.#genesis.id
       case 'system_name':
         return this.#genesis.name
-      case 'state_getMetadata': {
-        const code = this.#genesis.genesis.raw.top[stringToHex(':code')] as HexString
-        return runTask(
-          {
-            wasm: code,
-            calls: [['Metadata_metadata', []]],
-            mockSignatureHost: false,
-            allowUnresolvedImports: true,
-            runtimeLogLevel: 0,
-          },
-          this._jsCallback,
-        )
-      }
       case 'chain_getHeader':
         return this.getHeader()
       case 'chain_getBlock':

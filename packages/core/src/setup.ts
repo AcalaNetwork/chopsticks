@@ -51,14 +51,22 @@ export const setup = async (options: Options) => {
 
   let blockHash: string
   if (options.block == null) {
-    blockHash = await api.getBlockHash()
+    blockHash = await api.getBlockHash().then((hash) => {
+      if (!hash) {
+        // should not happen, but just in case
+        throw new Error('Cannot find block hash')
+      }
+      return hash
+    })
   } else if (typeof options.block === 'string' && options.block.startsWith('0x')) {
     blockHash = options.block as string
   } else if (Number.isInteger(+options.block)) {
-    blockHash = await api.getBlockHash(Number(options.block))
-    if (!blockHash) {
-      throw new Error(`Cannot find block hash for ${options.block}`)
-    }
+    blockHash = await api.getBlockHash(Number(options.block)).then((hash) => {
+      if (!hash) {
+        throw new Error(`Cannot find block hash for ${options.block}`)
+      }
+      return hash
+    })
   } else {
     throw new Error(`Invalid block number or hash: ${options.block}`)
   }
@@ -71,6 +79,9 @@ export const setup = async (options: Options) => {
   }
 
   const header = await api.getHeader(blockHash)
+  if (!header) {
+    throw new Error(`Cannot find header for ${blockHash}`)
+  }
 
   const inherents = new InherentProviders(new SetTimestamp(), [
     new SetValidationData(),
