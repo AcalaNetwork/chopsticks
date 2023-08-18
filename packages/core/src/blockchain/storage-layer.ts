@@ -42,7 +42,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     if (this.#db) {
       const res = await keyValuePair?.findOne({ where: { key, blockHash: this.#at } })
       if (res) {
-        return res.value
+        return res.value ?? undefined
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
@@ -79,7 +79,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
 
       // fetch a batch of keys
-      const batch = await this.#api.getKeysPaged(prefix, BATCH_SIZE, startKey, this.#at).then((keys) => keys ?? [])
+      const batch = await this.#api.getKeysPaged(prefix, BATCH_SIZE, startKey, this.#at)
       batchComplete = batch.length < BATCH_SIZE
 
       // feed the key cache

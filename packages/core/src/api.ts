@@ -86,10 +86,6 @@ export class Api {
     return this.#provider.send<string>('system_chain', [])
   }
 
-  async getMetadata(hash?: string) {
-    return this.#provider.send<string | null>('state_getMetadata', hash ? [hash] : [])
-  }
-
   async getBlockHash(blockNumber?: number) {
     return this.#provider.send<HexString | null>(
       'chain_getBlockHash',
@@ -114,6 +110,6 @@ export class Api {
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
     const params = [prefix, pageSize, startKey]
     if (hash) params.push(hash)
-    return this.#provider.send<string[] | null>('state_getKeysPaged', params)
+    return this.#provider.send<string[]>('state_getKeysPaged', params)
   }
 }

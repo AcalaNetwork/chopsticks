@@ -5,7 +5,7 @@ import { HexString } from '@polkadot/util/types'
 export const KeyValuePair = new EntitySchema<{
   blockHash: string
   key: string
-  value?: string
+  value: string | null
 }>({
   name: 'KeyValuePair',
   columns: {
@@ -30,9 +30,9 @@ export const BlockEntity = new EntitySchema<{
   hash: HexString
   number: number
   header: Header
-  parentHash?: HexString
+  parentHash: HexString | null
   extrinsics: HexString[]
-  storageDiff?: Record<HexString, HexString | null>
+  storageDiff: Record<HexString, HexString | null> | null
 }>({
   name: 'Block',
   columns: {

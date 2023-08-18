@@ -140,8 +140,9 @@ export class Blockchain {
         .getRepository(BlockEntity)
         .findOne({ where: { [typeof key === 'number' ? 'number' : 'hash']: key } })
       if (blockData) {
-        const { hash, number, header, extrinsics, parentHash, storageDiff } = blockData
+        const { hash, number, header, extrinsics, parentHash } = blockData
         const parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
+        const storageDiff = blockData.storageDiff ?? undefined
         const block = new Block(this, number, hash, parentBlock, { header, extrinsics, storageDiff })
         this.#registerBlock(block)
         return block
