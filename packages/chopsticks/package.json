@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks",
-	"version": "0.8.0-4",
+	"version": "0.8.0-5",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
@@ -23,17 +23,17 @@
 		"dotenv": "^16.3.1",
 		"global-agent": "^3.0.0",
 		"js-yaml": "^4.1.0",
-		"jsondiffpatch": "^0.4.1",
+		"jsondiffpatch": "^0.5.0",
 		"lodash": "^4.17.21",
 		"ws": "^8.13.0",
 		"yargs": "^17.7.2",
-		"zod": "^3.21.4"
+		"zod": "^3.22.2"
 	},
 	"devDependencies": {
 		"@types/global-agent": "^2.1.1",
 		"@types/js-yaml": "^4.0.5",
 		"@types/lodash": "^4.14.197",
-		"@types/node": "^20.4.9",
+		"@types/node": "^20.5.1",
 		"@types/ws": "^8.5.5",
 		"@types/yargs": "^17.0.24",
 		"ts-node": "^10.9.1",

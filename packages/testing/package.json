@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-testing",
-	"version": "0.8.0-4",
+	"version": "0.8.0-5",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"scripts": {
@@ -11,7 +11,7 @@
 		"@acala-network/chopsticks": "workspace:*"
 	},
 	"peerDependencies": {
-		"vitest": "^0.33.0"
+		"vitest": "^0.34.0"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.3.5",

@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-core",
-	"version": "0.8.0-4",
+	"version": "0.8.0-5",
 	"author": "Bryan Chen <xlchen1291@gmail.com>",
 	"license": "Apache-2.0",
 	"scripts": {
@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
 		"@polkadot/api": "^10.9.1",
+		"@polkadot/util-crypto": "^12.3.2",
 		"axios": "^1.4.0",
 		"eventemitter3": "^5.0.1",
 		"localforage": "^1.10.0",
@@ -20,7 +21,7 @@
 		"sql.js": "^1.8.0",
 		"sqlite3": "^5.1.6",
 		"typeorm": "^0.3.17",
-		"zod": "^3.21.4"
+		"zod": "^3.22.2"
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.14.197",
