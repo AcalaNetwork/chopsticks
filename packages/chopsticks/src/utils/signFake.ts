@@ -1,8 +1,8 @@
-import { ApiPromise } from "@polkadot/api";
-import { GenericExtrinsic } from "@polkadot/types"
-import { SignatureOptions } from "@polkadot/types/types"
+import { ApiPromise } from '@polkadot/api'
+import { GenericExtrinsic } from '@polkadot/types'
+import { SignatureOptions } from '@polkadot/types/types'
 
-export type SignFakeOptions = Partial<SignatureOptions>;
+export type SignFakeOptions = Partial<SignatureOptions>
 
 export const signFakeWithApi = async (
   api: ApiPromise,
@@ -10,7 +10,7 @@ export const signFakeWithApi = async (
   addr: string,
   options: SignFakeOptions = {},
 ) => {
-  const nonce = options.nonce ?? (await api.query.system.account(addr)).nonce;
+  const nonce = options.nonce ?? (await api.query.system.account(addr)).nonce
 
   return signFake(tx, addr, {
     nonce,
@@ -18,20 +18,16 @@ export const signFakeWithApi = async (
     runtimeVersion: api.runtimeVersion,
     blockHash: api.genesisHash,
     ...options,
-  });
+  })
 }
 
-export const signFake = (
-  tx: GenericExtrinsic,
-  addr: string,
-  options: SignatureOptions,
-) => {
-  const mockSignature = new Uint8Array(64);
-  mockSignature.fill(0xcd);
-  mockSignature.set([0xde, 0xad, 0xbe, 0xef]);
-  tx.signFake(addr, options);
+export const signFake = (tx: GenericExtrinsic, addr: string, options: SignatureOptions) => {
+  const mockSignature = new Uint8Array(64)
+  mockSignature.fill(0xcd)
+  mockSignature.set([0xde, 0xad, 0xbe, 0xef])
+  tx.signFake(addr, options)
 
-  tx.signature.set(mockSignature);
+  tx.signature.set(mockSignature)
 
-  return tx;
+  return tx
 }
