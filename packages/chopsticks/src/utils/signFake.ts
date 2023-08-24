@@ -8,7 +8,7 @@ export const signFakeWithApi = async (
   api: ApiPromise,
   tx: GenericExtrinsic,
   addr: string,
-  options: signFakeOptions = {},
+  options: SignFakeOptions = {},
 ) => {
   const nonce = options.nonce ?? (await api.query.system.account(addr)).nonce;
 
