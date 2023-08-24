@@ -2,7 +2,7 @@ import { ApiPromise } from "@polkadot/api";
 import { GenericExtrinsic } from "@polkadot/types"
 import { SignatureOptions } from "@polkadot/types/types"
 
-export type signFakeOptions = Partial<SignatureOptions>;
+export type SignFakeOptions = Partial<SignatureOptions>;
 
 export const signFakeWithApi = async (
   api: ApiPromise,
