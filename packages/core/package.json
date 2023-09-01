@@ -12,7 +12,7 @@
 		"@acala-network/chopsticks-executor": "workspace:*",
 		"@polkadot/api": "^10.9.1",
 		"@polkadot/util-crypto": "^12.3.2",
-		"axios": "^1.4.0",
+		"axios": "^1.5.0",
 		"eventemitter3": "^5.0.1",
 		"localforage": "^1.10.0",
 		"lodash": "^4.17.21",
