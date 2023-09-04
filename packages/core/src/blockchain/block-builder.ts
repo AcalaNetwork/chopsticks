@@ -52,7 +52,7 @@ const getNewSlot = (digest: RawBabePreDigest, slotNumber: number) => {
   return digest.toJSON()
 }
 
-export const newHeader = async (head: Block) => {
+export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
   const meta = await head.meta
   const parentHeader = await head.header
 
@@ -91,7 +91,7 @@ export const newHeader = async (head: Block) => {
 
   const header = meta.registry.createType<Header>('Header', {
     parentHash: head.hash,
-    number: head.number + 1,
+    number: unsafeBlockHeight ?? head.number + 1,
     stateRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
     extrinsicsRoot: '0x0000000000000000000000000000000000000000000000000000000000000000',
     digest: {
@@ -147,17 +147,23 @@ export const buildBlock = async (
   extrinsics: HexString[],
   ump: Record<number, HexString[]>,
   onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void,
+  unsafeBlockHeight?: number,
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
-  const header = await newHeader(head)
+  const header = await newHeader(head, unsafeBlockHeight)
+  const newBlockNumber = unsafeBlockHeight ?? header.number.toNumber()
+
+  if (newBlockNumber < head.number) {
+    throw new Error('unsafeBlockHeight is not allowed to be less than current block number')
+  }
 
   logger.info(
     {
-      number: head.number + 1,
+      number: newBlockNumber,
       extrinsicsCount: extrinsics.length,
       umpCount: Object.keys(ump).length,
     },
-    `Try building block #${(head.number + 1).toLocaleString()}`,
+    `Try building block #${newBlockNumber.toLocaleString()}`,
   )
 
   let layer: StorageLayer | undefined

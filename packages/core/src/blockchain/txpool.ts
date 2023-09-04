@@ -34,6 +34,7 @@ export interface BuildBlockParams {
   upwardMessages: Record<number, HexString[]>
   horizontalMessages: Record<number, HorizontalMessage[]>
   transactions: HexString[]
+  unsafeBlockHeight?: number
 }
 
 export class TxPool {
@@ -171,6 +172,7 @@ export class TxPool {
     const upwardMessages = params?.upwardMessages || { ...this.#ump }
     const downwardMessages = params?.downwardMessages || this.#dmp.splice(0)
     const horizontalMessages = params?.horizontalMessages || { ...this.#hrmp }
+    const unsafeBlockHeight = params?.unsafeBlockHeight
     if (!params?.upwardMessages) {
       for (const id of Object.keys(this.#ump)) {
         delete this.#ump[id]
@@ -186,6 +188,7 @@ export class TxPool {
       upwardMessages,
       downwardMessages,
       horizontalMessages,
+      unsafeBlockHeight,
     })
   }
 
@@ -231,6 +234,7 @@ export class TxPool {
       (extrinsic, error) => {
         this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
       },
+      params.unsafeBlockHeight,
     )
     for (const extrinsic of pendingExtrinsics) {
       this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })
