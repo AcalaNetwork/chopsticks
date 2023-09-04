@@ -40,4 +40,13 @@ describe.each([
     expect(chain.head.number).eq(blockNumber + 2)
     await teardown()
   })
+
+  it.runIf(process.env.CI)('build block using unsafeBlockHeight', async () => {
+    const { chain, ws, teardown } = await setup()
+    storage && (await ws.send('dev_setStorage', [storage]))
+    const blockNumber = chain.head.number
+    await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight: blockNumber + 100 }])
+    expect(chain.head.number).eq(blockNumber + 102)
+    await teardown()
+  })
 })
