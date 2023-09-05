@@ -19,6 +19,7 @@ import {
   SetValidationData,
 } from './blockchain/inherent'
 import { defaultLogger } from './logger'
+import { getLogLevel } from './utils'
 import { openDb } from './db'
 
 type Options = {
@@ -36,6 +37,9 @@ type Options = {
 }
 
 export const setup = async (options: Options) => {
+  defaultLogger.level = getLogLevel(options.runtimeLogLevel)
+  defaultLogger.info(`Runtime log level set to ${defaultLogger.level}`)
+
   let provider: ProviderInterface
   if (options.genesis) {
     if (typeof options.genesis === 'string') {

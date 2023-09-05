@@ -7,6 +7,7 @@ import { Blockchain } from '../blockchain'
 export * from './set-storage'
 export * from './time-travel'
 export * from './decoder'
+export * from './log-level'
 
 export type GetKeys = (startKey?: string) => Promise<StorageKey<any>[]>
 
