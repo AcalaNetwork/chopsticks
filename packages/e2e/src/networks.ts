@@ -2,7 +2,7 @@ import { config as dotenvConfig } from 'dotenv'
 
 import { SetupOption, setupContext } from '@acala-network/chopsticks-testing'
 
-dotenvConfig()
+dotenvConfig
 
 const endpoints = {
   polkadot: 'wss://rpc.polkadot.io',
