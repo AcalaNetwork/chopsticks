@@ -40,7 +40,7 @@ export class Blockchain {
   readonly db: DataSource | undefined
   readonly mockSignatureHost: boolean
   readonly allowUnresolvedImports: boolean
-  readonly runtimeLogLevel: number
+  #runtimeLogLevel: number
   readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
@@ -73,7 +73,7 @@ export class Blockchain {
     this.db = db
     this.mockSignatureHost = mockSignatureHost
     this.allowUnresolvedImports = allowUnresolvedImports
-    this.runtimeLogLevel = runtimeLogLevel
+    this.#runtimeLogLevel = runtimeLogLevel
     this.registeredTypes = registeredTypes
 
     this.#head = new Block(this, header.number, header.hash)
@@ -107,6 +107,14 @@ export class Blockchain {
 
   get txPool() {
     return this.#txpool
+  }
+
+  get runtimeLogLevel(): number {
+    return this.#runtimeLogLevel
+  }
+
+  set runtimeLogLevel(level: number) {
+    this.#runtimeLogLevel = level
   }
 
   async saveBlockToDB(block: Block) {
