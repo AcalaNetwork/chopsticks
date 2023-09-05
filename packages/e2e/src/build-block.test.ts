@@ -45,8 +45,9 @@ describe.each([
     const { chain, ws, teardown } = await setup()
     storage && (await ws.send('dev_setStorage', [storage]))
     const blockNumber = chain.head.number
-    await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight: blockNumber + 100 }])
-    expect(chain.head.number).eq(blockNumber + 102)
+    const unsafeBlockHeight = blockNumber + 100
+    await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight }])
+    expect(chain.head.number).eq(unsafeBlockHeight + 1)
     await teardown()
   })
 })
