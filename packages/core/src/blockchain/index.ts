@@ -115,6 +115,7 @@ export class Blockchain {
 
   set runtimeLogLevel(level: number) {
     this.#runtimeLogLevel = level
+    logger.debug(`Runtime log level set to ${logger.level}`)
   }
 
   async saveBlockToDB(block: Block) {
