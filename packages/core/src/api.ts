@@ -1,6 +1,7 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { mergeKey } from './utils'
 
 type ChainProperties = {
   ss58Format?: number
@@ -111,5 +112,19 @@ export class Api {
     const params = [prefix, pageSize, startKey]
     if (hash) params.push(hash)
     return this.#provider.send<string[]>('state_getKeysPaged', params)
+  }
+
+  async getChildStorage(child: string, key: string, hash?: string) {
+    const params = [child, key]
+    if (hash) params.push(hash)
+    return this.#provider.send<string | null>('childstate_getStorage', params)
+  }
+
+  async getChildKeysPaged(child: string, prefix: string, pageSize: number, startKey: string, hash?: string) {
+    const params = [child, prefix, pageSize, startKey]
+    if (hash) params.push(hash)
+    return this.#provider
+      .send<string[]>('childstate_getKeysPaged', params)
+      .then((keys) => keys.map((k) => mergeKey(child, k)))
   }
 }

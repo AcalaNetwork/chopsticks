@@ -110,8 +110,8 @@ export class Block {
     return this.#storages[this.#storages.length - 1] ?? this.#baseStorage
   }
 
-  async get(key: string): Promise<string | undefined> {
-    const val = await this.storage.get(key, true)
+  async get(key: string, child?: string): Promise<string | undefined> {
+    const val = await this.storage.get(key, true, child)
     switch (val) {
       case StorageValueKind.Deleted:
         return undefined
@@ -120,7 +120,12 @@ export class Block {
     }
   }
 
-  async getKeysPaged(options: { prefix?: string; startKey?: string; pageSize: number }): Promise<string[]> {
+  async getKeysPaged(options: {
+    prefix?: string
+    startKey?: string
+    pageSize: number
+    child?: string
+  }): Promise<string[]> {
     const layer = new StorageLayer(this.storage)
     await layer.fold()
 
@@ -128,7 +133,7 @@ export class Block {
     const startKey = options.startKey ?? prefix
     const pageSize = options.pageSize
 
-    return layer.getKeysPaged(prefix, pageSize, startKey)
+    return layer.getKeysPaged(prefix, pageSize, startKey, options.child)
   }
 
   pushStorageLayer(): StorageLayer {

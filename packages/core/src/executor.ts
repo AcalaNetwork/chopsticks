@@ -85,18 +85,19 @@ export const runTask = async (
 
 export const taskHandler = (block: Block): JsCallback => {
   return {
-    getStorage: async function (key: HexString) {
-      return block.get(key)
+    getStorage: async function (key: HexString, child?: HexString) {
+      return block.get(key, child)
     },
     getStateRoot: async function () {
       const header = await block.header
       return header.stateRoot.toHex()
     },
-    getNextKey: async function (prefix: HexString, key: HexString) {
+    getNextKey: async function (prefix: HexString, key: HexString, child?: HexString) {
       const [nextKey] = await block.getKeysPaged({
         prefix: prefix.length === 2 /** 0x */ ? key.slice(0, PREFIX_LENGTH) : prefix,
         pageSize: 1,
         startKey: key,
+        child,
       })
       return nextKey
     },

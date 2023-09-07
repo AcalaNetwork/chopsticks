@@ -1,6 +1,7 @@
 import { HexString } from '@polkadot/util/types'
 import { StorageKey } from '@polkadot/types'
 import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
+import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 
 import { Blockchain } from '../blockchain'
 
@@ -73,3 +74,11 @@ export function defer<T>() {
   })
   return deferred
 }
+
+export const mergeKey = (...keys: (string | undefined)[]) =>
+  hexAddPrefix(
+    keys
+      .filter((x) => !!x)
+      .map((hex) => hexStripPrefix(hex))
+      .join(''),
+  )

@@ -1,49 +1,49 @@
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
-import z from 'zod'
+import zod from 'zod'
 
 import { Handler, ResponseError } from '../../rpc/shared'
 import { decodeStorageDiff } from '../../utils/decoder'
 import { generateHtmlDiff } from '../../utils/generate-html-diff'
 
-const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
-const zHash = z.string().length(66).and(zHex)
-const zParaId = z.string().regex(/^\d+$/).transform(Number)
+const zHex = zod.custom<HexString>((val: any) => /^0x\w+$/.test(val))
+const zHash = zod.string().length(66).and(zHex)
+const zParaId = zod.string().regex(/^\d+$/).transform(Number)
 
-const schema = z.object({
-  raw: z.boolean().optional(),
-  html: z.boolean().optional(),
+const schema = zod.object({
+  raw: zod.boolean().optional(),
+  html: zod.boolean().optional(),
   extrinsic: zHex
     .or(
-      z.object({
+      zod.object({
         call: zHex,
         address: zHex,
       }),
     )
     .optional(),
-  hrmp: z
+  hrmp: zod
     .record(
       zParaId,
-      z
+      zod
         .array(
-          z.object({
-            sentAt: z.number(),
+          zod.object({
+            sentAt: zod.number(),
             data: zHex,
           }),
         )
         .min(1),
     )
     .optional(),
-  dmp: z
+  dmp: zod
     .array(
-      z.object({
-        sentAt: z.number(),
+      zod.object({
+        sentAt: zod.number(),
         msg: zHex,
       }),
     )
     .min(1)
     .optional(),
-  ump: z.record(zParaId, z.array(zHex).min(1)).optional(),
+  ump: zod.record(zParaId, zod.array(zHex).min(1)).optional(),
   at: zHash.optional(),
 })
 

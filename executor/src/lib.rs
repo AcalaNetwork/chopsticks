@@ -20,9 +20,9 @@ fn setup_console(level: Option<String>) {
 const _: &'static str = r#"
 import { HexString } from '@polkadot/util/types';
 export interface JsCallback {
-	getStorage: (key: HexString) => Promise<string | undefined>
+	getStorage: (key: HexString, child?: HexString) => Promise<string | undefined>
 	getStateRoot: () => Promise<string>
-	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
+	getNextKey: (prefix: HexString, key: HexString, child?: HexString) => Promise<string | undefined>
 	offchainGetStorage: (key: HexString) => Promise<string | undefined>
 	offchainTimestamp: () => Promise<number>
 	offchainRandomSeed: () => Promise<HexString>
@@ -36,13 +36,18 @@ extern "C" {
     pub type JsCallback;
 
     #[wasm_bindgen(structural, method, js_name = "getStorage")]
-    pub async fn get_storage(this: &JsCallback, key: JsValue) -> JsValue;
+    pub async fn get_storage(this: &JsCallback, key: JsValue, child: JsValue) -> JsValue;
 
     #[wasm_bindgen(structural, method, js_name = "getStateRoot")]
     pub async fn get_state_root(this: &JsCallback) -> JsValue;
 
     #[wasm_bindgen(structural, method, js_name = "getNextKey")]
-    pub async fn get_next_key(this: &JsCallback, prefix: JsValue, key: JsValue) -> JsValue;
+    pub async fn get_next_key(
+        this: &JsCallback,
+        prefix: JsValue,
+        key: JsValue,
+        child: JsValue,
+    ) -> JsValue;
 
     #[wasm_bindgen(structural, method, js_name = "offchainGetStorage")]
     pub async fn offchain_get_storage(this: &JsCallback, key: JsValue) -> JsValue;
