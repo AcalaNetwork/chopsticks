@@ -84,7 +84,7 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
     ws,
     api,
     dev: {
-      newBlock: (param?: { count?: number; to?: number }): Promise<string> => {
+      newBlock: (param?: { count?: number; to?: number; unsafeBlockHeight?: number }): Promise<string> => {
         return ws.send('dev_newBlock', [param])
       },
       setStorage: (values: StorageValues, blockHash?: string) => {

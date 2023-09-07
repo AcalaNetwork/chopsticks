@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { signFake, signFakeWithApi } from '@acala-network/chopsticks/utils'
 
 import { api, dev, env, setupApi, testingPairs } from './helper'
 
@@ -39,7 +40,22 @@ describe('mock signature', () => {
     await expect(tx.send()).rejects.toThrow('1010: {"invalid":{"badProof":null}}')
   })
 
-  it('accept mock signature', async () => {
+  it('accept mock signature (with api)', async () => {
+    const { alice, bob } = testingPairs()
+    await dev.setStorage({
+      System: {
+        Account: [[[alice.address], { providers: 1, data: { free: 1000 * 1e12 } }]],
+      },
+    })
+
+    const tx = api.tx.balances.transfer(bob.address, 100)
+
+    await signFakeWithApi(api, tx, alice.address)
+
+    await expect(tx.send()).resolves.toBeTruthy()
+  })
+
+  it('accept mock signature (manually input options)', async () => {
     const { alice, bob } = testingPairs()
     await dev.setStorage({
       System: {
@@ -50,17 +66,12 @@ describe('mock signature', () => {
     const { nonce } = await api.query.system.account(alice.address)
     const tx = api.tx.balances.transfer(bob.address, 100)
 
-    tx.signFake(alice.address, {
+    signFake(tx, alice.address, {
       nonce,
       genesisHash: api.genesisHash,
       runtimeVersion: api.runtimeVersion,
       blockHash: api.genesisHash,
     })
-
-    const mockSignature = new Uint8Array(64)
-    mockSignature.fill(0xcd)
-    mockSignature.set([0xde, 0xad, 0xbe, 0xef])
-    tx.signature.set(mockSignature)
 
     await expect(tx.send()).resolves.toBeTruthy()
   })
