@@ -1,4 +1,5 @@
 import './utils/tunnel'
+import { BlockEntity } from '@acala-network/chopsticks-core/db/entities'
 import { Config } from './schema'
 import { HexString } from '@polkadot/util/types'
 import { overrideStorage, overrideWasm } from './utils/override'
@@ -33,6 +34,16 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   // added that have storage imports
   await overrideStorage(chain, argv['import-storage'], at)
   await overrideWasm(chain, argv['wasm-override'], at)
+
+  // load blocks from db
+  if (chain.db && argv.resume) {
+    const blocks = await chain.db.getRepository(BlockEntity).find({ where: {}, order: { number: 'asc' } })
+    let head
+    for (const block of blocks) {
+      head = await chain.loadBlockFromDB(block.number)
+    }
+    await chain.setHead(head)
+  }
 
   return { chain }
 }

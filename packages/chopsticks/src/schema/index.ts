@@ -22,6 +22,7 @@ export const configSchema = z
     'registered-types': z.any().optional(),
     'runtime-log-level': z.number().min(0).max(5).optional(),
     'offchain-worker': z.boolean().optional(),
+    resume: z.boolean().optional(),
   })
   .strict()
 
