@@ -56,7 +56,7 @@ const handlers: Handlers = {
       })
       .catch((error: TransactionValidityError) => {
         logger.error({ error }, 'ExtrinsicFailed')
-        callback(error?.toJSON() ?? error)
+        callback(error?.toJSON?.() ?? error)
         done(id)
       })
     return id
