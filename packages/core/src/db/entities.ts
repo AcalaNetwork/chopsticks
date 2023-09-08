@@ -1,5 +1,4 @@
 import { EntitySchema } from 'typeorm'
-import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 
 export const KeyValuePair = new EntitySchema<{
@@ -29,7 +28,7 @@ export const KeyValuePair = new EntitySchema<{
 export const BlockEntity = new EntitySchema<{
   hash: HexString
   number: number
-  header: Header
+  header: object
   parentHash: HexString | null
   extrinsics: HexString[]
   storageDiff: Record<HexString, HexString | null> | null
