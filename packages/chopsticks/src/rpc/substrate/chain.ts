@@ -1,7 +1,12 @@
 import { Handlers, ResponseError } from '../shared'
 
 const processHeader = (header: any) => {
-  const res = header.toJSON() as any
+  let res: any
+  if (header?.toJSON) {
+    res = header.toJSON()
+  } else {
+    res = header
+  }
   res.number = '0x' + res.number.toString(16) // number is hex format
   return res
 }
