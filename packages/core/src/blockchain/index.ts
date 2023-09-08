@@ -1,4 +1,4 @@
-import { ApplyExtrinsicResult } from '@polkadot/types/interfaces'
+import { ApplyExtrinsicResult, Header } from '@polkadot/types/interfaces'
 import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
 import { RegisteredTypes } from '@polkadot/types/types'
@@ -152,7 +152,12 @@ export class Blockchain {
         const { hash, number, header, extrinsics, parentHash } = blockData
         const parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
         const storageDiff = blockData.storageDiff ?? undefined
-        const block = new Block(this, number, hash, parentBlock, { header, extrinsics, storageDiff })
+        const registry = await this.head.registry
+        const block = new Block(this, number, hash, parentBlock, {
+          header: registry.createType<Header>('Header', header),
+          extrinsics,
+          storageDiff,
+        })
         this.#registerBlock(block)
         return block
       }
