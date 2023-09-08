@@ -1,6 +1,7 @@
 import { Handlers, ResponseError } from '../shared'
+import { Header } from '@polkadot/types/interfaces'
 
-const processHeader = (header: any) => {
+const processHeader = (header: Header) => {
   const res = header.toJSON() as any
   res.number = '0x' + res.number.toString(16) // number is hex format
   return res
