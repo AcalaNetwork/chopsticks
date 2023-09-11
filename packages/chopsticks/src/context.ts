@@ -20,21 +20,15 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     maxMemoryBlockCount: argv['max-memory-block-count'],
   })
 
-  // load blocks from db
+  // load block from db
   if (chain.db) {
     if (argv.resume) {
-      const blocks = await chain.db.getRepository(BlockEntity).find({ where: {}, order: { number: 'asc' } })
-      // validate the first block in db is chain.head+1 and db blocks are consecutive
-      const canResume = blocks.length && blocks.every((block, index) => block.number === chain.head.number + index + 1)
-      if (canResume) {
-        let head
-        for (const block of blocks) {
-          head = await chain.loadBlockFromDB(block.number)
-        }
-        await chain.setHead(head)
+      const blockData = await chain.db.getRepository(BlockEntity).findOne({ where: {}, order: { number: 'desc' } })
+      if (blockData) {
+        const block = await chain.loadBlockFromDB(blockData?.number)
+        block && (await chain.setHead(block))
       }
     } else {
-      // starting without resume should clear blocks from db
       await chain.db.getRepository(BlockEntity).clear()
     }
   }
