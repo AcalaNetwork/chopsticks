@@ -1,4 +1,5 @@
 import './utils/tunnel'
+import { BlockEntity } from '@acala-network/chopsticks-core/db/entities'
 import { Config } from './schema'
 import { HexString } from '@polkadot/util/types'
 import { overrideStorage, overrideWasm } from './utils/override'
@@ -18,6 +19,28 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     offchainWorker: argv['offchain-worker'],
     maxMemoryBlockCount: argv['max-memory-block-count'],
   })
+
+  // load block from db
+  if (chain.db) {
+    if (argv.resume) {
+      const where: Record<string, string | number> = {}
+      switch (typeof argv.resume) {
+        case 'string':
+          where.hash = argv.resume
+          break
+        case 'number':
+          where.number = argv.resume
+          break
+        default:
+          break
+      }
+      const blockData = await chain.db.getRepository(BlockEntity).findOne({ where, order: { number: 'desc' } })
+      if (blockData) {
+        const block = await chain.loadBlockFromDB(blockData?.number)
+        block && (await chain.setHead(block))
+      }
+    }
+  }
 
   if (argv.timestamp) await timeTravel(chain, argv.timestamp)
 
