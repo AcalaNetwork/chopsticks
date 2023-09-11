@@ -20,6 +20,25 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     maxMemoryBlockCount: argv['max-memory-block-count'],
   })
 
+  // load blocks from db
+  if (chain.db) {
+    if (argv.resume) {
+      const blocks = await chain.db.getRepository(BlockEntity).find({ where: {}, order: { number: 'asc' } })
+      // validate the first block in db is chain.head+1 and db blocks are consecutive
+      const canResume = blocks.length && blocks.every((block, index) => block.number === chain.head.number + index + 1)
+      if (canResume) {
+        let head
+        for (const block of blocks) {
+          head = await chain.loadBlockFromDB(block.number)
+        }
+        await chain.setHead(head)
+      }
+    } else {
+      // starting without resume should clear blocks from db
+      await chain.db.getRepository(BlockEntity).clear()
+    }
+  }
+
   if (argv.timestamp) await timeTravel(chain, argv.timestamp)
 
   let at: HexString | undefined
@@ -34,25 +53,6 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   // added that have storage imports
   await overrideStorage(chain, argv['import-storage'], at)
   await overrideWasm(chain, argv['wasm-override'], at)
-
-  // load blocks from db
-  if (chain.db) {
-    if (argv.resume) {
-      const blocks = await chain.db.getRepository(BlockEntity).find({ where: {}, order: { number: 'asc' } })
-      // validate the first block in db is chain.head+1 and db blocks are consecutive
-      const canResume = blocks.every((block, index) => block.number === chain.head.number + index + 1)
-      if (canResume) {
-        let head
-        for (const block of blocks) {
-          head = await chain.loadBlockFromDB(block.number)
-        }
-        await chain.setHead(head)
-      }
-    } else {
-      // starting without resume should clear blocks from db
-      await chain.db.getRepository(BlockEntity).clear()
-    }
-  }
 
   return { chain }
 }
