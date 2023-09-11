@@ -156,6 +156,7 @@ export class Blockchain {
         const block = new Block(this, number, hash, parentBlock, {
           header: registry.createType<Header>('Header', header),
           extrinsics,
+          storage: parentBlock?.storage,
           storageDiff,
         })
         this.#registerBlock(block)
