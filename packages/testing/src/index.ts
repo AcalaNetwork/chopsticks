@@ -25,7 +25,7 @@ export type SetupOption = {
   timeout?: number
   port?: number
   maxMemoryBlockCount?: number
-  resume?: boolean
+  resume?: boolean | HexString | number
 }
 
 export type SetupConfig = Config & {

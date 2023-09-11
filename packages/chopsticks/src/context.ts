@@ -23,13 +23,22 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   // load block from db
   if (chain.db) {
     if (argv.resume) {
-      const blockData = await chain.db.getRepository(BlockEntity).findOne({ where: {}, order: { number: 'desc' } })
+      const where: Record<string, string | number> = {}
+      switch (typeof argv.resume) {
+        case 'string':
+          where.hash = argv.resume
+          break
+        case 'number':
+          where.number = argv.resume
+          break
+        default:
+          break
+      }
+      const blockData = await chain.db.getRepository(BlockEntity).findOne({ where, order: { number: 'desc' } })
       if (blockData) {
         const block = await chain.loadBlockFromDB(blockData?.number)
         block && (await chain.setHead(block))
       }
-    } else {
-      await chain.db.getRepository(BlockEntity).clear()
     }
   }
 

@@ -45,8 +45,10 @@ const commands = yargs(hideBin(process.argv))
           number: true,
         },
         resume: {
-          desc: 'Resume from the lastest block saved in the db, note this will override the block option',
-          boolean: true,
+          desc: `Resume from the specified block hash or block number in db.
+                 If true, it will resume from the latest block in db.
+                 Note this will override the block option`,
+          string: true,
         },
       }),
     async (argv) => {
