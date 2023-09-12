@@ -86,6 +86,12 @@ describe('author rpc', async () => {
     await expect(tx.send()).rejects.toThrow('1010: {"invalid":{"badProof":null}}')
   })
 
+  it('reject unsigned extrinsic', async () => {
+    const tx = api.tx.balances.transfer(bob.address, 100)
+
+    await expect(tx.send()).rejects.toThrow('1011: {"unknown":{"noUnsignedValidator":null}}')
+  })
+
   it('failed apply extirinsic', async () => {
     const finalized = defer<void>()
     const invalid = defer<string>()
