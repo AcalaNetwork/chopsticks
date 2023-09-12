@@ -1,7 +1,7 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
-import { mergeKey } from './utils'
+import { mergeKey, splitChild, stripChild } from './utils'
 
 type ChainProperties = {
   ss58Format?: number
@@ -103,28 +103,31 @@ export class Api {
   }
 
   async getStorage(key: string, hash?: string) {
-    const params = [key]
-    if (hash) params.push(hash)
-    return this.#provider.send<string | null>('state_getStorage', params)
+    const parts = splitChild(key)
+    if (parts) {
+      const params = parts
+      if (hash) params.push(hash)
+      return this.#provider.send<string | null>('childstate_getStorage', params)
+    } else {
+      const params = [key]
+      if (hash) params.push(hash)
+      return this.#provider.send<string | null>('state_getStorage', params)
+    }
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
-    const params = [prefix, pageSize, startKey]
-    if (hash) params.push(hash)
-    return this.#provider.send<string[]>('state_getKeysPaged', params)
-  }
-
-  async getChildStorage(child: string, key: string, hash?: string) {
-    const params = [child, key]
-    if (hash) params.push(hash)
-    return this.#provider.send<string | null>('childstate_getStorage', params)
-  }
-
-  async getChildKeysPaged(child: string, prefix: string, pageSize: number, startKey: string, hash?: string) {
-    const params = [child, prefix, pageSize, startKey]
-    if (hash) params.push(hash)
-    return this.#provider
-      .send<string[]>('childstate_getKeysPaged', params)
-      .then((keys) => keys.map((k) => mergeKey(child, k)))
+    const parts = splitChild(prefix)
+    if (parts) {
+      const child = parts[0]
+      const params = [...parts, pageSize, stripChild(startKey)]
+      if (hash) params.push(hash)
+      return this.#provider
+        .send<string[]>('childstate_getKeysPaged', params)
+        .then((keys) => keys.map((k) => mergeKey(child, k)))
+    } else {
+      const params = [prefix, pageSize, startKey]
+      if (hash) params.push(hash)
+      return this.#provider.send<string[]>('state_getKeysPaged', params)
+    }
   }
 }

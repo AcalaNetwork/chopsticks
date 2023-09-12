@@ -88,6 +88,8 @@ fn is_magic_signature(signature: &[u8]) -> bool {
     signature.starts_with(&[0xde, 0xad, 0xbe, 0xef]) && signature[4..].iter().all(|&b| b == 0xcd)
 }
 
+const DEFAULT_CHILD_STORAGE_PREFIX: &[u8] = b":child_storage:default:";
+
 pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, String> {
     let mut storage_main_trie_changes = TrieDiff::default();
     let mut child_storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
@@ -123,20 +125,22 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                 }
 
                 RuntimeHostVm::StorageGet(req) => {
-                    let key = HexString(req.key().as_ref().to_vec());
-                    let key = to_value(&key).map_err(|e| e.to_string())?;
-                    let child = req
-                        .child_trie()
-                        .map(|x| {
-                            b":child_storage:default:"
+                    let key = if let Some(child) = req.child_trie() {
+                        HexString(
+                            DEFAULT_CHILD_STORAGE_PREFIX
                                 .iter()
-                                .chain(x.as_ref())
+                                .chain(child.as_ref())
+                                .chain(req.key().as_ref())
                                 .map(|x| x.to_owned())
-                                .collect::<Vec<u8>>()
-                        })
-                        .map(HexString);
-                    let child = to_value(&child).map_err(|e| e.to_string())?;
-                    let value = js.get_storage(key, child).await;
+                                .collect::<Vec<u8>>(),
+                        )
+                    } else {
+                        HexString(req.key().as_ref().to_vec())
+                    };
+
+                    let key = to_value(&key).map_err(|e| e.to_string())?;
+
+                    let value = js.get_storage(key).await;
                     let value = if value.is_string() {
                         let encoded = from_value::<HexString>(value)
                             .map(|x| x.0)
@@ -161,26 +165,35 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         // root_calculation, skip
                         req.inject_key(None::<Vec<_>>.map(|x| x.into_iter()))
                     } else {
-                        let prefix = HexString(
-                            nibbles_to_bytes_suffix_extend(req.prefix()).collect::<Vec<_>>(),
-                        );
-                        let key = HexString(
-                            nibbles_to_bytes_suffix_extend(req.key()).collect::<Vec<_>>(),
-                        );
-                        let child = req
-                            .child_trie()
-                            .map(|x| {
-                                b":child_storage:default:"
+                        let prefix = if let Some(child) = req.child_trie() {
+                            HexString(
+                                DEFAULT_CHILD_STORAGE_PREFIX
                                     .iter()
-                                    .chain(x.as_ref())
+                                    .chain(child.as_ref())
                                     .map(|x| x.to_owned())
-                                    .collect::<Vec<u8>>()
-                            })
-                            .map(HexString);
+                                    .chain(nibbles_to_bytes_suffix_extend(req.prefix()))
+                                    .collect::<Vec<u8>>(),
+                            )
+                        } else {
+                            HexString(
+                                nibbles_to_bytes_suffix_extend(req.prefix()).collect::<Vec<_>>(),
+                            )
+                        };
+                        let key = if let Some(child) = req.child_trie() {
+                            HexString(
+                                DEFAULT_CHILD_STORAGE_PREFIX
+                                    .iter()
+                                    .chain(child.as_ref())
+                                    .map(|x| x.to_owned())
+                                    .chain(nibbles_to_bytes_suffix_extend(req.key()))
+                                    .collect::<Vec<u8>>(),
+                            )
+                        } else {
+                            HexString(nibbles_to_bytes_suffix_extend(req.key()).collect::<Vec<_>>())
+                        };
                         let prefix = to_value(&prefix).map_err(|e| e.to_string())?;
                         let key = to_value(&key).map_err(|e| e.to_string())?;
-                        let child = to_value(&child).map_err(|e| e.to_string())?;
-                        let value = js.get_next_key(prefix, key, child).await;
+                        let value = js.get_next_key(prefix, key).await;
                         let value = if value.is_string() {
                             from_value::<HexString>(value)
                                 .map(|x| Some(x.0))
@@ -288,7 +301,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         let key = nibbles_to_bytes_suffix_extend(key.iter().map(|x| x.to_owned()))
                             .collect::<Vec<_>>();
 
-                        let final_key = b":child_storage:default:"
+                        let final_key = DEFAULT_CHILD_STORAGE_PREFIX
                             .iter()
                             .chain(child.unwrap().iter())
                             .chain(key.iter())

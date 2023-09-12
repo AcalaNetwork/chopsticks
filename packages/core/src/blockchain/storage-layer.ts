@@ -4,7 +4,6 @@ import _ from 'lodash'
 import { Api } from '../api'
 import { KeyValuePair } from '../db/entities'
 import { defaultLogger } from '../logger'
-import { mergeKey } from '../utils'
 import KeyCache from '../utils/key-cache'
 
 const logger = defaultLogger.child({ name: 'layer' })
@@ -19,11 +18,11 @@ export const enum StorageValueKind {
 export type StorageValue = string | StorageValueKind | undefined
 
 export interface StorageLayerProvider {
-  get(key: string, cache: boolean, child?: string): Promise<StorageValue>
+  get(key: string, cache: boolean): Promise<StorageValue>
   foldInto(into: StorageLayer): Promise<StorageLayerProvider | undefined>
   fold(): Promise<void>
 
-  getKeysPaged(prefix: string, pageSize: number, startKey: string, child?: string): Promise<string[]>
+  getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]>
 }
 
 export class RemoteStorageLayer implements StorageLayerProvider {
@@ -38,20 +37,17 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     this.#db = db
   }
 
-  async get(key: string, _cache: boolean, child?: string): Promise<StorageValue> {
-    const storageKey = mergeKey(child, key)
+  async get(key: string, _cache: boolean): Promise<StorageValue> {
     const keyValuePair = this.#db?.getRepository(KeyValuePair)
     if (this.#db) {
-      const res = await keyValuePair?.findOne({ where: { key: storageKey, blockHash: this.#at } })
+      const res = await keyValuePair?.findOne({ where: { key, blockHash: this.#at } })
       if (res) {
         return res.value ?? undefined
       }
     }
-    logger.trace({ at: this.#at, key, child }, 'RemoteStorageLayer get')
-    const data = child
-      ? await this.#api.getChildStorage(child, key, this.#at)
-      : await this.#api.getStorage(key, this.#at)
-    keyValuePair?.upsert({ key: storageKey, blockHash: this.#at, value: data }, ['key', 'blockHash'])
+    logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
+    const data = await this.#api.getStorage(key, this.#at)
+    keyValuePair?.upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
     return data ?? undefined
   }
 
@@ -60,16 +56,12 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   }
   async fold(): Promise<void> {}
 
-  async getKeysPaged(prefix: string, pageSize: number, startKey: string, child?: string): Promise<string[]> {
+  async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     if (pageSize > BATCH_SIZE) throw new Error(`pageSize must be less or equal to ${BATCH_SIZE}`)
-    logger.trace({ at: this.#at, prefix, pageSize, startKey, child }, 'RemoteStorageLayer getKeysPaged')
+    logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoteStorageLayer getKeysPaged')
     // can't handle keyCache without prefix
-    // can't handle keyCache for child keys
-    // TODO: cache child keys
-    if (prefix.length < 66 || !!child) {
-      return child
-        ? this.#api.getChildKeysPaged(child, prefix, pageSize, startKey, this.#at)
-        : this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
+    if (prefix.length < 66) {
+      return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
     let batchComplete = false
@@ -131,20 +123,19 @@ export class StorageLayer implements StorageLayerProvider {
     }
   }
 
-  async get(key: string, cache: boolean, child?: string): Promise<StorageValue | undefined> {
-    const storageKey = mergeKey(child, key)
-    if (storageKey in this.#store) {
-      return this.#store[storageKey]
+  async get(key: string, cache: boolean): Promise<StorageValue | undefined> {
+    if (key in this.#store) {
+      return this.#store[key]
     }
 
-    if (this.#deletedPrefix.some((dp) => storageKey.startsWith(dp))) {
+    if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
       return StorageValueKind.Deleted
     }
 
     if (this.#parent) {
-      const val = this.#parent.get(key, false, child)
+      const val = this.#parent.get(key, false)
       if (cache) {
-        this.#store[storageKey] = val
+        this.#store[key] = val
       }
       return val
     }
@@ -208,12 +199,9 @@ export class StorageLayer implements StorageLayerProvider {
     }
   }
 
-  async getKeysPaged(prefix: string, pageSize: number, startKey: string, child?: string): Promise<string[]> {
-    const storagePrefix = mergeKey(child, prefix)
-    const storageStartKey = mergeKey(child, startKey)
-
-    if (!this.#deletedPrefix.some((dp) => storageStartKey.startsWith(dp))) {
-      const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey, child)) ?? []
+  async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
+    if (!this.#deletedPrefix.some((dp) => startKey.startsWith(dp))) {
+      const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
       for (const key of remote) {
         if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
           continue
@@ -222,14 +210,14 @@ export class StorageLayer implements StorageLayerProvider {
       }
     }
 
-    let idx = _.sortedIndex(this.#keys, storageStartKey)
-    if (this.#keys[idx] === storageStartKey) {
+    let idx = _.sortedIndex(this.#keys, startKey)
+    if (this.#keys[idx] === startKey) {
       ++idx
     }
     const res: string[] = []
     while (res.length < pageSize) {
       const key: string = this.#keys[idx]
-      if (!key || !key.startsWith(storagePrefix)) {
+      if (!key || !key.startsWith(prefix)) {
         break
       }
       res.push(key)
