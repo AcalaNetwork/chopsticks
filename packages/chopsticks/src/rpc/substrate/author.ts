@@ -47,18 +47,17 @@ const handlers: Handlers = {
       done(id)
     }
 
-    context.chain
-      .submitExtrinsic(extrinsic)
-      .then(() => {
-        callback({
-          Ready: null,
-        })
+    try {
+      await context.chain.submitExtrinsic(extrinsic)
+      callback({
+        Ready: null,
       })
-      .catch((error: TransactionValidityError) => {
-        logger.error({ error }, 'ExtrinsicFailed')
-        callback(error?.toJSON?.() ?? error)
-        done(id)
-      })
+    } catch (error) {
+      logger.error({ error }, 'ExtrinsicFailed')
+      const code = (error as TransactionValidityError).isInvalid ? 1010 : 1011
+      done(id)
+      throw new ResponseError(code, (error as TransactionValidityError).toString())
+    }
     return id
   },
   author_unwatchExtrinsic: async (_context, [subid], { unsubscribe }) => {
