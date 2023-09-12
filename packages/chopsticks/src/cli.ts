@@ -44,6 +44,12 @@ const commands = yargs(hideBin(process.argv))
           desc: 'Max memory block count',
           number: true,
         },
+        resume: {
+          desc: `Resume from the specified block hash or block number in db.
+                 If true, it will resume from the latest block in db.
+                 Note this will override the block option`,
+          string: true,
+        },
       }),
     async (argv) => {
       await setupWithServer(argv as Config)

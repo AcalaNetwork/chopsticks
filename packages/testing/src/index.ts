@@ -25,6 +25,7 @@ export type SetupOption = {
   timeout?: number
   port?: number
   maxMemoryBlockCount?: number
+  resume?: boolean | HexString | number
 }
 
 export type SetupConfig = Config & {
@@ -40,6 +41,7 @@ export const createConfig = ({
   timeout,
   port,
   maxMemoryBlockCount,
+  resume,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -53,6 +55,7 @@ export const createConfig = ({
     db,
     'wasm-override': wasmOverride,
     timeout,
+    resume: resume ?? false,
   }
   return config
 }
