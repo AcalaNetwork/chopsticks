@@ -3,8 +3,6 @@ name: Deploy
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
 # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
 permissions:
