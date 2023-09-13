@@ -139,7 +139,6 @@ pub fn create_proof(
     let nodes = proof_builder
         .build()
         .map(|x| HexString(x.as_ref().to_vec()))
-        .into_iter()
         .skip(1) // length of nodes
         .enumerate()
         .filter(|(i, _)| i % 2 != 0) // length of each nodes

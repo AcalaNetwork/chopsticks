@@ -1,6 +1,5 @@
 import { HexString } from '@polkadot/util/types'
 import { z } from 'zod'
-import _ from 'lodash'
 
 import { Handler, ResponseError } from '../../rpc/shared'
 import { decodeStorageDiff } from '../../utils/decoder'
