@@ -4,6 +4,7 @@
 	"license": "Apache-2.0",
 	"private": true,
 	"scripts": {
+		"build": "npx vite build",
 		"vite:serve": "npx vite --port 3000 --host",
 		"parcel:serve": "npx parcel serve index.html --port 3000",
 		"test": "npx playwright test"
