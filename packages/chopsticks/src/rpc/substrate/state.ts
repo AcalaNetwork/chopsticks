@@ -1,4 +1,4 @@
-import { Block, isChild, mergeKey, stripChild } from '@acala-network/chopsticks-core'
+import { Block, isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '@acala-network/chopsticks-core'
 import { Handlers, ResponseError } from '../shared'
 import { defaultLogger } from '../../logger'
 
@@ -85,20 +85,20 @@ const handlers: Handlers = {
     unsubscribe(subid)
   },
   childstate_getStorage: async (context, [child, key, hash]) => {
-    if (!isChild(child)) {
+    if (!isPrefixedChildKey(child)) {
       throw new ResponseError(-32000, 'Client error: Invalid child storage key')
     }
     const block = await context.chain.getBlock(hash)
-    return block?.get(mergeKey(child, key))
+    return block?.get(prefixedChildKey(child, key))
   },
   childstate_getKeysPaged: async (context, [child, prefix, pageSize, startKey, hash]) => {
-    if (!isChild(child)) {
+    if (!isPrefixedChildKey(child)) {
       throw new ResponseError(-32000, 'Client error: Invalid child storage key')
     }
     const block = await context.chain.getBlock(hash)
     return block
-      ?.getKeysPaged({ prefix: mergeKey(child, prefix), pageSize, startKey: mergeKey(child, startKey) })
-      .then((keys) => keys.map(stripChild))
+      ?.getKeysPaged({ prefix: prefixedChildKey(child, prefix), pageSize, startKey: prefixedChildKey(child, startKey) })
+      .then((keys: any[]) => keys.map(stripChildPrefix))
   },
 }
 

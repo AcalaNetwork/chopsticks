@@ -90,6 +90,26 @@ fn is_magic_signature(signature: &[u8]) -> bool {
 
 const DEFAULT_CHILD_STORAGE_PREFIX: &[u8] = b":child_storage:default:";
 
+fn prefixed_child_key(child: impl AsRef<[u8]>, key: impl Iterator<Item = u8>) -> Vec<u8> {
+    [
+        DEFAULT_CHILD_STORAGE_PREFIX,
+        child.as_ref(),
+        &key.collect::<Vec<_>>(),
+    ]
+    .concat()
+}
+
+fn handle_value(value: wasm_bindgen::JsValue) -> Result<Option<Vec<u8>>, String> {
+    if value.is_string() {
+        let encoded = from_value::<HexString>(value)
+            .map(|x| x.0)
+            .map_err(|e| e.to_string())?;
+        Ok(Some(encoded))
+    } else {
+        Ok(None)
+    }
+}
+
 pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, String> {
     let mut storage_main_trie_changes = TrieDiff::default();
     let mut child_storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
@@ -126,14 +146,10 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
 
                 RuntimeHostVm::StorageGet(req) => {
                     let key = if let Some(child) = req.child_trie() {
-                        HexString(
-                            DEFAULT_CHILD_STORAGE_PREFIX
-                                .iter()
-                                .chain(child.as_ref())
-                                .chain(req.key().as_ref())
-                                .map(|x| x.to_owned())
-                                .collect::<Vec<u8>>(),
-                        )
+                        HexString(prefixed_child_key(
+                            child,
+                            req.key().as_ref().iter().copied(),
+                        ))
                     } else {
                         HexString(req.key().as_ref().to_vec())
                     };
@@ -166,42 +182,29 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         req.inject_key(None::<Vec<_>>.map(|x| x.into_iter()))
                     } else {
                         let prefix = if let Some(child) = req.child_trie() {
-                            HexString(
-                                DEFAULT_CHILD_STORAGE_PREFIX
-                                    .iter()
-                                    .chain(child.as_ref())
-                                    .map(|x| x.to_owned())
-                                    .chain(nibbles_to_bytes_suffix_extend(req.prefix()))
-                                    .collect::<Vec<u8>>(),
-                            )
+                            HexString(prefixed_child_key(
+                                child,
+                                nibbles_to_bytes_suffix_extend(req.prefix()),
+                            ))
                         } else {
                             HexString(
                                 nibbles_to_bytes_suffix_extend(req.prefix()).collect::<Vec<_>>(),
                             )
                         };
                         let key = if let Some(child) = req.child_trie() {
-                            HexString(
-                                DEFAULT_CHILD_STORAGE_PREFIX
-                                    .iter()
-                                    .chain(child.as_ref())
-                                    .map(|x| x.to_owned())
-                                    .chain(nibbles_to_bytes_suffix_extend(req.key()))
-                                    .collect::<Vec<u8>>(),
-                            )
+                            HexString(prefixed_child_key(
+                                child,
+                                nibbles_to_bytes_suffix_extend(req.key()),
+                            ))
                         } else {
                             HexString(nibbles_to_bytes_suffix_extend(req.key()).collect::<Vec<_>>())
                         };
                         let prefix = to_value(&prefix).map_err(|e| e.to_string())?;
                         let key = to_value(&key).map_err(|e| e.to_string())?;
                         let value = js.get_next_key(prefix, key).await;
-                        let value = if value.is_string() {
-                            from_value::<HexString>(value)
-                                .map(|x| Some(x.0))
-                                .map_err(|e| e.to_string())?
-                        } else {
-                            None
-                        };
-                        req.inject_key(value.map(|x| bytes_to_nibbles(x.into_iter())))
+                        req.inject_key(
+                            handle_value(value)?.map(|x| bytes_to_nibbles(x.into_iter())),
+                        )
                     }
                 }
 
@@ -228,15 +231,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         let key = HexString(req.key().as_ref().to_vec());
                         let key = to_value(&key).map_err(|e| e.to_string())?;
                         let value = js.offchain_get_storage(key).await;
-                        let value = if value.is_string() {
-                            let encoded = from_value::<HexString>(value)
-                                .map(|x| x.0)
-                                .map_err(|e| e.to_string())?;
-                            Some(encoded)
-                        } else {
-                            None
-                        };
-                        req.inject_value(value)
+                        req.inject_value(handle_value(value)?)
                     }
 
                     OffchainContext::StorageSet(req) => {
@@ -298,15 +293,10 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                             continue;
                         }
 
-                        let key = nibbles_to_bytes_suffix_extend(key.iter().map(|x| x.to_owned()))
-                            .collect::<Vec<_>>();
-
-                        let final_key = DEFAULT_CHILD_STORAGE_PREFIX
-                            .iter()
-                            .chain(child.unwrap().iter())
-                            .chain(key.iter())
-                            .map(|x| x.to_owned())
-                            .collect::<Vec<_>>();
+                        let prefixed_key = prefixed_child_key(
+                            child.unwrap(),
+                            nibbles_to_bytes_suffix_extend(key.iter().copied()),
+                        );
 
                         match change {
                             TrieChange::InsertUpdate {
@@ -314,12 +304,12 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                             } => match new_storage_value {
                                 TrieChangeStorageValue::Modified { new_value } => {
                                     child_storage_changes
-                                        .insert(final_key, new_value.map(|x| x.to_vec()));
+                                        .insert(prefixed_key, new_value.map(|x| x.to_vec()));
                                 }
                                 TrieChangeStorageValue::Unmodified => {}
                             },
                             TrieChange::Remove => {
-                                child_storage_changes.insert(final_key, None);
+                                child_storage_changes.insert(prefixed_key, None);
                             }
                         }
                     }

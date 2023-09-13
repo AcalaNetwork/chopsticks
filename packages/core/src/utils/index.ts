@@ -75,31 +75,33 @@ export function defer<T>() {
   return deferred
 }
 
-export const mergeKey = (...keys: (string | undefined)[]) =>
-  hexAddPrefix(
-    keys
-      .filter((x) => !!x)
-      .map((hex) => hexStripPrefix(hex))
-      .join(''),
-  )
+// Chopsticks treats both main storage and child storage as a key-value store
+// The difference is that child storage keys are prefixed with the child storage key
 
+// :child_storage:default: as hex string
 const DEFAULT_CHILD_STORAGE = '0x3a6368696c645f73746f726167653a64656661756c743a'
+
+// length of the child storage key
 const CHILD_LENGTH = DEFAULT_CHILD_STORAGE.length + 64
 
-export const isChild = (key: string) => key.startsWith(DEFAULT_CHILD_STORAGE)
+// returns a key that is prefixed with the child storage key
+export const prefixedChildKey = (prefix: HexString, key: HexString) => prefix + hexStripPrefix(key)
+
+// returns true if the key is a child storage key
+export const isPrefixedChildKey = (key: HexString) => key.startsWith(DEFAULT_CHILD_STORAGE)
 
 // returns a key that is split into the child storage key and the rest
-export const splitChild = (key: string) => {
-  if (!key.startsWith(DEFAULT_CHILD_STORAGE)) return
-  if (key.length < CHILD_LENGTH) return
+export const splitChildKey = (key: HexString) => {
+  if (!key.startsWith(DEFAULT_CHILD_STORAGE)) return []
+  if (key.length < CHILD_LENGTH) return []
   const child = key.slice(0, CHILD_LENGTH)
   const rest = key.slice(CHILD_LENGTH)
-  return [child, hexAddPrefix(rest)]
+  return [child, hexAddPrefix(rest)] as [HexString, HexString]
 }
 
 // returns a key that is stripped of the child storage key
-export const stripChild = (key: string) => {
-  const parts = splitChild(key)
-  if (!parts) return key
-  return parts[1]
+export const stripChildPrefix = (key: HexString) => {
+  const [child, storageKey] = splitChildKey(key)
+  if (!child) return key
+  return storageKey
 }
