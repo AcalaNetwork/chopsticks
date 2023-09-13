@@ -15,7 +15,6 @@ permissions:
 jobs:
   setup:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
         with:
@@ -61,8 +60,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     # Only deploy on pushes to master
-    if: github.ref == 'refs/heads/deploy-web-test'
-
+    if: ${{ github.ref_name == 'deploy-web-test' }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
