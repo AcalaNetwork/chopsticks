@@ -42,7 +42,7 @@ jobs:
           node-version: 18.x
           cache: 'yarn'
       - name: Build packages
-      - run: |
+        run: |
           yarn --immutable
           yarn check
           yarn build-wasm
