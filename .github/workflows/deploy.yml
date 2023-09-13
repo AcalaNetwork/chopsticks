@@ -54,8 +54,7 @@ jobs:
           path: './packages/web-test/dist'
 
   deploy-web-test:
-    # Add a dependency to the build job
-    needs: build
+    needs: setup
     # Deploy to the github-pages environment
     environment:
       name: github-pages
