@@ -37,7 +37,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     this.#db = db
   }
 
-  async get(key: string): Promise<StorageValue> {
+  async get(key: string, _cache: boolean): Promise<StorageValue> {
     const keyValuePair = this.#db?.getRepository(KeyValuePair)
     if (this.#db) {
       const res = await keyValuePair?.findOne({ where: { key, blockHash: this.#at } })
@@ -128,7 +128,7 @@ export class StorageLayer implements StorageLayerProvider {
       return this.#store[key]
     }
 
-    if (this.#deletedPrefix.some((prefix) => key.startsWith(prefix))) {
+    if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
       return StorageValueKind.Deleted
     }
 
@@ -200,10 +200,10 @@ export class StorageLayer implements StorageLayerProvider {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
-    if (!this.#deletedPrefix.some((prefix) => startKey.startsWith(prefix))) {
+    if (!this.#deletedPrefix.some((dp) => startKey.startsWith(dp))) {
       const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
       for (const key of remote) {
-        if (this.#deletedPrefix.some((prefix) => key.startsWith(prefix))) {
+        if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
           continue
         }
         this.#addKey(key)

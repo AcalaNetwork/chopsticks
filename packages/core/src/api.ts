@@ -1,6 +1,7 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils'
 
 type ChainProperties = {
   ss58Format?: number
@@ -102,14 +103,35 @@ export class Api {
   }
 
   async getStorage(key: string, hash?: string) {
-    const params = [key]
-    if (hash) params.push(hash)
-    return this.#provider.send<string | null>('state_getStorage', params)
+    const [child, storageKey] = splitChildKey(key as HexString)
+    if (child) {
+      // child storage key, use childstate_getStorage
+      const params = [child, storageKey]
+      if (hash) params.push(hash as HexString)
+      return this.#provider.send<HexString | null>('childstate_getStorage', params)
+    } else {
+      // main storage key, use state_getStorage
+      const params = [key]
+      if (hash) params.push(hash)
+      return this.#provider.send<HexString | null>('state_getStorage', params)
+    }
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string) {
-    const params = [prefix, pageSize, startKey]
-    if (hash) params.push(hash)
-    return this.#provider.send<string[]>('state_getKeysPaged', params)
+    const [child, storageKey] = splitChildKey(prefix as HexString)
+    if (child) {
+      // child storage key, use childstate_getKeysPaged
+      // strip child prefix from startKey
+      const params = [child, storageKey, pageSize, stripChildPrefix(startKey as HexString)]
+      if (hash) params.push(hash as HexString)
+      return this.#provider
+        .send<HexString[]>('childstate_getKeysPaged', params)
+        .then((keys) => keys.map((key) => prefixedChildKey(child, key)))
+    } else {
+      // main storage key, use state_getKeysPaged
+      const params = [prefix, pageSize, startKey]
+      if (hash) params.push(hash)
+      return this.#provider.send<HexString[]>('state_getKeysPaged', params)
+    }
   }
 }

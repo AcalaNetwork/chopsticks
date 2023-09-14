@@ -125,7 +125,7 @@ export class Block {
     await layer.fold()
 
     const prefix = options.prefix ?? '0x'
-    const startKey = options.startKey ?? prefix
+    const startKey = options.startKey ?? '0x'
     const pageSize = options.pageSize
 
     return layer.getKeysPaged(prefix, pageSize, startKey)

@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "npx vite build --outDir ../../dist",
 		"vite:serve": "npx vite --port 3000 --host",
-		"vite:preview": "npx vite --port 3000",
+		"vite:preview": "npx vite preview --port 3000",
 		"parcel:serve": "npx parcel serve index.html --port 3000",
 		"test": "npx playwright test"
 	},
