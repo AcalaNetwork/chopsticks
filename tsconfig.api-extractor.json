@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"lib": ["esnext"],
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitAny": false,
+		"target": "esnext",
+		"skipLibCheck": true,
+		"strict": true,
+		"declaration": true,
+		"resolveJsonModule": true,
+		"baseUrl": ".",
+		"composite": true
+	}
+}

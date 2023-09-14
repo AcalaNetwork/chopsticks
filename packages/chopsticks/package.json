@@ -13,7 +13,8 @@
 		"dev:acala": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/acala.yml",
 		"dev:polkadot": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/polkadot.yml",
 		"dev:moonriver": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/moonriver.yml",
-		"dev:moonbeam": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/moonbeam.yml"
+		"dev:moonbeam": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/moonbeam.yml",
+		"docs:prep": "tsc && npx api-extractor run --local --verbose && npx api-documenter markdown --input-folder=./temp/ --output-folder=../../docs-src/chopsticks && rm -rf ./temp"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
