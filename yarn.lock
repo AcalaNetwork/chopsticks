@@ -6265,7 +6265,7 @@ __metadata:
 
 "typeorm@patch:typeorm@npm%3A0.3.17#./.yarn/patches/typeorm-npm-0.3.17-f8c2578e7f.patch::locator=chopsticks-monorepo%40workspace%3A.":
   version: 0.3.17
-  resolution: "typeorm@patch:typeorm@npm%3A0.3.17#./.yarn/patches/typeorm-npm-0.3.17-f8c2578e7f.patch::version=0.3.17&hash=c2e63e&locator=chopsticks-monorepo%40workspace%3A."
+  resolution: "typeorm@patch:typeorm@npm%3A0.3.17#./.yarn/patches/typeorm-npm-0.3.17-f8c2578e7f.patch::version=0.3.17&hash=9ea05a&locator=chopsticks-monorepo%40workspace%3A."
   dependencies:
     "@sqltools/formatter": ^1.2.5
     app-root-path: ^3.1.0
@@ -6339,7 +6339,7 @@ __metadata:
     typeorm: cli.js
     typeorm-ts-node-commonjs: cli-ts-node-commonjs.js
     typeorm-ts-node-esm: cli-ts-node-esm.js
-  checksum: caec3299a443ec8b708b244bbc5d105048addc12cc5492e3149c3395293db29437462d902149d5fa1b4d9d5280c1b9f18d43caab3a878690ed1717673ab5842d
+  checksum: c22085840e466d1b203abbca1cde582fd250dcdb51cac0d20ff4dd27abf2f9eb8efa1ce6cc8a7a204764ccc495a3f65e368cff36726ec92fb273116b7c31437c
   languageName: node
   linkType: hard
 
