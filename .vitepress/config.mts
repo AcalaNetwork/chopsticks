@@ -6,7 +6,7 @@ export default defineConfig({
 	description: 'Chopsticks Types Documentation',
 	// Required for api-extractor markdown (https://github.com/vuejs/vitepress/pull/664)
 	markdown: { attrs: { disable: true } },
-	base: '/docs/',
+	base: '/chopsticks/docs/',
 	srcDir: 'docs-src',
 	outDir: 'dist/docs',
 	rewrites: {
