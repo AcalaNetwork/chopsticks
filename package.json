@@ -20,7 +20,7 @@
 		"test:watch": "vitest",
 		"start": "yarn script:start",
 		"dev": "yarn script:run",
-		"docs:prep": "yarn workspaces foreach -pvit run docs:prep",
+		"docs:prep": "yarn workspaces foreach -pvit run docs:prep && cp docs/* docs-src/core",
 		"docs:dev": "yarn docs:prep && vitepress dev",
 		"docs:build": "yarn docs:prep && vitepress build",
 		"docs:preview": "yarn docs:build && vitepress preview"
