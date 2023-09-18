@@ -21,6 +21,9 @@ export class ResponseError extends Error {
 }
 
 export interface Context {
+  /**
+   * The blockchain instance, see types in the `core` package
+   */
   chain: Blockchain
 }
 

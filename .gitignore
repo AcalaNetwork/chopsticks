@@ -130,7 +130,7 @@ preview/
 lib
 .parcel-cache
 
-# api-extractor output folder
+# docs src output folder
 docs-src
 
 # vitepress cache

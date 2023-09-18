@@ -7,7 +7,7 @@
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
 		"pack-wasm": "scripts/pack-wasm.js",
 		"build": "yarn pack-wasm; tsc -p ./tsconfig.json",
-		"docs:prep": "tsc && npx api-extractor run --local --verbose && npx api-documenter markdown --input-folder=./temp/ --output-folder=../../docs-src/core && rm -rf ./temp"
+		"docs:prep": "typedoc"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
