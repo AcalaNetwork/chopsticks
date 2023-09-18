@@ -7,5 +7,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [@acala-network/chopsticks](./chopsticks.md)             |  |
-|  [@acala-network/chopsticks-core](./chopsticks-core.md)   |  |
+|  [@acala-network/chopsticks](./chopsticks/README.md)  |  |
+|  [@acala-network/chopsticks-core](./core/README.md)   |  |
