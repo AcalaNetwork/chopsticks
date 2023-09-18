@@ -3,33 +3,43 @@ import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks-co
 import { HexString } from '@polkadot/util/types'
 import { defaultLogger } from '../../logger'
 
-/**
- * @param count - The number of blocks to build
- * @param to - The block number to build to
- * @param hrmp - The horizontal messages to include in the block
- * @param ump - The upward messages to include in the block
- * @param dmp - The downward messages to include in the block
- * @param transactions - The transactions to include in the block
- * @param unsafeBlockHeight - Build block using a specific block height (unsafe)
- */
 export interface NewBlockParams {
+  /**
+   * The number of blocks to build
+   */
   count: number
+  /**
+   * The block number to build to
+   */
   to: number
+  /**
+   * The downward messages to include in the block
+   */
   dmp: DownwardMessage[]
+  /**
+   * The upward messages to include in the block
+   */
   ump: Record<number, HexString[]>
+  /**
+   * The horizontal messages to include in the block
+   */
   hrmp: Record<number, HorizontalMessage[]>
+  /**
+   * The transactions to include in the block
+   */
   transactions: HexString[]
+  /**
+   * Build block using a specific block height (unsafe)
+   */
   unsafeBlockHeight: number
 }
 
 /**
  * Build new blocks.
+ * This function is a rpc handler. Use `dev_newBlock` as the method name when calling it.
  *
- * @remarks
- * This is a dev rpc handler. Use `dev_newBlock` as the method name when calling it.
- *
- * @param context - Type: {@link Context}. The context object of the rpc handler
- * @param params - Type: {@link NewBlockParam}. The parameters of the rpc handler
+ * @param context - The context object of the rpc handler
+ * @param params - The parameters of the rpc handler
  *
  * @example Build 2 blocks
  * ```ts

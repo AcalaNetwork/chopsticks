@@ -10,4 +10,6 @@
  *
  * @packageDocumentation
  */
+
 export * from './plugins/types'
+export { Context } from './rpc/shared'
