@@ -1,1 +1,7 @@
 export { rpc as newBlock, NewBlockParams } from './new-block'
+export { rpc as dryRun, DryRunParams } from './dry-run'
+export { rpc as setBlockBuildMode } from './set-block-build-mode'
+export { rpc as setHead } from './set-head'
+export { rpc as setRuntimeLogLevel } from './set-runtime-log-level'
+export { rpc as setStorage } from './set-storage'
+export { rpc as timeTravel } from './time-travel'

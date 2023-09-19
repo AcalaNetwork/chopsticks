@@ -1,7 +1,23 @@
 import { Block } from '@acala-network/chopsticks-core'
-import { Handler, ResponseError } from '../../rpc/shared'
+import { Context, ResponseError } from '../../rpc/shared'
+import { HexString } from '@polkadot/util/types'
 
-export const rpc: Handler = async (context, [hashOrNumber]) => {
+/**
+ * Set head.
+ *
+ * This function is a dev rpc handler. Use `dev_setHead` as the method name when calling it.
+ *
+ * @param context - The context object of the rpc handler
+ * @param hashOrNumber - The block hash or number to set as head
+ *
+ * @example Set head to block 1000000
+ * ```ts
+ * import { WsProvider } from '@polkadot/api'
+ * const ws = new WsProvider(`ws://localhost:8000`)
+ * await ws.send('dev_setHead', [1000000])
+ * ```
+ */
+export const rpc = async (context: Context, [hashOrNumber]: [HexString | number]) => {
   let block: Block | undefined
   if (typeof hashOrNumber === 'number') {
     const blockNumber = hashOrNumber > 0 ? hashOrNumber : context.chain.head.number + hashOrNumber

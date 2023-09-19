@@ -1,7 +1,22 @@
-import { Handler, ResponseError } from '../../rpc/shared'
+import { Context, ResponseError } from '../../rpc/shared'
 import { defaultLogger } from '../../logger'
 
-export const rpc: Handler = async (context, [runtimeLogLevel]) => {
+/**
+ * Set runtime log level.
+ *
+ * This function is a dev rpc handler. Use `dev_setRuntimeLogLevel` as the method name when calling it.
+ *
+ * @param context - The context object of the rpc handler
+ * @param runtimeLogLevel - The runtime log level to set
+ *
+ * @example Set runtime log level to 1
+ * ```ts
+ * import { WsProvider } from '@polkadot/api'
+ * const ws = new WsProvider(`ws://localhost:8000`)
+ * await ws.send('dev_setRuntimeLogLevel', [1])
+ * ```
+ */
+export const rpc = async (context: Context, [runtimeLogLevel]: [number]) => {
   defaultLogger.debug({ runtimeLogLevel }, 'dev_setRuntimeLogLevel')
 
   if (typeof runtimeLogLevel !== 'number') {
