@@ -1,7 +1,22 @@
-import { Handler, ResponseError } from '../../rpc/shared'
+import { Context, ResponseError } from '../../rpc/shared'
 import { timeTravel } from '@acala-network/chopsticks-core'
 
-export const rpc: Handler = async (context, [date]) => {
+/**
+ * Travel to a specific time.
+ *
+ * This function is a dev rpc handler. Use `dev_timeTravel` as the method name when calling it.
+ *
+ * @param context - The context object of the rpc handler
+ * @param date - Timestamp or date string to set
+ *
+ * @example
+ * ```ts
+ * import { WsProvider } from '@polkadot/api'
+ * const ws = new WsProvider(`ws://localhost:8000`)
+ * await ws.send('dev_timeTravel', ['Jan 1, 2023'])
+ * ```
+ */
+export const rpc = async (context: Context, [date]: [string | number]) => {
   const timestamp = typeof date === 'string' ? Date.parse(date) : date
   if (Number.isNaN(timestamp)) throw new ResponseError(1, 'Invalid date')
   await timeTravel(context.chain, timestamp)
