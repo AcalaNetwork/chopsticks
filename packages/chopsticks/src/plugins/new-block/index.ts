@@ -36,7 +36,8 @@ export interface NewBlockParams {
 
 /**
  * Build new blocks.
- * This function is a rpc handler. Use `dev_newBlock` as the method name when calling it.
+ *
+ * This function is a dev rpc handler. Use `dev_newBlock` as the method name when calling it.
  *
  * @param context - The context object of the rpc handler
  * @param params - The parameters of the rpc handler

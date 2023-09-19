@@ -14,9 +14,12 @@ const logger = defaultLogger.child({ name: 'txpool' })
 export const APPLY_EXTRINSIC_ERROR = 'TxPool::ApplyExtrinsicError'
 
 export enum BuildBlockMode {
-  Batch, // one block per batch, default
-  Instant, // one block per tx
-  Manual, // only build when triggered
+  /** One block per batch (default) */
+  Batch,
+  /** One block per tx */
+  Instant,
+  /** Only build when triggered */
+  Manual,
 }
 
 export interface DownwardMessage {
