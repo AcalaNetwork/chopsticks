@@ -26,4 +26,9 @@ export default defineConfig({
 		socialLinks: [{ icon: 'github', link: 'https://github.com/AcalaNetwork/chopsticks' }],
 		outline: 3,
 	},
+	markdown: {
+		anchor: {
+			slugify: (s) => encodeURIComponent(String(s).trim().replace(/\s+/g, '-')).toLocaleLowerCase(),
+		},
+	},
 })

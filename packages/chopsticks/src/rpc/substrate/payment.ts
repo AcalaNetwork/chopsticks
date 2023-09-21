@@ -1,7 +1,25 @@
-import { Handlers, ResponseError } from '../shared'
+import { HexString } from '@polkadot/util/types'
 import { hexToU8a } from '@polkadot/util'
 
-const handlers: Handlers = {
+import { Context, ResponseError } from '../shared'
+
+export interface PaymentHandlers {
+  /**
+   * @param {Context} context
+   * @param params - [`extrinsic`, `hash`]
+   */
+  payment_queryFeeDetails: (context: Context, [extrinsic, hash]: [HexString, HexString]) => Promise<HexString>
+  /**
+   * @param {Context} context
+   * @param params - [`extrinsic`, `hash`]
+   */
+  payment_queryInfo: (context: Context, [extrinsic, hash]: [HexString, HexString]) => Promise<HexString>
+}
+
+/**
+ * Substrate `payment` RPC methods, see {@link PaymentHandlers} for methods details.
+ */
+const handlers: PaymentHandlers = {
   payment_queryFeeDetails: async (context, [extrinsic, hash]) => {
     const block = await context.chain.getBlock(hash)
     if (!block) {

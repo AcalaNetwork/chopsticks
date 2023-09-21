@@ -12,4 +12,5 @@
  */
 
 export * from './plugins/types'
-export { Context } from './rpc/shared'
+export * from './rpc/types'
+export { Context, SubscriptionManager } from './rpc/shared'

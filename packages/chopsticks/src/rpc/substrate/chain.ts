@@ -1,5 +1,6 @@
-import { Handlers, ResponseError } from '../shared'
+import { Context, ResponseError, SubscriptionManager } from '../shared'
 import { Header } from '@polkadot/types/interfaces'
+import { HexString } from '@polkadot/util/types'
 
 const processHeader = (header: Header) => {
   const res = header.toJSON() as any
@@ -7,7 +8,45 @@ const processHeader = (header: Header) => {
   return res
 }
 
-const handlers: Handlers = {
+export interface ChainHandlers {
+  /**
+   * @param {Context} context
+   * @param params - [`blockNumber`]
+   */
+  chain_getBlockHash: (context: Context, [blockNumber]: [number]) => Promise<HexString>
+  /**
+   * @param {Context} context
+   * @param params - [`hash`]
+   */
+  chain_getHeader: (context: Context, [hash]: [HexString]) => Promise<Header>
+  /**
+   * @param {Context} context
+   * @param params - [`hash`]
+   */
+  chain_getBlock: (context: Context, [hash]: [HexString]) => Promise<object>
+  chain_getFinalizedHead: (context: Context) => Promise<HexString>
+  chain_subscribeNewHead: (context: Context, _params: [], subscriptionManager: SubscriptionManager) => Promise<string>
+  chain_subscribeFinalizedHeads: (
+    context: Context,
+    _params: [],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<string>
+  /**
+   * @param {Context} context
+   * @param params - [`subid`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  chain_unsubscribeNewHead: (
+    context: Context,
+    [subid]: [string],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<void>
+}
+
+/**
+ * Substrate `chain` RPC methods, see {@link ChainHandlers} for methods details.
+ */
+export const handlers: ChainHandlers = {
   chain_getBlockHash: async (context, [blockNumber]) => {
     const block = await context.chain.getBlockAt(blockNumber)
     if (!block) {
@@ -71,7 +110,31 @@ const handlers: Handlers = {
   },
 }
 
-const alias = {
+export interface ChainHandlersAlias {
+  chain_subscribeNewHeads: (context: Context, _params: [], subscriptionManager: SubscriptionManager) => Promise<string>
+  /**
+   * @param {Context} context
+   * @param params - [`subid`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  chain_unsubscribeNewHeads: (
+    context: Context,
+    [subid]: [string],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<void>
+  /**
+   * @param {Context} context
+   * @param params - [`subid`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  chain_unsubscribeFinalizedHeads: (
+    context: Context,
+    [subid]: [string],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<void>
+}
+
+const alias: ChainHandlersAlias = {
   chain_subscribeNewHeads: handlers.chain_subscribeNewHead,
   chain_unsubscribeNewHeads: handlers.chain_unsubscribeNewHead,
   chain_unsubscribeFinalizedHeads: handlers.chain_unsubscribeNewHead,

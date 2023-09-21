@@ -1,10 +1,119 @@
-import { Block, isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '@acala-network/chopsticks-core'
-import { Handlers, ResponseError } from '../shared'
+import {
+  Block,
+  RuntimeVersion,
+  isPrefixedChildKey,
+  prefixedChildKey,
+  stripChildPrefix,
+} from '@acala-network/chopsticks-core'
+import { HexString } from '@polkadot/util/types'
+
+import { Context, ResponseError, SubscriptionManager } from '../shared'
 import { defaultLogger } from '../../logger'
 
 const logger = defaultLogger.child({ name: 'rpc-state' })
 
-const handlers: Handlers = {
+export interface StateHandlers {
+  /**
+   * @param {Context} context
+   * @param params - [`hash`]
+   */
+  state_getRuntimeVersion: (context: Context, [hash]: [HexString]) => Promise<RuntimeVersion | undefined>
+  /**
+   * @param {Context} context
+   * @param params - [`hash`]
+   */
+  state_getMetadata: (context: Context, [hash]: [HexString]) => Promise<HexString | undefined>
+  /**
+   * @param {Context} context
+   * @param params - [`key`, `hash`]
+   */
+  state_getStorage: (context: Context, [key, hash]: [HexString, HexString]) => Promise<string | undefined>
+  /**
+   * @param {Context} context
+   * @param params - [`prefix`, `pageSize`, `startKey`, `hash`]
+   */
+  state_getKeysPaged: (
+    context: Context,
+    [prefix, pageSize, startKey, hash]: [HexString, number, HexString, HexString],
+  ) => Promise<string[] | undefined>
+  /**
+   * @param {Context} context
+   * @param params - [`keys`, `hash`]
+   */
+  state_queryStorageAt: (
+    context: Context,
+    [keys, hash]: [HexString[], HexString],
+  ) => Promise<
+    | []
+    | [
+        {
+          block: HexString
+          changes: (string | undefined)[][]
+        },
+      ]
+  >
+  /**
+   * @param {Context} context
+   * @param params - [`method`, `data`, `hash`]
+   */
+  state_call: (context: Context, [method, data, hash]: [string, HexString, HexString]) => Promise<HexString>
+  state_subscribeRuntimeVersion: (
+    context: Context,
+    _params: [],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<string>
+  /**
+   * @param {Context} context
+   * @param params - [`subid`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  state_unsubscribeRuntimeVersion: (
+    context: Context,
+    [subid]: [string],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<void>
+  /**
+   * @param {Context} context
+   * @param params - [`keys`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  state_subscribeStorage: (
+    context: Context,
+    [keys]: [HexString[]],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<string>
+  /**
+   * @param {Context} context
+   * @param params - [`subid`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  state_unsubscribeStorage: (
+    context: Context,
+    [subid]: [string],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<void>
+  /**
+   * @param {Context} context
+   * @param params - [`child`, `key`, `hash`]
+   */
+  childstate_getStorage: (
+    context: Context,
+    [child, key, hash]: [HexString, HexString, HexString],
+  ) => Promise<string | undefined>
+  /**
+   * @param {Context} context
+   * @param params - [`child`, `prefix`, `pageSize`, `startKey`, `hash`]
+   */
+  childstate_getKeysPaged: (
+    context: Context,
+    [child, prefix, pageSize, startKey, hash]: [HexString, HexString, number, HexString, HexString],
+  ) => Promise<HexString[] | undefined>
+}
+
+/**
+ * Substrate `state` RPC methods, see {@link StateHandlers} for methods details.
+ */
+const handlers: StateHandlers = {
   state_getRuntimeVersion: async (context, [hash]) => {
     const block = await context.chain.getBlock(hash)
     return block?.runtimeVersion

@@ -1,11 +1,45 @@
 import { APPLY_EXTRINSIC_ERROR, Block } from '@acala-network/chopsticks-core'
-import { Handlers, ResponseError } from '../shared'
+import { HexString } from '@polkadot/util/types'
 import { TransactionValidityError } from '@polkadot/types/interfaces'
+
+import { Context, ResponseError, SubscriptionManager } from '../shared'
 import { defaultLogger } from '../../logger'
 
 const logger = defaultLogger.child({ name: 'rpc-author' })
 
-const handlers: Handlers = {
+export interface AuthorHandlers {
+  /**
+   * @param {Context} context
+   * @param params - [`extrinsic`]
+   */
+  author_submitExtrinsic: (context: Context, [extrinsic]: [HexString]) => Promise<HexString>
+  /**
+   * @param {Context} context
+   * @param params - [`extrinsic`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  author_submitAndWatchExtrinsic: (
+    context: Context,
+    [extrinsic]: [HexString],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<string>
+  /**
+   * @param {Context} context
+   * @param params - [`subid`]
+   * @param {SubscriptionManager} subscriptionManager
+   */
+  author_unwatchExtrinsic: (
+    context: Context,
+    [subid]: [string],
+    subscriptionManager: SubscriptionManager,
+  ) => Promise<void>
+  author_pendingExtrinsics: (context: Context) => Promise<HexString[]>
+}
+
+/**
+ * Substrate `author` RPC methods, see {@link AuthorHandlers} for methods details.
+ */
+const handlers: AuthorHandlers = {
   author_submitExtrinsic: async (context, [extrinsic]) => {
     return context.chain.submitExtrinsic(extrinsic).catch((error: TransactionValidityError) => {
       const code = error.isInvalid ? 1010 : 1011
