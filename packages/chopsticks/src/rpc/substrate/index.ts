@@ -1,17 +1,21 @@
-import author from './author'
-import chain from './chain'
-import payment from './payment'
-import state from './state'
-import system from './system'
+import * as AuthorRPC from './author'
+import * as ChainRPC from './chain'
+import * as PaymentRPC from './payment'
+import * as StateRPC from './state'
+import * as SystemRPC from './system'
 
-import { Handlers } from '../shared'
+export { AuthorRPC }
+export { ChainRPC }
+export { PaymentRPC }
+export { StateRPC }
+export { SystemRPC }
 
-const handlers: Handlers = {
-  ...author,
-  ...chain,
-  ...state,
-  ...system,
-  ...payment,
+const handlers = {
+  ...AuthorRPC,
+  ...ChainRPC,
+  ...PaymentRPC,
+  ...StateRPC,
+  ...SystemRPC,
 }
 
 export default handlers

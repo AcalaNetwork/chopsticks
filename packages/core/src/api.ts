@@ -3,7 +3,7 @@ import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils'
 
-type ChainProperties = {
+export type ChainProperties = {
   ss58Format?: number
   tokenDecimals?: number[]
   tokenSymbol?: string[]

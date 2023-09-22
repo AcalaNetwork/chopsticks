@@ -22,7 +22,7 @@ export class ResponseError extends Error {
 
 export interface Context {
   /**
-   * The blockchain instance, see types in the `core` package
+   * The blockchain instance, see `Blockchain` type in the `core` package
    */
   chain: Blockchain
 }
@@ -32,9 +32,9 @@ export interface SubscriptionManager {
   unsubscribe: (subid: string) => void
 }
 
-export type Handler = (
+export type Handler<TParams = any, TReturn = any> = (
   context: Context,
-  params: any,
+  params: TParams,
   subscriptionManager: SubscriptionManager,
-) => Promise<object | string | number | void | undefined | null>
+) => Promise<TReturn>
 export type Handlers = Record<string, Handler>
