@@ -27,6 +27,27 @@ type SignedBlock = {
   justifications?: HexString[]
 }
 
+/**
+ * API class. Calls provider to get on-chain data.
+ * Either `endpoint` or `genesis` porvider must be provided.
+ *
+ * @example Instantiate an API
+ *
+ * ```ts
+ * let provider: ProviderInterface
+ * if (options.genesis) {
+ *  if (typeof options.genesis === 'string') {
+ *    provider = await GenesisProvider.fromUrl(options.genesis)
+ *  } else {
+ *    provider = new GenesisProvider(options.genesis)
+ *  }
+ * } else {
+ *  provider = new WsProvider(options.endpoint)
+ * }
+ * const api = new Api(provider)
+ * await api.isReady
+ * ```
+ */
 export class Api {
   #provider: ProviderInterface
   #ready: Promise<void> | undefined
