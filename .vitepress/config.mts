@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-	title: 'Chopsticks Docs (WIP)',
+	title: 'Chopsticks Docs',
 	description: 'Chopsticks Types Documentation',
 	base: '/chopsticks/docs/',
 	srcDir: 'docs-src',
