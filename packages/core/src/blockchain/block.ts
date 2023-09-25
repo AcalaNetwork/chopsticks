@@ -55,11 +55,8 @@ export class Block {
 
   constructor(
     chain: Blockchain,
-    /** Block number. */
     public readonly number: number,
-    /** Block hash. */
     public readonly hash: HexString,
-    /** Parent block. */
     parentBlock?: Block,
     block?: {
       /** See `@polkadot/types/interfaces` Header */
