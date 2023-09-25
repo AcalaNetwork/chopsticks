@@ -161,9 +161,6 @@ export class Blockchain {
     logger.debug(`Runtime log level set to ${logger.level}`)
   }
 
-  /**
-   * Save block to db for persistence.
-   */
   async saveBlockToDB(block: Block) {
     if (this.db) {
       const { hash, number, header, extrinsics } = block
@@ -307,7 +304,7 @@ export class Blockchain {
   }
 
   /**
-   * Set head block.
+   * Set block as head.
    */
   async setHead(block: Block): Promise<void> {
     logger.debug(
@@ -351,27 +348,18 @@ export class Blockchain {
     return registry.createType<TransactionValidity>('TransactionValidity', res.result)
   }
 
-  /**
-   * Submit ump message to txpool.
-   */
   submitUpwardMessages(id: number, ump: HexString[]) {
     this.#txpool.submitUpwardMessages(id, ump)
 
     logger.debug({ id, ump }, 'submitUpwardMessages')
   }
 
-  /**
-   * Submit dmp message to txpool.
-   */
   submitDownwardMessages(dmp: DownwardMessage[]) {
     this.#txpool.submitDownwardMessages(dmp)
 
     logger.debug({ dmp }, 'submitDownwardMessages')
   }
 
-  /**
-   * Submit hrmp message to txpool.
-   */
   submitHorizontalMessages(id: number, hrmp: HorizontalMessage[]) {
     this.#txpool.submitHorizontalMessages(id, hrmp)
 
@@ -395,7 +383,7 @@ export class Blockchain {
   }
 
   /**
-   * Return the upcoming blocks.
+   * Get the upcoming blocks.
    */
   async upcomingBlocks() {
     return this.#txpool.upcomingBlocks()

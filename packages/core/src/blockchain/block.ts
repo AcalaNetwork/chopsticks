@@ -14,9 +14,6 @@ import { defaultLogger } from '../logger'
 import { getRuntimeVersion, runTask, taskHandler } from '../executor'
 import type { RuntimeVersion } from '../executor'
 
-/**
- * Task call response.
- */
 export type TaskCallResponse = {
   result: HexString
   storageDiff: [HexString, HexString | null][]
@@ -97,16 +94,10 @@ export class Block {
     }
   }
 
-  /**
-   * Get the blockchain.
-   */
   get chain(): Blockchain {
     return this.#chain
   }
 
-  /**
-   * Get the block header.
-   */
   get header(): Header | Promise<Header> {
     if (!this.#header) {
       this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(([registry, header]) =>
@@ -116,9 +107,6 @@ export class Block {
     return this.#header
   }
 
-  /**
-   * Get the block extrinsics.
-   */
   get extrinsics(): HexString[] | Promise<HexString[]> {
     if (!this.#extrinsics) {
       this.#extrinsics = this.#chain.api.getBlock(this.hash).then((b) => {
@@ -131,9 +119,6 @@ export class Block {
     return this.#extrinsics
   }
 
-  /**
-   * Get the parent block.
-   */
   get parentBlock(): undefined | Block | Promise<Block | undefined> {
     if (this.number === 0) {
       return undefined
