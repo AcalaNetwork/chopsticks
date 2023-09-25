@@ -27,13 +27,13 @@ export interface Options {
   buildBlockMode?: BuildBlockMode
   /** Inherent provider, for creating inherents. */
   inherentProvider: InherentProvider
-  /** Database path for caching storage and blocks data. */
+  /** Datasource for caching storage and blocks data. */
   db?: DataSource
   /** Used to create the initial head. */
   header: { number: number; hash: HexString }
   /** Whether to enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */
   mockSignatureHost?: boolean
-  /** Allow wasm unresolved imports. */
+  /** Whether to allow wasm unresolved imports. */
   allowUnresolvedImports?: boolean
   /** Wasm runtime log level. */
   runtimeLogLevel?: number
@@ -64,17 +64,22 @@ export interface Options {
  *  allowUnresolvedImports: true,
  *  registeredTypes: {},
  * })
- *
+ * // build a block
  * chain.newBlock()
  * ```
  */
 export class Blockchain {
   readonly uid: string = Math.random().toString(36).substring(2)
+  /** API instance, for getting on-chain data. */
   readonly api: Api
+  /** Datasource for caching storage and blocks data. */
   readonly db: DataSource | undefined
+  /** Enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */
   readonly mockSignatureHost: boolean
+  /** Allow wasm unresolved imports. */
   readonly allowUnresolvedImports: boolean
   #runtimeLogLevel: number
+  /** Polkadot.js custom types registration. */
   readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
@@ -85,6 +90,7 @@ export class Blockchain {
   readonly #blocksByHash: Record<string, Block> = {}
   readonly #loadingBlocks: Record<string, Promise<void>> = {}
 
+  /** For subscribing and managing the head state. */
   readonly headState: HeadState
 
   readonly offchainWorker: OffchainWorker | undefined

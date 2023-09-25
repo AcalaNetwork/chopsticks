@@ -1,3 +1,12 @@
+/**
+ * Chopsticks core package. A common package for usage in both server and browser.
+ * It contains a local blockchain implementation, a transaction pool, a runtime executor and more!
+ *
+ * @privateRemarks
+ * Above is the package description for `chopsticks-core` package.
+ *
+ * @packageDocumentation
+ */
 export * from './api'
 export * from './blockchain'
 export * from './blockchain/block'
