@@ -1,4 +1,4 @@
-endpoint: wss://invarch-tinkernet.api.onfinality.io:443/public-ws
+endpoint: wss://tinkernet-rpc.dwellir.com
 mock-signature-host: true
 block: ${env.TINKERNET_BLOCK_NUMBER}
 db: ./tinkernet.db.sqlite
