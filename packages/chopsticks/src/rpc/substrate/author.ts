@@ -58,10 +58,10 @@ export const author_submitAndWatchExtrinsic: Handler<[HexString], string> = asyn
     logger.debug({ block: block.hash }, 'author_extrinsicUpdate')
 
     callback({
-      InBlock: block.hash,
+      inBlock: block.hash,
     })
     callback({
-      Finalized: block.hash,
+      finalized: block.hash,
     })
     done(id)
   }
@@ -69,7 +69,7 @@ export const author_submitAndWatchExtrinsic: Handler<[HexString], string> = asyn
   try {
     await context.chain.submitExtrinsic(extrinsic)
     callback({
-      Ready: null,
+      ready: null,
     })
   } catch (error) {
     logger.error({ error }, 'ExtrinsicFailed')
