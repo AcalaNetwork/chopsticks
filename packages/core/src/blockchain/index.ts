@@ -21,26 +21,65 @@ import { dryRunExtrinsic, dryRunInherents } from './block-builder'
 const logger = defaultLogger.child({ name: 'blockchain' })
 
 export interface Options {
+  /** API instance, for getting on-chain data. */
   api: Api
+  /** Build block mode. Default to Batch. */
   buildBlockMode?: BuildBlockMode
+  /** Inherent provider, for creating inherents. */
   inherentProvider: InherentProvider
+  /** Datasource for caching storage and blocks data. */
   db?: DataSource
+  /** Used to create the initial head. */
   header: { number: number; hash: HexString }
+  /** Whether to enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */
   mockSignatureHost?: boolean
+  /** Whether to allow wasm unresolved imports. */
   allowUnresolvedImports?: boolean
+  /** Wasm runtime log level. */
   runtimeLogLevel?: number
+  /** Polkadot.js custom types registration. */
   registeredTypes: RegisteredTypes
+  /** Whether to enable offchain Worker. */
   offchainWorker?: boolean
+  /** Max memory block count */
   maxMemoryBlockCount?: number
 }
 
+/**
+ * Local blockchain which provides access to blocks, txpool and methods
+ * to manipulate the chain such as build blocks, submit extrinsics, xcm and more!
+ *
+ * @example
+ *
+ * ```ts
+ * const chain = new Blockchain({
+ *  api,
+ *  buildBlockMode: BuildBlockMode.Manual,
+ *  inherentProvider: inherents,
+ *  header: {
+ *    hash: blockHash,
+ *    number: Number(header.number),
+ *  },
+ *  mockSignatureHost: true,
+ *  allowUnresolvedImports: true,
+ *  registeredTypes: {},
+ * })
+ * // build a block
+ * chain.newBlock()
+ * ```
+ */
 export class Blockchain {
   readonly uid: string = Math.random().toString(36).substring(2)
+  /** API instance, for getting on-chain data. */
   readonly api: Api
+  /** Datasource for caching storage and blocks data. */
   readonly db: DataSource | undefined
+  /** Enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */
   readonly mockSignatureHost: boolean
+  /** Allow wasm unresolved imports. */
   readonly allowUnresolvedImports: boolean
   #runtimeLogLevel: number
+  /** Polkadot.js custom types registration. */
   readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
@@ -51,11 +90,15 @@ export class Blockchain {
   readonly #blocksByHash: Record<string, Block> = {}
   readonly #loadingBlocks: Record<string, Promise<void>> = {}
 
+  /** For subscribing and managing the head state. */
   readonly headState: HeadState
 
   readonly offchainWorker: OffchainWorker | undefined
   readonly #maxMemoryBlockCount: number
 
+  /**
+   * @param options - Options for instantiating the blockchain
+   */
   constructor({
     api,
     buildBlockMode,
@@ -140,8 +183,8 @@ export class Blockchain {
   }
 
   /**
-   * Try to load block from db and register it
-   * If pass in number, get block by number, else get block by hash
+   * Try to load block from db and register it.
+   * If pass in number, get block by number, else get block by hash.
    */
   async loadBlockFromDB(key: number | HexString): Promise<Block | undefined> {
     if (this.db) {
@@ -170,6 +213,9 @@ export class Blockchain {
     return undefined
   }
 
+  /**
+   * Get block by number.
+   */
   async getBlockAt(number?: number): Promise<Block | undefined> {
     if (number === undefined) {
       return this.head
@@ -192,6 +238,9 @@ export class Blockchain {
     return this.#blocksByNumber.get(number)
   }
 
+  /**
+   * Get block by hash.
+   */
   async getBlock(hash?: HexString): Promise<Block | undefined> {
     await this.api.isReady
     if (hash == null) {
@@ -225,10 +274,16 @@ export class Blockchain {
     return this.#blocksByHash[hash]
   }
 
+  /**
+   * Get all blocks in memory.
+   */
   blocksInMemory(): Block[] {
     return Array.from(this.#blocksByNumber.values())
   }
 
+  /**
+   * Remove block from memory and db.
+   */
   async unregisterBlock(block: Block) {
     if (block.hash === this.head.hash) {
       throw new Error('Cannot unregister head block')
@@ -248,6 +303,9 @@ export class Blockchain {
     await this.saveBlockToDB(block)
   }
 
+  /**
+   * Set block as head.
+   */
   async setHead(block: Block): Promise<void> {
     logger.debug(
       {
@@ -265,6 +323,9 @@ export class Blockchain {
     }
   }
 
+  /**
+   * Submit extrinsic to txpool.
+   */
   async submitExtrinsic(extrinsic: HexString): Promise<HexString> {
     const validity = await this.validateExtrinsic(extrinsic)
     if (validity.isOk) {
@@ -274,6 +335,9 @@ export class Blockchain {
     throw validity.asErr
   }
 
+  /**
+   * Validate extrinsic by calling `TaggedTransactionQueue_validate_transaction`.
+   */
   async validateExtrinsic(
     extrinsic: HexString,
     source: '0x00' | '0x01' | '0x02' = '0x02' /** External */,
@@ -302,20 +366,32 @@ export class Blockchain {
     logger.debug({ id, hrmp }, 'submitHorizontalMessages')
   }
 
+  /**
+   * Build a new block with optional params. Use this when you don't have all the {@link BuildBlockParams}
+   */
   async newBlock(params?: Partial<BuildBlockParams>): Promise<Block> {
     await this.#txpool.buildBlock(params)
     return this.#head
   }
 
+  /**
+   * Build a new block with {@link BuildBlockParams}.
+   */
   async newBlockWithParams(params: BuildBlockParams): Promise<Block> {
     await this.#txpool.buildBlockWithParams(params)
     return this.#head
   }
 
+  /**
+   * Get the upcoming blocks.
+   */
   async upcomingBlocks() {
     return this.#txpool.upcomingBlocks()
   }
 
+  /**
+   * Dry run extrinsic in block `at`.
+   */
   async dryRunExtrinsic(
     extrinsic: HexString | { call: HexString; address: string },
     at?: HexString,
@@ -337,6 +413,10 @@ export class Blockchain {
     return { outcome, storageDiff }
   }
 
+  /**
+   * Dry run hrmp messages in block `at`.
+   * Return the storage diff.
+   */
   async dryRunHrmp(
     hrmp: Record<number, HorizontalMessage[]>,
     at?: HexString,
@@ -354,6 +434,11 @@ export class Blockchain {
     })
     return dryRunInherents(head, inherents)
   }
+
+  /**
+   * Dry run dmp messages in block `at`.
+   * Return the storage diff.
+   */
   async dryRunDmp(dmp: DownwardMessage[], at?: HexString): Promise<[HexString, HexString | null][]> {
     await this.api.isReady
     const head = at ? await this.getBlock(at) : this.head
@@ -368,6 +453,11 @@ export class Blockchain {
     })
     return dryRunInherents(head, inherents)
   }
+
+  /**
+   * Dry run ump messages in block `at`.
+   * Return the storage diff.
+   */
   async dryRunUmp(ump: Record<number, HexString[]>, at?: HexString): Promise<[HexString, HexString | null][]> {
     await this.api.isReady
     const head = at ? await this.getBlock(at) : this.head
@@ -405,6 +495,9 @@ export class Blockchain {
     return dryRunInherents(head, inherents)
   }
 
+  /**
+   * Get inherents of head.
+   */
   async getInherents(): Promise<HexString[]> {
     await this.api.isReady
     const inherents = await this.#inherentProvider.createInherents(this.head, {
@@ -416,6 +509,9 @@ export class Blockchain {
     return inherents
   }
 
+  /**
+   * Close the db.
+   */
   async close() {
     await this.db?.destroy()
   }

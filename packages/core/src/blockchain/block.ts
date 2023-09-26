@@ -21,6 +21,22 @@ export type TaskCallResponse = {
   runtimeLogs: string[]
 }
 
+/**
+ * Block class.
+ *
+ * @example Instantiate a block
+ *
+ * ```ts
+ * const block = new Block(chain, number, hash)
+ * ```
+ *
+ * @example Get storage
+ *
+ * ```ts
+ * const block = await chain.getBlock('0x...')
+ * block.storage()
+ * ```
+ */
 export class Block {
   #chain: Blockchain
 
@@ -43,9 +59,13 @@ export class Block {
     public readonly hash: HexString,
     parentBlock?: Block,
     block?: {
+      /** See `@polkadot/types/interfaces` Header */
       header: Header
+      /** Extrinsics */
       extrinsics: HexString[]
+      /** Storage provider. Default to {@link RemoteStorageLayer} with {@link Blockchain.api chain.api} as remote. */
       storage?: StorageLayerProvider
+      /** Storage diff to apply. */
       storageDiff?: Record<string, StorageValue | null>
     },
   ) {
@@ -106,10 +126,16 @@ export class Block {
     return this.#parentBlock
   }
 
+  /**
+   * Get the block storage.
+   */
   get storage(): StorageLayerProvider {
     return this.#storages[this.#storages.length - 1] ?? this.#baseStorage
   }
 
+  /**
+   * Get the block storage by key.
+   */
   async get(key: string): Promise<string | undefined> {
     const val = await this.storage.get(key, true)
     switch (val) {
@@ -120,6 +146,9 @@ export class Block {
     }
   }
 
+  /**
+   * Get paged storage keys.
+   */
   async getKeysPaged(options: { prefix?: string; startKey?: string; pageSize: number }): Promise<string[]> {
     const layer = new StorageLayer(this.storage)
     await layer.fold()
@@ -131,16 +160,25 @@ export class Block {
     return layer.getKeysPaged(prefix, pageSize, startKey)
   }
 
+  /**
+   * Push a layer to the storage stack.
+   */
   pushStorageLayer(): StorageLayer {
     const layer = new StorageLayer(this.storage)
     this.#storages.push(layer)
     return layer
   }
 
+  /**
+   * Pop a layer from the storage stack.
+   */
   popStorageLayer(): void {
     this.#storages.pop()
   }
 
+  /**
+   * Get storage diff.
+   */
   async storageDiff(): Promise<Record<HexString, HexString | null>> {
     const storage = {}
 
@@ -151,6 +189,9 @@ export class Block {
     return storage
   }
 
+  /**
+   * Get the wasm string.
+   */
   get wasm() {
     if (!this.#wasm) {
       this.#wasm = (async (): Promise<HexString> => {
@@ -166,6 +207,9 @@ export class Block {
     return this.#wasm
   }
 
+  /**
+   * Set the runtime wasm.
+   */
   setWasm(wasm: HexString): void {
     const wasmKey = stringToHex(':code')
     this.pushStorageLayer().set(wasmKey, wasm)
@@ -176,6 +220,10 @@ export class Block {
     this.#metadata = undefined
   }
 
+  /**
+   * Get the type registry.
+   * @see https://polkadot.js.org/docs/api/start/types.create#why-create-types
+   */
   get registry(): Promise<TypeRegistry> {
     if (!this.#registry) {
       this.#registry = Promise.all([
@@ -228,6 +276,9 @@ export class Block {
     return this.#meta
   }
 
+  /**
+   * Call a runtime method.
+   */
   async call(method: string, args: HexString[]): Promise<TaskCallResponse> {
     const wasm = await this.wasm
     const response = await runTask(

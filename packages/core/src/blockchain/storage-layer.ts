@@ -18,10 +18,21 @@ export const enum StorageValueKind {
 export type StorageValue = string | StorageValueKind | undefined
 
 export interface StorageLayerProvider {
+  /**
+   * Get the value of a storage key.
+   */
   get(key: string, cache: boolean): Promise<StorageValue>
+  /**
+   * Fold the storage layer into another layer.
+   */
   foldInto(into: StorageLayer): Promise<StorageLayerProvider | undefined>
+  /**
+   * Fold the storage layer into the parent if it exists.
+   */
   fold(): Promise<void>
-
+  /**
+   * Get paged storage keys.
+   */
   getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]>
 }
 
@@ -226,6 +237,9 @@ export class StorageLayer implements StorageLayerProvider {
     return res
   }
 
+  /**
+   * Merge the storage layer into the given object, can be used to get sotrage diff.
+   */
   async mergeInto(into: Record<string, string | null>) {
     for (const [key, maybeValue] of Object.entries(this.#store)) {
       const value = await maybeValue
