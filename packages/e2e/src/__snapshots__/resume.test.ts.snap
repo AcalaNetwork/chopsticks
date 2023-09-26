@@ -1,0 +1,321 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`resume > resume with multi network > resume and xcm works > system events 1`] = `
+[
+  {
+    "data": {
+      "amount": "(rounded 45000000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 2300000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 1200000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 6800000000)",
+      "currencyId": {
+        "Token": "AUSD",
+      },
+      "who": "23M5ttkmR6KcnvsNJdmYTpLo9xfc54g8uCk55buDfiJPon69",
+    },
+    "method": "Deposited",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 260000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "No",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 99000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+  {
+    "data": {
+      "amount": "(rounded 2600000000)",
+      "who": "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+    },
+    "method": "Withdraw",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "amount": 100000000000,
+      "currencyId": {
+        "Token": "DOT",
+      },
+      "who": "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+    },
+    "method": "Withdrawn",
+    "section": "tokens",
+  },
+  {
+    "data": {
+      "assets": [
+        {
+          "fun": {
+            "Fungible": 100000000000,
+          },
+          "id": {
+            "Concrete": {
+              "interior": "Here",
+              "parents": 1,
+            },
+          },
+        },
+      ],
+      "dest": {
+        "interior": {
+          "X1": {
+            "AccountId32": {
+              "id": "(hash)",
+              "network": "Any",
+            },
+          },
+        },
+        "parents": 1,
+      },
+      "fee": {
+        "fun": {
+          "Fungible": 100000000000,
+        },
+        "id": {
+          "Concrete": {
+            "interior": "Here",
+            "parents": 1,
+          },
+        },
+      },
+      "sender": "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+    },
+    "method": "TransferredMultiAssets",
+    "section": "xTokens",
+  },
+  {
+    "data": {
+      "amount": "(rounded 2600000000)",
+      "who": "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+    },
+    "method": "Deposit",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "value": "(rounded 2600000000)",
+    },
+    "method": "Deposit",
+    "section": "treasury",
+  },
+  {
+    "data": {
+      "actualFee": "(rounded 2600000000)",
+      "actualSurplus": 0,
+      "actualTip": 0,
+      "who": "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+    },
+    "method": "TransactionFeePaid",
+    "section": "transactionPayment",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 600000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+]
+`;
+
+exports[`resume > resume with multi network > resume and xcm works > system events 2`] = `
+[
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 230000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+  {
+    "data": {
+      "amount": 100000000000,
+      "who": "13YMK2eYoAvStnzReuxBjMrAvPXmmdsURwZvc62PrdXimbNy",
+    },
+    "method": "Withdraw",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "amount": "(rounded 100000000000)",
+      "who": "146SvjUZXoMaemdeiecyxgALeYMm8ZWh1yrGo8RtpoPfe7WL",
+    },
+    "method": "Deposit",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "account": "146SvjUZXoMaemdeiecyxgALeYMm8ZWh1yrGo8RtpoPfe7WL",
+    },
+    "method": "NewAccount",
+    "section": "system",
+  },
+  {
+    "data": {
+      "account": "146SvjUZXoMaemdeiecyxgALeYMm8ZWh1yrGo8RtpoPfe7WL",
+      "freeBalance": "(rounded 100000000000)",
+    },
+    "method": "Endowed",
+    "section": "balances",
+  },
+  {
+    "data": {
+      "amount": "(rounded 410000000)",
+      "who": "12ZNJzjPBZUh8VV5cuJFkbbwMttFNkH39EhoeYcgGHsJd4MG",
+    },
+    "method": "Deposit",
+    "section": "balances",
+  },
+  {
+    "data": [
+      "(hash)",
+      {
+        "Complete": 4000000000,
+      },
+    ],
+    "method": "ExecutedUpward",
+    "section": "ump",
+  },
+  {
+    "data": {
+      "dispatchInfo": {
+        "class": "Mandatory",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": "(rounded 98000000)",
+        },
+      },
+    },
+    "method": "ExtrinsicSuccess",
+    "section": "system",
+  },
+]
+`;
+
+exports[`resume > resume with multi network > resume and xcm works 1`] = `
+{
+  "consumers": "0",
+  "data": {
+    "feeFrozen": "0",
+    "free": "0",
+    "miscFrozen": "0",
+    "reserved": "0",
+  },
+  "nonce": "0",
+  "providers": "0",
+  "sufficients": "0",
+}
+`;
+
+exports[`resume > resume with multi network > resume and xcm works 2`] = `
+{
+  "consumers": "0",
+  "data": {
+    "feeFrozen": "0",
+    "free": "10,000,000,000,000",
+    "miscFrozen": "0",
+    "reserved": "0",
+  },
+  "nonce": "0",
+  "providers": "0",
+  "sufficients": "0",
+}
+`;
+
+exports[`resume > resume with multi network > resume and xcm works 3`] = `
+{
+  "free": "10,000,000,000,000",
+  "frozen": "0",
+  "reserved": "0",
+}
+`;
+
+exports[`resume > resume with multi network > resume and xcm works 4`] = `
+{
+  "free": "9,900,000,000,000",
+  "frozen": "0",
+  "reserved": "0",
+}
+`;
+
+exports[`resume > resume with multi network > resume and xcm works 5`] = `
+{
+  "consumers": "0",
+  "data": {
+    "feeFrozen": "0",
+    "free": "99,591,353,032",
+    "miscFrozen": "0",
+    "reserved": "0",
+  },
+  "nonce": "0",
+  "providers": "1",
+  "sufficients": "0",
+}
+`;
