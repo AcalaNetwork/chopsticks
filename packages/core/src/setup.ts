@@ -21,7 +21,7 @@ import {
 import { defaultLogger } from './logger'
 import { openDb } from './db'
 
-type Options = {
+export type SetupOptions = {
   endpoint?: string
   block?: string | number | null
   genesis?: string | Genesis
@@ -35,7 +35,7 @@ type Options = {
   maxMemoryBlockCount?: number
 }
 
-export const setup = async (options: Options) => {
+export const setup = async (options: SetupOptions) => {
   let provider: ProviderInterface
   if (options.genesis) {
     if (typeof options.genesis === 'string') {
