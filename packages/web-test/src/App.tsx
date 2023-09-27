@@ -119,6 +119,10 @@ function App() {
 
 		setChainLoading(false)
 		setBlocks([{ number: chain.head.number, hash: chain.head.hash }])
+
+		// build a block
+		await chain.newBlock().catch(console.error)
+		setBlocks([...blocks, { number: chain.head.number, hash: chain.head.hash }])
 	}
 
 	useEffect(() => {
@@ -205,7 +209,7 @@ function App() {
 				</Button>
 			</Section>
 
-			<Section>
+			<Section id="blocks-section">
 				<Typography variant="h5" component="h2">
 					Blocks
 				</Typography>
@@ -218,7 +222,7 @@ function App() {
 				</BlocksContainer>
 			</Section>
 
-			<Section>
+			<Section id="extrinsic-section">
 				<Typography variant="h5" component="h2">
 					Dry Run
 				</Typography>
