@@ -21,7 +21,7 @@ npx @acala-network/chopsticks@latest -c acala
 
 Run Chopsticks in browser? Now you can turn a mainnet into a devnet and play with it directly in your browser!
 
-An example is available at [acala-network.github.io/chopsticks](https://acala-network.github.io/chopsticks/), and the corresponding code can be found in [web-test](packages/web-test).
+An example is available at [acalanetwork.github.io/chopsticks](https://acalanetwork.github.io/chopsticks/), and the corresponding code can be found in [web-test](packages/web-test).
 
 ## Environment Variables
 
