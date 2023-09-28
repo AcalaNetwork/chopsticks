@@ -7,15 +7,25 @@
 		"build": "npx vite build",
 		"vite:serve": "npx vite --port 3000 --host",
 		"vite:preview": "npx vite preview --port 3000",
-		"parcel:serve": "npx parcel serve index.html --port 3000",
-		"test": "npx playwright test"
+		"parcel:serve": "parcel serve index.html --port 3000",
+		"test": "playwright test"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks-core": "workspace:*"
+		"@acala-network/chopsticks-core": "workspace:*",
+		"@emotion/react": "^11.11.1",
+		"@emotion/styled": "^11.11.0",
+		"@mui/material": "^5.14.10",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.37.1",
+		"@types/react": "^18",
+		"@types/react-dom": "^18",
+		"@vitejs/plugin-react": "^4.1.0",
 		"crypto-browserify": "^3.12.0",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"eslint-plugin-react-refresh": "^0.4.3",
 		"path-browserify": "^1.0.1",
 		"stream-browserify": "^3.0.0",
 		"typescript": "^5.1.6"
