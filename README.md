@@ -17,6 +17,12 @@ Run node using config file
 npx @acala-network/chopsticks@latest -c acala
 ```
 
+## Web testing
+
+Run Chopsticks in browser? Now you can turn a mainnet into a devnet and play with it directly in your browser!
+
+An example is available at [acala-network.github.io/chopsticks](https://acala-network.github.io/chopsticks/), and the corresponding code can be found in [web-test](packages/web-test).
+
 ## Environment Variables
 
 - `PORT`: Set port for Chopsticks to listen on, default is `8000`
@@ -150,4 +156,5 @@ To learn more, see https://www.npmjs.com/package/global-agent?activeTab=readme
 
 External documentation on Chopsticks can be found at the following links:
 
+- [Chopsticks types documentation](https://acalanetwork.github.io/chopsticks/docs)
 - [Moonbeam documentation site](https://docs.moonbeam.network/builders/build/substrate-api/chopsticks/)
