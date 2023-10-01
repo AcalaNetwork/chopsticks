@@ -19,7 +19,7 @@ __metadata:
     "@acala-network/chopsticks-executor": "workspace:*"
     "@polkadot/api": ^10.9.1
     "@polkadot/util-crypto": ^12.3.2
-    "@types/lodash": ^4.14.197
+    "@types/lodash": ^4.14.199
     "@types/sql.js": ^1.4.4
     axios: ^1.5.1
     eventemitter3: ^5.0.1
@@ -79,7 +79,7 @@ __metadata:
     "@polkadot/api": ^10.9.1
     "@types/global-agent": ^2.1.1
     "@types/js-yaml": ^4.0.5
-    "@types/lodash": ^4.14.197
+    "@types/lodash": ^4.14.199
     "@types/node": ^20.5.7
     "@types/ws": ^8.5.6
     "@types/yargs": ^17.0.24
@@ -2188,10 +2188,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.197":
-  version: 4.14.197
-  resolution: "@types/lodash@npm:4.14.197"
-  checksum: 53d7567d1704de76cf33266c78062e0fd722d4b846e5b1417d0b6ef0ee41c0d9c451b92bc34f73d5f1fcc45c7d36511e92f6f47a9279b48157ba60a92ddaa078
+"@types/lodash@npm:^4.14.199":
+  version: 4.14.199
+  resolution: "@types/lodash@npm:4.14.199"
+  checksum: e68d1fcbbfce953ed87b296a628573f62939227bcda0c934954e862b421e8a34c5e71cad6fea27b9980567909e6a4698f09025692958e36d64ea9ed99ec6fb2e
   languageName: node
   linkType: hard
 
