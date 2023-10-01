@@ -56,7 +56,7 @@
 		"unplugin-swc": "^1.4.2",
 		"vite-tsconfig-paths": "^4.2.0",
 		"vitepress": "^1.0.0-rc.13",
-		"vitest": "^0.34.2",
+		"vitest": "^0.34.6",
 		"wasm-pack": "^0.12.1"
 	},
 	"resolutions": {
