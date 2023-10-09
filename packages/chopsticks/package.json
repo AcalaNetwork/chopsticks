@@ -28,7 +28,7 @@
 		"lodash": "^4.17.21",
 		"ws": "^8.14.2",
 		"yargs": "^17.7.2",
-		"zod": "^3.22.2"
+		"zod": "^3.22.3"
 	},
 	"devDependencies": {
 		"@types/global-agent": "^2.1.1",
