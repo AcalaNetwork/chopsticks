@@ -162,7 +162,7 @@ dependencies = [
 
 [[package]]
 name = "chopsticks-executor"
-version = "0.7.3"
+version = "0.8.2"
 dependencies = [
  "arrayvec 0.7.4",
  "console_error_panic_hook",
