@@ -23,8 +23,10 @@ test.describe('index', () => {
 
   test('dry run extrinsics', async ({ page }) => {
     test.setTimeout(5 * 60 * 1000)
-    await page.getByText(/dry run call/i).click()
+    const button = page.getByText(/dry run call/i)
+    await button.isEnabled({ timeout: 60_000 })
+    await button.click()
     await expect(page.getByText('Loading dry run result...')).toBeVisible()
-    await expect(page.locator('#extrinsic-section')).toHaveText(/outcome/, { timeout: 200_000 })
+    await expect(page.locator('#extrinsic-section')).toHaveText(/outcome/, { timeout: 60_000 })
   })
 })
