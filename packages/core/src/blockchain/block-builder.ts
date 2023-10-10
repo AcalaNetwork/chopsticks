@@ -102,7 +102,13 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
   return header
 }
 
-const initNewBlock = async (head: Block, header: Header, inherents: HexString[], storageLayer?: StorageLayer) => {
+const initNewBlock = async (
+  head: Block,
+  header: Header,
+  inherents: HexString[],
+  storageLayer?: StorageLayer,
+  callback?: BuildBlockCallbacks,
+) => {
   const blockNumber = header.number.toNumber()
   const hash: HexString = `0x${Math.round(Math.random() * 100000000)
     .toString(16)
@@ -115,20 +121,22 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[],
 
   {
     // initialize block
-    const { storageDiff } = await newBlock.call('Core_initialize_block', [header.toHex()])
-    newBlock.pushStorageLayer().setAll(storageDiff)
-    logger.trace(truncate(storageDiff), 'Initialize block')
+    const resp = await newBlock.call('Core_initialize_block', [header.toHex()])
+    newBlock.pushStorageLayer().setAll(resp.storageDiff)
+
+    callback?.onPhaseApplied?.('initialize', resp)
   }
 
   const layers: StorageLayer[] = []
   // apply inherents
   for (const extrinsic of inherents) {
     try {
-      const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
+      const resp = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
       const layer = newBlock.pushStorageLayer()
-      layer.setAll(storageDiff)
+      layer.setAll(resp.storageDiff)
       layers.push(layer)
-      logger.trace(truncate(storageDiff), 'Applied inherent')
+
+      callback?.onPhaseApplied?.(layers.length - 1, resp)
     } catch (e) {
       logger.warn('Failed to apply inherents %o %s', e, e)
       throw new Error('Failed to apply inherents')
@@ -141,12 +149,17 @@ const initNewBlock = async (head: Block, header: Header, inherents: HexString[],
   }
 }
 
+export type BuildBlockCallbacks = {
+  onApplyExtrinsicError?: (extrinsic: HexString, error: TransactionValidityError) => void
+  onPhaseApplied?: (phase: 'initialize' | 'finalize' | number, resp: TaskCallResponse) => void
+}
+
 export const buildBlock = async (
   head: Block,
   inherents: HexString[],
   extrinsics: HexString[],
   ump: Record<number, HexString[]>,
-  onApplyExtrinsicError: (extrinsic: HexString, error: TransactionValidityError) => void,
+  callbacks?: BuildBlockCallbacks,
   unsafeBlockHeight?: number,
 ): Promise<[Block, HexString[]]> => {
   const registry = await head.registry
@@ -253,15 +266,16 @@ export const buildBlock = async (
   // apply extrinsics
   for (const extrinsic of extrinsics) {
     try {
-      const { result, storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
-      const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
+      const resp = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
+      const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', resp.result)
       if (outcome.isErr) {
-        onApplyExtrinsicError(extrinsic, outcome.asErr)
+        callbacks?.onApplyExtrinsicError?.(extrinsic, outcome.asErr)
         continue
       }
-      newBlock.pushStorageLayer().setAll(storageDiff)
-      logger.trace(truncate(storageDiff), 'Applied extrinsic')
+      newBlock.pushStorageLayer().setAll(resp.storageDiff)
       includedExtrinsic.push(extrinsic)
+
+      callbacks?.onPhaseApplied?.(includedExtrinsic.length - 1, resp)
     } catch (e) {
       logger.info('Failed to apply extrinsic %o %s', e, e)
       pendingExtrinsics.push(extrinsic)
@@ -270,10 +284,11 @@ export const buildBlock = async (
 
   {
     // finalize block
-    const { storageDiff } = await newBlock.call('BlockBuilder_finalize_block', [])
+    const resp = await newBlock.call('BlockBuilder_finalize_block', [])
 
-    newBlock.pushStorageLayer().setAll(storageDiff)
-    logger.trace(truncate(storageDiff), 'Finalize block')
+    newBlock.pushStorageLayer().setAll(resp.storageDiff)
+
+    callbacks?.onPhaseApplied?.('finalize', resp)
   }
 
   const blockData = registry.createType('Block', {
@@ -282,10 +297,14 @@ export const buildBlock = async (
   })
 
   const storageDiff = await newBlock.storageDiff()
-  logger.trace(
-    Object.entries(storageDiff).map(([key, value]) => [key, truncate(value)]),
-    'Final block',
-  )
+
+  if (logger.isLevelEnabled('trace')) {
+    logger.trace(
+      Object.entries(storageDiff).map(([key, value]) => [key, truncate(value)]),
+      'Final block',
+    )
+  }
+
   const finalBlock = new Block(head.chain, newBlock.number, blockData.hash.toHex(), head, {
     header,
     extrinsics: [...inherents, ...includedExtrinsic],
