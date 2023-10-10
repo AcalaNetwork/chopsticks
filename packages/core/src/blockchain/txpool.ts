@@ -239,7 +239,7 @@ export class TxPool {
           this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
         },
         onPhaseApplied:
-          logger.level === 'trace'
+          logger.level.toLowerCase() === 'trace'
             ? (phase, resp) => {
                 switch (phase) {
                   case 'initialize':
