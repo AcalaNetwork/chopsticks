@@ -298,7 +298,7 @@ export const buildBlock = async (
 
   const storageDiff = await newBlock.storageDiff()
 
-  if (logger.isLevelEnabled('trace')) {
+  if (logger.level === 'trace') {
     logger.trace(
       Object.entries(storageDiff).map(([key, value]) => [key, truncate(value)]),
       'Final block',
