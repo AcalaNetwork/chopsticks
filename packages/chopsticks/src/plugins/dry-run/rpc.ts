@@ -1,7 +1,7 @@
 import { HexString } from '@polkadot/util/types'
 import { z } from 'zod'
 
-import { Context, ResponseError } from '../../rpc/shared'
+import { Context, ResponseError } from '@acala-network/chopsticks-core'
 import { decodeStorageDiff } from '../../utils/decoder'
 import { generateHtmlDiff } from '../../utils/generate-html-diff'
 

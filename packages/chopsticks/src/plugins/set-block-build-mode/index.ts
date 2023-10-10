@@ -1,5 +1,4 @@
-import { BuildBlockMode } from '@acala-network/chopsticks-core'
-import { Context, ResponseError } from '../../rpc/shared'
+import { BuildBlockMode, Context, ResponseError } from '@acala-network/chopsticks-core'
 import { defaultLogger } from '../../logger'
 
 /**

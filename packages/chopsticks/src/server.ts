@@ -1,6 +1,6 @@
+import { ResponseError, SubscriptionManager } from '@acala-network/chopsticks-core'
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
-import { ResponseError, SubscriptionManager } from './rpc/shared'
 import { defaultLogger, truncate } from './logger'
 
 const logger = defaultLogger.child({ name: 'ws' })
