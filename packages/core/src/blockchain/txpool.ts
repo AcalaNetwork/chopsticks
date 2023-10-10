@@ -238,20 +238,21 @@ export class TxPool {
         onApplyExtrinsicError: (extrinsic, error) => {
           this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
         },
-        onPhaseApplied: logger.isLevelEnabled('trace')
-          ? (phase, resp) => {
-              switch (phase) {
-                case 'initialize':
-                  logger.trace(truncate(resp.storageDiff), 'Initialize block')
-                  break
-                case 'finalize':
-                  logger.trace(truncate(resp.storageDiff), 'Finalize block')
-                  break
-                default:
-                  logger.trace(truncate(resp.storageDiff), `Apply extrinsic ${phase}`)
+        onPhaseApplied:
+          logger.level.toLowerCase() === 'trace'
+            ? (phase, resp) => {
+                switch (phase) {
+                  case 'initialize':
+                    logger.trace(truncate(resp.storageDiff), 'Initialize block')
+                    break
+                  case 'finalize':
+                    logger.trace(truncate(resp.storageDiff), 'Finalize block')
+                    break
+                  default:
+                    logger.trace(truncate(resp.storageDiff), `Apply extrinsic ${phase}`)
+                }
               }
-            }
-          : undefined,
+            : undefined,
       },
       params.unsafeBlockHeight,
     )
