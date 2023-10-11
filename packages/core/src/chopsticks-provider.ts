@@ -25,6 +25,16 @@ interface Subscription extends SubscriptionHandler {
   onCancel?: () => void
 }
 
+export interface ChopsticksProviderProps {
+  /** upstream endpoint */
+  endpoint: string | undefined
+  /** default to latest block */
+  blockHash?: string
+}
+
+/**
+ * A provider for ApiPromise
+ */
 export class ChopsticksProvider implements ProviderInterface {
   #isConnected = false
   #eventemitter: EventEmitter
@@ -35,7 +45,10 @@ export class ChopsticksProvider implements ProviderInterface {
   readonly stats?: ProviderStats
   #subscriptions: Record<string, Subscription> = {}
 
-  constructor(endpoint: string) {
+  constructor({ endpoint, blockHash }: ChopsticksProviderProps) {
+    if (!endpoint) {
+      throw new Error('ChopsticksProvider requires the upstream endpoint')
+    }
     this.#endpoint = endpoint
     // FIXME: WARNING in /node_modules/typeorm/browser/driver/react-native/ReactNativeDriver.js
     // see: https://github.com/typeorm/typeorm/issues/2158
@@ -43,10 +56,13 @@ export class ChopsticksProvider implements ProviderInterface {
     this.#chainPromise = setup({
       endpoint: endpoint,
       mockSignatureHost: true,
-      db: 'chopsticks',
+      db: 'chopsticks.db',
+      block: blockHash,
     })
 
     this.#eventemitter = new EventEmitter()
+
+    this.connect()
 
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', (): void => {
@@ -69,33 +85,41 @@ export class ChopsticksProvider implements ProviderInterface {
   }
 
   get isReady(): Promise<void> {
-    this.connect()
     return this.#isReadyPromise
   }
 
+  get chain() {
+    return this.#chainPromise
+  }
+
   clone = (): ProviderInterface => {
-    return new ChopsticksProvider(this.#endpoint)
+    return new ChopsticksProvider({ endpoint: this.#endpoint })
   }
 
   connect = async (): Promise<void> => {
-    this.#chain = await this.#chainPromise
-    await setStorage(this.#chain, {
-      System: {
-        Account: [
-          [
-            ['5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'],
-            {
-              providers: 1,
-              data: {
-                free: '1000000000000000000',
-              },
-            },
-          ],
-        ],
-      },
-    })
-    this.#isConnected = true
-    this.#eventemitter.emit('connected')
+    return this.#chainPromise
+      .then((chain) => {
+        this.#chain = chain
+        return setStorage(chain, {
+          System: {
+            Account: [
+              [
+                ['5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'],
+                {
+                  providers: 1,
+                  data: {
+                    free: '1000000000000000000',
+                  },
+                },
+              ],
+            ],
+          },
+        })
+      })
+      .then(() => {
+        this.#isConnected = true
+        this.#eventemitter.emit('connected')
+      })
   }
 
   disconnect = async (): Promise<void> => {
@@ -115,11 +139,10 @@ export class ChopsticksProvider implements ProviderInterface {
 
   #subscriptionManager = {
     subscribe: (method: string, subid: string, onCancel: () => void = () => {}) => {
-      this.#subscriptions[subid].onCancel = onCancel
+      if (this.#subscriptions[subid]) this.#subscriptions[subid].onCancel = onCancel
       return (data: any) => {
         if (this.#subscriptions[subid]) {
           defaultLogger.trace({ method, subid, data: truncate(data) }, 'Subscription notification')
-          // here directly call the callback user pass in (since no network communication at all)
           this.#subscriptions[subid].callback(null, data)
         }
       }
@@ -141,7 +164,7 @@ export class ChopsticksProvider implements ProviderInterface {
     await this.isReady
     const handler = allHandlers[method]
     if (!handler) {
-      defaultLogger.error(() => `Unable to find handler=${method}`)
+      defaultLogger.error(`Unable to find handler=${method}`)
       return Promise.reject(new Error(`Unable to find handler=${method}`))
     }
     if (subscription) {
@@ -153,6 +176,7 @@ export class ChopsticksProvider implements ProviderInterface {
         type: subscription.type,
       }
     }
+    defaultLogger.debug({ method, params }, `Calling handler`)
     const result = await handler({ chain: this.#chain! }, params, this.#subscriptionManager)
     return result
   }
@@ -170,7 +194,7 @@ export class ChopsticksProvider implements ProviderInterface {
     const subscription = `${type}::${id}`
 
     if (!this.#subscriptions[subscription]) {
-      defaultLogger.debug(() => `Unable to find active subscription=${subscription}`)
+      defaultLogger.debug(`Unable to find active subscription=${subscription}`)
       return false
     }
 
