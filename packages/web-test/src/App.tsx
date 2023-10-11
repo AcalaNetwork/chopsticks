@@ -76,6 +76,7 @@ const Code = styled('code')`
 function App() {
 	const [dryRunLoading, setDryRunLoading] = useState(false)
 	const [chainLoading, setChainLoading] = useState(false)
+	const [building, setBuilding] = useState(false)
 	const [extrinsic, setExtrinsic] = useState('')
 	const [dryRunResult, setDryRunResult] = useState('')
 	const [config, setConfig] = useState<SetupOptions>({
@@ -119,10 +120,6 @@ function App() {
 
 		setChainLoading(false)
 		setBlocks([{ number: chain.head.number, hash: chain.head.hash }])
-
-		// build a block
-		await chain.newBlock().catch(console.error)
-		setBlocks([...blocks, { number: chain.head.number, hash: chain.head.hash }])
 	}
 
 	useEffect(() => {
@@ -134,6 +131,14 @@ function App() {
 			globalThis.chain?.close()
 		}
 	}, [])
+
+	const handleBuildBlock = async () => {
+		// build a block
+		setBuilding(true)
+		await chain.newBlock().catch(console.error)
+		setBlocks((blocks) => [...blocks, { number: chain.head.number, hash: chain.head.hash }])
+		setBuilding(false)
+	}
 
 	const handleDryRun = async () => {
 		setDryRunResult('')
@@ -220,6 +225,19 @@ function App() {
 						</Pre>
 					))}
 				</BlocksContainer>
+				<Button
+					variant="outlined"
+					disabled={chainLoading || building || !globalThis.chain}
+					onClick={handleBuildBlock}
+					sx={{ mt: 1 }}
+				>
+					Build Block
+					{building && (
+						<Box sx={{ display: 'flex', ml: 1 }}>
+							<CircularProgress size={13} />
+						</Box>
+					)}
+				</Button>
 			</Section>
 
 			<Section id="extrinsic-section">
@@ -231,7 +249,7 @@ function App() {
 					label="Extrinsic"
 					value={extrinsic}
 					multiline
-					minRows={4}
+					maxRows={4}
 					sx={{ mt: 1 }}
 					onChange={(e) => {
 						setExtrinsic(e.target.value)
