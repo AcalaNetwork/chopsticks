@@ -17,9 +17,15 @@ test.describe('index', () => {
     await expect(page.getByText('Save')).toBeDisabled()
     // chain is ready
     await expect(page.locator('#blocks-section')).toHaveText(/4000000/, { timeout: 60_000 })
+    await page.getByText(/build block/i).click()
     // wait for new block
     await expect(page.locator('#blocks-section')).toHaveText(/4000001/, { timeout: 200_000 })
+  })
 
+  test('dry run extrinsic', async ({ page }) => {
+    test.setTimeout(5 * 60 * 1000) // 5 minutes timeout
+    // chain is ready
+    await expect(page.locator('#blocks-section')).toHaveText(/4000000/, { timeout: 60_000 })
     await page.getByText(/dry run call/i).click()
     await expect(page.getByText('Loading dry run result...')).toBeVisible()
     await expect(page.locator('#extrinsic-section')).toHaveText(/outcome/, { timeout: 200_000 })
