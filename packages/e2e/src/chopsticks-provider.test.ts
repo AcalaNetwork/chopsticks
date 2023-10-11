@@ -67,4 +67,34 @@ describe('chopsticks provider works', () => {
       shouldHavePeers: false,
     })
   })
+
+  it.skip('handles tx', async () => {
+    const { alice, bob } = testingPairs()
+
+    setStorage(chain, {
+      System: {
+        Account: [
+          [[alice.address], { data: { free: 10 * 1e12 } }],
+          [[bob.address], { data: { free: 10 * 1e12 } }],
+        ],
+      },
+      Sudo: {
+        Key: alice.address,
+      },
+    })
+
+    const { callback, next } = mockCallback()
+
+    await api.tx.balances.transfer(bob.address, 100).signAndSend(alice, callback)
+    await chain?.newBlock()
+
+    await next()
+
+    expect(callback.mock.calls).toMatchSnapshot()
+    callback.mockClear()
+
+    expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
+    expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
+    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+  })
 })

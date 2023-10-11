@@ -30,6 +30,7 @@ export interface ChopsticksProviderProps {
   endpoint: string | undefined
   /** default to latest block */
   blockHash?: string
+  dbPath?: string
 }
 
 /**
@@ -45,7 +46,7 @@ export class ChopsticksProvider implements ProviderInterface {
   readonly stats?: ProviderStats
   #subscriptions: Record<string, Subscription> = {}
 
-  constructor({ endpoint, blockHash }: ChopsticksProviderProps) {
+  constructor({ endpoint, blockHash, dbPath }: ChopsticksProviderProps) {
     if (!endpoint) {
       throw new Error('ChopsticksProvider requires the upstream endpoint')
     }
@@ -56,7 +57,7 @@ export class ChopsticksProvider implements ProviderInterface {
     this.#chainPromise = setup({
       endpoint: endpoint,
       mockSignatureHost: true,
-      db: 'chopsticks.db',
+      db: dbPath,
       block: blockHash,
     })
 
