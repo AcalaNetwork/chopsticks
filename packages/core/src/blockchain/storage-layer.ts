@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Api } from '../api'
 import { KeyValuePair } from '../db/entities'
 import { defaultLogger } from '../logger'
-import KeyCache from '../utils/key-cache'
+import KeyCache, { PREFIX_LENGTH } from '../utils/key-cache'
 
 const logger = defaultLogger.child({ name: 'layer' })
 
@@ -71,7 +71,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     if (pageSize > BATCH_SIZE) throw new Error(`pageSize must be less or equal to ${BATCH_SIZE}`)
     logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoteStorageLayer getKeysPaged')
     // can't handle keyCache without prefix
-    if (prefix.length < 66) {
+    if (prefix.length < PREFIX_LENGTH || startKey.length < PREFIX_LENGTH) {
       return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 

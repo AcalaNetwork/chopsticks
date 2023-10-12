@@ -191,7 +191,9 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                 nibbles_to_bytes_suffix_extend(req.prefix()).collect::<Vec<_>>(),
                             )
                         };
-                        let key = if let Some(child) = req.child_trie() {
+                        let key = if req.key().next().is_none() {
+                            HexString(Vec::new()) // empty key
+                        } else if let Some(child) = req.child_trie() {
                             HexString(prefixed_child_key(
                                 child,
                                 nibbles_to_bytes_suffix_extend(req.key()),
