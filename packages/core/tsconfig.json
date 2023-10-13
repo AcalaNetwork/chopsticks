@@ -4,6 +4,7 @@
 		"outDir": "lib",
 		"rootDir": "src",
 		"target": "es2016",
+    "module": "esnext",
 		"lib": ["es6", "dom", "dom.iterable"],
 		"isolatedModules": true
 	},
