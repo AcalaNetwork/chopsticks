@@ -19,10 +19,10 @@ describe('Polkadot Crowdloan Refund', async () => {
     })
   }, 200_000)
 
-  it("should refund Acala's contributers", async () => {
-      await expect(api.tx.crowdloan.refund(3336).signAndSend(alice))
-      .resolves
-      .toBeTruthy()
+  it(
+    "should refund Acala's contributers",
+    async () => {
+      await expect(api.tx.crowdloan.refund(3336).signAndSend(alice)).resolves.toBeTruthy()
 
       await dev.newBlock()
 
