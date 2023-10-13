@@ -38,7 +38,7 @@ describe('Polkadot Crowdloan Refund', async () => {
                 to: '111DbHPUxncZcffEfy1BrtFZNDUzK7hHchLpmJYFEFG4hy1',
                 amount: '1,000,000,000,000',
               }),
-            })
+            }),
           }),
         ]),
       )
