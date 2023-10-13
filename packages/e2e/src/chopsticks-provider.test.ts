@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { env, expectHex, expectJson, mockCallback, testingPairs } from './helper'
 
+// TODO: to be enabled after impl worker thread for nodejs compatibility
 describe.skip('chopsticks provider works', () => {
   const chopsticksProvider = new ChopsticksProvider({ endpoint: env.acala.endpoint, blockHash: env.acala.blockHash })
   let api: ApiPromise
@@ -66,7 +67,7 @@ describe.skip('chopsticks provider works', () => {
     })
   })
 
-  it.skip('handles tx', async () => {
+  it('handles tx', async () => {
     const { alice, bob } = testingPairs()
 
     // setStorage(chain, {

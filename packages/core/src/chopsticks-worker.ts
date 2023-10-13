@@ -48,21 +48,7 @@ onmessage = async (e) => {
           block: e.data.blockHash,
         })
         defaultLogger.info('[Chopsticks worker] onMessage: connect. Chain setup done.')
-        setStorage(chain, {
-          System: {
-            Account: [
-              [
-                ['5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'],
-                {
-                  providers: 1,
-                  data: {
-                    free: '1000000000000000000',
-                  },
-                },
-              ],
-            ],
-          },
-        })
+        setStorage(chain, e.data.storageValues)
         defaultLogger.info('[Chopsticks worker] onMessage: connect. Set storage done.')
         postMessage({
           type: 'connection',
@@ -102,6 +88,7 @@ onmessage = async (e) => {
       postMessage({
         type: 'send-result',
         id: e.data.id,
+        method: method,
         result: JSON.stringify(result),
       })
       break

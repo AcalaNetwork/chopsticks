@@ -7,6 +7,7 @@ import {
   ProviderStats,
 } from '@polkadot/rpc-provider/types'
 
+import { StorageValues } from './utils'
 import { defaultLogger } from './logger'
 
 interface SubscriptionHandler {
@@ -20,12 +21,21 @@ interface Subscription extends SubscriptionHandler {
   onCancel: () => void
 }
 
+interface Handler {
+  callback: ProviderInterfaceCallback
+  method: string
+  params: unknown[]
+  start: number
+  subscription?: SubscriptionHandler | undefined
+}
+
 export interface ChopsticksProviderProps {
   /** upstream endpoint */
   endpoint: string | undefined
   /** default to latest block */
   blockHash?: string
   dbPath?: string
+  storageValues?: StorageValues
 }
 
 /**
@@ -40,17 +50,20 @@ export class ChopsticksProvider implements ProviderInterface {
   #endpoint: string
   readonly stats?: ProviderStats
   #subscriptions: Record<string, Subscription> = {}
-  #worker: Worker | undefined
+  #worker: Worker
   #blockHash: string | undefined
   #dbPath: string | undefined
+  #storageValues: StorageValues | undefined
+  #handlers: Record<string, Handler> = {}
 
-  constructor({ endpoint, blockHash, dbPath }: ChopsticksProviderProps) {
+  constructor({ endpoint, blockHash, dbPath, storageValues }: ChopsticksProviderProps) {
     if (!endpoint) {
       throw new Error('ChopsticksProvider requires the upstream endpoint')
     }
     this.#endpoint = endpoint
     this.#blockHash = blockHash
     this.#dbPath = dbPath
+    this.#storageValues = storageValues
 
     this.#eventemitter = new EventEmitter()
 
@@ -62,34 +75,8 @@ export class ChopsticksProvider implements ProviderInterface {
       this.#eventemitter.once('error', reject)
     })
 
-    if (globalThis.Worker) {
-      const chopsticksWorker = new Worker(new URL('./chopsticks-worker.ts', import.meta.url), { type: 'module' })
-      this.#worker = chopsticksWorker
-      chopsticksWorker.onmessage = (e) => {
-        switch (e.data.type) {
-          case 'connection':
-            defaultLogger.info('[Chopsticks provider] onMessage: connection.', e.data)
-            if (e.data.connected) {
-              this.#isConnected = true
-              this.#eventemitter.emit('connected')
-            } else {
-              this.#isConnected = false
-              this.#eventemitter.emit('error', new Error('Unable to connect to the chain'))
-              defaultLogger.error(`Unable to connect to the chain: ${e.data.message}`)
-            }
-            break
-          case 'subscribe-callback':
-            this.#subscriptions[e.data.id].callback(null, e.data.result)
-            break
-          case 'unsubscribe-callback':
-            this.#subscriptions[e.data.id].onCancel()
-            delete this.#subscriptions[e.data.id]
-            break
-          default:
-            break
-        }
-      }
-    }
+    const chopsticksWorker = new Worker(new URL('./chopsticks-worker.ts', import.meta.url), { type: 'module' })
+    this.#worker = chopsticksWorker
 
     this.connect()
   }
@@ -118,11 +105,15 @@ export class ChopsticksProvider implements ProviderInterface {
     if (this.#isConnected) {
       return
     }
+
+    this.#worker!.onmessage = this.#onWorkerMessage
+
     this.#worker?.postMessage({
       type: 'connect',
       endpoint: this.#endpoint,
       blockHash: this.#blockHash,
       dbPath: this.#dbPath,
+      storageValues: this.#storageValues,
     })
   }
 
@@ -146,39 +137,50 @@ export class ChopsticksProvider implements ProviderInterface {
     _isCacheable?: boolean,
     subscription?: SubscriptionHandler,
   ): Promise<T> => {
-    await this.isReady
-    defaultLogger.info('[Chopsticks provider] send:', { method, params })
-    if (subscription) {
-      const subid = `${subscription.type}::${method}`
-      this.#subscriptions[subid] = {
-        callback: subscription.callback,
-        method,
-        params,
-        type: subscription.type,
-        onCancel: (): void => {},
-      }
-    }
-
-    const resultPromise = new Promise<T>((resolve, _reject): void => {
-      this.#worker!.onmessage = (e) => {
-        defaultLogger.info('[Chopsticks provider] resultPromise:', { method, params, data: e.data })
-        if (e.data.type === 'send-result' && method === e.data.id) {
-          resolve(JSON.parse(e.data.result))
+    return new Promise<T>((resolve, reject): void => {
+      try {
+        if (!this.isConnected || this.#worker === undefined) {
+          throw new Error('Api is not connected')
         }
+
+        defaultLogger.info('[Chopsticks provider] send:', { method, params })
+
+        const id = `${method}::${Date.now()}`
+
+        if (subscription) {
+          const subid = `${subscription.type}::${id}`
+          this.#subscriptions[subid] = {
+            callback: subscription.callback,
+            method,
+            params,
+            type: subscription.type,
+            onCancel: (): void => {},
+          }
+        }
+
+        const callback = (error?: Error | null, result?: T): void => {
+          error ? reject(error) : resolve(result as T)
+        }
+
+        this.#handlers[id] = {
+          callback,
+          method,
+          params,
+          start: Date.now(),
+          subscription,
+        }
+
+        this.#worker?.postMessage({
+          type: 'send',
+          id,
+          method,
+          params,
+          subid: subscription?.type,
+        })
+      } catch (error) {
+        reject(error)
       }
     })
-
-    this.#worker?.postMessage({
-      type: 'send',
-      method,
-      id: method,
-      params,
-      subid: subscription?.type,
-    })
-
-    const result = await resultPromise
-
-    return result
   }
 
   subscribe(
@@ -204,6 +206,46 @@ export class ChopsticksProvider implements ProviderInterface {
       return this.isConnected ? this.send<boolean>(method, [id]) : true
     } catch {
       return false
+    }
+  }
+
+  #onWorkerMessage = (e: any) => {
+    switch (e.data.type) {
+      case 'connection':
+        defaultLogger.info('[Chopsticks provider] onMessage: connection.', e.data)
+        if (e.data.connected) {
+          this.#isConnected = true
+          this.#eventemitter.emit('connected')
+        } else {
+          this.#isConnected = false
+          this.#eventemitter.emit('error', new Error('Unable to connect to the chain'))
+          defaultLogger.error(`Unable to connect to the chain: ${e.data.message}`)
+        }
+        break
+
+      case 'subscribe-callback':
+        this.#subscriptions[e.data.subid].callback(null, e.data.result)
+        break
+
+      case 'unsubscribe-callback':
+        this.#subscriptions[e.data.subid].onCancel()
+        delete this.#subscriptions[e.data.subid]
+        break
+
+      case 'send-result':
+        // eslint-disable-next-line no-case-declarations
+        const handler = this.#handlers[e.data.id]
+        defaultLogger.info('[Chopsticks provider] send-result:', { data: e.data, result: JSON.parse(e.data.result) })
+        try {
+          // const { method, params, subscription } = handler;
+          handler.callback(null, JSON.parse(e.data.result))
+        } catch (error) {
+          handler.callback(error as Error, undefined)
+        }
+        delete this.#handlers[e.data.id]
+        break
+      default:
+        break
     }
   }
 }
