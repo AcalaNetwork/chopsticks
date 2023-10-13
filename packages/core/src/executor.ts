@@ -13,6 +13,7 @@ import {
   run_task,
 } from '@acala-network/chopsticks-executor'
 import { defaultLogger, truncate } from './logger'
+import { stripChildPrefix } from './utils'
 import _ from 'lodash'
 import type { JsCallback } from '@acala-network/chopsticks-executor'
 
@@ -98,7 +99,7 @@ export const taskHandler = (block: Block): JsCallback => {
         pageSize: 1,
         startKey: key,
       })
-      return nextKey
+      return nextKey && stripChildPrefix(nextKey as HexString)
     },
     offchainGetStorage: async function (key: HexString) {
       if (!block.chain.offchainWorker) throw new Error('offchain worker not found')

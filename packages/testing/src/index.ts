@@ -49,7 +49,7 @@ export const createConfig = ({
     endpoint,
     port,
     block: blockNumber || blockHash,
-    mockSignatureHost: true,
+    'mock-signature-host': true,
     'build-block-mode': BuildBlockMode.Manual,
     'max-memory-block-count': maxMemoryBlockCount ?? 100,
     db,
