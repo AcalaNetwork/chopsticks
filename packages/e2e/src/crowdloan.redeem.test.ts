@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { expectJson, testingPairs } from '@acala-network/chopsticks-testing'
+import { testingPairs } from '@acala-network/chopsticks-testing'
 
 import networks from './networks'
 
@@ -22,16 +22,29 @@ describe('Polkadot Crowdloan Refund', async () => {
   it(
     "should refund Acala's contributers",
     async () => {
+      // trigger refund
       await expect(api.tx.crowdloan.refund(3336).signAndSend(alice)).resolves.toBeTruthy()
-
       await dev.newBlock()
 
-      expectJson(await api.query.system.events()).toMatchSnapshot()
+      // some address get refund
+      expect((await api.query.system.events()).toHuman()).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            event: expect.objectContaining({
+              method: 'Transfer',
+              section: 'balances',
+              data: expect.objectContaining({
+                from: '13UVJyLnbVp77Z2t6qZV4fNpRjDHppL6c87bHcZKG48tKJad',
+                to: '111DbHPUxncZcffEfy1BrtFZNDUzK7hHchLpmJYFEFG4hy1',
+                amount: '1,000,000,000,000',
+              }),
+            })
+          }),
+        ]),
+      )
     },
     { timeout: 400_000 },
   )
 
-  afterAll(async () => {
-    await teardown()
-  })
+  afterAll(async () => await teardown())
 })
