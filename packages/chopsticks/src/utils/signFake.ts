@@ -11,8 +11,7 @@ export const signFakeWithApi = async (
   options: SignFakeOptions = {},
 ) => {
   const nonce = options.nonce ?? (await api.query.system.account(addr)).nonce
-
-  return signFake(tx, addr, {
+  signFake(tx, addr, {
     nonce,
     genesisHash: api.genesisHash,
     runtimeVersion: api.runtimeVersion,
@@ -28,6 +27,4 @@ export const signFake = (tx: GenericExtrinsic, addr: string, options: SignatureO
   tx.signFake(addr, options)
 
   tx.signature.set(mockSignature)
-
-  return tx
 }
