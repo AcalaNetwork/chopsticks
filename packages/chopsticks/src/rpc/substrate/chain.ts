@@ -11,16 +11,19 @@ const processHeader = (header: Header) => {
 
 /**
  * @param context
- * @param params - [`blockNumber`]
+ * @param params - [`blockNumber` | `blockNumber[]`]
  *
- * @return Block hash
+ * @return Block hash | hash[] | null
  */
-export const chain_getBlockHash: Handler<[number], HexString> = async (context, [blockNumber]) => {
-  const block = await context.chain.getBlockAt(blockNumber)
-  if (!block) {
-    throw new ResponseError(1, `Block #${blockNumber} not found`)
-  }
-  return block.hash
+export const chain_getBlockHash: Handler<[number | number[]], HexString | (HexString | null)[] | null> = async (
+  context,
+  [blockNumber],
+) => {
+  const numbers = Array.isArray(blockNumber) ? blockNumber : [blockNumber]
+  const hashes = await Promise.all(numbers.map((n) => context.chain.getBlockAt(n))).then((blocks) =>
+    blocks.map((b) => b?.hash || null),
+  )
+  return Array.isArray(blockNumber) ? hashes : hashes[0]
 }
 
 /**
