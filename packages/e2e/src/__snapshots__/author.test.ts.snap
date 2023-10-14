@@ -118,6 +118,114 @@ exports[`author rpc > works 1`] = `
       ],
       "internalError": undefined,
       "status": {
+        "inBlock": "0xeb8569300f4100e47e93ad71ddc36856dc1aaeecef78a2e20b9e49eb3a810c5f",
+      },
+      "txHash": "0xde9a25fc11cab85850e9d903f1f013f4496c180a818851bd4858fc86fa7e584b",
+      "txIndex": 2,
+    },
+  ],
+  [
+    SubmittableResult {
+      "blockNumber": 3000001,
+      "dispatchError": undefined,
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": 272785000,
+        },
+      },
+      "events": [
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+            ],
+            "index": "0x0a08",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              "25cGUumcLHxwFuSnBkPnL8h8UnotvUEJVqfYFb7TPueVg5mU",
+              100,
+            ],
+            "index": "0x0a02",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+              2420001756,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              2420001756,
+            ],
+            "index": "0x1406",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+              0,
+              0,
+            ],
+            "index": "0x0e03",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              {
+                "class": "Normal",
+                "paysFee": "Yes",
+                "weight": {
+                  "proofSize": 0,
+                  "refTime": 272785000,
+                },
+              },
+            ],
+            "index": "0x0000",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+      ],
+      "internalError": undefined,
+      "status": {
         "finalized": "0xeb8569300f4100e47e93ad71ddc36856dc1aaeecef78a2e20b9e49eb3a810c5f",
       },
       "txHash": "0xde9a25fc11cab85850e9d903f1f013f4496c180a818851bd4858fc86fa7e584b",
@@ -310,6 +418,114 @@ exports[`author rpc > works 5`] = `
       ],
       "internalError": undefined,
       "status": {
+        "inBlock": "0xf593b2678b3b8be19f948804ef79e9c38719ac8a5920a8b544abab282e01a198",
+      },
+      "txHash": "0x2d03306195ffbcddfd21ce5b4f0e132ecb4c6ffaa5f856e710c8c40073435dd5",
+      "txIndex": 2,
+    },
+  ],
+  [
+    SubmittableResult {
+      "blockNumber": 3000002,
+      "dispatchError": undefined,
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": 272785000,
+        },
+      },
+      "events": [
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+            ],
+            "index": "0x0a08",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              "25cGUumcLHxwFuSnBkPnL8h8UnotvUEJVqfYFb7TPueVg5mU",
+              200,
+            ],
+            "index": "0x0a02",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+              2420001756,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              2420001756,
+            ],
+            "index": "0x1406",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+              0,
+              0,
+            ],
+            "index": "0x0e03",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              {
+                "class": "Normal",
+                "paysFee": "Yes",
+                "weight": {
+                  "proofSize": 0,
+                  "refTime": 272785000,
+                },
+              },
+            ],
+            "index": "0x0000",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+      ],
+      "internalError": undefined,
+      "status": {
         "finalized": "0xf593b2678b3b8be19f948804ef79e9c38719ac8a5920a8b544abab282e01a198",
       },
       "txHash": "0x2d03306195ffbcddfd21ce5b4f0e132ecb4c6ffaa5f856e710c8c40073435dd5",
@@ -398,6 +614,114 @@ exports[`author rpc > works 9`] = `
       },
       "txHash": "0xcf5cfc28881efd18f682645f36cd87f088cd68bc0977b4fafa71a367ec550e2f",
       "txIndex": undefined,
+    },
+  ],
+  [
+    SubmittableResult {
+      "blockNumber": 3000003,
+      "dispatchError": undefined,
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": 272785000,
+        },
+      },
+      "events": [
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+            ],
+            "index": "0x0a08",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              "25cGUumcLHxwFuSnBkPnL8h8UnotvUEJVqfYFb7TPueVg5mU",
+              300,
+            ],
+            "index": "0x0a02",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+              2420001756,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              2420001756,
+            ],
+            "index": "0x1406",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+              0,
+              0,
+            ],
+            "index": "0x0e03",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              {
+                "class": "Normal",
+                "paysFee": "Yes",
+                "weight": {
+                  "proofSize": 0,
+                  "refTime": 272785000,
+                },
+              },
+            ],
+            "index": "0x0000",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+      ],
+      "internalError": undefined,
+      "status": {
+        "inBlock": "0xfab81f03d3275189a7dc02b0e4fabfab3916ff9a729ba3ec6ad84e029f0a74e7",
+      },
+      "txHash": "0xcf5cfc28881efd18f682645f36cd87f088cd68bc0977b4fafa71a367ec550e2f",
+      "txIndex": 2,
     },
   ],
   [
