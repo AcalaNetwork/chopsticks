@@ -11,11 +11,11 @@ const processHeader = (header: Header) => {
 
 /**
  * @param context
- * @param params - [`blockNumber` | `blockNumber[]`]
+ * @param params - [`blockNumber` | `blockNumber[]` | null]
  *
  * @return Block hash | hash[] | null
  */
-export const chain_getBlockHash: Handler<[number | number[]], HexString | (HexString | null)[] | null> = async (
+export const chain_getBlockHash: Handler<[number | number[] | null], HexString | (HexString | null)[] | null> = async (
   context,
   [blockNumber],
 ) => {
