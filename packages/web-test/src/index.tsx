@@ -26,9 +26,6 @@ try {
 						[[bob.address], { providers: 1, data: { free: 1000 * 1e12 } }],
 					],
 				},
-				Sudo: {
-					Key: '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY',
-				},
 			},
 		}),
 	})
