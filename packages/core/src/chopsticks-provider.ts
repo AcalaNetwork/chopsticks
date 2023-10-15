@@ -8,7 +8,7 @@ import {
 } from '@polkadot/rpc-provider/types'
 
 import { StorageValues } from './utils'
-import { defaultLogger } from './logger'
+import { defaultLogger as logger } from './logger'
 
 interface SubscriptionHandler {
   callback: ProviderInterfaceCallback
@@ -19,6 +19,7 @@ interface Subscription extends SubscriptionHandler {
   method: string
   params: unknown[]
   onCancel: () => void
+  result?: unknown
 }
 
 interface Handler {
@@ -69,7 +70,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', (): void => {
-        defaultLogger.info('[Chopsticks provider] isReadyPromise: connected.')
+        logger.info('[Chopsticks provider] isReadyPromise: connected.')
         resolve()
       })
       this.#eventemitter.once('error', reject)
@@ -143,22 +144,32 @@ export class ChopsticksProvider implements ProviderInterface {
           throw new Error('Api is not connected')
         }
 
-        defaultLogger.info('[Chopsticks provider] send:', { method, params })
-
-        const id = `${method}::${Date.now()}`
-
-        if (subscription) {
-          const subid = `${subscription.type}::${id}`
-          this.#subscriptions[subid] = {
-            callback: subscription.callback,
-            method,
-            params,
-            type: subscription.type,
-            onCancel: (): void => {},
-          }
+        if (method !== 'system_health') {
+          logger.info('[Chopsticks provider] send', { method, params })
         }
 
+        const id = `${method}::${Date.now()}::${Math.random()}`
+
         const callback = (error?: Error | null, result?: T): void => {
+          if (subscription) {
+            // if it's a subscription, we usually returns the subid
+            const subid = result as string
+            if (subid) {
+              if (this.#subscriptions[subid]?.result) {
+                subscription.callback(null, this.#subscriptions[subid].result)
+                return
+              } else {
+                this.#subscriptions[subid] = {
+                  callback: subscription.callback,
+                  method,
+                  params,
+                  type: subscription.type,
+                  onCancel: (): void => {},
+                }
+              }
+            }
+          }
+
           error ? reject(error) : resolve(result as T)
         }
 
@@ -175,7 +186,6 @@ export class ChopsticksProvider implements ProviderInterface {
           id,
           method,
           params,
-          subid: subscription?.type,
         })
       } catch (error) {
         reject(error)
@@ -192,15 +202,11 @@ export class ChopsticksProvider implements ProviderInterface {
     return this.send<string | number>(method, params, false, { callback, type })
   }
 
-  async unsubscribe(type: string, method: string, id: number | string): Promise<boolean> {
-    const subscription = `${type}::${id}`
-
-    if (!this.#subscriptions[subscription]) {
-      defaultLogger.error(`Unable to find active subscription=${subscription}`)
+  async unsubscribe(_type: string, method: string, id: number | string): Promise<boolean> {
+    if (!this.#subscriptions[id]) {
+      logger.error(`Unable to find active subscription=${id}`)
       return false
     }
-
-    delete this.#subscriptions[subscription]
 
     try {
       return this.isConnected ? this.send<boolean>(method, [id]) : true
@@ -212,38 +218,73 @@ export class ChopsticksProvider implements ProviderInterface {
   #onWorkerMessage = (e: any) => {
     switch (e.data.type) {
       case 'connection':
-        defaultLogger.info('[Chopsticks provider] onMessage: connection.', e.data)
+        logger.info('[Chopsticks provider] connection.', e.data)
         if (e.data.connected) {
           this.#isConnected = true
           this.#eventemitter.emit('connected')
         } else {
           this.#isConnected = false
           this.#eventemitter.emit('error', new Error('Unable to connect to the chain'))
-          defaultLogger.error(`Unable to connect to the chain: ${e.data.message}`)
+          logger.error(`Unable to connect to the chain: ${e.data.message}`)
         }
         break
 
       case 'subscribe-callback':
-        this.#subscriptions[e.data.subid].callback(null, e.data.result)
+        {
+          logger.info('[Chopsticks provider] subscribe-callback', e.data)
+          const sub = this.#subscriptions[e.data.subid]
+          if (!sub) {
+            // record it first, sometimes callback comes first
+            this.#subscriptions[e.data.subid] = {
+              callback: () => {},
+              method: e.data.method,
+              params: e.data.params,
+              type: e.data.type,
+              onCancel: () => {},
+              result: JSON.parse(e.data.result),
+            }
+            return
+          }
+          sub.callback(null, JSON.parse(e.data.result))
+        }
         break
 
       case 'unsubscribe-callback':
-        this.#subscriptions[e.data.subid].onCancel()
-        delete this.#subscriptions[e.data.subid]
+        {
+          logger.info('[Chopsticks provider] unsubscribe-callback', e.data)
+          const sub = this.#subscriptions[e.data.subid]
+          if (!sub) {
+            logger.error(`Unable to find active subscription=${e.data.subid}`)
+            return
+          }
+          sub.onCancel()
+          delete this.#subscriptions[e.data.subid]
+        }
         break
 
       case 'send-result':
-        // eslint-disable-next-line no-case-declarations
-        const handler = this.#handlers[e.data.id]
-        defaultLogger.info('[Chopsticks provider] send-result:', { data: e.data, result: JSON.parse(e.data.result) })
-        try {
-          // const { method, params, subscription } = handler;
-          handler.callback(null, JSON.parse(e.data.result))
-        } catch (error) {
-          handler.callback(error as Error, undefined)
+        {
+          const handler = this.#handlers[e.data.id]
+          if (!handler) {
+            logger.error(`Unable to find handler=${e.data.id}`)
+            return
+          }
+          if (e.data.method !== 'system_health') {
+            logger.info('[Chopsticks provider] send-result', {
+              method: e.data.method,
+              result: JSON.parse(e.data.result || '{}'),
+              data: e.data,
+            })
+          }
+          try {
+            handler.callback(null, e.data.result ? JSON.parse(e.data.result) : undefined)
+          } catch (error) {
+            handler.callback(error as Error, undefined)
+          }
+          delete this.#handlers[e.data.id]
         }
-        delete this.#handlers[e.data.id]
         break
+
       default:
         break
     }
