@@ -21,7 +21,11 @@ const WASM_BYTES = unzlibSync(base64Decode(BYTES, new Uint8Array(LEN_IN)), new U
 
 import wasmInit from "./chopsticks_executor.js";
 const blob = new Blob([WASM_BYTES], { type: "application/wasm" });
-wasmInit(URL.createObjectURL(blob));
+export const wasmReady = wasmInit(URL.createObjectURL(blob));
 
 export * from "./chopsticks_executor.js";
 `);
+
+// replace wasm with empty file because it's not needed
+// but we need to have it in the repo for the build to work
+fs.writeFileSync(path.resolve(__dirname, `../browser/chopsticks_executor_bg.wasm`), '')

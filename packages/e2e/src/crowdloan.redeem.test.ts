@@ -42,6 +42,8 @@ describe('Polkadot Crowdloan Refund', async () => {
           }),
         ]),
       )
+
+      await new Promise((r) => setTimeout(r, 1_000))
     },
     { timeout: 400_000 },
   )

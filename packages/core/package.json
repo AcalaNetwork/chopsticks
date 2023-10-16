@@ -5,8 +5,9 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"pack-wasm": "scripts/pack-wasm.js",
-		"build": "yarn pack-wasm; tsc -p ./tsconfig.json",
+		"pack-wasm": "scripts/pack-wasm.cjs",
+		"build": "yarn pack-wasm; tsc -p ./tsconfig.json; yarn copyfiles",
+		"copyfiles": "cp -r src/executor/*.mjs lib/executor/",
 		"docs:prep": "typedoc"
 	},
 	"dependencies": {
@@ -14,6 +15,7 @@
 		"@polkadot/api": "^10.9.1",
 		"@polkadot/util-crypto": "^12.3.2",
 		"axios": "^1.5.1",
+		"comlink": "^4.4.1",
 		"eventemitter3": "^5.0.1",
 		"localforage": "^1.10.0",
 		"lodash": "^4.17.21",

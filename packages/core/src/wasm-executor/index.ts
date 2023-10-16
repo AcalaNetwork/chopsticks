@@ -1,22 +1,16 @@
+import * as Comlink from 'comlink'
 import { HexString } from '@polkadot/util/types'
+import { Registry } from '@polkadot/types-codec/types'
 import { hexToString, hexToU8a } from '@polkadot/util'
 import { randomAsHex } from '@polkadot/util-crypto'
-
-import { Block } from './blockchain/block'
-import { PREFIX_LENGTH } from './utils/key-cache'
-import { Registry } from '@polkadot/types-codec/types'
-import {
-  calculate_state_root,
-  create_proof,
-  decode_proof,
-  get_runtime_version,
-  run_task,
-} from '@acala-network/chopsticks-executor'
-import { defaultLogger, truncate } from './logger'
-import { stripChildPrefix } from './utils'
 import _ from 'lodash'
-import type { JsCallback } from '@acala-network/chopsticks-executor'
 
+import { Block } from '../blockchain/block'
+import { PREFIX_LENGTH } from '../utils/key-cache'
+import { defaultLogger, truncate } from '../logger'
+import { stripChildPrefix } from '../utils'
+
+import type { JsCallback } from '@acala-network/chopsticks-executor'
 export { JsCallback }
 
 export type RuntimeVersion = {
@@ -30,10 +24,49 @@ export type RuntimeVersion = {
   stateVersion: number
 }
 
+export interface WasmExecutor {
+  getRuntimeVersion: (code: HexString) => Promise<RuntimeVersion>
+  calculateStateRoot: (entries: [HexString, HexString][], trie_version: number) => Promise<HexString>
+  createProof: (
+    nodes: HexString[],
+    entries: [HexString, HexString | null][],
+  ) => Promise<{
+    trieRootHash: `0x${string}`
+    nodes: `0x${string}`[]
+  }>
+  decodeProof: (
+    trieRootHash: HexString,
+    keys: HexString[],
+    nodes: HexString[],
+  ) => Promise<Record<`0x${string}`, `0x${string}` | null>>
+  runTask: (
+    task: {
+      wasm: HexString
+      calls: [string, HexString[]][]
+      mockSignatureHost: boolean
+      allowUnresolvedImports: boolean
+      runtimeLogLevel: number
+    },
+    callback?: JsCallback,
+  ) => Promise<any>
+}
+
 const logger = defaultLogger.child({ name: 'executor' })
 
+let __executor_worker: Promise<Comlink.Remote<WasmExecutor>> | undefined
+const getExecutor = async () => {
+  if (__executor_worker) return __executor_worker
+  if (typeof Worker !== 'undefined') {
+    __executor_worker = import('./browser-worker').then(({ startWorker }) => startWorker())
+  } else {
+    __executor_worker = import('./node-worker').then(({ startWorker }) => startWorker())
+  }
+  return __executor_worker
+}
+
 export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion> => {
-  return get_runtime_version(code).then((version) => {
+  const executor = await getExecutor()
+  return executor.getRuntimeVersion(code).then((version) => {
     version.specName = hexToString(version.specName)
     version.implName = hexToString(version.implName)
     return version
@@ -45,23 +78,18 @@ export const calculateStateRoot = async (
   entries: [HexString, HexString][],
   trie_version: number,
 ): Promise<HexString> => {
-  return calculate_state_root(entries, trie_version)
+  const executor = await getExecutor()
+  return executor.calculateStateRoot(entries, trie_version)
 }
 
 export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
-  const decoded: [HexString, HexString | null][] = await decode_proof(trieRootHash, keys, nodes)
-  return decoded.reduce(
-    (accum, [key, value]) => {
-      accum[key] = value
-      return accum
-    },
-    {} as Record<HexString, HexString | null>,
-  )
+  const executor = await getExecutor()
+  return executor.decodeProof(trieRootHash, keys, nodes)
 }
 
 export const createProof = async (nodes: HexString[], entries: [HexString, HexString | null][]) => {
-  const result = await create_proof(nodes, entries)
-  return { trieRootHash: result[0] as HexString, nodes: result[1] as HexString[] }
+  const executor = await getExecutor()
+  return executor.createProof(nodes, entries)
 }
 
 export const runTask = async (
@@ -74,8 +102,9 @@ export const runTask = async (
   },
   callback: JsCallback = emptyTaskHandler,
 ) => {
+  const executor = await getExecutor()
   logger.trace(truncate(task), 'taskRun')
-  const response = await run_task(task, callback, typeof process === 'object' ? process.env.RUST_LOG : 'info')
+  const response = await executor.runTask(task, Comlink.proxy(callback))
   if (response.Call) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {
@@ -162,3 +191,10 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: R
   const slotDuration = registry.createType('u64', hexToU8a(result.Call.result)).toNumber()
   return slotDuration
 })
+
+export const releaseWorker = async () => {
+  if (!__executor_worker) return
+  const executor = await __executor_worker
+  executor[Comlink.releaseProxy]()
+  __executor_worker = undefined
+}

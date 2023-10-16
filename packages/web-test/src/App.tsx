@@ -249,7 +249,7 @@ function App() {
 					label="Extrinsic"
 					value={extrinsic}
 					multiline
-					maxRows={4}
+					rows={3}
 					sx={{ mt: 1 }}
 					onChange={(e) => {
 						setExtrinsic(e.target.value)

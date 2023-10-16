@@ -10,15 +10,15 @@ const compressed = Buffer.from(zlibSync(data, { level: 9 }))
 const base64 = compressed.toString('base64')
 
 console.log(
-  `*** Compressed WASM: in=${formatNumber(data.length)}, out=${formatNumber(compressed.length)}, opt=${(
-    (100 * compressed.length) /
-    data.length
-  ).toFixed(2)}%, base64=${formatNumber(base64.length)}`,
+	`*** Compressed WASM: in=${formatNumber(data.length)}, out=${formatNumber(compressed.length)}, opt=${(
+		(100 * compressed.length) /
+		data.length
+	).toFixed(2)}%, base64=${formatNumber(base64.length)}`,
 )
 
 fs.writeFileSync(
-  path.resolve(__dirname, `../src/db/sql-wasm.ts`),
-  `// Auto-generated file, do not edit by hand
+	path.resolve(__dirname, `../src/db/sql-wasm.ts`),
+	`// Auto-generated file, do not edit by hand
 const LEN_IN = ${compressed.length}
 const LEN_OUT = ${data.length}
 const BYTES =
