@@ -6,10 +6,10 @@ import { env, expectHex, expectJson, mockCallback, testingPairs } from './helper
 
 // TODO: to be enabled after impl worker thread for nodejs compatibility
 describe.skip('chopsticks provider works', () => {
-  const chopsticksProvider = new ChopsticksProvider({ endpoint: env.acala.endpoint, blockHash: env.acala.blockHash })
   let api: ApiPromise
 
   beforeAll(async () => {
+    const chopsticksProvider = new ChopsticksProvider({ endpoint: env.acala.endpoint, blockHash: env.acala.blockHash })
     api = await ApiPromise.create({
       provider: chopsticksProvider,
       signedExtensions: {
