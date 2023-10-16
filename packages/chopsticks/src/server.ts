@@ -1,9 +1,17 @@
 import { ResponseError, SubscriptionManager } from '@acala-network/chopsticks-core'
+import { z } from 'zod'
 import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
 import { defaultLogger, truncate } from './logger'
 
 const logger = defaultLogger.child({ name: 'ws' })
+
+const requestSchema = z.object({
+  id: z.number(),
+  jsonrpc: z.literal('2.0'),
+  method: z.string(),
+  params: z.array(z.any()).default([]),
+})
 
 export type Handler = (
   data: { method: string; params: string[] },
@@ -103,8 +111,8 @@ export const createServer = async (handler: Handler, port?: number) => {
     })
 
     ws.on('message', async (message) => {
-      const req = parseRequest(message.toString())
-      if (!req || req.id == null || req.method == null) {
+      const parsed = await requestSchema.safeParseAsync(parseRequest(message.toString()))
+      if (!parsed.success) {
         logger.info('Invalid request: %s', message)
         send({
           id: null,
@@ -117,6 +125,7 @@ export const createServer = async (handler: Handler, port?: number) => {
         return
       }
 
+      const { data: req } = parsed
       logger.trace(
         {
           id: req.id,

@@ -216,8 +216,8 @@ export class Blockchain {
   /**
    * Get block by number.
    */
-  async getBlockAt(number?: number): Promise<Block | undefined> {
-    if (number === undefined) {
+  async getBlockAt(number?: number | null): Promise<Block | undefined> {
+    if (number === null || number === undefined) {
       return this.head
     }
     if (number > this.#head.number) {

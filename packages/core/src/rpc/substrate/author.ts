@@ -61,6 +61,10 @@ export const author_submitAndWatchExtrinsic: Handler<[HexString], string> = asyn
     callback({
       inBlock: block.hash,
     })
+
+    // wait a bit for InBlock to be sent
+    await new Promise((r) => setTimeout(r, 100))
+
     callback({
       finalized: block.hash,
     })
