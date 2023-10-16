@@ -12,7 +12,7 @@ const KUSAMA_STORAGE = {
   },
 }
 
-describe.each([
+describe.runIf(process.env.CI).each([
   { chain: 'Polkadot', endpoint: 'wss://rpc.polkadot.io' },
   { chain: 'Statemint', endpoint: 'wss://statemint-rpc.polkadot.io' },
   { chain: 'Polkadot Collectives', endpoint: 'wss://polkadot-collectives-rpc.polkadot.io' },
@@ -32,7 +32,7 @@ describe.each([
     await teardownAll()
   })
 
-  it.runIf(process.env.CI)('build blocks', async () => {
+  it('build blocks', async () => {
     const { chain, ws, teardown } = await setup()
     storage && (await ws.send('dev_setStorage', [storage]))
     const blockNumber = chain.head.number
@@ -41,7 +41,7 @@ describe.each([
     await teardown()
   })
 
-  it.runIf(process.env.CI)('build block using unsafeBlockHeight', async () => {
+  it('build block using unsafeBlockHeight', async () => {
     const { chain, ws, teardown } = await setup()
     storage && (await ws.send('dev_setStorage', [storage]))
     const blockNumber = chain.head.number
