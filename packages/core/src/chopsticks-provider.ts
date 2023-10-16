@@ -76,7 +76,7 @@ export class ChopsticksProvider implements ProviderInterface {
       this.#eventemitter.once('error', reject)
     })
 
-    const chopsticksWorker = new Worker(new URL('./chopsticks-worker.ts', import.meta.url), { type: 'module' })
+    const chopsticksWorker = new Worker(new URL('./chopsticks-worker', import.meta.url), { type: 'module' })
     this.#worker = chopsticksWorker
 
     this.connect()
