@@ -18,7 +18,7 @@ interface SubscriptionHandler {
 interface Subscription extends SubscriptionHandler {
   method: string
   params: unknown[]
-  onCancel: () => void
+  onCancel?: () => void
   result?: unknown
 }
 
@@ -155,16 +155,12 @@ export class ChopsticksProvider implements ProviderInterface {
             // if it's a subscription, we usually returns the subid
             const subid = result as string
             if (subid) {
-              if (this.#subscriptions[subid]?.result) {
-                subscription.callback(null, this.#subscriptions[subid].result)
-                return
-              } else {
+              if (!this.#subscriptions[subid]) {
                 this.#subscriptions[subid] = {
                   callback: subscription.callback,
                   method,
                   params,
                   type: subscription.type,
-                  onCancel: (): void => {},
                 }
               }
             }
@@ -240,7 +236,6 @@ export class ChopsticksProvider implements ProviderInterface {
               method: e.data.method,
               params: e.data.params,
               type: e.data.type,
-              onCancel: () => {},
               result: JSON.parse(e.data.result),
             }
             return
@@ -257,7 +252,7 @@ export class ChopsticksProvider implements ProviderInterface {
             logger.error(`Unable to find active subscription=${e.data.subid}`)
             return
           }
-          sub.onCancel()
+          sub?.onCancel?.()
           delete this.#subscriptions[e.data.subid]
         }
         break
