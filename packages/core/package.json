@@ -7,7 +7,7 @@
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
 		"pack-wasm": "scripts/pack-wasm.cjs",
 		"build": "yarn pack-wasm; tsc -p ./tsconfig.json; yarn copyfiles",
-		"copyfiles": "cp -r src/executor/*.mjs lib/executor/",
+		"copyfiles": "cp -r src/wasm-executor/*.mjs lib/wasm-executor/",
 		"docs:prep": "typedoc"
 	},
 	"dependencies": {
