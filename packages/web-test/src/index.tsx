@@ -22,8 +22,8 @@ try {
 			storageValues: {
 				System: {
 					Account: [
-						[[alice.address], { providers: 1, data: { free: 1000 * 1e12 } }],
-						[[bob.address], { providers: 1, data: { free: 1000 * 1e12 } }],
+						[[alice.address], { providers: 1, data: { free: 1 * 1e12 } }],
+						[[bob.address], { providers: 1, data: { free: 1 * 1e12 } }],
 					],
 				},
 			},
@@ -32,7 +32,7 @@ try {
 	globalThis.api = api
 	api.isReady.then(() => {
 		api.rpc('new_block')
-		api.tx.balances.transfer(bob.address, 1000).signAndSend(alice, (result) => console.log(result.toHuman()))
+		api.tx.balances.transfer(bob.address, 1000).signAndSend(alice, () => console.log('sent'))
 	})
 } catch (e) {
 	console.log(e)
