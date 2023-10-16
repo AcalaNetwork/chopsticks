@@ -15,6 +15,8 @@ import { setStorage, setup } from '@acala-network/chopsticks-core'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
+import { Buffer } from 'buffer'
+window.Buffer = Buffer
 
 const DocsLink = styled('a')`
 	position: absolute;
