@@ -8,5 +8,10 @@ export const startWorker = async () => {
     type: 'module',
     name: 'chopsticks-wasm-executor',
   })
-  return wrap<WasmExecutor>(worker)
+  return {
+    remote: wrap<WasmExecutor>(worker),
+    terminate: async () => {
+      worker.terminate()
+    },
+  }
 }

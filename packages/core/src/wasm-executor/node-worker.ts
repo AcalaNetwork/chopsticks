@@ -8,5 +8,10 @@ export const startWorker = async () => {
   const worker = new threads.Worker(url.resolve(__filename, 'node-wasm-executor.mjs'), {
     name: 'chopsticks-wasm-executor',
   })
-  return wrap<WasmExecutor>(nodeEndpoint(worker))
+  return {
+    remote: wrap<WasmExecutor>(nodeEndpoint(worker)),
+    terminate: async () => {
+      await worker.terminate()
+    },
+  }
 }

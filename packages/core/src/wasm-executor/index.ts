@@ -53,8 +53,8 @@ export interface WasmExecutor {
 
 const logger = defaultLogger.child({ name: 'executor' })
 
-let __executor_worker: Promise<Comlink.Remote<WasmExecutor>> | undefined
-const getExecutor = async () => {
+let __executor_worker: Promise<{ remote: Comlink.Remote<WasmExecutor>; terminate: () => Promise<void> }> | undefined
+const getWorker = async () => {
   if (__executor_worker) return __executor_worker
   if (typeof Worker !== 'undefined') {
     __executor_worker = import('./browser-worker').then(({ startWorker }) => startWorker())
@@ -65,8 +65,8 @@ const getExecutor = async () => {
 }
 
 export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion> => {
-  const executor = await getExecutor()
-  return executor.getRuntimeVersion(code).then((version) => {
+  const worker = await getWorker()
+  return worker.remote.getRuntimeVersion(code).then((version) => {
     version.specName = hexToString(version.specName)
     version.implName = hexToString(version.implName)
     return version
@@ -78,18 +78,18 @@ export const calculateStateRoot = async (
   entries: [HexString, HexString][],
   trie_version: number,
 ): Promise<HexString> => {
-  const executor = await getExecutor()
-  return executor.calculateStateRoot(entries, trie_version)
+  const worker = await getWorker()
+  return worker.remote.calculateStateRoot(entries, trie_version)
 }
 
 export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
-  const executor = await getExecutor()
-  return executor.decodeProof(trieRootHash, keys, nodes)
+  const worker = await getWorker()
+  return worker.remote.decodeProof(trieRootHash, keys, nodes)
 }
 
 export const createProof = async (nodes: HexString[], entries: [HexString, HexString | null][]) => {
-  const executor = await getExecutor()
-  return executor.createProof(nodes, entries)
+  const worker = await getWorker()
+  return worker.remote.createProof(nodes, entries)
 }
 
 export const runTask = async (
@@ -102,9 +102,9 @@ export const runTask = async (
   },
   callback: JsCallback = emptyTaskHandler,
 ) => {
-  const executor = await getExecutor()
+  const worker = await getWorker()
   logger.trace(truncate(task), 'taskRun')
-  const response = await executor.runTask(task, Comlink.proxy(callback))
+  const response = await worker.remote.runTask(task, Comlink.proxy(callback))
   if (response.Call) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {
@@ -195,6 +195,7 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: R
 export const releaseWorker = async () => {
   if (!__executor_worker) return
   const executor = await __executor_worker
-  executor[Comlink.releaseProxy]()
+  executor.remote[Comlink.releaseProxy]()
+  await executor.terminate()
   __executor_worker = undefined
 }
