@@ -1,7 +1,7 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-    "jsx": "react-jsx",
+		"jsx": "react-jsx",
 		"outDir": "lib",
 		"rootDir": "src",
 		"target": "es2016",
@@ -10,7 +10,5 @@
 		"sourceMap": true
 	},
 	"include": ["src/**/*"],
-	"references": [
-		{ "path": "../core" }
-	]
+	"references": [{ "path": "../core" }]
 }
