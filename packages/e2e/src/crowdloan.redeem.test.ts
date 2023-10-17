@@ -3,7 +3,7 @@ import { testingPairs } from '@acala-network/chopsticks-testing'
 
 import networks from './networks'
 
-describe('Polkadot Crowdloan Refund', async () => {
+describe.runIf(process.env.CI)('Polkadot Crowdloan Refund', async () => {
   const { alice } = testingPairs()
   const { api, dev, teardown } = await networks.polkadot({ blockNumber: 17700000, timeout: 400_000 })
 

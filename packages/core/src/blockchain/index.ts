@@ -17,6 +17,7 @@ import { StorageValue } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder'
+import { releaseWorker } from '../wasm-executor'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -510,9 +511,10 @@ export class Blockchain {
   }
 
   /**
-   * Close the db.
+   * Close the db and release worker.
    */
   async close() {
+    await releaseWorker()
     await this.db?.destroy()
   }
 }

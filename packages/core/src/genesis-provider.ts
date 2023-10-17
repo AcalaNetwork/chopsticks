@@ -10,7 +10,7 @@ import {
 import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
-import { JsCallback, calculateStateRoot, emptyTaskHandler } from './executor'
+import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor'
 import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {
