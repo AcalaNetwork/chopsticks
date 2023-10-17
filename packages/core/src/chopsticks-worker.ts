@@ -43,9 +43,6 @@ const subscriptionManager = {
 onmessage = async (e) => {
   switch (e.data.type) {
     case 'connect':
-      // FIXME: WARNING in /node_modules/typeorm/browser/driver/react-native/ReactNativeDriver.js
-      // see: https://github.com/typeorm/typeorm/issues/2158
-      // this repo may not have this problem since using vite, but polkadot.js app will have
       try {
         logger.info('[Chopsticks worker] onMessage: connect. Initializing...')
         chain = await setup({
