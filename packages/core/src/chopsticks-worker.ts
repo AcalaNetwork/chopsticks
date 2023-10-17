@@ -1,10 +1,12 @@
 import { Blockchain } from './blockchain'
 import { allHandlers } from './rpc'
-import { defaultLogger as logger } from './logger'
+import { defaultLogger } from './logger'
 import { setStorage } from './utils'
 import { setup } from './setup'
 
 let chain: Blockchain | undefined
+
+const logger = defaultLogger.child({ name: '[Chopsticks worker]' })
 
 const subscriptions = {}
 
@@ -44,22 +46,22 @@ onmessage = async (e) => {
   switch (e.data.type) {
     case 'connect':
       try {
-        logger.debug('[Chopsticks worker] onMessage: connect. Initializing...')
+        logger.debug('onMessage: connect. Initializing...')
         chain = await setup({
           endpoint: e.data.endpoint,
           mockSignatureHost: true,
           db: e.data.dbPath,
           block: e.data.blockHash,
         })
-        logger.debug('[Chopsticks worker] onMessage: connect. Chain setup done.')
+        logger.debug('onMessage: connect. Chain setup done.')
         await setStorage(chain, e.data.storageValues)
-        logger.debug('[Chopsticks worker] onMessage: connect. Set storage done.')
+        logger.debug('onMessage: connect. Set storage done.')
         postMessage({
           type: 'connection',
           connected: true,
         })
       } catch (e) {
-        logger.error('[Chopsticks worker] onMessage: connect error.', e)
+        logger.error('onMessage: connect error.', e)
         postMessage({
           type: 'connection',
           connected: false,

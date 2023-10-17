@@ -8,7 +8,9 @@ import {
 } from '@polkadot/rpc-provider/types'
 
 import { StorageValues } from './utils'
-import { defaultLogger as logger } from './logger'
+import { defaultLogger } from './logger'
+
+const logger = defaultLogger.child({ name: '[Chopsticks provider]' })
 
 interface SubscriptionHandler {
   callback: ProviderInterfaceCallback
@@ -71,7 +73,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', (): void => {
-        logger.debug('[Chopsticks provider] isReadyPromise: connected.')
+        logger.debug('isReadyPromise: connected.')
         resolve()
       })
       this.#eventemitter.once('error', reject)
@@ -145,7 +147,7 @@ export class ChopsticksProvider implements ProviderInterface {
           throw new Error('Api is not connected')
         }
 
-        logger.debug('[Chopsticks provider] send', { method, params })
+        logger.debug('send', { method, params })
 
         const id = `${method}::${this.#idCounter++}`
 
@@ -213,7 +215,7 @@ export class ChopsticksProvider implements ProviderInterface {
   #onWorkerMessage = (e: any) => {
     switch (e.data.type) {
       case 'connection':
-        logger.debug('[Chopsticks provider] connection.', e.data)
+        logger.debug('connection.', e.data)
         if (e.data.connected) {
           this.#isConnected = true
           this.#eventemitter.emit('connected')
@@ -226,7 +228,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
       case 'subscribe-callback':
         {
-          logger.debug('[Chopsticks provider] subscribe-callback', e.data)
+          logger.debug('subscribe-callback', e.data)
           const sub = this.#subscriptions[e.data.subid]
           if (!sub) {
             // record it first, sometimes callback comes first
@@ -245,7 +247,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
       case 'unsubscribe-callback':
         {
-          logger.debug('[Chopsticks provider] unsubscribe-callback', e.data)
+          logger.debug('unsubscribe-callback', e.data)
           const sub = this.#subscriptions[e.data.subid]
           if (!sub) {
             logger.error(`Unable to find active subscription=${e.data.subid}`)
@@ -263,7 +265,7 @@ export class ChopsticksProvider implements ProviderInterface {
             logger.error(`Unable to find handler=${e.data.id}`)
             return
           }
-          logger.debug('[Chopsticks provider] send-result', {
+          logger.debug('send-result', {
             method: e.data.method,
             result: JSON.parse(e.data.result || '{}'),
             data: e.data,
