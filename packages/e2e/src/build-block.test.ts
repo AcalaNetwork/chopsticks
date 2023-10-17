@@ -46,8 +46,17 @@ describe.each([
     storage && (await ws.send('dev_setStorage', [storage]))
     const blockNumber = chain.head.number
     const unsafeBlockHeight = blockNumber + 100
+
+    // unsafeBlockHeight works
     await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight }])
     expect(chain.head.number).eq(unsafeBlockHeight + 1)
+
+    // unsafeBlockHeight using earlier block throw error but won't crash
+    await expect(ws.send('dev_newBlock', [{ unsafeBlockHeight: blockNumber - 1 }])).rejects.toThrowError(
+      '1: unsafeBlockHeight must be greater than current block height',
+    )
+    expect(chain.head.number).eq(unsafeBlockHeight + 1)
+
     await teardown()
   })
 })
