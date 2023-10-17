@@ -1,10 +1,8 @@
-import { ChainProperties } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 import { Index } from '@polkadot/types/interfaces'
 import { hexToU8a } from '@polkadot/util'
-import { readFileSync } from 'node:fs'
-import path from 'node:path'
 
+import { ChainProperties } from '../../api'
 import { Handler } from '../shared'
 
 export const system_localPeerId = async () => '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
@@ -20,8 +18,7 @@ export const system_name: Handler<void, string> = async (context) => {
   return context.chain.api.getSystemName()
 }
 export const system_version: Handler<void, string> = async (_context) => {
-  const { version } = JSON.parse(readFileSync(path.join(__dirname, '../../../package.json'), 'utf-8'))
-  return `chopsticks-v${version}`
+  return 'chopsticks-v1'
 }
 export const system_chainType: Handler<void, string> = async (_context) => {
   return 'Development'

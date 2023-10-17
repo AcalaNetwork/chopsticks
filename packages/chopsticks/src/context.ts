@@ -2,8 +2,10 @@ import './utils/tunnel'
 import { BlockEntity } from '@acala-network/chopsticks-core/db/entities'
 import { Config } from './schema'
 import { HexString } from '@polkadot/util/types'
+import { defaultLogger, setup, timeTravel } from '@acala-network/chopsticks-core'
 import { overrideStorage, overrideWasm } from './utils/override'
-import { setup, timeTravel } from '@acala-network/chopsticks-core'
+
+const logger = defaultLogger.child({ name: 'setup-context' })
 
 export const setupContext = async (argv: Config, overrideParent = false) => {
   const chain = await setup({
@@ -38,6 +40,9 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
       if (blockData) {
         const block = await chain.loadBlockFromDB(blockData?.number)
         block && (await chain.setHead(block))
+        logger.info(`Resume from block ${blockData.number}, hash: ${blockData.hash}`)
+      } else {
+        throw new Error(`Resume failed. Cannot find block ${argv.resume}`)
       }
     }
   }

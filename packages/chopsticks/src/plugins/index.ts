@@ -1,8 +1,8 @@
+import { Handlers } from '@acala-network/chopsticks-core'
 import { camelCase } from 'lodash'
 import { lstatSync, readdirSync } from 'fs'
 import type yargs from 'yargs'
 
-import { Handlers } from '../rpc/shared'
 import { defaultLogger } from '../logger'
 
 const logger = defaultLogger.child({ name: 'plugin' })

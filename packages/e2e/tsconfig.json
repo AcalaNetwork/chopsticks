@@ -2,12 +2,8 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"outDir": "lib",
-		"rootDir": "src",
+		"rootDir": "src"
 	},
 	"include": ["src/**/*"],
-	"references": [
-		{ "path": "../core" },
-		{ "path": "../chopsticks" },
-		{ "path": "../testing" },
-	],
+	"references": [{ "path": "../core" }, { "path": "../chopsticks" }, { "path": "../testing" }]
 }

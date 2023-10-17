@@ -1,5 +1,4 @@
-import { Block } from '@acala-network/chopsticks-core'
-import { Context, ResponseError } from '../../rpc/shared'
+import { Block, Context, ResponseError } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 
 /**
