@@ -4,7 +4,7 @@ use serde_wasm_bindgen::{from_value, to_value};
 use smoldot::{
     executor::{
         host::{Config, HeapPages, HostVmPrototype},
-        runtime_host::{self, OffchainContext, RuntimeHostVm, TrieChange, TrieChangeStorageValue},
+        runtime_host::{self, OffchainContext, RuntimeHostVm},
         storage_diff::TrieDiff,
         CoreVersionRef,
     },
@@ -90,10 +90,10 @@ fn is_magic_signature(signature: &[u8]) -> bool {
 
 const DEFAULT_CHILD_STORAGE_PREFIX: &[u8] = b":child_storage:default:";
 
-fn prefixed_child_key(child: impl AsRef<[u8]>, key: impl Iterator<Item = u8>) -> Vec<u8> {
+fn prefixed_child_key(child: impl Iterator<Item = u8>, key: impl Iterator<Item = u8>) -> Vec<u8> {
     [
         DEFAULT_CHILD_STORAGE_PREFIX,
-        child.as_ref(),
+        &child.collect::<Vec<_>>(),
         &key.collect::<Vec<_>>(),
     ]
     .concat()
@@ -112,7 +112,7 @@ fn handle_value(value: wasm_bindgen::JsValue) -> Result<Option<Vec<u8>>, String>
 
 pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, String> {
     let mut storage_main_trie_changes = TrieDiff::default();
-    let mut child_storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
+    let mut storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
     let mut offchain_storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
 
     let vm_proto = HostVmPrototype::new(Config {
@@ -132,7 +132,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             parameter: params.into_iter().map(|x| x.0),
             storage_main_trie_changes,
             max_log_level: task.runtime_log_level,
-            calculate_trie_changes: true,
+            calculate_trie_changes: false,
         })
         .unwrap();
 
@@ -147,25 +147,35 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                 RuntimeHostVm::StorageGet(req) => {
                     let key = if let Some(child) = req.child_trie() {
                         HexString(prefixed_child_key(
-                            child,
+                            child.as_ref().iter().copied(),
                             req.key().as_ref().iter().copied(),
                         ))
                     } else {
                         HexString(req.key().as_ref().to_vec())
                     };
 
-                    let key = to_value(&key).map_err(|e| e.to_string())?;
-
-                    let value = js.get_storage(key).await;
-                    let value = if value.is_string() {
-                        let encoded = from_value::<HexString>(value)
-                            .map(|x| x.0)
-                            .map_err(|e| e.to_string())?;
-                        Some(encoded)
+                    // check storage_changes first
+                    if let Some(value) = storage_changes.get(&key.0) {
+                        req.inject_value(
+                            value
+                                .to_owned()
+                                .map(|x| (iter::once(x), TrieEntryVersion::V1)),
+                        )
                     } else {
-                        None
-                    };
-                    req.inject_value(value.map(|x| (iter::once(x), TrieEntryVersion::V1)))
+                        // otherwise, ask chopsticks
+                        let key = to_value(&key).map_err(|e| e.to_string())?;
+
+                        let value = js.get_storage(key).await;
+                        let value = if value.is_string() {
+                            let encoded = from_value::<HexString>(value)
+                                .map(|x| x.0)
+                                .map_err(|e| e.to_string())?;
+                            Some(encoded)
+                        } else {
+                            None
+                        };
+                        req.inject_value(value.map(|x| (iter::once(x), TrieEntryVersion::V1)))
+                    }
                 }
 
                 RuntimeHostVm::ClosestDescendantMerkleValue(req) => {
@@ -183,7 +193,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     } else {
                         let prefix = if let Some(child) = req.child_trie() {
                             HexString(prefixed_child_key(
-                                child,
+                                child.as_ref().iter().copied(),
                                 nibbles_to_bytes_suffix_extend(req.prefix()),
                             ))
                         } else {
@@ -193,7 +203,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         };
                         let key = if let Some(child) = req.child_trie() {
                             HexString(prefixed_child_key(
-                                child,
+                                child.as_ref().iter().copied(),
                                 nibbles_to_bytes_suffix_extend(req.key()),
                             ))
                         } else {
@@ -286,34 +296,20 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             Ok(success) => {
                 ret = Ok(success.virtual_machine.value().as_ref().to_vec());
 
-                // collect child storage changes
-                if let Some(changes) = success.storage_changes.trie_changes_iter_ordered() {
-                    for (child, key, change) in changes {
-                        if child.is_none() {
-                            continue;
-                        }
-
-                        let prefixed_key = prefixed_child_key(
-                            child.unwrap(),
-                            nibbles_to_bytes_suffix_extend(key.iter().copied()),
-                        );
-
-                        match change {
-                            TrieChange::InsertUpdate {
-                                new_storage_value, ..
-                            } => match new_storage_value {
-                                TrieChangeStorageValue::Modified { new_value } => {
-                                    child_storage_changes
-                                        .insert(prefixed_key, new_value.map(|x| x.to_vec()));
-                                }
-                                TrieChangeStorageValue::Unmodified => {}
-                            },
-                            TrieChange::Remove => {
-                                child_storage_changes.insert(prefixed_key, None);
-                            }
-                        }
-                    }
-                }
+                success
+                    .storage_changes
+                    .trie_diffs()
+                    .iter()
+                    .for_each(|(child, diff)| {
+                        diff.diff_iter_unordered().for_each(|(key, value, _)| {
+                            let prefixed_key = if let Some(child) = child {
+                                prefixed_child_key(child.iter().copied(), key.iter().copied())
+                            } else {
+                                key.to_vec()
+                            };
+                            storage_changes.insert(prefixed_key, value.map(|x| x.to_vec()));
+                        });
+                    });
 
                 storage_main_trie_changes = success.storage_changes.into_main_trie_diff();
 
@@ -323,32 +319,26 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             }
             Err(err) => {
                 ret = Err(err.to_string());
-                storage_main_trie_changes = TrieDiff::empty();
-                child_storage_changes = Default::default();
                 break;
             }
         }
     }
 
     Ok(ret.map_or_else(TaskResponse::Error, move |ret| {
-        let mut diff: Vec<(HexString, Option<HexString>)> = storage_main_trie_changes
-            .diff_into_iter_unordered()
-            .map(|(k, v, _)| (HexString(k), v.map(HexString)))
+        let storage_diff = storage_changes
+            .into_iter()
+            .map(|(k, v)| (HexString(k), v.map(HexString)))
             .collect();
 
-        for (k, v) in child_storage_changes {
-            diff.push((HexString(k), v.map(HexString)));
-        }
-
-        let offchain_diff = offchain_storage_changes
+        let offchain_storage_diff = offchain_storage_changes
             .into_iter()
             .map(|(k, v)| (HexString(k), v.map(HexString)))
             .collect();
 
         TaskResponse::Call(CallResponse {
             result: HexString(ret),
-            storage_diff: diff,
-            offchain_storage_diff: offchain_diff,
+            storage_diff,
+            offchain_storage_diff,
             runtime_logs,
         })
     }))
