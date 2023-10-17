@@ -44,16 +44,16 @@ onmessage = async (e) => {
   switch (e.data.type) {
     case 'connect':
       try {
-        logger.info('[Chopsticks worker] onMessage: connect. Initializing...')
+        logger.debug('[Chopsticks worker] onMessage: connect. Initializing...')
         chain = await setup({
           endpoint: e.data.endpoint,
           mockSignatureHost: true,
           db: e.data.dbPath,
           block: e.data.blockHash,
         })
-        logger.info('[Chopsticks worker] onMessage: connect. Chain setup done.')
+        logger.debug('[Chopsticks worker] onMessage: connect. Chain setup done.')
         await setStorage(chain, e.data.storageValues)
-        logger.info('[Chopsticks worker] onMessage: connect. Set storage done.')
+        logger.debug('[Chopsticks worker] onMessage: connect. Set storage done.')
         postMessage({
           type: 'connection',
           connected: true,

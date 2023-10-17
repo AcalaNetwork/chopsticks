@@ -32,7 +32,7 @@ interface Handler {
 
 export interface ChopsticksProviderProps {
   /** upstream endpoint */
-  endpoint: string | undefined
+  endpoint: string
   /** default to latest block */
   blockHash?: string
   dbPath?: string
@@ -56,6 +56,7 @@ export class ChopsticksProvider implements ProviderInterface {
   #dbPath: string | undefined
   #storageValues: StorageValues | undefined
   #handlers: Record<string, Handler> = {}
+  #idCounter = 0
 
   constructor({ endpoint, blockHash, dbPath, storageValues }: ChopsticksProviderProps) {
     if (!endpoint) {
@@ -70,7 +71,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', (): void => {
-        logger.info('[Chopsticks provider] isReadyPromise: connected.')
+        logger.debug('[Chopsticks provider] isReadyPromise: connected.')
         resolve()
       })
       this.#eventemitter.once('error', reject)
@@ -144,11 +145,9 @@ export class ChopsticksProvider implements ProviderInterface {
           throw new Error('Api is not connected')
         }
 
-        if (method !== 'system_health') {
-          logger.info('[Chopsticks provider] send', { method, params })
-        }
+        logger.debug('[Chopsticks provider] send', { method, params })
 
-        const id = `${method}::${Date.now()}::${Math.random()}`
+        const id = `${method}::${this.#idCounter++}`
 
         const callback = (error?: Error | null, result?: T): void => {
           if (subscription) {
@@ -214,7 +213,7 @@ export class ChopsticksProvider implements ProviderInterface {
   #onWorkerMessage = (e: any) => {
     switch (e.data.type) {
       case 'connection':
-        logger.info('[Chopsticks provider] connection.', e.data)
+        logger.debug('[Chopsticks provider] connection.', e.data)
         if (e.data.connected) {
           this.#isConnected = true
           this.#eventemitter.emit('connected')
@@ -227,7 +226,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
       case 'subscribe-callback':
         {
-          logger.info('[Chopsticks provider] subscribe-callback', e.data)
+          logger.debug('[Chopsticks provider] subscribe-callback', e.data)
           const sub = this.#subscriptions[e.data.subid]
           if (!sub) {
             // record it first, sometimes callback comes first
@@ -246,7 +245,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
       case 'unsubscribe-callback':
         {
-          logger.info('[Chopsticks provider] unsubscribe-callback', e.data)
+          logger.debug('[Chopsticks provider] unsubscribe-callback', e.data)
           const sub = this.#subscriptions[e.data.subid]
           if (!sub) {
             logger.error(`Unable to find active subscription=${e.data.subid}`)
@@ -264,13 +263,11 @@ export class ChopsticksProvider implements ProviderInterface {
             logger.error(`Unable to find handler=${e.data.id}`)
             return
           }
-          if (e.data.method !== 'system_health') {
-            logger.info('[Chopsticks provider] send-result', {
-              method: e.data.method,
-              result: JSON.parse(e.data.result || '{}'),
-              data: e.data,
-            })
-          }
+          logger.debug('[Chopsticks provider] send-result', {
+            method: e.data.method,
+            result: JSON.parse(e.data.result || '{}'),
+            data: e.data,
+          })
           try {
             handler.callback(null, e.data.result ? JSON.parse(e.data.result) : undefined)
           } catch (error) {
