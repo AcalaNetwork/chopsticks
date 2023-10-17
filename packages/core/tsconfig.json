@@ -14,6 +14,6 @@
 		"out": "../../docs-src/core",
 		"plugin": "typedoc-plugin-markdown",
 		"readme": "none",
-		"excludePrivate": true,
+		"excludePrivate": true
 	}
 }

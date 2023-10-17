@@ -1,14 +1,10 @@
-import {
-  Block,
-  RuntimeVersion,
-  isPrefixedChildKey,
-  prefixedChildKey,
-  stripChildPrefix,
-} from '@acala-network/chopsticks-core'
+import { Block } from '../../blockchain/block'
 import { HexString } from '@polkadot/util/types'
 
 import { Handler, ResponseError } from '../shared'
+import { RuntimeVersion } from '../../wasm-executor'
 import { defaultLogger } from '../../logger'
+import { isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '../../utils'
 
 const logger = defaultLogger.child({ name: 'rpc-state' })
 

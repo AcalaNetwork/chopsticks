@@ -1,7 +1,8 @@
-import { APPLY_EXTRINSIC_ERROR, Block } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 import { TransactionValidityError } from '@polkadot/types/interfaces'
 
+import { APPLY_EXTRINSIC_ERROR } from '../../blockchain/txpool'
+import { Block } from '../../blockchain/block'
 import { Handler, ResponseError, SubscriptionManager } from '../shared'
 import { defaultLogger } from '../../logger'
 

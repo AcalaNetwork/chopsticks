@@ -7,4 +7,3 @@ vendor/
 .pnp.loader.mjs
 lib/
 preview/
-tsconfig.json

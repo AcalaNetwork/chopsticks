@@ -3,13 +3,13 @@
 	"compilerOptions": {
 		"outDir": "lib",
 		"rootDir": "src",
-		"module": "ES2022", // this is required for vitest to work
+		"module": "ES2022" // this is required for vitest to work
 	},
 	"include": ["src/**/*"],
 	"exclude": ["src/**/*.test.ts"],
 	"references": [
 		{
-		  "path": "../chopsticks"
+			"path": "../chopsticks"
 		}
-	],
+	]
 }
