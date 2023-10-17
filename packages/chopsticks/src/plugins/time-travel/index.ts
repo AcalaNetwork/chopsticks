@@ -1,5 +1,4 @@
-import { Context, ResponseError } from '../../rpc/shared'
-import { timeTravel } from '@acala-network/chopsticks-core'
+import { Context, ResponseError, timeTravel } from '@acala-network/chopsticks-core'
 
 /**
  * Travel to a specific time.

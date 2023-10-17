@@ -10,7 +10,12 @@
  *
  * @packageDocumentation
  */
-export { ChainProperties, RuntimeVersion } from '@acala-network/chopsticks-core'
+export type {
+  ChainProperties,
+  RuntimeVersion,
+  Context,
+  SubscriptionManager,
+  Handler,
+} from '@acala-network/chopsticks-core'
+export * from '@acala-network/chopsticks-core/src/rpc/substrate'
 export * from './plugins/types'
-export * from './rpc/substrate'
-export { Context, SubscriptionManager, Handler } from './rpc/shared'

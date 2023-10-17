@@ -4,7 +4,7 @@ import { Slot } from '@polkadot/types/interfaces'
 
 import { Blockchain } from '../blockchain'
 import { compactHex } from '.'
-import { getAuraSlotDuration } from '../executor'
+import { getAuraSlotDuration } from '../wasm-executor'
 import { setStorage } from './set-storage'
 
 export const getCurrentSlot = async (chain: Blockchain) => {

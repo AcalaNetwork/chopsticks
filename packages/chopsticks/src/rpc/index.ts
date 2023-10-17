@@ -1,6 +1,13 @@
-import { Context, Handlers, ResponseError, SubscriptionManager, logger } from './shared'
+import {
+  Context,
+  Handlers,
+  ResponseError,
+  SubscriptionManager,
+  logger,
+  substrate,
+} from '@acala-network/chopsticks-core'
+
 import { pluginHandlers } from '../plugins'
-import substrate from './substrate'
 
 const allHandlers: Handlers = {
   ...substrate,

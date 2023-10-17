@@ -1,7 +1,7 @@
 import { Config } from './schema'
 import { createServer } from './server'
 import { handler } from './rpc'
-import { logger } from './rpc/shared'
+import { logger } from '@acala-network/chopsticks-core'
 import { setupContext } from './context'
 import _ from 'lodash'
 

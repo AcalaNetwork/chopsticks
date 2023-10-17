@@ -17,7 +17,7 @@ import {
 } from '../../../utils/proof'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
 import { compactHex, getParaId } from '../../../utils'
-import { createProof, decodeProof } from '../../../executor'
+import { createProof, decodeProof } from '../../../wasm-executor'
 
 const MOCK_VALIDATION_DATA = {
   validationData: {

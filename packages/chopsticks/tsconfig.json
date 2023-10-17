@@ -6,13 +6,11 @@
 	},
 	"include": ["src/**/*"],
 	"exclude": ["src/**/*.test.ts"],
-	"references": [
-		{ "path": "../core" },
-	],
-  "typedocOptions": {
-    "entryPoints": ["src/types.ts"],
-    "out": "../../docs-src/chopsticks",
-    "plugin": "typedoc-plugin-markdown",
-    "readme": "none",
-  }
+	"references": [{ "path": "../core" }],
+	"typedocOptions": {
+		"entryPoints": ["src/types.ts"],
+		"out": "../../docs-src/chopsticks",
+		"plugin": "typedoc-plugin-markdown",
+		"readme": "none"
+	}
 }

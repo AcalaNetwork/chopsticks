@@ -11,8 +11,8 @@ import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
 import { compactHex } from '../utils'
 import { defaultLogger } from '../logger'
-import { getRuntimeVersion, runTask, taskHandler } from '../executor'
-import type { RuntimeVersion } from '../executor'
+import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor'
+import type { RuntimeVersion } from '../wasm-executor'
 
 export type TaskCallResponse = {
   result: HexString

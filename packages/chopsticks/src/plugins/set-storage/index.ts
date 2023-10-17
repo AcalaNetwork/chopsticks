@@ -1,7 +1,6 @@
+import { Context, ResponseError, StorageValues, setStorage } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 
-import { Context, ResponseError } from '../../rpc/shared'
-import { StorageValues, setStorage } from '@acala-network/chopsticks-core'
 import { defaultLogger } from '../../logger'
 
 /**
