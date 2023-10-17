@@ -4,16 +4,17 @@
 		"outDir": "lib",
 		"rootDir": "src",
 		"target": "es2016",
+		"module": "esnext",
 		"lib": ["es6", "dom", "dom.iterable"],
 		"isolatedModules": true
 	},
 	"include": ["src/**/*"],
 	"exclude": ["src/**/*.test.ts"],
-  "typedocOptions": {
-    "entryPoints": ["src/index.ts"],
-    "out": "../../docs-src/core",
-    "plugin": "typedoc-plugin-markdown",
-    "readme": "none",
-    "excludePrivate": true,
-  }
+	"typedocOptions": {
+		"entryPoints": ["src/index.ts"],
+		"out": "../../docs-src/core",
+		"plugin": "typedoc-plugin-markdown",
+		"readme": "none",
+		"excludePrivate": true
+	}
 }

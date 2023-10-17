@@ -1,4 +1,4 @@
-import { Context, ResponseError } from '../../rpc/shared'
+import { Context, ResponseError } from '@acala-network/chopsticks-core'
 import { defaultLogger } from '../../logger'
 
 /**

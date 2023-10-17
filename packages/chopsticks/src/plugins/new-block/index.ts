@@ -1,5 +1,4 @@
-import { Context, ResponseError } from '../../rpc/shared'
-import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks-core'
+import { Context, DownwardMessage, HorizontalMessage, ResponseError } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 import { defaultLogger } from '../../logger'
 
