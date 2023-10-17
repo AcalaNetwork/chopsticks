@@ -166,10 +166,6 @@ export const buildBlock = async (
   const header = await newHeader(head, unsafeBlockHeight)
   const newBlockNumber = header.number.toNumber()
 
-  if (newBlockNumber < head.number) {
-    throw new Error('unsafeBlockHeight is not allowed to be less than current block number')
-  }
-
   logger.info(
     {
       number: newBlockNumber,
