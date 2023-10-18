@@ -116,20 +116,20 @@ export const createServer = async (handler: Handler, port?: number) => {
             method: req.method,
             result: truncate(resp),
           },
-          'Sending response for request',
+          'Response for request',
         )
-        send({
+        return {
           id: req.id,
           jsonrpc: '2.0',
           result: resp ?? null,
-        })
+        }
       } catch (e) {
         logger.info('Error handling request: %s %o', e, (e as Error).stack)
-        send({
+        return {
           id: req.id,
           jsonrpc: '2.0',
           error: e instanceof ResponseError ? e : { code: -32603, message: `Internal ${e}` },
-        })
+        }
       }
     }
 
@@ -166,12 +166,16 @@ export const createServer = async (handler: Handler, port?: number) => {
       const { data: req } = parsed
       if (Array.isArray(req)) {
         logger.trace({ req }, 'Received batch request')
+        const resp: Awaited<ReturnType<typeof processRequest>>[] = []
         for (const r of req) {
-          await processRequest(r)
+          const result = await processRequest(r)
+          resp.push(result)
         }
+        send(resp)
       } else {
         logger.trace({ req }, 'Received single request')
-        await processRequest(req)
+        const resp = await processRequest(req)
+        send(resp)
       }
     })
   })
