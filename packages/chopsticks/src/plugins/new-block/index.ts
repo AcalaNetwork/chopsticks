@@ -80,6 +80,10 @@ export const rpc = async (context: Context, params: [NewBlockParams]) => {
 
   let finalHash: string | undefined
 
+  if (unsafeBlockHeight < now) {
+    throw new ResponseError(1, 'unsafeBlockHeight must be greater than current block height')
+  }
+
   for (let i = 0; i < finalCount; i++) {
     const block = await context.chain
       .newBlock({
