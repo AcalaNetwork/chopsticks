@@ -166,11 +166,7 @@ export const createServer = async (handler: Handler, port?: number) => {
       const { data: req } = parsed
       if (Array.isArray(req)) {
         logger.trace({ req }, 'Received batch request')
-        const resp: Awaited<ReturnType<typeof processRequest>>[] = []
-        for (const r of req) {
-          const result = await processRequest(r)
-          resp.push(result)
-        }
+        const resp = await Promise.all([...req.map(processRequest)])
         send(resp)
       } else {
         logger.trace({ req }, 'Received single request')
