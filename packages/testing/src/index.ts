@@ -13,6 +13,7 @@ import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { expect } from 'vitest'
+import WebSocket from 'ws'
 
 export * from './check'
 
@@ -81,10 +82,21 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
 
   await api.isReady
 
+  const wsClient = new WebSocket(url)
+  const isWsClientReady = new Promise((resolve) => {
+    wsClient.on('open', () => {
+      resolve(true)
+    })
+  })
+  await isWsClientReady
+
   return {
     url,
     chain,
+    /** @polkadot/api WsProvider */
     ws,
+    /** WebSocket Client */
+    wsClient,
     api,
     dev: {
       newBlock: (param?: { count?: number; to?: number; unsafeBlockHeight?: number }): Promise<string> => {
@@ -103,6 +115,7 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
     async teardown() {
       await api.disconnect()
       await close()
+      wsClient.close()
     },
     async pause() {
       await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])

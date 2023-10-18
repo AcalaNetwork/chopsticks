@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Batch request > batch getStorage 1`] = `
+[
+  {
+    "id": 2,
+    "jsonrpc": "2.0",
+    "result": "0xb5297d01adb0964d5195f9f17a3cf6e99ef8622e71863456eeb9296d5681292b",
+  },
+  {
+    "error": {
+      "code": -32601,
+      "message": "Method not found: not_found",
+    },
+    "id": 3,
+    "jsonrpc": "2.0",
+  },
+]
+`;
