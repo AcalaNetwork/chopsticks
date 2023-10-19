@@ -64,14 +64,14 @@ const getWorker = async () => {
   return __executor_worker
 }
 
-export const getRuntimeVersion = async (code: HexString): Promise<RuntimeVersion> => {
+export const getRuntimeVersion = _.memoize(async (code: HexString): Promise<RuntimeVersion> => {
   const worker = await getWorker()
   return worker.remote.getRuntimeVersion(code).then((version) => {
     version.specName = hexToString(version.specName)
     version.implName = hexToString(version.implName)
     return version
   })
-}
+})
 
 // trie_version: 0 for old trie, 1 for new trie
 export const calculateStateRoot = async (

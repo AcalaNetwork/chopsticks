@@ -13,7 +13,7 @@ import {
 import { Buffer } from 'buffer'
 import { ApiPromise } from '@polkadot/api'
 import { HexString } from '@polkadot/util/types'
-import { Keyring } from '@polkadot/keyring'
+import { createTestPairs } from '@polkadot/keyring'
 import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
@@ -21,9 +21,7 @@ import type { SetupOptions } from '@acala-network/chopsticks-core'
 
 window.Buffer = Buffer
 
-const keyring = new Keyring({ type: 'ed25519' })
-const alice = keyring.addFromUri('//Alice') // 5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu
-const bob = keyring.addFromUri('//Bob') // 5GoNkf6WdbxCFnPdAnYYQyCjAKPJgLNxXwPjwTh6DGg6gN3E
+const { alice, bob } = createTestPairs()
 
 const DocsLink = styled('a')`
 	position: absolute;
@@ -110,7 +108,9 @@ function App() {
 			db: 'cache',
 		})
 		globalThis.chain = chain
+
 		globalThis.api = new ApiPromise({ provider: new ChopsticksProvider(chain) })
+		await globalThis.api.isReadyOrError
 
 		await setStorage(chain, {
 			System: {

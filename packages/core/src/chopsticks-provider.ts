@@ -49,9 +49,8 @@ export class ChopsticksProvider implements ProviderInterface {
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', resolve)
       this.#eventemitter.once('error', reject)
+      this.connect()
     })
-
-    this.connect()
   }
 
   static fromEndpoint = async (endpoint: string, block?: number | string | null, cache?: string) => {
