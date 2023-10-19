@@ -1,24 +1,46 @@
 import '@polkadot/api-augment'
 import { ApiPromise } from '@polkadot/api'
+import { ChopsticksProvider } from '@acala-network/chopsticks-core'
+import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
 import { Page, expect, test } from '@playwright/test'
 
-// Not working yet:
-// 1. globalThis.api cannot be correctly evaluate by playwright, all api.rpc method gives undefined.
-// 2. if init api promise inside this test, chopsticks worker cannot be created inside a playwright test worker
-test.describe.skip('chopsticks provider', async () => {
+// TODO: fix test timeout in connect -> setStorage
+test.describe('chopsticks provider', async () => {
+  const keyring = new Keyring({ type: 'ed25519' })
+  const alice = keyring.addFromUri('//Alice')
+  const bob = keyring.addFromUri('//Bob')
+
   let page: Page
   let api: ApiPromise
+  let chopsticksProvider: ChopsticksProvider
 
   test.beforeAll(async ({ browser }) => {
-    test.setTimeout(60000)
+    test.setTimeout(5 * 60000)
     page = await browser.newPage()
     await page.goto('/')
     await page.waitForLoadState()
-    await expect(page.getByText('Save')).toBeDisabled()
-    // sleep
-    await new Promise((resolve) => setTimeout(resolve, 10000))
-    api = await page.evaluate(() => globalThis.api)
+    // await expect(page.getByText('Save')).toBeDisabled()
+
+    chopsticksProvider = new ChopsticksProvider({
+      endpoint: 'wss://acala-rpc-0.aca-api.network',
+      // 3,800,000
+      blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
+      storageValues: {
+        System: {
+          Account: [
+            [[alice.address], { data: { free: 1 * 1e12 } }],
+            [[bob.address], { data: { free: 1 * 1e12 } }],
+          ],
+        },
+        Sudo: {
+          Key: alice.address,
+        },
+      },
+    })
+    api = await ApiPromise.create({
+      provider: chopsticksProvider,
+    })
     await api.isReady
   })
 
@@ -26,7 +48,7 @@ test.describe.skip('chopsticks provider', async () => {
     await api.disconnect()
   })
 
-  test('chain rpc', async () => {
+  test.only('chain rpc', async () => {
     const hashHead = '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7'
     const hash0 = '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c'
     const hash1000 = '0x1d2927c6b4aca4c42cb1f88ed7fa46dc53118bb00370475aaf514ac88933e3cc'

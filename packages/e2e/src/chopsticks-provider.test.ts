@@ -2,14 +2,29 @@ import { ApiPromise } from '@polkadot/api'
 import { ChopsticksProvider } from '@acala-network/chopsticks-core'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { env, expectHex, expectJson, mockCallback, testingPairs } from './helper'
+import { env, expectHex, expectJson, testingPairs } from './helper'
 
-// TODO: to be enabled after impl worker thread for nodejs compatibility
-describe.skip('chopsticks provider works', () => {
+const { alice, bob } = testingPairs()
+describe('chopsticks provider works', () => {
   let api: ApiPromise
+  let chopsticksProvider: ChopsticksProvider
 
   beforeAll(async () => {
-    const chopsticksProvider = new ChopsticksProvider({ endpoint: env.acala.endpoint, blockHash: env.acala.blockHash })
+    chopsticksProvider = new ChopsticksProvider({
+      endpoint: env.acala.endpoint,
+      blockHash: env.acala.blockHash,
+      storageValues: {
+        System: {
+          Account: [
+            [[alice.address], { data: { free: 1 * 1e12 } }],
+            [[bob.address], { data: { free: 1 * 1e12 } }],
+          ],
+        },
+        Sudo: {
+          Key: alice.address,
+        },
+      },
+    })
     api = await ApiPromise.create({
       provider: chopsticksProvider,
       signedExtensions: {
@@ -68,29 +83,8 @@ describe.skip('chopsticks provider works', () => {
   })
 
   it('handles tx', async () => {
-    const { alice, bob } = testingPairs()
-
-    // setStorage(chain, {
-    //   System: {
-    //     Account: [
-    //       [[alice.address], { data: { free: 10 * 1e12 } }],
-    //       [[bob.address], { data: { free: 10 * 1e12 } }],
-    //     ],
-    //   },
-    //   Sudo: {
-    //     Key: alice.address,
-    //   },
-    // })
-
-    const { callback, next } = mockCallback()
-
-    await api.tx.balances.transfer(bob.address, 100).signAndSend(alice, callback)
-    // await chain?.newBlock()
-
-    await next()
-
-    expect(callback.mock.calls).toMatchSnapshot()
-    callback.mockClear()
+    await api.tx.balances.transfer(bob.address, 100).signAndSend(alice)
+    await api.rpc('new_block')
 
     expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
     expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()

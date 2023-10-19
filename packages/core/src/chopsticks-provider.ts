@@ -7,8 +7,20 @@ import {
   ProviderStats,
 } from '@polkadot/rpc-provider/types'
 
-import { StorageValues } from './utils'
+import { Blockchain } from './blockchain'
+import { StorageValues, setStorage } from './utils'
+import { allHandlers } from './rpc'
 import { defaultLogger } from './logger'
+import { setup } from './setup'
+
+const providerHandlers = {
+  ...allHandlers,
+  new_block: async (context: any, _params: any, _subscriptionManager: any) => {
+    const { chain } = context
+    const block = await chain.newBlock()
+    return block
+  },
+}
 
 const logger = defaultLogger.child({ name: '[Chopsticks provider]' })
 
@@ -19,17 +31,9 @@ interface SubscriptionHandler {
 
 interface Subscription extends SubscriptionHandler {
   method: string
-  params: unknown[]
+  params?: unknown[]
   onCancel?: () => void
   result?: unknown
-}
-
-interface Handler {
-  callback: ProviderInterfaceCallback
-  method: string
-  params: unknown[]
-  start: number
-  subscription?: SubscriptionHandler | undefined
 }
 
 export interface ChopsticksProviderProps {
@@ -53,12 +57,10 @@ export class ChopsticksProvider implements ProviderInterface {
   #endpoint: string
   readonly stats?: ProviderStats
   #subscriptions: Record<string, Subscription> = {}
-  #worker: Worker
   #blockHash: string | undefined
   #dbPath: string | undefined
   #storageValues: StorageValues | undefined
-  #handlers: Record<string, Handler> = {}
-  #idCounter = 0
+  #chain: Blockchain | undefined
 
   constructor({ endpoint, blockHash, dbPath, storageValues }: ChopsticksProviderProps) {
     if (!endpoint) {
@@ -78,9 +80,6 @@ export class ChopsticksProvider implements ProviderInterface {
       })
       this.#eventemitter.once('error', reject)
     })
-
-    const chopsticksWorker = new Worker(new URL('./chopsticks-worker', import.meta.url), { type: 'module' })
-    this.#worker = chopsticksWorker
 
     this.connect()
   }
@@ -109,22 +108,33 @@ export class ChopsticksProvider implements ProviderInterface {
     if (this.#isConnected) {
       return
     }
+    try {
+      logger.debug('connect: Initializing...')
+      this.#chain = await setup({
+        endpoint: this.#endpoint,
+        mockSignatureHost: true,
+        db: this.#dbPath,
+        block: this.#blockHash,
+      })
+      logger.debug('connect: Chain setup done.')
+      if (this.#storageValues) {
+        await setStorage(this.#chain, this.#storageValues)
+      }
+      logger.debug('connect: Set storage done.')
 
-    this.#worker!.onmessage = this.#onWorkerMessage
-
-    this.#worker?.postMessage({
-      type: 'connect',
-      endpoint: this.#endpoint,
-      blockHash: this.#blockHash,
-      dbPath: this.#dbPath,
-      storageValues: this.#storageValues,
-    })
+      this.#isConnected = true
+      this.#eventemitter.emit('connected')
+    } catch (e) {
+      logger.error('onMessage: connect error.', e)
+    }
   }
 
   disconnect = async (): Promise<void> => {
-    this.#worker?.postMessage({ type: 'disconnect' })
     this.#isConnected = false
-    this.#eventemitter.emit('disconnected')
+    if (this.#chain) {
+      await this.#chain?.api.disconnect()
+      await this.#chain?.close()
+    }
   }
 
   on = (type: ProviderInterfaceEmitted, sub: ProviderInterfaceEmitCb): (() => void) => {
@@ -135,59 +145,80 @@ export class ChopsticksProvider implements ProviderInterface {
     }
   }
 
+  subscriptionManager = {
+    subscribe: (method: string, subid: string, onCancel: () => void = () => {}) => {
+      return (data: any) => {
+        logger.debug('subscribe-callback', method, subid, data)
+        const sub = this.#subscriptions[subid]
+        if (!sub) {
+          // sometimes callback comes first
+          this.#subscriptions[subid] = {
+            callback: () => {},
+            method: method,
+            type: 'unknown',
+            result: data,
+            onCancel,
+          }
+          return
+        }
+        sub.callback(null, data)
+      }
+    },
+    unsubscribe: (subid: string) => {
+      if (this.#subscriptions[subid]) {
+        logger.debug('unsubscribe-callback', subid)
+        const sub = this.#subscriptions[subid]
+        if (!sub) {
+          logger.error(`Unable to find active subscription=${subid}`)
+          return
+        }
+        sub?.onCancel?.()
+        delete this.#subscriptions[subid]
+      }
+    },
+  }
+
   send = async <T>(
     method: string,
     params: unknown[],
     _isCacheable?: boolean,
     subscription?: SubscriptionHandler,
   ): Promise<T> => {
-    return new Promise<T>((resolve, reject): void => {
-      try {
-        if (!this.isConnected || this.#worker === undefined) {
-          throw new Error('Api is not connected')
-        }
+    try {
+      if (!this.isConnected) {
+        throw new Error('Api is not connected')
+      }
 
-        logger.debug('send', { method, params })
+      logger.debug('send', { method, params })
 
-        const id = `${method}::${this.#idCounter++}`
+      const rpcHandler = providerHandlers[method]
+      if (!rpcHandler) {
+        logger.error(`Unable to find rpc handler=${method}`)
+        throw new Error(`Unable to find rpc handler=${method}`)
+      }
+      const result = await rpcHandler({ chain: this.#chain }, params, this.subscriptionManager)
+      logger.debug('send-result', { method, params, result })
 
-        const callback = (error?: Error | null, result?: T): void => {
-          if (subscription) {
-            // if it's a subscription, we usually returns the subid
-            const subid = result as string
-            if (subid) {
-              if (!this.#subscriptions[subid]) {
-                this.#subscriptions[subid] = {
-                  callback: subscription.callback,
-                  method,
-                  params,
-                  type: subscription.type,
-                }
-              }
+      if (subscription) {
+        // if it's a subscription, we usually returns the subid
+        const subid = result as string
+        if (subid) {
+          if (!this.#subscriptions[subid]) {
+            this.#subscriptions[subid] = {
+              callback: subscription.callback,
+              method,
+              params,
+              type: subscription.type,
             }
           }
-
-          error ? reject(error) : resolve(result as T)
         }
-
-        this.#handlers[id] = {
-          callback,
-          method,
-          params,
-          start: Date.now(),
-          subscription,
-        }
-
-        this.#worker?.postMessage({
-          type: 'send',
-          id,
-          method,
-          params,
-        })
-      } catch (error) {
-        reject(error)
       }
-    })
+
+      return result
+    } catch (e) {
+      logger.error('send error.', e)
+      throw e
+    }
   }
 
   subscribe(
@@ -209,78 +240,6 @@ export class ChopsticksProvider implements ProviderInterface {
       return this.isConnected ? this.send<boolean>(method, [id]) : true
     } catch {
       return false
-    }
-  }
-
-  #onWorkerMessage = (e: any) => {
-    switch (e.data.type) {
-      case 'connection':
-        logger.debug('connection.', e.data)
-        if (e.data.connected) {
-          this.#isConnected = true
-          this.#eventemitter.emit('connected')
-        } else {
-          this.#isConnected = false
-          this.#eventemitter.emit('error', new Error('Unable to connect to the chain'))
-          logger.error(`Unable to connect to the chain: ${e.data.message}`)
-        }
-        break
-
-      case 'subscribe-callback':
-        {
-          logger.debug('subscribe-callback', e.data)
-          const sub = this.#subscriptions[e.data.subid]
-          if (!sub) {
-            // record it first, sometimes callback comes first
-            this.#subscriptions[e.data.subid] = {
-              callback: () => {},
-              method: e.data.method,
-              params: e.data.params,
-              type: e.data.type,
-              result: JSON.parse(e.data.result),
-            }
-            return
-          }
-          sub.callback(null, JSON.parse(e.data.result))
-        }
-        break
-
-      case 'unsubscribe-callback':
-        {
-          logger.debug('unsubscribe-callback', e.data)
-          const sub = this.#subscriptions[e.data.subid]
-          if (!sub) {
-            logger.error(`Unable to find active subscription=${e.data.subid}`)
-            return
-          }
-          sub?.onCancel?.()
-          delete this.#subscriptions[e.data.subid]
-        }
-        break
-
-      case 'send-result':
-        {
-          const handler = this.#handlers[e.data.id]
-          if (!handler) {
-            logger.error(`Unable to find handler=${e.data.id}`)
-            return
-          }
-          logger.debug('send-result', {
-            method: e.data.method,
-            result: JSON.parse(e.data.result || '{}'),
-            data: e.data,
-          })
-          try {
-            handler.callback(null, e.data.result ? JSON.parse(e.data.result) : undefined)
-          } catch (error) {
-            handler.callback(error as Error, undefined)
-          }
-          delete this.#handlers[e.data.id]
-        }
-        break
-
-      default:
-        break
     }
   }
 }
