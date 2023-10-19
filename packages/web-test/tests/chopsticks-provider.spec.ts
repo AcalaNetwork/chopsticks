@@ -12,7 +12,6 @@ test.describe.skip('chopsticks provider', async () => {
 
   let page: Page
   let api: ApiPromise
-  let chopsticksProvider: ChopsticksProvider
 
   test.beforeAll(async ({ browser }) => {
     test.setTimeout(5 * 60000)
@@ -21,12 +20,7 @@ test.describe.skip('chopsticks provider', async () => {
     await page.waitForLoadState()
 
     const chain = await setup({ block: 3_800_000, endpoint: 'wss://acala-rpc.aca-api.network' })
-    chopsticksProvider = new ChopsticksProvider({ chain })
-    api = await ApiPromise.create({
-      provider: chopsticksProvider,
-    })
-    await api.isReady
-    await setStorage(chopsticksProvider.chain, {
+    await setStorage(chain, {
       System: {
         Account: [
           [[alice.address], { providers: 1, data: { free: 1 * 1e12 } }],
@@ -34,6 +28,11 @@ test.describe.skip('chopsticks provider', async () => {
         ],
       },
     })
+
+    api = await ApiPromise.create({
+      provider: new ChopsticksProvider(chain),
+    })
+    await api.isReady
   })
 
   test.afterAll(async () => {
@@ -79,8 +78,7 @@ test.describe.skip('chopsticks provider', async () => {
     const bob = keyring.addFromUri('//Bob')
 
     await api.tx.balances.transfer(bob.address, 1000).signAndSend(alice)
-    await api.rpc('new_block')
-
+    await chain.upcomingBlocks()
     const bobAccount = await api.query.system.account(bob.address)
     expect(bobAccount.data.free.toHuman()).toBe(`${1 * 1e12 + 1000}`)
   })

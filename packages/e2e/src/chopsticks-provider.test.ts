@@ -8,23 +8,21 @@ import networks from './networks'
 const { alice, bob } = testingPairs()
 
 describe('chopsticks provider works', async () => {
-  let api: ApiPromise
-  let chopsticksProvider: ChopsticksProvider
-
   const acala = await networks.acala({ blockNumber: 3_800_000, endpoint: env.acala.endpoint })
   const { chain } = acala
 
-  beforeAll(async () => {
-    chopsticksProvider = new ChopsticksProvider({ chain })
-    api = await ApiPromise.create({
-      provider: chopsticksProvider,
-      signedExtensions: {
-        SetEvmOrigin: {
-          extrinsic: {},
-          payload: {},
-        },
+  const chopsticksProvider = new ChopsticksProvider(chain)
+  const api = await ApiPromise.create({
+    provider: chopsticksProvider,
+    signedExtensions: {
+      SetEvmOrigin: {
+        extrinsic: {},
+        payload: {},
       },
-    })
+    },
+  })
+
+  beforeAll(async () => {
     await api.isReady
     await setStorage(chopsticksProvider.chain, {
       System: {

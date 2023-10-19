@@ -11,10 +11,10 @@ import {
 	Typography,
 } from '@mui/material'
 import { Buffer } from 'buffer'
+import { ApiPromise } from '@polkadot/api'
 import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
-import { setStorage, setup } from '@acala-network/chopsticks-core'
-import { setupChopsticksApiPromise } from './utils'
+import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
@@ -110,10 +110,7 @@ function App() {
 			db: 'cache',
 		})
 		globalThis.chain = chain
-
-		await setupChopsticksApiPromise({
-			chain,
-		})
+		globalThis.api = new ApiPromise({ provider: new ChopsticksProvider(chain) })
 
 		await setStorage(chain, {
 			System: {
@@ -142,7 +139,6 @@ function App() {
 		setupChain()
 
 		return () => {
-			globalThis.chain?.api.disconnect()
 			globalThis.chain?.close()
 		}
 	}, [])

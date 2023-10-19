@@ -4,7 +4,6 @@ import {
   ProviderInterfaceCallback,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
-  ProviderStats,
 } from '@polkadot/rpc-provider/types'
 
 import { Blockchain } from './blockchain'
@@ -35,49 +34,35 @@ interface Subscription extends SubscriptionHandler {
   result?: unknown
 }
 
-export interface ChopsticksProviderProps {
-  /** chopsticks Blockchain type */
-  chain?: Blockchain
-}
-
 /**
- * A provider for ApiPromise.
- *
+ * Provider for local chopsticks chain
  */
 export class ChopsticksProvider implements ProviderInterface {
   #isConnected = false
   #eventemitter: EventEmitter
   #isReadyPromise: Promise<void>
-  readonly stats?: ProviderStats
   #subscriptions: Record<string, Subscription> = {}
-  #chain: Blockchain
 
-  constructor({ chain }: ChopsticksProviderProps) {
-    if (!chain) {
-      throw new Error('ChopsticksProvider requires a blockchain instance.')
-    }
-    this.#chain = chain
-
+  constructor(public readonly chain: Blockchain) {
     this.#eventemitter = new EventEmitter()
 
     this.#isReadyPromise = new Promise((resolve, reject): void => {
-      this.#eventemitter.once('connected', (): void => {
-        logger.debug('isReadyPromise: connected.')
-        resolve()
-      })
+      this.#eventemitter.once('connected', resolve)
       this.#eventemitter.once('error', reject)
     })
 
     this.connect()
   }
 
-  static fromEndpoint = async (endpoint: string) => {
-    const chain = await setup({
-      endpoint,
-      mockSignatureHost: true,
-    })
-    const provider = new ChopsticksProvider({ chain })
-    return provider
+  static fromEndpoint = async (endpoint: string, block?: number | string | null, cache?: string) => {
+    return new ChopsticksProvider(
+      await setup({
+        endpoint,
+        mockSignatureHost: true,
+        block,
+        db: cache,
+      }),
+    )
   }
 
   get hasSubscriptions(): boolean {
@@ -85,7 +70,7 @@ export class ChopsticksProvider implements ProviderInterface {
   }
 
   get isClonable(): boolean {
-    return false
+    return true
   }
 
   get isConnected(): boolean {
@@ -96,32 +81,18 @@ export class ChopsticksProvider implements ProviderInterface {
     return this.#isReadyPromise
   }
 
-  get chain(): Blockchain {
-    if (!this.#chain) {
-      throw new Error('ChopsticksProvider is not connected')
-    }
-    return this.#chain
-  }
-
   clone = () => {
-    throw new Error('ChopsticksProvider is not clonable')
+    return new ChopsticksProvider(this.chain)
   }
 
   connect = async (): Promise<void> => {
-    if (this.#isConnected) return
-    try {
-      this.#isConnected = true
-      this.#eventemitter.emit('connected')
-    } catch (e) {
-      logger.error('onMessage: connect error.', e)
-    }
+    this.#isConnected = true
+    this.#eventemitter.emit('connected')
   }
 
   disconnect = async (): Promise<void> => {
     this.#isConnected = false
-    if (this.#chain) {
-      await this.#chain?.api.disconnect()
-    }
+    this.#eventemitter.emit('disconnected')
   }
 
   on = (type: ProviderInterfaceEmitted, sub: ProviderInterfaceEmitCb): (() => void) => {
@@ -172,10 +143,6 @@ export class ChopsticksProvider implements ProviderInterface {
     subscription?: SubscriptionHandler,
   ): Promise<T> => {
     try {
-      if (!this.isConnected) {
-        throw new Error('Api is not connected')
-      }
-
       logger.debug('send', { method, params })
 
       const rpcHandler = providerHandlers[method]
@@ -183,7 +150,7 @@ export class ChopsticksProvider implements ProviderInterface {
         logger.error(`Unable to find rpc handler=${method}`)
         throw new Error(`Unable to find rpc handler=${method}`)
       }
-      const result = await rpcHandler({ chain: this.#chain }, params, this.subscriptionManager)
+      const result = await rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
       logger.debug('send-result', { method, params, result })
 
       if (subscription) {
@@ -224,7 +191,7 @@ export class ChopsticksProvider implements ProviderInterface {
     }
 
     try {
-      return this.isConnected ? this.send<boolean>(method, [id]) : true
+      return this.send<boolean>(method, [id])
     } catch {
       return false
     }
