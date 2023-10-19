@@ -104,18 +104,16 @@ export class ChopsticksProvider implements ProviderInterface {
 
   subscriptionManager = {
     subscribe: (method: string, subid: string, onCancel: () => void = () => {}) => {
+      const sub = this.#subscriptions[subid]
+      if (sub) {
+        sub.onCancel = onCancel
+      }
+
       return (data: any) => {
         logger.debug('subscribe-callback', method, subid, data)
         const sub = this.#subscriptions[subid]
         if (!sub) {
-          // sometimes callback comes first
-          this.#subscriptions[subid] = {
-            callback: () => {},
-            method: method,
-            type: 'unknown',
-            result: data,
-            onCancel,
-          }
+          logger.trace(`Unable to find active subscription=${subid}`)
           return
         }
         sub.callback(null, data)

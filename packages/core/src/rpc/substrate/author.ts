@@ -73,9 +73,12 @@ export const author_submitAndWatchExtrinsic: Handler<[HexString], string> = asyn
 
   try {
     await context.chain.submitExtrinsic(extrinsic)
-    callback({
-      ready: null,
-    })
+    // send callback after subscription id is returned
+    setTimeout(() => {
+      callback({
+        ready: null,
+      })
+    }, 50)
   } catch (error) {
     logger.error({ error }, 'ExtrinsicFailed')
     const code = (error as TransactionValidityError).isInvalid ? 1010 : 1011

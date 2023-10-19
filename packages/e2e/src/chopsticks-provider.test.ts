@@ -1,5 +1,5 @@
 import { ApiPromise } from '@polkadot/api'
-import { ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
+import { BuildBlockMode, ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { env, expectHex, expectJson, testingPairs } from './helper'
@@ -83,8 +83,16 @@ describe('chopsticks provider works', async () => {
   })
 
   it('handles tx', async () => {
-    await api.tx.balances.transfer(bob.address, 100).signAndSend(alice)
-    await api.rpc('new_block')
+    chain.txPool.mode = BuildBlockMode.Batch
+
+    await new Promise<void>((resolve) => {
+      api.tx.balances.transfer(bob.address, 100).signAndSend(alice, (status) => {
+        if (status.isInBlock) {
+          resolve()
+        }
+      })
+    })
+    chain.txPool.mode = BuildBlockMode.Batch
 
     expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
     expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()

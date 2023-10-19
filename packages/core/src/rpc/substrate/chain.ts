@@ -82,7 +82,7 @@ export const chain_subscribeNewHead: Handler<void, string> = async (context, _pa
     callback(processHeader(await context.chain.head.header))
   }
 
-  update()
+  setTimeout(update, 50)
 
   return id
 }
@@ -97,7 +97,7 @@ export const chain_subscribeFinalizedHeads: Handler<void, string> = async (conte
     callback(processHeader(await context.chain.head.header))
   }
 
-  update()
+  setTimeout(update, 50)
 
   return id
 }

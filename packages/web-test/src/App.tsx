@@ -158,10 +158,15 @@ function App() {
 
 	const testChopsticksProvider = async () => {
 		setTransferDisabled(true)
-		globalThis.chain.txPool.mode = BuildBlockMode.Manual
-		await globalThis.api.tx.balances.transfer(bob.address, 1000).signAndSend(alice)
-		await globalThis.chain.newBlock()
-		globalThis.chain.txPool.mode = BuildBlockMode.Batch
+
+		await new Promise<void>((resolve) => {
+			globalThis.api.tx.balances.transfer(bob.address, 1000).signAndSend(alice, (status) => {
+				if (status.isInBlock) {
+					resolve()
+				}
+			})
+		})
+
 		const bobAccount = await globalThis.api.query.system.account(bob.address)
 		setBobBalance(bobAccount.data.free.toString())
 		setTransferDisabled(false)

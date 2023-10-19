@@ -110,7 +110,9 @@ export const state_subscribeRuntimeVersion: Handler<[], string> = async (context
   const id = await context.chain.headState.subscrubeRuntimeVersion((block) => update(block))
   const callback = subscribe('state_runtimeVersion', id)
   update = async (block) => callback(await block.runtimeVersion)
-  context.chain.head.runtimeVersion.then(callback)
+  setTimeout(() => {
+    context.chain.head.runtimeVersion.then(callback)
+  }, 50)
   return id
 }
 
