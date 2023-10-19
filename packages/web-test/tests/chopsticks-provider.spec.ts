@@ -1,11 +1,10 @@
 import '@polkadot/api-augment'
 import { ApiPromise } from '@polkadot/api'
-import { ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
+import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { Keyring } from '@polkadot/keyring'
 import { Page, expect, test } from '@playwright/test'
 
-// TODO: fix test timeout in connect -> setStorage
+// TODO: fix test
 test.describe.skip('chopsticks provider', async () => {
   const keyring = new Keyring({ type: 'ed25519' })
   const alice = keyring.addFromUri('//Alice')
@@ -21,11 +20,8 @@ test.describe.skip('chopsticks provider', async () => {
     await page.goto('/')
     await page.waitForLoadState()
 
-    chopsticksProvider = new ChopsticksProvider({
-      endpoint: 'wss://acala-rpc-0.aca-api.network',
-      // 3,800,000
-      blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
-    })
+    const chain = await setup({ block: 3_800_000, endpoint: 'wss://acala-rpc.aca-api.network' })
+    chopsticksProvider = new ChopsticksProvider({ chain })
     api = await ApiPromise.create({
       provider: chopsticksProvider,
     })

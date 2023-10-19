@@ -3,17 +3,19 @@ import { ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { env, expectHex, expectJson, testingPairs } from './helper'
+import networks from './networks'
 
 const { alice, bob } = testingPairs()
-describe('chopsticks provider works', () => {
+
+describe('chopsticks provider works', async () => {
   let api: ApiPromise
   let chopsticksProvider: ChopsticksProvider
 
+  const acala = await networks.acala({ blockNumber: 3_800_000, endpoint: env.acala.endpoint })
+  const { chain } = acala
+
   beforeAll(async () => {
-    chopsticksProvider = new ChopsticksProvider({
-      endpoint: env.acala.endpoint,
-      blockHash: env.acala.blockHash,
-    })
+    chopsticksProvider = new ChopsticksProvider({ chain })
     api = await ApiPromise.create({
       provider: chopsticksProvider,
       signedExtensions: {

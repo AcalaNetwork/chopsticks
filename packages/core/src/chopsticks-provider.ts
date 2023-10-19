@@ -36,40 +36,26 @@ interface Subscription extends SubscriptionHandler {
 }
 
 export interface ChopsticksProviderProps {
-  /** upstream endpoint */
-  endpoint?: string
-  /**
-   * chopsticks Blockchain type
-   */
+  /** chopsticks Blockchain type */
   chain?: Blockchain
-  /** default to latest block */
-  blockHash?: string
-  dbPath?: string
 }
 
 /**
  * A provider for ApiPromise.
  *
- * Currectly only support browser environment.
  */
 export class ChopsticksProvider implements ProviderInterface {
   #isConnected = false
   #eventemitter: EventEmitter
   #isReadyPromise: Promise<void>
-  #endpoint: string | undefined
   readonly stats?: ProviderStats
   #subscriptions: Record<string, Subscription> = {}
-  #blockHash: string | undefined
-  #dbPath: string | undefined
-  #chain: Blockchain | undefined
+  #chain: Blockchain
 
-  constructor({ chain, endpoint, blockHash, dbPath }: ChopsticksProviderProps) {
-    if (!endpoint && !chain) {
-      throw new Error('ChopsticksProvider requires either the upstream endpoint or a chain instance')
+  constructor({ chain }: ChopsticksProviderProps) {
+    if (!chain) {
+      throw new Error('ChopsticksProvider requires a blockchain instance.')
     }
-    this.#endpoint = endpoint
-    this.#blockHash = blockHash
-    this.#dbPath = dbPath
     this.#chain = chain
 
     this.#eventemitter = new EventEmitter()
@@ -85,12 +71,21 @@ export class ChopsticksProvider implements ProviderInterface {
     this.connect()
   }
 
+  static fromEndpoint = async (endpoint: string) => {
+    const chain = await setup({
+      endpoint,
+      mockSignatureHost: true,
+    })
+    const provider = new ChopsticksProvider({ chain })
+    return provider
+  }
+
   get hasSubscriptions(): boolean {
     return true
   }
 
   get isClonable(): boolean {
-    return true
+    return false
   }
 
   get isConnected(): boolean {
@@ -108,24 +103,13 @@ export class ChopsticksProvider implements ProviderInterface {
     return this.#chain
   }
 
-  clone = (): ProviderInterface => {
-    return new ChopsticksProvider({ endpoint: this.#endpoint })
+  clone = () => {
+    throw new Error('ChopsticksProvider is not clonable')
   }
 
   connect = async (): Promise<void> => {
     if (this.#isConnected) return
     try {
-      if (!this.#chain) {
-        logger.debug('connect: Initializing...')
-        this.#chain = await setup({
-          endpoint: this.#endpoint,
-          mockSignatureHost: true,
-          db: this.#dbPath,
-          block: this.#blockHash,
-        })
-        logger.debug('connect: Chain setup done.')
-      }
-
       this.#isConnected = true
       this.#eventemitter.emit('connected')
     } catch (e) {
@@ -137,7 +121,6 @@ export class ChopsticksProvider implements ProviderInterface {
     this.#isConnected = false
     if (this.#chain) {
       await this.#chain?.api.disconnect()
-      await this.#chain?.close()
     }
   }
 
