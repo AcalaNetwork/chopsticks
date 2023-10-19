@@ -1,5 +1,5 @@
 import { ApiPromise } from '@polkadot/api'
-import { ChopsticksProvider } from '@acala-network/chopsticks-core'
+import { ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { env, expectHex, expectJson, testingPairs } from './helper'
@@ -13,17 +13,6 @@ describe('chopsticks provider works', () => {
     chopsticksProvider = new ChopsticksProvider({
       endpoint: env.acala.endpoint,
       blockHash: env.acala.blockHash,
-      storageValues: {
-        System: {
-          Account: [
-            [[alice.address], { data: { free: 1 * 1e12 } }],
-            [[bob.address], { data: { free: 1 * 1e12 } }],
-          ],
-        },
-        Sudo: {
-          Key: alice.address,
-        },
-      },
     })
     api = await ApiPromise.create({
       provider: chopsticksProvider,
@@ -35,6 +24,17 @@ describe('chopsticks provider works', () => {
       },
     })
     await api.isReady
+    await setStorage(chopsticksProvider.chain, {
+      System: {
+        Account: [
+          [[alice.address], { data: { free: 1 * 1e12 } }],
+          [[bob.address], { data: { free: 1 * 1e12 } }],
+        ],
+      },
+      Sudo: {
+        Key: alice.address,
+      },
+    })
   })
 
   afterAll(async () => {

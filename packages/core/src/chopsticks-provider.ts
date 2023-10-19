@@ -8,7 +8,6 @@ import {
 } from '@polkadot/rpc-provider/types'
 
 import { Blockchain } from './blockchain'
-import { StorageValues, setStorage } from './utils'
 import { allHandlers } from './rpc'
 import { defaultLogger } from './logger'
 import { setup } from './setup'
@@ -38,11 +37,14 @@ interface Subscription extends SubscriptionHandler {
 
 export interface ChopsticksProviderProps {
   /** upstream endpoint */
-  endpoint: string
+  endpoint?: string
+  /**
+   * chopsticks Blockchain type
+   */
+  chain?: Blockchain
   /** default to latest block */
   blockHash?: string
   dbPath?: string
-  storageValues?: StorageValues
 }
 
 /**
@@ -54,22 +56,21 @@ export class ChopsticksProvider implements ProviderInterface {
   #isConnected = false
   #eventemitter: EventEmitter
   #isReadyPromise: Promise<void>
-  #endpoint: string
+  #endpoint: string | undefined
   readonly stats?: ProviderStats
   #subscriptions: Record<string, Subscription> = {}
   #blockHash: string | undefined
   #dbPath: string | undefined
-  #storageValues: StorageValues | undefined
   #chain: Blockchain | undefined
 
-  constructor({ endpoint, blockHash, dbPath, storageValues }: ChopsticksProviderProps) {
-    if (!endpoint) {
-      throw new Error('ChopsticksProvider requires the upstream endpoint')
+  constructor({ chain, endpoint, blockHash, dbPath }: ChopsticksProviderProps) {
+    if (!endpoint && !chain) {
+      throw new Error('ChopsticksProvider requires either the upstream endpoint or a chain instance')
     }
     this.#endpoint = endpoint
     this.#blockHash = blockHash
     this.#dbPath = dbPath
-    this.#storageValues = storageValues
+    this.#chain = chain
 
     this.#eventemitter = new EventEmitter()
 
@@ -100,27 +101,30 @@ export class ChopsticksProvider implements ProviderInterface {
     return this.#isReadyPromise
   }
 
+  get chain(): Blockchain {
+    if (!this.#chain) {
+      throw new Error('ChopsticksProvider is not connected')
+    }
+    return this.#chain
+  }
+
   clone = (): ProviderInterface => {
     return new ChopsticksProvider({ endpoint: this.#endpoint })
   }
 
   connect = async (): Promise<void> => {
-    if (this.#isConnected) {
-      return
-    }
+    if (this.#isConnected) return
     try {
-      logger.debug('connect: Initializing...')
-      this.#chain = await setup({
-        endpoint: this.#endpoint,
-        mockSignatureHost: true,
-        db: this.#dbPath,
-        block: this.#blockHash,
-      })
-      logger.debug('connect: Chain setup done.')
-      if (this.#storageValues) {
-        await setStorage(this.#chain, this.#storageValues)
+      if (!this.#chain) {
+        logger.debug('connect: Initializing...')
+        this.#chain = await setup({
+          endpoint: this.#endpoint,
+          mockSignatureHost: true,
+          db: this.#dbPath,
+          block: this.#blockHash,
+        })
+        logger.debug('connect: Chain setup done.')
       }
-      logger.debug('connect: Set storage done.')
 
       this.#isConnected = true
       this.#eventemitter.emit('connected')

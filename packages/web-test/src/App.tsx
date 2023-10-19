@@ -10,13 +10,20 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material'
+import { Buffer } from 'buffer'
 import { HexString } from '@polkadot/util/types'
+import { Keyring } from '@polkadot/keyring'
 import { setStorage, setup } from '@acala-network/chopsticks-core'
+import { setupChopsticksApiPromise } from './utils'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
-import { Buffer } from 'buffer'
+
 window.Buffer = Buffer
+
+const keyring = new Keyring({ type: 'ed25519' })
+const alice = keyring.addFromUri('//Alice') // 5FA9nQDVg267DEd8m1ZypXLBnvN7SFxYwV7ndqSYGiN9TTpu
+const bob = keyring.addFromUri('//Bob') // 5GoNkf6WdbxCFnPdAnYYQyCjAKPJgLNxXwPjwTh6DGg6gN3E
 
 const DocsLink = styled('a')`
 	position: absolute;
@@ -104,6 +111,10 @@ function App() {
 		})
 		globalThis.chain = chain
 
+		await setupChopsticksApiPromise({
+			chain,
+		})
+
 		await setStorage(chain, {
 			System: {
 				Account: [
@@ -116,6 +127,8 @@ function App() {
 							},
 						},
 					],
+					[[alice.address], { providers: 1, data: { free: 1 * 1e12 } }],
+					[[bob.address], { providers: 1, data: { free: 1 * 1e12 } }],
 				],
 			},
 		})

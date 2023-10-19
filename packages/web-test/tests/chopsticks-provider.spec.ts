@@ -1,6 +1,6 @@
 import '@polkadot/api-augment'
 import { ApiPromise } from '@polkadot/api'
-import { ChopsticksProvider } from '@acala-network/chopsticks-core'
+import { ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 import { Keyring } from '@polkadot/keyring'
 import { Page, expect, test } from '@playwright/test'
@@ -20,28 +20,24 @@ test.describe.skip('chopsticks provider', async () => {
     page = await browser.newPage()
     await page.goto('/')
     await page.waitForLoadState()
-    // await expect(page.getByText('Save')).toBeDisabled()
 
     chopsticksProvider = new ChopsticksProvider({
       endpoint: 'wss://acala-rpc-0.aca-api.network',
       // 3,800,000
       blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
-      storageValues: {
-        System: {
-          Account: [
-            [[alice.address], { data: { free: 1 * 1e12 } }],
-            [[bob.address], { data: { free: 1 * 1e12 } }],
-          ],
-        },
-        Sudo: {
-          Key: alice.address,
-        },
-      },
     })
     api = await ApiPromise.create({
       provider: chopsticksProvider,
     })
     await api.isReady
+    await setStorage(chopsticksProvider.chain, {
+      System: {
+        Account: [
+          [[alice.address], { providers: 1, data: { free: 1 * 1e12 } }],
+          [[bob.address], { providers: 1, data: { free: 1 * 1e12 } }],
+        ],
+      },
+    })
   })
 
   test.afterAll(async () => {
