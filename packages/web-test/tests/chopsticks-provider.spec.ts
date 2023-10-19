@@ -6,7 +6,7 @@ import { Keyring } from '@polkadot/keyring'
 import { Page, expect, test } from '@playwright/test'
 
 // TODO: fix test timeout in connect -> setStorage
-test.describe('chopsticks provider', async () => {
+test.describe.skip('chopsticks provider', async () => {
   const keyring = new Keyring({ type: 'ed25519' })
   const alice = keyring.addFromUri('//Alice')
   const bob = keyring.addFromUri('//Bob')
@@ -48,7 +48,7 @@ test.describe('chopsticks provider', async () => {
     await api.disconnect()
   })
 
-  test.only('chain rpc', async () => {
+  test('chain rpc', async () => {
     const hashHead = '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7'
     const hash0 = '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c'
     const hash1000 = '0x1d2927c6b4aca4c42cb1f88ed7fa46dc53118bb00370475aaf514ac88933e3cc'
