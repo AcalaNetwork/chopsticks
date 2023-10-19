@@ -6,12 +6,16 @@ import { defaultLogger, truncate } from './logger'
 
 const logger = defaultLogger.child({ name: 'ws' })
 
-const requestSchema = z.object({
+const singleRequest = z.object({
   id: z.number(),
   jsonrpc: z.literal('2.0'),
   method: z.string(),
   params: z.array(z.any()).default([]),
 })
+
+const batchRequest = z.array(singleRequest)
+
+const requestSchema = z.union([singleRequest, batchRequest])
 
 export type Handler = (
   data: { method: string; params: string[] },
@@ -95,6 +99,40 @@ export const createServer = async (handler: Handler, port?: number) => {
       },
     }
 
+    const processRequest = async (req: Zod.infer<typeof singleRequest>) => {
+      logger.trace(
+        {
+          id: req.id,
+          method: req.method,
+        },
+        'Received message',
+      )
+
+      try {
+        const resp = await handler(req, subscriptionManager)
+        logger.trace(
+          {
+            id: req.id,
+            method: req.method,
+            result: truncate(resp),
+          },
+          'Response for request',
+        )
+        return {
+          id: req.id,
+          jsonrpc: '2.0',
+          result: resp ?? null,
+        }
+      } catch (e) {
+        logger.info('Error handling request: %s %o', e, (e as Error).stack)
+        return {
+          id: req.id,
+          jsonrpc: '2.0',
+          error: e instanceof ResponseError ? e : { code: -32603, message: `Internal ${e}` },
+        }
+      }
+    }
+
     ws.on('close', () => {
       logger.debug('Connection closed')
       for (const [subid, onCancel] of Object.entries(subscriptions)) {
@@ -126,36 +164,14 @@ export const createServer = async (handler: Handler, port?: number) => {
       }
 
       const { data: req } = parsed
-      logger.trace(
-        {
-          id: req.id,
-          method: req.method,
-        },
-        'Received message',
-      )
-
-      try {
-        const resp = await handler(req, subscriptionManager)
-        logger.trace(
-          {
-            id: req.id,
-            method: req.method,
-            result: truncate(resp),
-          },
-          'Sending response for request',
-        )
-        send({
-          id: req.id,
-          jsonrpc: '2.0',
-          result: resp ?? null,
-        })
-      } catch (e) {
-        logger.info('Error handling request: %s %o', e, (e as Error).stack)
-        send({
-          id: req.id,
-          jsonrpc: '2.0',
-          error: e instanceof ResponseError ? e : { code: -32603, message: `Internal ${e}` },
-        })
+      if (Array.isArray(req)) {
+        logger.trace({ req }, 'Received batch request')
+        const resp = await Promise.all(req.map(processRequest))
+        send(resp)
+      } else {
+        logger.trace({ req }, 'Received single request')
+        const resp = await processRequest(req)
+        send(resp)
       }
     })
   })
