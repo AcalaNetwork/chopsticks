@@ -161,7 +161,7 @@ function App() {
 
 		await new Promise<void>((resolve) => {
 			globalThis.api.tx.balances.transfer(bob.address, 1000).signAndSend(alice, (status) => {
-				if (status.isInBlock) {
+				if (status.isInBlock || status.isFinalized) {
 					resolve()
 				}
 			})
