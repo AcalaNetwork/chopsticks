@@ -14,9 +14,9 @@ const logger = defaultLogger.child({ name: 'rpc-state' })
  *
  * @return runtime version
  */
-export const state_getRuntimeVersion: Handler<[HexString], RuntimeVersion | undefined> = async (context, [hash]) => {
+export const state_getRuntimeVersion: Handler<[HexString], RuntimeVersion | null> = async (context, [hash]) => {
   const block = await context.chain.getBlock(hash)
-  return block?.runtimeVersion
+  return block?.runtimeVersion || null
 }
 
 /**
@@ -25,9 +25,9 @@ export const state_getRuntimeVersion: Handler<[HexString], RuntimeVersion | unde
  *
  * @return metadata
  */
-export const state_getMetadata: Handler<[HexString], HexString | undefined> = async (context, [hash]) => {
+export const state_getMetadata: Handler<[HexString], HexString | null> = async (context, [hash]) => {
   const block = await context.chain.getBlock(hash)
-  return block?.metadata
+  return block?.metadata || null
 }
 
 /**
@@ -36,9 +36,10 @@ export const state_getMetadata: Handler<[HexString], HexString | undefined> = as
  *
  * @return storage value
  */
-export const state_getStorage: Handler<[HexString, HexString], string | undefined> = async (context, [key, hash]) => {
+export const state_getStorage: Handler<[HexString, HexString], string | null> = async (context, [key, hash]) => {
   const block = await context.chain.getBlock(hash)
-  return block?.get(key)
+  const value = (await block?.get(key)) || null
+  return value || null
 }
 
 /**
@@ -67,7 +68,7 @@ export const state_queryStorageAt: Handler<
   | [
       {
         block: HexString
-        changes: (string | undefined)[][]
+        changes: [string, string | null][]
       },
     ]
 > = async (context, [keys, hash]) => {
@@ -75,7 +76,9 @@ export const state_queryStorageAt: Handler<
   if (!block) {
     return []
   }
-  const values = await Promise.all((keys as string[]).map(async (key) => [key, await block.get(key)]))
+  const values = await Promise.all(
+    keys.map(async (key) => [key, await block.get(key).then((val) => val || null)] as [string, string | null]),
+  )
   return [
     {
       block: block.hash,
@@ -137,7 +140,7 @@ export const state_unsubscribeRuntimeVersion: Handler<[HexString], void> = async
  * @return subscription id
  */
 export const state_subscribeStorage: Handler<[string[]], string> = async (context, [keys], { subscribe }) => {
-  let update = (_block: Block, _pairs: [string, string][]) => {}
+  let update = (_block: Block, _pairs: [string, string | null][]) => {}
 
   const id = await context.chain.headState.subscribeStorage(keys, (block, pairs) => update(block, pairs))
   const callback = subscribe('state_storage', id, () => context.chain.headState.unsubscribeStorage(id))
@@ -150,10 +153,10 @@ export const state_subscribeStorage: Handler<[string[]], string> = async (contex
     })
   }
   ;(async () => {
-    const pairs = await Promise.all(
+    const pairs: [string, string | null][] = await Promise.all(
       (keys as string[]).map(async (key) => {
         const val = await context.chain.head.get(key)
-        return [key, val]
+        return [key, val || null]
       }),
     )
     callback({
@@ -180,7 +183,7 @@ export const state_unsubscribeStorage: Handler<[string], void> = async (_context
  *
  * @return storage valuse
  */
-export const childstate_getStorage: Handler<[HexString, HexString, HexString], string | undefined> = async (
+export const childstate_getStorage: Handler<[HexString, HexString, HexString], string | null> = async (
   context,
   [child, key, hash],
 ) => {
@@ -188,7 +191,8 @@ export const childstate_getStorage: Handler<[HexString, HexString, HexString], s
     throw new ResponseError(-32000, 'Client error: Invalid child storage key')
   }
   const block = await context.chain.getBlock(hash)
-  return block?.get(prefixedChildKey(child, key))
+  const value = await block?.get(prefixedChildKey(child, key))
+  return value || null
 }
 
 /**

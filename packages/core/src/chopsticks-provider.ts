@@ -7,16 +7,15 @@ import {
 } from '@polkadot/rpc-provider/types'
 
 import { Blockchain } from './blockchain'
-import { allHandlers } from './rpc'
+import { Context, Handlers, allHandlers } from './rpc'
 import { defaultLogger } from './logger'
 import { setup } from './setup'
 
-const providerHandlers = {
+const providerHandlers: Handlers = {
   ...allHandlers,
-  new_block: async (context: any, _params: any, _subscriptionManager: any) => {
-    const { chain } = context
-    const block = await chain.newBlock()
-    return block
+  dev_newBlock: async (context: Context, _params: any, _subscriptionManager: any) => {
+    const block = await context.chain.newBlock()
+    return block.hash
   },
 }
 
@@ -112,23 +111,21 @@ export class ChopsticksProvider implements ProviderInterface {
       return (data: any) => {
         logger.debug('subscribe-callback', method, subid, data)
         const sub = this.#subscriptions[subid]
-        if (!sub) {
+        if (sub) {
+          sub.callback(null, data)
+        } else {
           logger.trace(`Unable to find active subscription=${subid}`)
-          return
         }
-        sub.callback(null, data ? JSON.parse(JSON.stringify(data)) : data)
       }
     },
     unsubscribe: (subid: string) => {
-      if (this.#subscriptions[subid]) {
-        logger.debug('unsubscribe-callback', subid)
-        const sub = this.#subscriptions[subid]
-        if (!sub) {
-          logger.error(`Unable to find active subscription=${subid}`)
-          return
-        }
+      logger.debug('unsubscribe-callback', subid)
+      const sub = this.#subscriptions[subid]
+      if (sub) {
         sub.onCancel?.()
         delete this.#subscriptions[subid]
+      } else {
+        logger.trace(`Unable to find active subscription=${subid}`)
       }
     },
   }
@@ -147,25 +144,26 @@ export class ChopsticksProvider implements ProviderInterface {
         logger.error(`Unable to find rpc handler=${method}`)
         throw new Error(`Unable to find rpc handler=${method}`)
       }
-      const result = await rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
-      logger.debug('send-result', { method, params, result })
 
       if (subscription) {
-        // if it's a subscription, we usually returns the subid
-        const subid = result as string
-        if (subid) {
-          if (!this.#subscriptions[subid]) {
-            this.#subscriptions[subid] = {
-              callback: subscription.callback,
-              method,
-              params,
-              type: subscription.type,
-            }
-          }
+        logger.debug('subscribe', { method, params })
+        const subid = await rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
+        if (!subid) {
+          throw new Error(`Unable to subscribe=${method}`)
         }
-      }
 
-      return result ? JSON.parse(JSON.stringify(result)) : result
+        this.#subscriptions[subid] = {
+          callback: subscription.callback,
+          method,
+          params,
+          type: subscription.type,
+        }
+
+        return subid
+      } else {
+        logger.debug('call', { method, params })
+        return rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
+      }
     } catch (e) {
       logger.error('send error.', e)
       throw e
@@ -183,7 +181,7 @@ export class ChopsticksProvider implements ProviderInterface {
 
   async unsubscribe(_type: string, method: string, id: number | string): Promise<boolean> {
     if (!this.#subscriptions[id]) {
-      logger.error(`Unable to find active subscription=${id}`)
+      logger.trace(`Unable to find active subscription=${id}`)
       return false
     }
 
