@@ -515,6 +515,7 @@ export class Blockchain {
    */
   async close() {
     await releaseWorker()
+    await this.api.disconnect()
     await this.db?.destroy()
   }
 }

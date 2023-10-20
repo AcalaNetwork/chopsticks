@@ -29,6 +29,6 @@ const runTask = async (task, callback) => {
 	return pkg.run_task(task, callback, process.env.RUST_LOG)
 }
 
-export const wasmExecutor = { runTask, getRuntimeVersion, calculateStateRoot, createProof, decodeProof }
+const wasmExecutor = { runTask, getRuntimeVersion, calculateStateRoot, createProof, decodeProof }
 
 Comlink.expose(wasmExecutor, nodeEndpoint(parentPort))

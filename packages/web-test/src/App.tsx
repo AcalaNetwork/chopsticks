@@ -1,3 +1,4 @@
+import '@polkadot/api-augment'
 import {
 	Alert,
 	Box,
@@ -10,13 +11,18 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material'
+import { ApiPromise } from '@polkadot/api'
+import { Buffer } from 'buffer'
+import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
-import { setStorage, setup } from '@acala-network/chopsticks-core'
+import { createTestPairs } from '@polkadot/keyring'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
-import { Buffer } from 'buffer'
+
 window.Buffer = Buffer
+
+const { alice, bob } = createTestPairs()
 
 const DocsLink = styled('a')`
 	position: absolute;
@@ -86,6 +92,8 @@ function App() {
 		block: 4_000_000,
 	})
 	const [blocks, setBlocks] = useState<{ number: number; hash: HexString }[]>([])
+	const [bobBalance, setBobBalance] = useState('')
+	const [transferDisabled, setTransferDisabled] = useState(false)
 
 	const resetState = () => {
 		setBlocks([])
@@ -116,9 +124,16 @@ function App() {
 							},
 						},
 					],
+					[[alice.address], { providers: 1, data: { free: 1 * 1e12 } }],
+					[[bob.address], { providers: 1, data: { free: 1 * 1e12 } }],
 				],
 			},
 		})
+
+		const provider = new ChopsticksProvider(globalThis.chain)
+		const api = new ApiPromise({ provider })
+		await api.isReadyOrError
+		globalThis.api = api
 
 		setChainLoading(false)
 		setBlocks([{ number: chain.head.number, hash: chain.head.hash }])
@@ -129,7 +144,6 @@ function App() {
 		setupChain()
 
 		return () => {
-			globalThis.chain?.api.disconnect()
 			globalThis.chain?.close()
 		}
 	}, [])
@@ -140,6 +154,22 @@ function App() {
 		await chain.newBlock().catch(console.error)
 		setBlocks((blocks) => [...blocks, { number: chain.head.number, hash: chain.head.hash }])
 		setBuilding(false)
+	}
+
+	const testChopsticksProvider = async () => {
+		setTransferDisabled(true)
+
+		await new Promise<void>((resolve) => {
+			globalThis.api.tx.balances.transfer(bob.address, 1000).signAndSend(alice, (status) => {
+				if (status.isInBlock || status.isFinalized) {
+					resolve()
+				}
+			})
+		})
+
+		const bobAccount = await globalThis.api.query.system.account(bob.address)
+		setBobBalance(bobAccount.data.free.toString())
+		setTransferDisabled(false)
 	}
 
 	const handleDryRun = async () => {
@@ -267,6 +297,18 @@ function App() {
 				</Button>
 				{dryRunResult && <Pre sx={{ fontSize: 13 }}>{dryRunResult}</Pre>}
 				{dryRunLoading && <Pre>Loading dry run result...</Pre>}
+			</Section>
+			<Section id="chopsticks-provider">
+				<Button
+					variant="outlined"
+					onClick={testChopsticksProvider}
+					disabled={transferDisabled || chainLoading || !globalThis.chain}
+					sx={{ mt: 1, mb: 1 }}
+				>
+					Alice transfer 1000 to Bob
+				</Button>
+				{transferDisabled && <Pre>Transfering...</Pre>}
+				{bobBalance && <Pre>Bob balance: {bobBalance}</Pre>}
 			</Section>
 		</Container>
 	)

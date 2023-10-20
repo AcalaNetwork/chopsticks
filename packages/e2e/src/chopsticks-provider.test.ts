@@ -1,29 +1,44 @@
 import { ApiPromise } from '@polkadot/api'
-import { ChopsticksProvider } from '@acala-network/chopsticks-core'
+import { BuildBlockMode, ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { env, expectHex, expectJson, mockCallback, testingPairs } from './helper'
+import { env, expectHex, expectJson, testingPairs } from './helper'
+import networks from './networks'
 
-// TODO: to be enabled after impl worker thread for nodejs compatibility
-describe.skip('chopsticks provider works', () => {
-  let api: ApiPromise
+const { alice, bob } = testingPairs()
+
+describe('chopsticks provider works', async () => {
+  const { chain, teardown } = await networks.acala({ blockNumber: 3_800_000, endpoint: env.acala.endpoint })
+
+  const chopsticksProvider = new ChopsticksProvider(chain)
+  const api = await ApiPromise.create({
+    provider: chopsticksProvider,
+    signedExtensions: {
+      SetEvmOrigin: {
+        extrinsic: {},
+        payload: {},
+      },
+    },
+  })
 
   beforeAll(async () => {
-    const chopsticksProvider = new ChopsticksProvider({ endpoint: env.acala.endpoint, blockHash: env.acala.blockHash })
-    api = await ApiPromise.create({
-      provider: chopsticksProvider,
-      signedExtensions: {
-        SetEvmOrigin: {
-          extrinsic: {},
-          payload: {},
-        },
+    await api.isReady
+    await setStorage(chopsticksProvider.chain, {
+      System: {
+        Account: [
+          [[alice.address], { data: { free: 1 * 1e12 } }],
+          [[bob.address], { data: { free: 1 * 1e12 } }],
+        ],
+      },
+      Sudo: {
+        Key: alice.address,
       },
     })
-    await api.isReady
   })
 
   afterAll(async () => {
     await api.disconnect()
+    await teardown()
   })
 
   it('chain rpc', async () => {
@@ -68,29 +83,16 @@ describe.skip('chopsticks provider works', () => {
   })
 
   it('handles tx', async () => {
-    const { alice, bob } = testingPairs()
+    chain.txPool.mode = BuildBlockMode.Batch
 
-    // setStorage(chain, {
-    //   System: {
-    //     Account: [
-    //       [[alice.address], { data: { free: 10 * 1e12 } }],
-    //       [[bob.address], { data: { free: 10 * 1e12 } }],
-    //     ],
-    //   },
-    //   Sudo: {
-    //     Key: alice.address,
-    //   },
-    // })
-
-    const { callback, next } = mockCallback()
-
-    await api.tx.balances.transfer(bob.address, 100).signAndSend(alice, callback)
-    // await chain?.newBlock()
-
-    await next()
-
-    expect(callback.mock.calls).toMatchSnapshot()
-    callback.mockClear()
+    await new Promise<void>((resolve) => {
+      api.tx.balances.transfer(bob.address, 100).signAndSend(alice, (status) => {
+        if (status.isInBlock) {
+          resolve()
+        }
+      })
+    })
+    chain.txPool.mode = BuildBlockMode.Batch
 
     expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
     expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()

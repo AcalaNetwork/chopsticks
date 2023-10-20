@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Block } from './block'
 import { defaultLogger } from '../logger'
 
-type Callback = (block: Block, pairs: [string, string][]) => void | Promise<void>
+type Callback = (block: Block, pairs: [string, string | null][]) => void | Promise<void>
 
 export const randomId = () => Math.random().toString(36).substring(2)
 
@@ -13,7 +13,7 @@ const logger = defaultLogger.child({ name: 'head-state' })
 export class HeadState {
   #headListeners: Record<string, (block: Block) => void | Promise<void>> = {}
   #storageListeners: Record<string, [string[], Callback]> = {}
-  #oldValues: Record<string, string | undefined> = {}
+  #oldValues: Record<string, string | null> = {}
 
   #head: Block
 
@@ -36,7 +36,7 @@ export class HeadState {
     this.#storageListeners[id] = [keys, cb]
 
     for (const key of keys) {
-      this.#oldValues[key] = await this.#head.get(key)
+      this.#oldValues[key] = await this.#head.get(key).then((val) => val || null)
     }
 
     return id
@@ -50,7 +50,7 @@ export class HeadState {
     const id = randomId()
     const codeKey = stringToHex(':code')
     this.#storageListeners[id] = [[codeKey], cb]
-    this.#oldValues[codeKey] = await this.#head.get(codeKey)
+    this.#oldValues[codeKey] = await this.#head.get(codeKey).then((val) => val || null)
     return id
   }
 
@@ -72,7 +72,7 @@ export class HeadState {
     const diff = await this.#head.storageDiff()
 
     for (const [keys, cb] of Object.values(this.#storageListeners)) {
-      const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string])
+      const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string | null])
       if (changed.length > 0) {
         try {
           await cb(head, changed)
