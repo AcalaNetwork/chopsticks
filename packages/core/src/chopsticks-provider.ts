@@ -116,7 +116,7 @@ export class ChopsticksProvider implements ProviderInterface {
           logger.trace(`Unable to find active subscription=${subid}`)
           return
         }
-        sub.callback(null, data)
+        sub.callback(null, data ? JSON.parse(JSON.stringify(data)) : data)
       }
     },
     unsubscribe: (subid: string) => {
@@ -127,7 +127,7 @@ export class ChopsticksProvider implements ProviderInterface {
           logger.error(`Unable to find active subscription=${subid}`)
           return
         }
-        sub?.onCancel?.()
+        sub.onCancel?.()
         delete this.#subscriptions[subid]
       }
     },
@@ -165,7 +165,7 @@ export class ChopsticksProvider implements ProviderInterface {
         }
       }
 
-      return result
+      return result ? JSON.parse(JSON.stringify(result)) : result
     } catch (e) {
       logger.error('send error.', e)
       throw e

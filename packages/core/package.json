@@ -47,5 +47,9 @@
 			"default": "./lib/*.js"
 		},
 		"./package.json": "./package.json"
+	},
+	"browser": {
+		"./lib/wasm-executor/node-wasm-executor.mjs": "./lib/wasm-executor/browser-wasm-executor.mjs",
+		"./lib/wasm-executor/node-worker.js": "./lib/wasm-executor/browser-worker.js"
 	}
 }
