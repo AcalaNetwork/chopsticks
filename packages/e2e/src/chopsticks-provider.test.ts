@@ -8,8 +8,7 @@ import networks from './networks'
 const { alice, bob } = testingPairs()
 
 describe('chopsticks provider works', async () => {
-  const acala = await networks.acala({ blockNumber: 3_800_000, endpoint: env.acala.endpoint })
-  const { chain } = acala
+  const { chain, teardown } = await networks.acala({ blockNumber: 3_800_000, endpoint: env.acala.endpoint })
 
   const chopsticksProvider = new ChopsticksProvider(chain)
   const api = await ApiPromise.create({
@@ -39,6 +38,7 @@ describe('chopsticks provider works', async () => {
 
   afterAll(async () => {
     await api.disconnect()
+    await teardown()
   })
 
   it('chain rpc', async () => {
