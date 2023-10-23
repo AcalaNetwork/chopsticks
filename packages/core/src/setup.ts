@@ -8,7 +8,6 @@ import { Api } from './api'
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
 import { Database } from './database'
-import { Genesis } from './schema'
 import { GenesisProvider } from './genesis-provider'
 import {
   InherentProviders,
@@ -23,7 +22,7 @@ import { defaultLogger } from './logger'
 export type SetupOptions = {
   endpoint?: string
   block?: string | number | null
-  genesis?: string | Genesis
+  genesis?: GenesisProvider
   buildBlockMode?: BuildBlockMode
   db?: Database
   mockSignatureHost?: boolean
@@ -37,11 +36,7 @@ export type SetupOptions = {
 export const setup = async (options: SetupOptions) => {
   let provider: ProviderInterface
   if (options.genesis) {
-    if (typeof options.genesis === 'string') {
-      provider = await GenesisProvider.fromUrl(options.genesis)
-    } else {
-      provider = new GenesisProvider(options.genesis)
-    }
+    provider = options.genesis
   } else {
     provider = new WsProvider(options.endpoint)
   }

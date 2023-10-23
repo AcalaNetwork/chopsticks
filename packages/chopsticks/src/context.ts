@@ -1,17 +1,43 @@
 import './utils/tunnel'
-import { BlockEntry, defaultLogger, setup, timeTravel } from '@acala-network/chopsticks-core'
+import { BlockEntry, GenesisProvider, defaultLogger, isUrl, setup, timeTravel } from '@acala-network/chopsticks-core'
 import { Config } from './schema'
 import { HexString } from '@polkadot/util/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { overrideStorage, overrideWasm } from './utils/override'
+import axios from 'axios'
 
 const logger = defaultLogger.child({ name: 'setup-context' })
 
+export const genesisFromUrl = async (url: string) => {
+  const getFile = async (url: string) => {
+    if (isUrl(url)) {
+      return axios.get(url).then((x) => x.data)
+    } else if (typeof process === 'object') {
+      const { lstatSync, readFileSync } = await import('node:fs')
+      if (lstatSync(url).isFile()) {
+        return JSON.parse(String(readFileSync(url)))
+      }
+    }
+    throw Error(`invalid genesis path or url ${url}`)
+  }
+
+  return new GenesisProvider(await getFile(url))
+}
+
 export const setupContext = async (argv: Config, overrideParent = false) => {
+  let genesis: GenesisProvider | undefined
+  if (argv.genesis) {
+    if (typeof argv.genesis === 'string') {
+      genesis = await genesisFromUrl(argv.genesis)
+    } else {
+      genesis = new GenesisProvider(argv.genesis)
+    }
+  }
+
   const chain = await setup({
     endpoint: argv.endpoint,
     block: argv.block,
-    genesis: argv.genesis,
+    genesis,
     buildBlockMode: argv['build-block-mode'],
     db: argv.db ? new SqliteDatabase(argv.db) : undefined,
     mockSignatureHost: argv['mock-signature-host'],
