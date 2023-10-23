@@ -15,6 +15,7 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { expect } from 'vitest'
 
 export * from './check'
+export * from './signFake'
 
 export type SetupOption = {
   endpoint: string

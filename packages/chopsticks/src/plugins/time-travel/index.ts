@@ -10,7 +10,7 @@ import { Context, ResponseError, timeTravel } from '@acala-network/chopsticks-co
  *
  * @example
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * await ws.send('dev_timeTravel', ['Jan 1, 2023'])
  * ```

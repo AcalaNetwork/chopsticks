@@ -11,7 +11,7 @@ import { HexString } from '@polkadot/util/types'
  *
  * @example Set head to block 1000000
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * await ws.send('dev_setHead', [1000000])
  * ```

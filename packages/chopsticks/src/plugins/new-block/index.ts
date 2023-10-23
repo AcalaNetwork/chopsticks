@@ -43,13 +43,13 @@ export interface NewBlockParams {
  *
  * @example Build 2 blocks
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * await ws.send('dev_newBlock', [{ count: 2 }])
  * ```
  * @example Build a block with upward messages
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * await ws.send('dev_newBlock', [
  *  {
@@ -65,7 +65,7 @@ export interface NewBlockParams {
  *
  * @example Build two blocks with unsafeBlockHeight
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * // this will create two blocks with block height 100000001 and 100000002
  * await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight: 100000001 }])

@@ -1,5 +1,5 @@
 import { Api } from './api'
-import { WsProvider } from '@polkadot/api'
+import { WsProvider } from '@polkadot/rpc-provider'
 import { expect, test } from 'vitest'
 
 test('handle invalid block hash', async () => {

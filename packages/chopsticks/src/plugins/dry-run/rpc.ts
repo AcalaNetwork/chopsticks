@@ -95,7 +95,7 @@ export interface DryRunParams {
  *
  * @example Dry run an dmp
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * const params = [
     {

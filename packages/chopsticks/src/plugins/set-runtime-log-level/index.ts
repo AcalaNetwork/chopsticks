@@ -11,7 +11,7 @@ import { defaultLogger } from '../../logger'
  *
  * @example Set runtime log level to 1
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * await ws.send('dev_setRuntimeLogLevel', [1])
  * ```

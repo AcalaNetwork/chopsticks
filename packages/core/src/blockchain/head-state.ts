@@ -1,5 +1,4 @@
 import { stringToHex } from '@polkadot/util'
-import _ from 'lodash'
 
 import { Block } from './block'
 import { defaultLogger } from '../logger'

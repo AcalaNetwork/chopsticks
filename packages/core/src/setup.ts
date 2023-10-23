@@ -2,7 +2,7 @@ import '@polkadot/types-codec'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
-import { WsProvider } from '@polkadot/api'
+import { WsProvider } from '@polkadot/rpc-provider'
 
 import { Api } from './api'
 import { Blockchain } from './blockchain'

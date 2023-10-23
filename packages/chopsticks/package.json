@@ -20,7 +20,6 @@
 		"@acala-network/chopsticks-core": "workspace:*",
 		"@acala-network/chopsticks-db": "workspace:*",
 		"@pnpm/npm-conf": "^2.2.2",
-		"@polkadot/api": "^10.9.1",
 		"axios": "^1.5.1",
 		"dotenv": "^16.3.1",
 		"global-agent": "^3.0.0",
