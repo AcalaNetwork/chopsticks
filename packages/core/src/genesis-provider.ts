@@ -5,16 +5,16 @@ import {
   ProviderInterfaceCallback,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
-  ProviderStats,
 } from '@polkadot/rpc-provider/types'
 
 import { Genesis, genesisSchema } from './schema'
 import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor'
 
+/**
+ * Provider to start a chain from genesis
+ */
 export class GenesisProvider implements ProviderInterface {
   #isConnected = false
-
-  readonly stats?: ProviderStats
 
   #eventemitter: EventEmitter
   #isReadyPromise: Promise<void>
@@ -22,6 +22,13 @@ export class GenesisProvider implements ProviderInterface {
   #genesis: Genesis
   #stateRoot: Promise<HexString>
 
+  /**
+   * @ignore
+   * Create a genesis provider
+   *
+   * @param genesis - genesis file
+   * @requires genesis provider
+   */
   constructor(genesis: Genesis) {
     this.#genesis = genesisSchema.parse(genesis)
     this.#stateRoot = calculateStateRoot(
@@ -50,7 +57,7 @@ export class GenesisProvider implements ProviderInterface {
     return true
   }
 
-  clone = (): ProviderInterface => {
+  clone = (): GenesisProvider => {
     return new GenesisProvider(this.#genesis)
   }
 

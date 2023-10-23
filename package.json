@@ -55,7 +55,7 @@
 		"typescript": "^5.1.6",
 		"unplugin-swc": "^1.4.2",
 		"vite-tsconfig-paths": "^4.2.0",
-		"vitepress": "^1.0.0-rc.13",
+		"vitepress": "^1.0.0-rc.23",
 		"vitest": "^0.34.6",
 		"wasm-pack": "^0.12.1"
 	},
