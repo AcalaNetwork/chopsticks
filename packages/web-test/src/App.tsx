@@ -19,7 +19,7 @@ import { createTestPairs } from '@polkadot/keyring'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
-import { SqljsDatabase } from '@acala-network/chopsticks-db/browser'
+// import { SqljsDatabase } from '@acala-network/chopsticks-db/browser'
 
 window.Buffer = Buffer
 
