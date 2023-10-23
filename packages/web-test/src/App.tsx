@@ -109,7 +109,8 @@ function App() {
 			endpoint: config.endpoint,
 			block: config.block,
 			mockSignatureHost: true,
-			db: new SqljsDatabase('cache'),
+			// disable cache, this makes it slower
+			// db: new SqljsDatabase('cache'),
 		})
 		globalThis.chain = chain
 
