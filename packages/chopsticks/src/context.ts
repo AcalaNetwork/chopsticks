@@ -25,23 +25,23 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   // load block from db
   if (chain.db) {
     if (argv.resume) {
-      let BlockEntry: BlockEntry | null = null
+      let blockData: BlockEntry | null = null
 
       switch (typeof argv.resume) {
         case 'string':
-          BlockEntry = await chain.db.queryBlock(argv.resume as HexString)
+          blockData = await chain.db.queryBlock(argv.resume as HexString)
           break
         case 'number':
-          BlockEntry = await chain.db.queryBlockByNumber(argv.resume)
+          blockData = await chain.db.queryBlockByNumber(argv.resume)
           break
         default:
-          BlockEntry = await chain.db.queryHighestBlock()
+          blockData = await chain.db.queryHighestBlock()
           break
       }
-      if (BlockEntry) {
-        const block = await chain.loadBlockFromDB(BlockEntry.number)
+      if (blockData) {
+        const block = await chain.loadBlockFromDB(blockData.number)
         block && (await chain.setHead(block))
-        logger.info(`Resume from block ${BlockEntry.number}, hash: ${BlockEntry.hash}`)
+        logger.info(`Resume from block ${blockData.number}, hash: ${blockData.hash}`)
       } else {
         throw new Error(`Resume failed. Cannot find block ${argv.resume}`)
       }
