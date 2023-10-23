@@ -6,7 +6,6 @@ import { beforeAll, beforeEach, expect, vi } from 'vitest'
 import { Api } from '@acala-network/chopsticks'
 import { Blockchain } from '@acala-network/chopsticks-core/blockchain'
 import { BuildBlockMode } from '@acala-network/chopsticks-core/blockchain/txpool'
-import { GenesisProvider } from '@acala-network/chopsticks-core/genesis-provider'
 import {
   InherentProviders,
   ParaInherentEnter,
@@ -18,6 +17,7 @@ import {
 import { StorageValues } from '@acala-network/chopsticks-core/utils/set-storage'
 import { createServer } from '@acala-network/chopsticks/server'
 import { defer } from '@acala-network/chopsticks-core/utils'
+import { genesisFromUrl } from '@acala-network/chopsticks/context'
 import { handler } from '@acala-network/chopsticks/rpc'
 
 export { expectJson, expectHex, testingPairs } from '@acala-network/chopsticks-testing'
@@ -53,7 +53,7 @@ export const setupAll = async ({
   allowUnresolvedImports,
   genesis,
 }: SetupOption) => {
-  const api = new Api(genesis ? await GenesisProvider.fromUrl(genesis) : new WsProvider(endpoint), {
+  const api = new Api(genesis ? await genesisFromUrl(genesis) : new WsProvider(endpoint), {
     SetEvmOrigin: { payload: {}, extrinsic: {} },
   })
 

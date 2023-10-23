@@ -7,11 +7,9 @@ import {
   ProviderInterfaceEmitted,
   ProviderStats,
 } from '@polkadot/rpc-provider/types'
-import axios from 'axios'
 
 import { Genesis, genesisSchema } from './schema'
 import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor'
-import { isUrl } from './utils'
 
 export class GenesisProvider implements ProviderInterface {
   #isConnected = false
@@ -25,7 +23,7 @@ export class GenesisProvider implements ProviderInterface {
   #stateRoot: Promise<HexString>
 
   constructor(genesis: Genesis) {
-    this.#genesis = genesis
+    this.#genesis = genesisSchema.parse(genesis)
     this.#stateRoot = calculateStateRoot(
       Object.entries(this.#genesis.genesis.raw.top).reduce(
         (accu, item) => {
@@ -44,23 +42,8 @@ export class GenesisProvider implements ProviderInterface {
         resolve()
       })
       this.#eventemitter.once('error', reject)
+      this.connect()
     })
-  }
-
-  static fromUrl = async (url: string) => {
-    const getFile = async (url: string) => {
-      if (isUrl(url)) {
-        return axios.get(url).then((x) => x.data)
-      } else if (typeof process === 'object') {
-        const { lstatSync, readFileSync } = await import('node:fs')
-        if (lstatSync(url).isFile()) {
-          return JSON.parse(String(readFileSync(url)))
-        }
-      }
-      throw Error(`invalid genesis path or url ${url}`)
-    }
-
-    return new GenesisProvider(genesisSchema.parse(await getFile(url)))
   }
 
   get isClonable(): boolean {
@@ -80,7 +63,6 @@ export class GenesisProvider implements ProviderInterface {
   }
 
   get isReady(): Promise<void> {
-    this.connect()
     return this.#isReadyPromise
   }
 

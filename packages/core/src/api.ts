@@ -34,16 +34,7 @@ type SignedBlock = {
  * @example Instantiate an API
  *
  * ```ts
- * let provider: ProviderInterface
- * if (options.genesis) {
- *  if (typeof options.genesis === 'string') {
- *    provider = await GenesisProvider.fromUrl(options.genesis)
- *  } else {
- *    provider = new GenesisProvider(options.genesis)
- *  }
- * } else {
- *  provider = new WsProvider(options.endpoint)
- * }
+ * const provider = new WsProvider(options.endpoint)
  * const api = new Api(provider)
  * await api.isReady
  * ```
