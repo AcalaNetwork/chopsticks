@@ -20,20 +20,29 @@ __metadata:
     "@polkadot/api": ^10.9.1
     "@polkadot/util-crypto": ^12.3.2
     "@types/lodash": ^4.14.199
-    "@types/sql.js": ^1.4.4
     axios: ^1.5.1
     comlink: ^4.4.1
     eventemitter3: ^5.0.1
-    fflate: ^0.8.0
-    localforage: ^1.10.0
     lodash: ^4.17.21
     pino: ^8.15.0
     pino-pretty: ^10.2.0
+    typescript: ^5.1.6
+    zod: ^3.22.3
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks-db@workspace:*, @acala-network/chopsticks-db@workspace:packages/db":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks-db@workspace:packages/db"
+  dependencies:
+    "@acala-network/chopsticks-core": "workspace:*"
+    "@types/sql.js": ^1.4.4
+    fflate: ^0.8.0
+    localforage: ^1.10.0
     sql.js: ^1.8.0
     sqlite3: ^5.1.6
     typeorm: ^0.3.17
     typescript: ^5.1.6
-    zod: ^3.22.3
   languageName: unknown
   linkType: soft
 
@@ -76,6 +85,7 @@ __metadata:
   resolution: "@acala-network/chopsticks@workspace:packages/chopsticks"
   dependencies:
     "@acala-network/chopsticks-core": "workspace:*"
+    "@acala-network/chopsticks-db": "workspace:*"
     "@pnpm/npm-conf": ^2.2.2
     "@polkadot/api": ^10.9.1
     "@types/global-agent": ^2.1.1
@@ -106,6 +116,7 @@ __metadata:
   resolution: "@acala-network/web-test@workspace:packages/web-test"
   dependencies:
     "@acala-network/chopsticks-core": "workspace:*"
+    "@acala-network/chopsticks-db": "workspace:*"
     "@emotion/react": ^11.11.1
     "@emotion/styled": ^11.11.0
     "@mui/material": ^5.14.11
@@ -544,8 +555,8 @@ __metadata:
   linkType: hard
 
 "@babel/traverse@npm:^7.23.0":
-  version: 7.23.0
-  resolution: "@babel/traverse@npm:7.23.0"
+  version: 7.23.2
+  resolution: "@babel/traverse@npm:7.23.2"
   dependencies:
     "@babel/code-frame": ^7.22.13
     "@babel/generator": ^7.23.0
@@ -557,7 +568,7 @@ __metadata:
     "@babel/types": ^7.23.0
     debug: ^4.1.0
     globals: ^11.1.0
-  checksum: 0b17fae53269e1af2cd3edba00892bc2975ad5df9eea7b84815dab07dfec2928c451066d51bc65b4be61d8499e77db7e547ce69ef2a7b0eca3f96269cb43a0b0
+  checksum: 26a1eea0dde41ab99dde8b9773a013a0dc50324e5110a049f5d634e721ff08afffd54940b3974a20308d7952085ac769689369e9127dea655f868c0f6e1ab35d
   languageName: node
   linkType: hard
 

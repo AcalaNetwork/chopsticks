@@ -5,5 +5,5 @@
 		"rootDir": "src"
 	},
 	"include": ["src/**/*"],
-	"references": [{ "path": "../core" }, { "path": "../chopsticks" }, { "path": "../testing" }]
+	"references": [{ "path": "../core" }, { "path": "../db" }, { "path": "../chopsticks" }, { "path": "../testing" }]
 }

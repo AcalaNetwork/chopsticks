@@ -46,8 +46,8 @@ jobs:
     - run: |
         echo npmAuthToken: "\${NPM_AUTH_TOKEN}" >> ./.yarnrc.yml
 
-    - name: Publish @acala-network/chopsticks
-      run: yarn workspace @acala-network/chopsticks npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
+    - name: Publish @acala-network/chopsticks-executor
+      run: yarn workspace @acala-network/chopsticks-executor npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
@@ -56,8 +56,13 @@ jobs:
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
-    - name: Publish @acala-network/chopsticks-executor
-      run: yarn workspace @acala-network/chopsticks-executor npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
+    - name: Publish @acala-network/chopsticks-db
+      run: yarn workspace @acala-network/chopsticks-db npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+    - name: Publish @acala-network/chopsticks
+      run: yarn workspace @acala-network/chopsticks npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 

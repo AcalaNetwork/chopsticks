@@ -5,8 +5,7 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"pack-wasm": "scripts/pack-wasm.cjs",
-		"build": "yarn pack-wasm; tsc -p ./tsconfig.json; yarn copyfiles",
+		"build": "tsc -p ./tsconfig.json; yarn copyfiles",
 		"copyfiles": "cp -r src/wasm-executor/*.mjs lib/wasm-executor/",
 		"docs:prep": "typedoc"
 	},
@@ -17,19 +16,13 @@
 		"axios": "^1.5.1",
 		"comlink": "^4.4.1",
 		"eventemitter3": "^5.0.1",
-		"localforage": "^1.10.0",
 		"lodash": "^4.17.21",
 		"pino": "^8.15.0",
 		"pino-pretty": "^10.2.0",
-		"sql.js": "^1.8.0",
-		"sqlite3": "^5.1.6",
-		"typeorm": "^0.3.17",
 		"zod": "^3.22.3"
 	},
 	"devDependencies": {
 		"@types/lodash": "^4.14.199",
-		"@types/sql.js": "^1.4.4",
-		"fflate": "^0.8.0",
 		"typescript": "^5.1.6"
 	},
 	"files": [

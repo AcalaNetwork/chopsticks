@@ -1,5 +1,4 @@
 import '@polkadot/types-codec'
-import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
@@ -8,6 +7,7 @@ import { WsProvider } from '@polkadot/api'
 import { Api } from './api'
 import { Blockchain } from './blockchain'
 import { BuildBlockMode } from './blockchain/txpool'
+import { Database } from './database'
 import { Genesis } from './schema'
 import { GenesisProvider } from './genesis-provider'
 import {
@@ -19,14 +19,13 @@ import {
   SetValidationData,
 } from './blockchain/inherent'
 import { defaultLogger } from './logger'
-import { openDb } from './db'
 
 export type SetupOptions = {
   endpoint?: string
   block?: string | number | null
   genesis?: string | Genesis
   buildBlockMode?: BuildBlockMode
-  db?: string
+  db?: Database
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
   runtimeLogLevel?: number
@@ -73,11 +72,6 @@ export const setup = async (options: SetupOptions) => {
 
   defaultLogger.debug({ ...options, blockHash }, 'Args')
 
-  let db: DataSource | undefined
-  if (options.db) {
-    db = await openDb(options.db)
-  }
-
   const header = await api.getHeader(blockHash)
   if (!header) {
     throw new Error(`Cannot find header for ${blockHash}`)
@@ -94,7 +88,7 @@ export const setup = async (options: SetupOptions) => {
     api,
     buildBlockMode: options.buildBlockMode,
     inherentProvider: inherents,
-    db,
+    db: options.db,
     header: {
       hash: blockHash as HexString,
       number: Number(header.number),
