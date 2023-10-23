@@ -111,7 +111,7 @@ export class Blockchain {
     runtimeLogLevel = 0,
     registeredTypes = {},
     offchainWorker = false,
-    maxMemoryBlockCount = 2000,
+    maxMemoryBlockCount = 500,
   }: Options) {
     this.api = api
     this.db = db
