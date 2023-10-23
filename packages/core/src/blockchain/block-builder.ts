@@ -287,7 +287,7 @@ export const buildBlock = async (
     callbacks?.onPhaseApplied?.('finalize', resp)
   }
 
-  const blockData = registry.createType('Block', {
+  const BlockEntry = registry.createType('Block', {
     header,
     extrinsics: includedExtrinsic,
   })
@@ -301,7 +301,7 @@ export const buildBlock = async (
     )
   }
 
-  const finalBlock = new Block(head.chain, newBlock.number, blockData.hash.toHex(), head, {
+  const finalBlock = new Block(head.chain, newBlock.number, BlockEntry.hash.toHex(), head, {
     header,
     extrinsics: [...inherents, ...includedExtrinsic],
     storage: head.storage,

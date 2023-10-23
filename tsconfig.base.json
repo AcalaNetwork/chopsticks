@@ -20,6 +20,8 @@
 			"@acala-network/chopsticks/*": ["packages/chopsticks/src/*"],
 			"@acala-network/chopsticks-core": ["packages/core/src"],
 			"@acala-network/chopsticks-core/*": ["packages/core/src/*"],
+			"@acala-network/chopsticks-db": ["packages/db/src"],
+			"@acala-network/chopsticks-db/*": ["packages/db/src/*"],
 			"@acala-network/chopsticks-testing": ["packages/testing/src"],
 			"@acala-network/chopsticks-testing/*": ["packages/testing/src/*"],
 			"@acala-network/web-test": ["packages/web/src"],

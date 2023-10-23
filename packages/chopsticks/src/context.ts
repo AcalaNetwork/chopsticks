@@ -1,8 +1,8 @@
 import './utils/tunnel'
-import { BlockEntity } from '@acala-network/chopsticks-core/db/entities'
+import { BlockEntry, defaultLogger, setup, timeTravel } from '@acala-network/chopsticks-core'
 import { Config } from './schema'
 import { HexString } from '@polkadot/util/types'
-import { defaultLogger, setup, timeTravel } from '@acala-network/chopsticks-core'
+import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { overrideStorage, overrideWasm } from './utils/override'
 
 const logger = defaultLogger.child({ name: 'setup-context' })
@@ -13,7 +13,7 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     block: argv.block,
     genesis: argv.genesis,
     buildBlockMode: argv['build-block-mode'],
-    db: argv.db,
+    db: argv.db ? new SqliteDatabase(argv.db) : undefined,
     mockSignatureHost: argv['mock-signature-host'],
     allowUnresolvedImports: argv['allow-unresolved-imports'],
     runtimeLogLevel: argv['runtime-log-level'],
@@ -25,22 +25,23 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   // load block from db
   if (chain.db) {
     if (argv.resume) {
-      const where: Record<string, string | number> = {}
+      let BlockEntry: BlockEntry | null = null
+
       switch (typeof argv.resume) {
         case 'string':
-          where.hash = argv.resume
+          BlockEntry = await chain.db.queryBlock(argv.resume as HexString)
           break
         case 'number':
-          where.number = argv.resume
+          BlockEntry = await chain.db.queryBlockByNumber(argv.resume)
           break
         default:
+          BlockEntry = await chain.db.queryHighestBlock()
           break
       }
-      const blockData = await chain.db.getRepository(BlockEntity).findOne({ where, order: { number: 'desc' } })
-      if (blockData) {
-        const block = await chain.loadBlockFromDB(blockData?.number)
+      if (BlockEntry) {
+        const block = await chain.loadBlockFromDB(BlockEntry.number)
         block && (await chain.setHead(block))
-        logger.info(`Resume from block ${blockData.number}, hash: ${blockData.hash}`)
+        logger.info(`Resume from block ${BlockEntry.number}, hash: ${BlockEntry.hash}`)
       } else {
         throw new Error(`Resume failed. Cannot find block ${argv.resume}`)
       }

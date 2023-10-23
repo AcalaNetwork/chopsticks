@@ -1,11 +1,7 @@
+import { BlockEntry, KeyValueEntry } from '@acala-network/chopsticks-core/src/database'
 import { EntitySchema } from 'typeorm'
-import { HexString } from '@polkadot/util/types'
 
-export const KeyValuePair = new EntitySchema<{
-  blockHash: string
-  key: string
-  value: string | null
-}>({
+export const KeyValuePair = new EntitySchema<KeyValueEntry>({
   name: 'KeyValuePair',
   columns: {
     blockHash: {
@@ -25,14 +21,7 @@ export const KeyValuePair = new EntitySchema<{
   },
 })
 
-export const BlockEntity = new EntitySchema<{
-  hash: HexString
-  number: number
-  header: object
-  parentHash: HexString | null
-  extrinsics: HexString[]
-  storageDiff: Record<HexString, HexString | null> | null
-}>({
+export const BlockEntity = new EntitySchema<BlockEntry>({
   name: 'Block',
   columns: {
     hash: {
@@ -45,7 +34,7 @@ export const BlockEntity = new EntitySchema<{
       nullable: false,
     },
     header: {
-      type: 'simple-json',
+      type: 'text',
       nullable: false,
     },
     parentHash: {

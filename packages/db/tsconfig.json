@@ -1,0 +1,20 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"outDir": "lib",
+		"rootDir": "src",
+		"target": "es2016",
+		"lib": ["es6", "dom", "dom.iterable"],
+		"isolatedModules": true
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/**/*.test.ts"],
+	"references": [{ "path": "../core" }],
+	"typedocOptions": {
+		"entryPoints": ["src/index.ts"],
+		"out": "../../docs-src/core",
+		"plugin": "typedoc-plugin-markdown",
+		"readme": "none",
+		"excludePrivate": true
+	}
+}

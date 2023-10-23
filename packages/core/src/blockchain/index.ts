@@ -1,5 +1,4 @@
 import { ApplyExtrinsicResult, Header } from '@polkadot/types/interfaces'
-import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
 import { RegisteredTypes } from '@polkadot/types/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
@@ -8,8 +7,8 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api'
 import { Block } from './block'
-import { BlockEntity } from '../db/entities'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool'
+import { Database } from '../database'
 import { HeadState } from './head-state'
 import { InherentProvider } from './inherent'
 import { OffchainWorker } from '../offchain'
@@ -29,7 +28,7 @@ export interface Options {
   /** Inherent provider, for creating inherents. */
   inherentProvider: InherentProvider
   /** Datasource for caching storage and blocks data. */
-  db?: DataSource
+  db?: Database
   /** Used to create the initial head. */
   header: { number: number; hash: HexString }
   /** Whether to enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */
@@ -74,7 +73,7 @@ export class Blockchain {
   /** API instance, for getting on-chain data. */
   readonly api: Api
   /** Datasource for caching storage and blocks data. */
-  readonly db: DataSource | undefined
+  readonly db: Database | undefined
   /** Enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */
   readonly mockSignatureHost: boolean
   /** Allow wasm unresolved imports. */
@@ -166,19 +165,13 @@ export class Blockchain {
     if (this.db) {
       const { hash, number, header, extrinsics } = block
       // delete old ones with the same block number if any, keep the latest one
-      await this.db.transaction(async (transactionalEntityManager) => {
-        await transactionalEntityManager.getRepository(BlockEntity).delete({ number })
-        await transactionalEntityManager.getRepository(BlockEntity).upsert(
-          {
-            hash,
-            number,
-            header: await header,
-            extrinsics: await extrinsics,
-            parentHash: (await block.parentBlock)?.hash,
-            storageDiff: await block.storageDiff(),
-          },
-          ['hash'],
-        )
+      await this.db.saveBlock({
+        hash,
+        number,
+        header: (await header).toHex(),
+        extrinsics: await extrinsics,
+        parentHash: (await block.parentBlock)?.hash || null,
+        storageDiff: await block.storageDiff(),
       })
     }
   }
@@ -187,19 +180,20 @@ export class Blockchain {
    * Try to load block from db and register it.
    * If pass in number, get block by number, else get block by hash.
    */
-  async loadBlockFromDB(key: number | HexString): Promise<Block | undefined> {
+  async loadBlockFromDB(hashOrNumber: number | HexString): Promise<Block | undefined> {
     if (this.db) {
-      const blockData = await this.db
-        .getRepository(BlockEntity)
-        .findOne({ where: { [typeof key === 'number' ? 'number' : 'hash']: key } })
-      if (blockData) {
-        const { hash, number, header, extrinsics } = blockData
-        const parentHash = blockData.parentHash || undefined
+      const BlockEntry =
+        typeof hashOrNumber === 'number'
+          ? await this.db.queryBlockByNumber(hashOrNumber)
+          : await this.db.queryBlock(hashOrNumber)
+      if (BlockEntry) {
+        const { hash, number, header, extrinsics } = BlockEntry
+        const parentHash = BlockEntry.parentHash || undefined
         let parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
         if (!parentBlock) {
           parentBlock = await this.getBlock(parentHash)
         }
-        const storageDiff = blockData.storageDiff ?? undefined
+        const storageDiff = BlockEntry.storageDiff ?? undefined
         const registry = await this.head.registry
         const block = new Block(this, number, hash, parentBlock, {
           header: registry.createType<Header>('Header', header),
@@ -295,7 +289,7 @@ export class Blockchain {
     delete this.#blocksByHash[block.hash]
     // delete from db
     if (this.db) {
-      await this.db.getRepository(BlockEntity).delete({ hash: block.hash })
+      await this.db.deleteBlock(block.hash)
     }
   }
 
@@ -516,6 +510,6 @@ export class Blockchain {
   async close() {
     await releaseWorker()
     await this.api.disconnect()
-    await this.db?.destroy()
+    await this.db?.close()
   }
 }

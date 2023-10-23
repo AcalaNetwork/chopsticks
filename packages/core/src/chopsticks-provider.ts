@@ -8,6 +8,7 @@ import {
 
 import { Blockchain } from './blockchain'
 import { Context, Handlers, allHandlers } from './rpc'
+import { Database } from './database'
 import { defaultLogger } from './logger'
 import { setup } from './setup'
 
@@ -52,13 +53,13 @@ export class ChopsticksProvider implements ProviderInterface {
     })
   }
 
-  static fromEndpoint = async (endpoint: string, block?: number | string | null, cache?: string) => {
+  static fromEndpoint = async (endpoint: string, block?: number | string | null, db?: Database) => {
     return new ChopsticksProvider(
       await setup({
         endpoint,
         mockSignatureHost: true,
         block,
-        db: cache,
+        db,
       }),
     )
   }

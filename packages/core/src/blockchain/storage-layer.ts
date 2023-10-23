@@ -1,8 +1,8 @@
-import { DataSource } from 'typeorm'
+import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
 import { Api } from '../api'
-import { KeyValuePair } from '../db/entities'
+import { Database } from '../database'
 import { defaultLogger } from '../logger'
 import KeyCache, { PREFIX_LENGTH } from '../utils/key-cache'
 
@@ -39,26 +39,25 @@ export interface StorageLayerProvider {
 export class RemoteStorageLayer implements StorageLayerProvider {
   readonly #api: Api
   readonly #at: string
-  readonly #db: DataSource | undefined
+  readonly #db: Database | undefined
   readonly #keyCache = new KeyCache()
 
-  constructor(api: Api, at: string, db: DataSource | undefined) {
+  constructor(api: Api, at: string, db: Database | undefined) {
     this.#api = api
     this.#at = at
     this.#db = db
   }
 
   async get(key: string, _cache: boolean): Promise<StorageValue> {
-    const keyValuePair = this.#db?.getRepository(KeyValuePair)
     if (this.#db) {
-      const res = await keyValuePair?.findOne({ where: { key, blockHash: this.#at } })
+      const res = await this.#db.queryStorage(this.#at as HexString, key as HexString)
       if (res) {
         return res.value ?? undefined
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
     const data = await this.#api.getStorage(key, this.#at)
-    keyValuePair?.upsert({ key, blockHash: this.#at, value: data }, ['key', 'blockHash'])
+    await this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
     return data ?? undefined
   }
 

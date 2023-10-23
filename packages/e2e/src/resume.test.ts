@@ -20,24 +20,26 @@ describe('resume', async () => {
   }
 
   it('save blocks data', async () => {
-    const acala = await networks.acala({ db: resolve(tmpdir(), 'db.sqlite') })
-    const { chain, dev } = acala
+    const { chain, dev, teardown } = await networks.acala({ db: resolve(tmpdir(), 'db.sqlite') })
+    if (!chain.db) {
+      throw new Error('chain.db should be defined')
+    }
     await dev.newBlock({ count: 2 })
 
-    const numberOfBlocks = await chain.db!.getRepository('Block').count()
+    const numberOfBlocks = await chain.db.blocksCount()
     expect(numberOfBlocks).toEqual(2)
 
     const block = await chain.getBlockAt(chain.head.number)
-    const blockData = await chain.db!.getRepository('Block').findOne({ where: { number: chain.head.number } })
+    const BlockEntry = await chain.db.queryBlockByNumber(chain.head.number)
 
-    assert(block && blockData, 'block and blockData should be defined')
-    expect(blockData.hash).toEqual(block.hash)
-    expect(JSON.stringify(blockData.header)).toEqual(JSON.stringify(block.header))
-    expect(blockData.parentHash).toEqual((await block.parentBlock)!.hash)
-    expect(JSON.stringify(blockData.extrinsics)).toEqual(JSON.stringify(await block.extrinsics))
-    expect(JSON.stringify(blockData.storageDiff)).toEqual(JSON.stringify(await block.storageDiff()))
+    assert(block && BlockEntry, 'block and BlockEntry should be defined')
+    expect(BlockEntry.hash).toEqual(block.hash)
+    expect(BlockEntry.header).toEqual((await block.header).toHex())
+    expect(BlockEntry.parentHash).toEqual((await block.parentBlock)!.hash)
+    expect(JSON.stringify(BlockEntry.extrinsics)).toEqual(JSON.stringify(await block.extrinsics))
+    expect(JSON.stringify(BlockEntry.storageDiff)).toEqual(JSON.stringify(await block.storageDiff()))
 
-    await acala.teardown()
+    await teardown()
   })
 
   it('resume with the latest saved block', async () => {
