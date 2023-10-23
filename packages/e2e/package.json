@@ -9,12 +9,10 @@
 	"engines": {
 		"node": ">=v14"
 	},
-	"dependencies": {
+	"devDependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-testing": "workspace:*",
-		"@polkadot/api": "^10.9.1"
-	},
-	"devDependencies": {
+		"@polkadot/api": "^10.10.1",
 		"typescript": "^5.1.6",
 		"vitest": "^0.34.6"
 	}

@@ -11,7 +11,7 @@ import { defaultLogger } from '../../logger'
  *
  * @example Set build block mode to instant
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * import { BuildBlockMode } from '@acala-network/chopsticks-core'
  * const ws = new WsProvider(`ws://localhost:8000`)
  * await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])

@@ -13,7 +13,7 @@ import { defaultLogger } from '../../logger'
  *
  * @example
  * ```ts
- * import { WsProvider } from '@polkadot/api'
+ * import { WsProvider } from '@polkadot/rpc-provider'
  * import { Keyring } from '@polkadot/keyring'
  *
  * const ws = new WsProvider(`ws://localhost:8000`)
