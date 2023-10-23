@@ -57,7 +57,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
     const data = await this.#api.getStorage(key, this.#at)
-    await this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
+    this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
     return data ?? undefined
   }
 

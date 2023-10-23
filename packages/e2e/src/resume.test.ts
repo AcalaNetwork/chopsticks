@@ -30,14 +30,14 @@ describe('resume', async () => {
     expect(numberOfBlocks).toEqual(2)
 
     const block = await chain.getBlockAt(chain.head.number)
-    const BlockEntry = await chain.db.queryBlockByNumber(chain.head.number)
+    const blockData = await chain.db.queryBlockByNumber(chain.head.number)
 
-    assert(block && BlockEntry, 'block and BlockEntry should be defined')
-    expect(BlockEntry.hash).toEqual(block.hash)
-    expect(BlockEntry.header).toEqual((await block.header).toHex())
-    expect(BlockEntry.parentHash).toEqual((await block.parentBlock)!.hash)
-    expect(JSON.stringify(BlockEntry.extrinsics)).toEqual(JSON.stringify(await block.extrinsics))
-    expect(JSON.stringify(BlockEntry.storageDiff)).toEqual(JSON.stringify(await block.storageDiff()))
+    assert(block && blockData, 'block and blockData should be defined')
+    expect(blockData.hash).toEqual(block.hash)
+    expect(blockData.header).toEqual((await block.header).toHex())
+    expect(blockData.parentHash).toEqual((await block.parentBlock)!.hash)
+    expect(JSON.stringify(blockData.extrinsics)).toEqual(JSON.stringify(await block.extrinsics))
+    expect(JSON.stringify(blockData.storageDiff)).toEqual(JSON.stringify(await block.storageDiff()))
 
     await teardown()
   })

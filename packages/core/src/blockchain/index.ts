@@ -182,18 +182,18 @@ export class Blockchain {
    */
   async loadBlockFromDB(hashOrNumber: number | HexString): Promise<Block | undefined> {
     if (this.db) {
-      const BlockEntry =
+      const blockData =
         typeof hashOrNumber === 'number'
           ? await this.db.queryBlockByNumber(hashOrNumber)
           : await this.db.queryBlock(hashOrNumber)
-      if (BlockEntry) {
-        const { hash, number, header, extrinsics } = BlockEntry
-        const parentHash = BlockEntry.parentHash || undefined
+      if (blockData) {
+        const { hash, number, header, extrinsics } = blockData
+        const parentHash = blockData.parentHash || undefined
         let parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
         if (!parentBlock) {
           parentBlock = await this.getBlock(parentHash)
         }
-        const storageDiff = BlockEntry.storageDiff ?? undefined
+        const storageDiff = blockData.storageDiff ?? undefined
         const registry = await this.head.registry
         const block = new Block(this, number, hash, parentBlock, {
           header: registry.createType<Header>('Header', header),
