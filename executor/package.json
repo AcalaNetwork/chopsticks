@@ -12,10 +12,10 @@
 		"build": "wasm-pack build --target web --out-dir browser; wasm-pack build --target nodejs --out-dir node; scripts/pack-wasm.cjs"
 	},
 	"dependencies": {
+		"@polkadot/util": "^12.5.1",
 		"@polkadot/wasm-util": "^7.2.2"
 	},
 	"devDependencies": {
-		"@polkadot/util": "^12.4.1",
 		"fflate": "^0.8.0"
 	},
 	"files": [
