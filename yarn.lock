@@ -36,6 +36,8 @@ __metadata:
   resolution: "@acala-network/chopsticks-db@workspace:packages/db"
   dependencies:
     "@acala-network/chopsticks-core": "workspace:*"
+    "@polkadot/util": ^12.5.1
+    "@polkadot/wasm-util": ^7.2.2
     "@types/sql.js": ^1.4.4
     fflate: ^0.8.0
     localforage: ^1.10.0
