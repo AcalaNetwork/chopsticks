@@ -15,6 +15,8 @@
 		"resolveJsonModule": true,
 		"baseUrl": ".",
 		"composite": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
 		"paths": {
 			"@acala-network/chopsticks": ["packages/chopsticks/src"],
 			"@acala-network/chopsticks/*": ["packages/chopsticks/src/*"],
