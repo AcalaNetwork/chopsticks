@@ -41,7 +41,7 @@ export class Block {
   #chain: Blockchain
 
   #header?: Header | Promise<Header>
-  #parentBlock?: Block | Promise<Block | undefined>
+  #parentBlock?: WeakRef<Block> | Promise<Block | undefined>
   #extrinsics?: HexString[] | Promise<HexString[]>
 
   #wasm?: Promise<HexString>
@@ -70,21 +70,27 @@ export class Block {
     },
   ) {
     this.#chain = chain
-    this.#parentBlock = parentBlock
+    this.#parentBlock = parentBlock ? new WeakRef(parentBlock) : undefined
     this.#header = block?.header
     this.#extrinsics = block?.extrinsics
     this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db)
     this.#storages = []
 
+    this.#runtimeVersion = parentBlock?.runtimeVersion
+    this.#metadata = parentBlock?.metadata
+    this.#registry = parentBlock?.registry
+    this.#meta = parentBlock?.meta
+
     const storageDiff = block?.storageDiff
 
     if (storageDiff) {
-      // if code doesn't change then reuse parent block's meta
-      if (!storageDiff?.[stringToHex(':code')]) {
-        this.#runtimeVersion = parentBlock?.runtimeVersion
-        this.#metadata = parentBlock?.metadata
-        this.#registry = parentBlock?.registry
-        this.#meta = parentBlock?.meta
+      // if code doesn't change then keep parent block's meta
+      // otherwise reset meta
+      if (storageDiff[stringToHex(':code')]) {
+        this.#runtimeVersion = undefined
+        this.#metadata = undefined
+        this.#registry = undefined
+        this.#meta = undefined
       }
 
       this.pushStorageLayer().setAll(storageDiff)
@@ -116,12 +122,24 @@ export class Block {
     return this.#extrinsics
   }
 
-  get parentBlock(): undefined | Block | Promise<Block | undefined> {
+  get parentBlock(): Promise<Block | undefined> {
     if (this.number === 0) {
-      return undefined
+      return Promise.resolve(undefined)
     }
-    if (!this.#parentBlock) {
-      this.#parentBlock = Promise.resolve(this.header).then((h) => this.#chain.getBlock(h.parentHash.toHex()))
+
+    const getBlock = async (header: Header | Promise<Header>) => {
+      const _header = await header
+      const block = await this.#chain.getBlock(_header.parentHash.toHex())
+      if (block) this.#parentBlock = new WeakRef(block)
+      return block
+    }
+
+    if (this.#parentBlock instanceof WeakRef) {
+      const block = this.#parentBlock.deref()
+      if (block) return Promise.resolve(block)
+      this.#parentBlock = getBlock(this.header)
+    } else if (!this.#parentBlock) {
+      this.#parentBlock = getBlock(this.header)
     }
     return this.#parentBlock
   }

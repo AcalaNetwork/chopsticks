@@ -87,7 +87,7 @@ export class Blockchain {
 
   #head: Block
   readonly #blocksByNumber: Map<number, Block> = new Map()
-  readonly #blocksByHash: Record<string, Block> = {}
+  readonly #blocksByHash: Map<string, Block> = new Map()
   readonly #loadingBlocks: Record<string, Promise<void>> = {}
 
   /** For subscribing and managing the head state. */
@@ -137,11 +137,12 @@ export class Blockchain {
   #registerBlock(block: Block) {
     // if exceed max memory block count, delete the oldest block
     if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
-      const firstKey = this.#blocksByNumber.keys().next().value
-      this.#blocksByNumber.delete(firstKey)
+      const { hash, number }: Block = this.#blocksByNumber.values().next().value
+      this.#blocksByNumber.delete(number)
+      this.#blocksByHash.delete(hash)
     }
     this.#blocksByNumber.set(block.number, block)
-    this.#blocksByHash[block.hash] = block
+    this.#blocksByHash.set(block.hash, block)
   }
 
   get head(): Block {
@@ -189,7 +190,7 @@ export class Blockchain {
       if (blockData) {
         const { hash, number, header, extrinsics } = blockData
         const parentHash = blockData.parentHash || undefined
-        let parentBlock = parentHash ? this.#blocksByHash[parentHash] : undefined
+        let parentBlock = parentHash ? this.#blocksByHash.get(parentHash) : undefined
         if (!parentBlock) {
           parentBlock = await this.getBlock(parentHash)
         }
@@ -241,7 +242,7 @@ export class Blockchain {
     if (hash == null) {
       hash = this.head.hash
     }
-    if (!this.#blocksByHash[hash]) {
+    if (!this.#blocksByHash.has(hash)) {
       const loadingBlock = this.#loadingBlocks[hash]
       if (loadingBlock) {
         await loadingBlock
@@ -266,7 +267,7 @@ export class Blockchain {
         delete this.#loadingBlocks[hash]
       }
     }
-    return this.#blocksByHash[hash]
+    return this.#blocksByHash.get(hash)
   }
 
   /**
@@ -286,7 +287,7 @@ export class Blockchain {
     if (this.#blocksByNumber.get(block.number)?.hash === block.hash) {
       this.#blocksByNumber.delete(block.number)
     }
-    delete this.#blocksByHash[block.hash]
+    this.#blocksByHash.delete(block.hash)
     // delete from db
     if (this.db) {
       await this.db.deleteBlock(block.hash)
