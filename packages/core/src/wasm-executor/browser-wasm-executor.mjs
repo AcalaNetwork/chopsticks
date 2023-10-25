@@ -14,17 +14,12 @@ const calculateStateRoot = async (entries, trie_version) => {
 
 const decodeProof = async (trieRootHash, keys, nodes) => {
 	await pkg.wasmReady
-	const decoded = await pkg.decode_proof(trieRootHash, keys, nodes)
-	return decoded.reduce((accum, [key, value]) => {
-		accum[key] = value
-		return accum
-	}, {})
+	return pkg.decode_proof(trieRootHash, keys, nodes)
 }
 
 const createProof = async (nodes, entries) => {
 	await pkg.wasmReady
-	const result = await pkg.create_proof(nodes, entries)
-	return { trieRootHash: result[0], nodes: result[1] }
+	return pkg.create_proof(nodes, entries)
 }
 
 const runTask = async (task, callback) => {
