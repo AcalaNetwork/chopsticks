@@ -41,7 +41,7 @@ jobs:
     - run: yarn test
 
   sidecar:
-    # if: ${{ github.ref_name == 'master' }}
+    if: ${{ github.ref_name == 'master' }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
