@@ -123,6 +123,8 @@ dist
 *.sqlite-journal
 *.wasm
 *.db
+*.sqlite-shm
+*.sqlite-wal
 
 .DS_store
 
