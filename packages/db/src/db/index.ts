@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm'
 
 import * as entities from './entities'
-import { retry } from '../retry'
 
 export const openDb = async (dbPath: string): Promise<DataSource> => {
   const source = new DataSource({
@@ -10,9 +9,12 @@ export const openDb = async (dbPath: string): Promise<DataSource> => {
     entities: Object.values(entities),
     synchronize: true,
     logging: false,
+    enableWAL: true, // improve performance and concurrency
+    busyErrorRetry: 1000, // typeorm retry timeout
+    busyTimeout: 5000, // retry for 5 seconds, sqlite PRAGMA busy_timeout
   })
 
-  await retry(() => source.initialize(), 3, 1000)
+  await source.initialize()
 
   return source
 }

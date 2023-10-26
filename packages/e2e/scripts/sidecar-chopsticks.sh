@@ -3,8 +3,8 @@
 set -x
 
 # run chopsticks node
-yarn dev:acala --port 8011 & ACALA_PID=$!
-yarn dev:karura --port 8012 & KARURA_PID=$!
+yarn script:start -c acala --port 8011 & ACALA_PID=$!
+yarn script:start -c karura --port 8012 & KARURA_PID=$!
 
 printf "Waiting for chains to be ready"
 attempts=30 # 5 minutes
