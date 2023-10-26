@@ -20,13 +20,12 @@ const processArgv: yargs.MiddlewareFunction<{ config?: string; port?: number }> 
 
 const commands = yargs(hideBin(process.argv))
   .scriptName('chopsticks')
-  .middleware(processArgv, true)
+  .middleware(processArgv, false)
   .command(
     '*',
     'Dev mode, fork off a chain',
     (yargs) =>
       yargs.options({
-        // TODO: find a way to extract this from configSchema
         ...defaultOptions,
         ...mockOptions,
         port: {

@@ -23,9 +23,6 @@ export const defaultOptions = {
     desc: 'Runtime maximum log level [off = 0; error = 1; warn = 2; info = 3; debug = 4; trace = 5]',
     number: true,
   },
-  'registered-types': {
-    desc: 'Registered types',
-  },
   'offchain-worker': {
     desc: 'Enable offchain worker',
     boolean: true,
