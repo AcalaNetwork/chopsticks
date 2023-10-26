@@ -26,6 +26,7 @@ const commands = yargs(hideBin(process.argv))
     'Dev mode, fork off a chain',
     (yargs) =>
       yargs.options({
+        // TODO: find a way to extract this from configSchema
         ...defaultOptions,
         ...mockOptions,
         port: {
