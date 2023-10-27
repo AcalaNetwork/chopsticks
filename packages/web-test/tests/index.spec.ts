@@ -70,7 +70,7 @@ test.describe('index', () => {
     const blocksCount2 = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount2).toBe(0)
 
-    await page.evaluate(() => globalThis.chain.db?.saveStorage('0x', '0x'))
+    await page.evaluate(() => globalThis.chain.db?.saveStorage('0x', '0x', null))
     const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0x', '0x'))
     expect(storage?.value).toBeNull()
   })

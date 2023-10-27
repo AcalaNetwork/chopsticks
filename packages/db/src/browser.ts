@@ -78,7 +78,7 @@ export class IdbDatabase implements Database {
       keyAndBlockHash: `${key}-${blockHash}`,
       blockHash,
       key,
-      value: value ?? null,
+      value,
     })
   }
 
