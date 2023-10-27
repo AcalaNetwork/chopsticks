@@ -173,7 +173,7 @@ export class Block {
     }
 
     const registry = await this.registry
-    return registry.createType(type, value)
+    return registry.createType(type, hexToU8a(value))
   }
 
   /**
