@@ -15,7 +15,6 @@
 		"typeorm": "^0.3.17"
 	},
 	"devDependencies": {
-		"fflate": "^0.8.0",
 		"typescript": "^5.1.6"
 	},
 	"files": [

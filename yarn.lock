@@ -36,7 +36,6 @@ __metadata:
   resolution: "@acala-network/chopsticks-db@workspace:packages/db"
   dependencies:
     "@acala-network/chopsticks-core": "workspace:*"
-    fflate: ^0.8.0
     idb: ^7.1.1
     localforage: ^1.10.0
     sqlite3: ^5.1.6
