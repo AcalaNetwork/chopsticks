@@ -11,7 +11,7 @@ test.describe('index', () => {
     await page.waitForLoadState()
   })
 
-  test.only('build blocks successfully', async ({ page }) => {
+  test('build blocks successfully', async ({ page }) => {
     test.setTimeout(5 * 60 * 1000) // 5 minutes timeout
     // starts with Loading...
     await expect(page.getByText('Save')).toBeDisabled()
