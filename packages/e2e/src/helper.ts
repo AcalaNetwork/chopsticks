@@ -1,5 +1,5 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { Codec } from '@polkadot/types/types'
+import { Codec, RegisteredTypes } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
@@ -14,6 +14,7 @@ import {
   SetTimestamp,
   SetValidationData,
 } from '@acala-network/chopsticks-core/blockchain/inherent'
+import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { StorageValues } from '@acala-network/chopsticks-core/utils/set-storage'
 import { createServer } from '@acala-network/chopsticks/server'
 import { defer } from '@acala-network/chopsticks-core/utils'
@@ -28,6 +29,8 @@ export type SetupOption = {
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
   genesis?: string
+  registeredTypes?: RegisteredTypes
+  runtimeLogLevel?: number
 }
 
 export const env = {
@@ -52,6 +55,8 @@ export const setupAll = async ({
   mockSignatureHost,
   allowUnresolvedImports,
   genesis,
+  registeredTypes = {},
+  runtimeLogLevel,
 }: SetupOption) => {
   const api = new Api(genesis ? await genesisFromUrl(genesis) : new WsProvider(endpoint), {
     SetEvmOrigin: { payload: {}, extrinsic: {} },
@@ -88,12 +93,14 @@ export const setupAll = async ({
         },
         mockSignatureHost,
         allowUnresolvedImports,
-        registeredTypes: {},
+        registeredTypes,
+        runtimeLogLevel,
+        db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
       })
 
       const { port, close } = await createServer(handler({ chain }))
 
-      const ws = new WsProvider(`ws://localhost:${port}`)
+      const ws = new WsProvider(`ws://localhost:${port}`, undefined, undefined, 200_000)
       const apiPromise = await ApiPromise.create({
         provider: ws,
         signedExtensions: {
@@ -174,8 +181,10 @@ export const dev = {
 export const mockCallback = () => {
   let next = defer()
   const callback = vi.fn((...args) => {
-    next.resolve(args)
-    next = defer()
+    delay(100).then(() => {
+      next.resolve(args)
+      next = defer()
+    })
   })
 
   return {

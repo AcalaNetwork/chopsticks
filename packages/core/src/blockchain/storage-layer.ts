@@ -156,7 +156,7 @@ export class StorageLayer implements StorageLayerProvider {
   set(key: string, value: StorageValue): void {
     switch (value) {
       case StorageValueKind.Deleted:
-        this.#store[key] = value
+        this.#store[key] = StorageValueKind.Deleted
         this.#removeKey(key)
         break
       case StorageValueKind.DeletedPrefix:
@@ -195,9 +195,8 @@ export class StorageLayer implements StorageLayerProvider {
       into.set(deletedPrefix, StorageValueKind.DeletedPrefix)
     }
 
-    for (const key of this.#keys) {
-      const value = await this.#store[key]
-      into.set(key, value)
+    for (const [key, value] of Object.entries(this.#store)) {
+      into.set(key, await value)
     }
 
     return newParent
@@ -214,6 +213,9 @@ export class StorageLayer implements StorageLayerProvider {
       const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
       for (const key of remote) {
         if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
+          continue
+        }
+        if (this.#store[key] === StorageValueKind.Deleted) {
           continue
         }
         this.#addKey(key)
