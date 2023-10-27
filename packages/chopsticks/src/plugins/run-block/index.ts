@@ -136,7 +136,7 @@ export interface RunBlockResponse {
   /**
    * The storage diff of each phase.
    */
-  storageDiff: {
+  phases: {
     /**
      * The phase of the execution. See {@link Phase}.
      */
@@ -149,6 +149,10 @@ export interface RunBlockResponse {
      * Raw storage diff. Only available when `includeRaw` is true.
      */
     raw?: [HexString, HexString | null][]
+    /**
+     * Runtime logs.
+     */
+    logs?: string[]
   }[]
   /**
    * Block details. Only available when `includeBlockDetails` is true.
@@ -213,7 +217,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
   })
 
   const resp = {
-    storageDiff: [],
+    phases: [],
   } as RunBlockResponse
 
   const run = async (fn: string, args: HexString[]) => {
@@ -223,7 +227,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         calls: [[fn, args]],
         mockSignatureHost: false,
         allowUnresolvedImports: false,
-        runtimeLogLevel: 0,
+        runtimeLogLevel: 5,
       },
       taskHandler(newBlock),
     )
@@ -251,19 +255,21 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
       resp.parsed = parsed
     }
 
+    resp.logs = result.Call.runtimeLogs
+
     return resp
   }
 
   const resInit = await run('Core_initialize_block', [header.toHex()])
-  resp.storageDiff.push({ phase: 'initialize', ...resInit })
+  resp.phases.push({ phase: 'initialize', ...resInit })
 
   for (const extrinsic of block.extrinsics) {
     const res = await run('BlockBuilder_apply_extrinsic', [extrinsic])
-    resp.storageDiff.push({ phase: resp.storageDiff.length - 2, ...res })
+    resp.phases.push({ phase: resp.phases.length - 2, ...res })
   }
 
   const resFinalize = await run('BlockBuilder_finalize_block', [])
-  resp.storageDiff.push({ phase: 'finalize', ...resFinalize })
+  resp.phases.push({ phase: 'finalize', ...resFinalize })
 
   if (includeBlockDetails) {
     const meta = await newBlock.meta
