@@ -46,7 +46,7 @@ test.describe('index', () => {
     await expect(page.locator('#extrinsic-section')).toHaveText(/outcome/, { timeout: 200_000 })
   })
 
-  test.only('chain indexedDB works', async ({ page }) => {
+  test('chain indexedDB works', async ({ page }) => {
     test.setTimeout(5 * 60 * 1000) // 5 minutes timeout
     // chain is ready
     await expect(page.locator('#blocks-section')).toHaveText(/4000000/, { timeout: 60_000 })
