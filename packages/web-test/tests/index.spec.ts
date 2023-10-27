@@ -55,20 +55,22 @@ test.describe('index', () => {
     await expect(page.locator('#blocks-section')).toHaveText(/4000001/, { timeout: 200_000 })
 
     // test db methods
-    const hightestBlock = await page.evaluate(() => globalThis.chain.db.queryHighestBlock())
+    const hightestBlock = await page.evaluate(() => globalThis.chain.db?.queryHighestBlock())
     expect(hightestBlock?.number).toBe(4_000_001)
-    const blockByNumber = await page.evaluate(() => globalThis.chain.db.queryBlockByNumber(4_000_001))
+    const blockByNumber = await page.evaluate(() => globalThis.chain.db?.queryBlockByNumber(4_000_001))
     expect(blockByNumber).toBeDefined()
     expect(blockByNumber?.number).toBe(hightestBlock?.number)
-    const blocksCount = await page.evaluate(() => globalThis.chain.db.blocksCount())
+    const blocksCount = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount).toBe(1)
-    await page.evaluate(() =>
-      globalThis.chain.db.deleteBlock('0x6b81a9a7fabbe32c1e685b944c8f1afd06be7e58ae48bb8d5ac50cc761d9bb77'),
-    )
-    const blocksCount2 = await page.evaluate(() => globalThis.chain.db.blocksCount())
+
+    await page.evaluate((hightestBlock) => globalThis.chain.db?.deleteBlock(hightestBlock.hash), hightestBlock)
+    const blocksCount2 = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount2).toBe(0)
 
-    const storage = await page.evaluate(() => globalThis.chain.db.queryStorage('', '0x'))
-    expect(storage.value).toBeNull()
+    const storage = await page.evaluate(
+      (hightestBlock) => globalThis.chain.db?.queryStorage(hightestBlock?.hash, '0x'),
+      hightestBlock,
+    )
+    expect(storage?.value).toBeNull()
   })
 })
