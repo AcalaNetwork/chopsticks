@@ -53,8 +53,9 @@ export class IdbDatabase implements Database {
 
   async queryHighestBlock(): Promise<BlockEntry | null> {
     const db = await this.datasource
-    const block = await db.getAllFromIndex('block', 'byNumber')
-    return block[0] ?? null
+    const index = db.transaction('block').store.index('byNumber')
+    const cursor = await index.openCursor(null, 'prev')
+    return cursor?.value ?? null
   }
 
   async deleteBlock(hash: `0x${string}`): Promise<void> {
