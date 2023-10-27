@@ -3,8 +3,7 @@
 	"compilerOptions": {
 		"outDir": "lib",
 		"rootDir": "src",
-		"target": "es2016",
-		"lib": ["es6", "dom", "dom.iterable"],
+		"lib": ["es2021", "dom", "dom.iterable"],
 		"isolatedModules": true
 	},
 	"include": ["src/**/*.ts"],

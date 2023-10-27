@@ -52,18 +52,16 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   if (chain.db) {
     if (argv.resume) {
       let blockData: BlockEntry | null = null
-
-      switch (typeof argv.resume) {
-        case 'string':
-          blockData = await chain.db.queryBlock(argv.resume as HexString)
-          break
-        case 'number':
-          blockData = await chain.db.queryBlockByNumber(argv.resume)
-          break
-        default:
-          blockData = await chain.db.queryHighestBlock()
-          break
+      if (typeof argv.resume === 'string' && argv.resume.startsWith('0x')) {
+        blockData = await chain.db.queryBlock(argv.resume as HexString)
+      } else if (typeof argv.resume === 'boolean' || argv.resume === 'true') {
+        blockData = await chain.db.queryHighestBlock()
+      } else if (Number.isInteger(+argv.resume)) {
+        blockData = await chain.db.queryBlockByNumber(+argv.resume)
+      } else {
+        throw new Error(`Resume failed. Invalid resume option ${argv.resume}`)
       }
+
       if (blockData) {
         const block = await chain.loadBlockFromDB(blockData.number)
         block && (await chain.setHead(block))
