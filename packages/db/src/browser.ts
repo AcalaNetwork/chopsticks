@@ -1,10 +1,14 @@
 import { BlockEntry, Database, KeyValueEntry } from '@acala-network/chopsticks-core'
 import { DBSchema, IDBPDatabase, openDB } from 'idb'
 
+interface KeyValue extends KeyValueEntry {
+  keyAndBlockHash: string
+}
+
 interface Schema extends DBSchema {
   keyValue: {
     key: string
-    value: KeyValueEntry
+    value: KeyValue
   }
   block: {
     key: string
@@ -18,7 +22,7 @@ export class IdbDatabase implements Database {
   constructor(location: string) {
     this.datasource = openDB<Schema>(location, 1, {
       upgrade(db) {
-        db.createObjectStore('keyValue', { keyPath: 'key' })
+        db.createObjectStore('keyValue', { keyPath: 'keyAndBlockHash' })
         const blockStore = db.createObjectStore('block', { keyPath: 'hash' })
         blockStore.createIndex('byNumber', 'number')
       },
@@ -71,15 +75,16 @@ export class IdbDatabase implements Database {
   async saveStorage(blockHash: `0x${string}`, key: `0x${string}`, value: `0x${string}` | null): Promise<void> {
     const db = await this.datasource
     await db.put('keyValue', {
+      keyAndBlockHash: `${key}-${blockHash}`,
       blockHash,
       key,
-      value,
+      value: value ?? null,
     })
   }
 
-  async queryStorage(_blockHash: `0x${string}`, key: `0x${string}`): Promise<KeyValueEntry | null> {
+  async queryStorage(blockHash: `0x${string}`, key: `0x${string}`): Promise<KeyValueEntry | null> {
     const db = await this.datasource
-    const keyValue = await db.get('keyValue', key)
+    const keyValue = await db.get('keyValue', `${key}-${blockHash}`)
     return keyValue ?? null
   }
 }

@@ -63,7 +63,6 @@ test.describe('index', () => {
     expect(blockByNumber?.number).toBe(hightestBlock?.number)
     const blocksCount = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount).toBe(1)
-
     await page.evaluate(
       (hightestBlock) => globalThis.chain.db?.deleteBlock(hightestBlock?.hash as HexString),
       hightestBlock,
@@ -71,10 +70,8 @@ test.describe('index', () => {
     const blocksCount2 = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount2).toBe(0)
 
-    const storage = await page.evaluate(
-      (hightestBlock) => globalThis.chain.db?.queryStorage(hightestBlock?.hash as HexString, '0x'),
-      hightestBlock,
-    )
+    await page.evaluate(() => globalThis.chain.db?.saveStorage('0x', '0x'))
+    const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0x', '0x'))
     expect(storage?.value).toBeNull()
   })
 })
