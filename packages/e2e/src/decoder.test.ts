@@ -9,11 +9,10 @@ const TOKENS_ACCOUNTS =
   '0x99971b5749ac43e0235e41b0d37869188ee7418a6531173d60d1f6a82d8f4d51de1e86a9a8c739864cf3cc5ec2bea59fd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d01a12dfa1fa4ab9a0000'
 
 describe('decoder', async () => {
-  const acala = await networks.acala()
-  const { chain } = acala
+  const { chain, teardown } = await networks.acala()
 
   afterAll(async () => {
-    await acala.teardown()
+    await teardown()
   })
 
   it('decode keys', async () => {
@@ -41,7 +40,7 @@ describe('decoder', async () => {
     const data = { data: { free: 10000000000 } }
     const value = meta.registry.createType('AccountInfo', data)
     expect(decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())).toMatchSnapshot()
-
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     await teardown()
   })
 })

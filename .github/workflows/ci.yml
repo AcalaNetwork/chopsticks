@@ -21,6 +21,7 @@ jobs:
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
           executor/target/
+          e2e-tests-db.sqlite
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Install toolchain
       uses: dtolnay/rust-toolchain@nightly
