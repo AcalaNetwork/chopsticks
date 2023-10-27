@@ -37,8 +37,8 @@ export const cli = (y: yargs.Argv) => {
     async (argv) => {
       const context = await setupContext(argv as Config, true)
 
-      const header = await context.chain.head.header
-      const block = context.chain.head
+      const header = await context.parentBlock.header
+      const block = context.parentBlock
       const parent = await block.parentBlock
       if (!parent) throw Error('cant find parent block')
       const wasm = await parent.wasm
@@ -94,7 +94,7 @@ const schema = z.object({
   includeRaw: z.boolean().optional(),
   includeParsed: z.boolean().optional(),
   includeBlockDetails: z.boolean().optional(),
-  head: zHash.optional(),
+  parent: zHash.optional(),
   block: z.object({
     header: z.any(),
     extrinsics: z.array(zHex),
@@ -117,9 +117,9 @@ export interface RunBlockParams {
    */
   includeBlockDetails: Params['includeBlockDetails']
   /**
-   * Set chain head before running the extrinsics
+   * The parent block hash to run on top of. Deafult to chain head.
    */
-  head: Params['head']
+  parent: Params['parent']
   /**
    * Block to run
    */
@@ -188,32 +188,29 @@ export const name = 'runBlock'
  * This function is a dev rpc handler. Use `dev_runBlock` as the method name when calling it.
  */
 export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promise<RunBlockResponse> => {
-  const { includeRaw, includeParsed, includeBlockDetails, head, block } = schema.parse(params)
+  const { includeRaw, includeParsed, includeBlockDetails, parent, block } = schema.parse(params)
 
   const includeRawStorage = includeRaw ?? true
 
-  if (head) {
-    const headBlock = await chain.getBlock(head)
-    if (!headBlock) {
-      throw Error(`Invalid block hash ${head}`)
-    }
-    await chain.setHead(headBlock)
+  const parentBlock = await chain.getBlock(parent)
+  if (!parentBlock) {
+    throw Error(`Invalid block hash ${parent}`)
   }
 
-  const registry = await chain.head.registry
+  const registry = await parentBlock.registry
   const header = registry.createType<Header>('Header', block.header)
 
-  const wasm = await chain.head.wasm
+  const wasm = await parentBlock.wasm
 
-  const blockNumber = chain.head.number + 1
+  const blockNumber = parentBlock.number + 1
   const hash: HexString = `0x${Math.round(Math.random() * 100000000)
     .toString(16)
     .padEnd(64, '0')}`
 
-  const newBlock = new Block(chain, blockNumber, hash, chain.head, {
+  const newBlock = new Block(chain, blockNumber, hash, parentBlock, {
     header,
     extrinsics: [],
-    storage: chain.head.storage,
+    storage: parentBlock.storage,
   })
 
   const resp = {
