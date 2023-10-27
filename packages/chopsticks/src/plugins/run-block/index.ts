@@ -130,7 +130,7 @@ export interface RunBlockParams {
  * The phase of an execution.
  * `number` means the phase is ApplyExtrinsic and the value is the extrinsic index.
  */
-export type Phase = 'initialize' | 'finalize' | number // extrinsic index
+export type Phase = 'Initialization' | 'Finalization' | number // extrinsic index
 
 export interface RunBlockResponse {
   /**
@@ -161,11 +161,11 @@ export interface RunBlockResponse {
     /**
      * Block timestamp in ms
      */
-    timestamp?: number
+    timestamp?: string
     /**
      * Parsed events in this block.
      */
-    events?: { section: string; method: string; args: any[] }[]
+    events?: { phase: Phase; section: string; method: string; args: any[] }[]
     /**
      * Parsed extrinsics in this block.
      */
@@ -249,7 +249,12 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
       const meta = await newBlock.meta
       const parsed = {}
       for (const [key, value] of raw) {
-        _.merge(parsed, decodeKeyValue(meta, newBlock, key, value))
+        _.merge(parsed, decodeKeyValue(meta, newBlock, key, value, false))
+      }
+
+      // clear events because it can be stupidly large and redudant
+      if (parsed['system']?.['events']) {
+        delete parsed['system']['events']
       }
 
       resp.parsed = parsed
@@ -261,15 +266,15 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
   }
 
   const resInit = await run('Core_initialize_block', [header.toHex()])
-  resp.phases.push({ phase: 'initialize', ...resInit })
+  resp.phases.push({ phase: 'Initialization', ...resInit })
 
   for (const extrinsic of block.extrinsics) {
     const res = await run('BlockBuilder_apply_extrinsic', [extrinsic])
-    resp.phases.push({ phase: resp.phases.length - 2, ...res })
+    resp.phases.push({ phase: resp.phases.length - 1, ...res })
   }
 
   const resFinalize = await run('BlockBuilder_finalize_block', [])
-  resp.phases.push({ phase: 'finalize', ...resFinalize })
+  resp.phases.push({ phase: 'Finalization', ...resFinalize })
 
   if (includeBlockDetails) {
     const meta = await newBlock.meta
@@ -277,6 +282,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     const timestamp = await newBlock.read('u64', meta.query.timestamp.now)
     const events = await newBlock.read('Vec<EventRecord>', meta.query.system.events)
     const parsedEvents = events?.map((event) => ({
+      phase: event.phase.isApplyExtrinsic ? event.phase.asApplyExtrinsic.toNumber() : (event.phase.toString() as Phase),
       section: event.event.section,
       method: event.event.method,
       args: event.event.data.map((arg) => arg.toJSON()),
@@ -300,7 +306,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     })
 
     resp.blockDetails = {
-      timestamp: timestamp?.toNumber(),
+      timestamp: timestamp?.toString(),
       events: parsedEvents,
       extrinsics,
     }
