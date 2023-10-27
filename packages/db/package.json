@@ -5,13 +5,13 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"pack-wasm": "scripts/pack-wasm.cjs",
-		"build": "yarn pack-wasm; tsc -p ./tsconfig.json"
+		"build": "tsc -p ./tsconfig.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
 		"@polkadot/util": "^12.5.1",
 		"@polkadot/wasm-util": "^7.2.2",
+		"idb": "^7.1.1",
 		"localforage": "^1.10.0",
 		"sql.js": "^1.8.0",
 		"sqlite3": "^5.1.6",

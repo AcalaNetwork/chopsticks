@@ -40,6 +40,7 @@ __metadata:
     "@polkadot/wasm-util": ^7.2.2
     "@types/sql.js": ^1.4.4
     fflate: ^0.8.0
+    idb: ^7.1.1
     localforage: ^1.10.0
     sql.js: ^1.8.0
     sqlite3: ^5.1.6
@@ -5424,6 +5425,13 @@ __metadata:
   dependencies:
     safer-buffer: ">= 2.1.2 < 3.0.0"
   checksum: 3f60d47a5c8fc3313317edfd29a00a692cc87a19cac0159e2ce711d0ebc9019064108323b5e493625e25594f11c6236647d8e256fbe7a58f4a3b33b89e6d30bf
+  languageName: node
+  linkType: hard
+
+"idb@npm:^7.1.1":
+  version: 7.1.1
+  resolution: "idb@npm:7.1.1"
+  checksum: 1973c28d53c784b177bdef9f527ec89ec239ec7cf5fcbd987dae75a16c03f5b7dfcc8c6d3285716fd0309dd57739805390bd9f98ce23b1b7d8849a3b52de8d56
   languageName: node
   linkType: hard
 
