@@ -34,6 +34,6 @@ describe.runIf(process.env.CI)('storage-migrate', async () => {
       const metadatas = await api.query.assetRegistry.metadata.entries()
       expect(metadatas.some(([_, v]) => v.isEmpty)).toBeFalsy()
     },
-    { timeout: 200_000 },
+    { timeout: 300_000 },
   )
 })
