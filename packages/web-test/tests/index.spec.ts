@@ -1,3 +1,4 @@
+import { HexString } from '@polkadot/util/types'
 import { expect, test } from '@playwright/test'
 
 test.describe('index', () => {
@@ -63,12 +64,15 @@ test.describe('index', () => {
     const blocksCount = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount).toBe(1)
 
-    await page.evaluate((hightestBlock) => globalThis.chain.db?.deleteBlock(hightestBlock.hash), hightestBlock)
+    await page.evaluate(
+      (hightestBlock) => globalThis.chain.db?.deleteBlock(hightestBlock?.hash as HexString),
+      hightestBlock,
+    )
     const blocksCount2 = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount2).toBe(0)
 
     const storage = await page.evaluate(
-      (hightestBlock) => globalThis.chain.db?.queryStorage(hightestBlock?.hash, '0x'),
+      (hightestBlock) => globalThis.chain.db?.queryStorage(hightestBlock?.hash as HexString, '0x'),
       hightestBlock,
     )
     expect(storage?.value).toBeNull()
