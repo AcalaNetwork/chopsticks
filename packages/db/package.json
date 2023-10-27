@@ -10,7 +10,6 @@
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
 		"idb": "^7.1.1",
-		"localforage": "^1.10.0",
 		"sqlite3": "^5.1.6",
 		"typeorm": "^0.3.17"
 	},
