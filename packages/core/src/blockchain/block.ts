@@ -1,6 +1,7 @@
 import { ChainProperties, Header } from '@polkadot/types/interfaces'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Metadata, TypeRegistry } from '@polkadot/types'
+import { StorageEntry } from '@polkadot/types/primitive/types'
 import { expandMetadata } from '@polkadot/types/metadata'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
 import { hexToU8a, objectSpread, stringToHex } from '@polkadot/util'
@@ -164,6 +165,17 @@ export class Block {
     }
   }
 
+  async read<T extends string>(type: T, query: StorageEntry, ...args: any[]) {
+    const key = compactHex(query(...args))
+    const value = await this.get(key)
+    if (!value) {
+      return undefined
+    }
+
+    const registry = await this.registry
+    return registry.createType(type, value)
+  }
+
   /**
    * Get paged storage keys.
    */
@@ -309,7 +321,7 @@ export class Block {
       },
       taskHandler(this),
     )
-    if (response.Call) {
+    if ('Call' in response) {
       for (const log of response.Call.runtimeLogs) {
         defaultLogger.info(`RuntimeLogs:\n${log}`)
       }

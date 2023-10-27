@@ -1,6 +1,6 @@
 import { HexString } from '@polkadot/util/types'
 import { StorageKey } from '@polkadot/types'
-import { compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
+import { compactStripLength, u8aToHex } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 
 import { Blockchain } from '../blockchain'
@@ -46,9 +46,11 @@ export const compactHex = (value: Uint8Array): HexString => {
 
 export const getParaId = async (chain: Blockchain) => {
   const meta = await chain.head.meta
-  const raw = await chain.head.get(compactHex(meta.query.parachainInfo.parachainId()))
-  if (!raw) throw new Error('Cannot find parachain id')
-  return meta.registry.createType('u32', hexToU8a(raw))
+  const id = await chain.head.read('u32', meta.query.parachainInfo.parachainId)
+  if (!id) {
+    throw new Error('Cannot find parachain id')
+  }
+  return id
 }
 
 export const isUrl = (url: string) => {
