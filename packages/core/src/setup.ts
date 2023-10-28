@@ -1,8 +1,8 @@
 import '@polkadot/types-codec'
 import { HexString } from '@polkadot/util/types'
+import { HttpProvider, WsProvider } from '@polkadot/rpc-provider'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
-import { WsProvider } from '@polkadot/rpc-provider'
 
 import { Api } from './api'
 import { Blockchain } from './blockchain'
@@ -37,6 +37,8 @@ export const setup = async (options: SetupOptions) => {
   let provider: ProviderInterface
   if (options.genesis) {
     provider = options.genesis
+  } else if (/^(https|http):\/\//.test(options.endpoint || '')) {
+    provider = new HttpProvider(options.endpoint)
   } else {
     provider = new WsProvider(options.endpoint)
   }

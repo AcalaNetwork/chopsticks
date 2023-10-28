@@ -62,10 +62,12 @@ export class Api {
         this.#ready = this.#provider['isReady']
       } else {
         this.#ready = new Promise((resolve): void => {
-          this.#provider.on('connected', (): void => {
+          if (this.#provider.hasSubscriptions) {
+            this.#provider.on('connected', resolve)
+            this.#provider.connect()
+          } else {
             resolve()
-          })
-          this.#provider.connect()
+          }
         })
       }
     }

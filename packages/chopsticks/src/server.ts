@@ -1,6 +1,6 @@
+import { AddressInfo, WebSocket, WebSocketServer } from 'ws'
 import { ResponseError, SubscriptionManager } from '@acala-network/chopsticks-core'
 import { z } from 'zod'
-import WebSocket, { AddressInfo, WebSocketServer } from 'ws'
 
 import { defaultLogger, truncate } from './logger'
 
