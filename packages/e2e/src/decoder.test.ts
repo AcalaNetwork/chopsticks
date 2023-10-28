@@ -30,7 +30,6 @@ describe('decoder', async () => {
 
     const ormlAccountData = meta.registry.createType('AccountData', data.data)
     expect(decodeKeyValue(meta, chain.head, TOKENS_ACCOUNTS, ormlAccountData.toHex())).toMatchSnapshot()
-    await new Promise((resolve) => setTimeout(resolve, 1000))
   })
 
   it('works with multiple chains', async () => {
@@ -40,7 +39,6 @@ describe('decoder', async () => {
     const data = { data: { free: 10000000000 } }
     const value = meta.registry.createType('AccountInfo', data)
     expect(decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())).toMatchSnapshot()
-    await new Promise((resolve) => setTimeout(resolve, 1000))
     await teardown()
   })
 })
