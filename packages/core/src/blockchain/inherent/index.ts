@@ -20,7 +20,7 @@ export class SetTimestamp implements InherentProvider {
     const meta = await parent.meta
     const slotDuration = await getSlotDuration(parent.chain)
     const currentTimestamp = await getCurrentTimestamp(parent.chain)
-    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(currentTimestamp + slotDuration)).toHex()]
+    return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(currentTimestamp + BigInt(slotDuration))).toHex()]
   }
 }
 

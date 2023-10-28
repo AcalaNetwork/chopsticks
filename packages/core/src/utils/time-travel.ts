@@ -20,7 +20,7 @@ export const getCurrentSlot = async (chain: Blockchain) => {
 export const getCurrentTimestamp = async (chain: Blockchain) => {
   const meta = await chain.head.meta
   const timestamp = await chain.head.read('u64', meta.query.timestamp.now)
-  return timestamp?.toNumber() ?? 0
+  return timestamp?.toBigInt() ?? 0n
 }
 
 export const getSlotDuration = async (chain: Blockchain) => {

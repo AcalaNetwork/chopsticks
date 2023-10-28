@@ -37,8 +37,8 @@ export const cli = (y: yargs.Argv) => {
     async (argv) => {
       const context = await setupContext(argv as Config, true)
 
-      const header = await context.parentBlock.header
-      const block = context.parentBlock
+      const header = await context.chain.head.header
+      const block = context.chain.head
       const parent = await block.parentBlock
       if (!parent) throw Error('cant find parent block')
       const wasm = await parent.wasm
