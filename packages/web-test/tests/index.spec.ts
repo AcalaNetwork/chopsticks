@@ -48,30 +48,35 @@ test.describe('index', () => {
   })
 
   test('chain indexedDB works', async ({ page }) => {
-    test.setTimeout(5 * 60 * 1000) // 5 minutes timeout
+    test.setTimeout(6 * 60 * 1000) // 6 minutes timeout
     // chain is ready
     await expect(page.locator('#blocks-section')).toHaveText(/4000000/, { timeout: 60_000 })
     await page.getByText(/build block/i).click()
     // wait for new block
     await expect(page.locator('#blocks-section')).toHaveText(/4000001/, { timeout: 200_000 })
+    await page.getByText(/build block/i).click()
+    // wait for new block
+    await expect(page.locator('#blocks-section')).toHaveText(/4000002/, { timeout: 20_000 })
 
     // test db methods
     const hightestBlock = await page.evaluate(() => globalThis.chain.db?.queryHighestBlock())
-    expect(hightestBlock?.number).toBe(4_000_001)
+    expect(hightestBlock?.number).toBe(4_000_002)
     const blockByNumber = await page.evaluate(() => globalThis.chain.db?.queryBlockByNumber(4_000_001))
     expect(blockByNumber).toBeDefined()
-    expect(blockByNumber?.number).toBe(hightestBlock?.number)
+    expect(blockByNumber?.number).toBe(4_000_001)
     const blocksCount = await page.evaluate(() => globalThis.chain.db?.blocksCount())
-    expect(blocksCount).toBe(1)
+    expect(blocksCount).toBe(2)
     await page.evaluate(
       (hightestBlock) => globalThis.chain.db?.deleteBlock(hightestBlock?.hash as HexString),
       hightestBlock,
     )
     const blocksCount2 = await page.evaluate(() => globalThis.chain.db?.blocksCount())
-    expect(blocksCount2).toBe(0)
+    expect(blocksCount2).toBe(1)
+    const hightestBlock2 = await page.evaluate(() => globalThis.chain.db?.queryHighestBlock())
+    expect(hightestBlock2?.number).toBe(4_000_001)
 
-    await page.evaluate(() => globalThis.chain.db?.saveStorage('0x', '0x', null))
+    await page.evaluate(() => globalThis.chain.db?.saveStorage('0x', '0x', '0x00'))
     const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0x', '0x'))
-    expect(storage?.value).toBeNull()
+    expect(storage?.value).toBe('0x00')
   })
 })
