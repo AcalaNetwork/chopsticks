@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { setupApi, ws } from './helper'
 
 setupApi({
-  endpoint: 'https://rpc.polkadot.io',
+  endpoint: 'wss://rpc.polkadot.io',
   blockHash: '0xb012d04c56b65cfa1f47cb1f884d920f95d0097b1ed42f5da18d5e2a436c2f3e',
 })
 
