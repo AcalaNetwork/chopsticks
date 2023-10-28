@@ -100,7 +100,7 @@ export const setupAll = async ({
 
       const { port, close } = await createServer(handler({ chain }))
 
-      const ws = new WsProvider(`ws://localhost:${port}`, undefined, undefined, 200_000)
+      const ws = new WsProvider(`ws://localhost:${port}`, undefined, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
         provider: ws,
         signedExtensions: {
