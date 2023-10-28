@@ -1,6 +1,7 @@
-import { ApiPromise, WsProvider } from '@polkadot/api'
+import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api'
 import { Codec, RegisteredTypes } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
+import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
@@ -58,7 +59,15 @@ export const setupAll = async ({
   registeredTypes = {},
   runtimeLogLevel,
 }: SetupOption) => {
-  const api = new Api(genesis ? await genesisFromUrl(genesis) : new WsProvider(endpoint), {
+  let provider: ProviderInterface
+  if (genesis) {
+    provider = await genesisFromUrl(genesis)
+  } else if (/^(https|http):\/\//.test(endpoint || '')) {
+    provider = new HttpProvider(endpoint)
+  } else {
+    provider = new WsProvider(endpoint)
+  }
+  const api = new Api(provider, {
     SetEvmOrigin: { payload: {}, extrinsic: {} },
   })
 

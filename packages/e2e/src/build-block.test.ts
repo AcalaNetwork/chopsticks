@@ -13,7 +13,7 @@ const KUSAMA_STORAGE = {
 }
 
 describe.runIf(process.env.CI).each([
-  { chain: 'Polkadot', endpoint: 'wss://rpc.polkadot.io' },
+  { chain: 'Polkadot', endpoint: 'https://rpc.polkadot.io' },
   { chain: 'Statemint', endpoint: 'wss://statemint-rpc.polkadot.io' },
   { chain: 'Polkadot Collectives', endpoint: 'wss://polkadot-collectives-rpc.polkadot.io' },
   { chain: 'Acala', endpoint: 'wss://acala-rpc-1.aca-api.network' },
