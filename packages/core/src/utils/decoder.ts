@@ -48,7 +48,13 @@ export const decodeKey = (
   return {}
 }
 
-export const decodeKeyValue = (meta: DecoratedMeta, block: Block, key: HexString, value?: HexString | null) => {
+export const decodeKeyValue = (
+  meta: DecoratedMeta,
+  block: Block,
+  key: HexString,
+  value?: HexString | null,
+  toHuman = true,
+) => {
   const { storage, decodedKey } = decodeKey(meta, block, key)
 
   if (!storage || !decodedKey) {
@@ -60,7 +66,7 @@ export const decodeKeyValue = (meta: DecoratedMeta, block: Block, key: HexString
     if (storage.section === 'substrate' && storage.method === 'code') {
       return `:code blake2_256 ${blake2AsHex(value, 256)} (${hexToU8a(value).length} bytes)`
     }
-    return meta.registry.createType(decodedKey.outputType, hexToU8a(value)).toHuman()
+    return meta.registry.createType(decodedKey.outputType, hexToU8a(value))[toHuman ? 'toHuman' : 'toJSON']()
   }
 
   switch (decodedKey.args.length) {

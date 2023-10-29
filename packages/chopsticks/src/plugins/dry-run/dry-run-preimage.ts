@@ -81,7 +81,7 @@ export const dryRunPreimage = async (argv: Config) => {
     taskHandler(block),
   )
 
-  if (result.Error) {
+  if ('Error' in result) {
     throw new Error(result.Error)
   }
 

@@ -24,6 +24,19 @@ export type RuntimeVersion = {
   stateVersion: number
 }
 
+export type TaskResponse =
+  | {
+      Call: {
+        result: HexString
+        storageDiff: [HexString, HexString | null][]
+        offchainStorageDiff: [HexString, HexString | null][]
+        runtimeLogs: string[]
+      }
+    }
+  | {
+      Error: string
+    }
+
 export interface WasmExecutor {
   getRuntimeVersion: (code: HexString) => Promise<RuntimeVersion>
   calculateStateRoot: (entries: [HexString, HexString][], trie_version: number) => Promise<HexString>
@@ -42,7 +55,7 @@ export interface WasmExecutor {
       runtimeLogLevel: number
     },
     callback?: JsCallback,
-  ) => Promise<any>
+  ) => Promise<TaskResponse>
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
@@ -104,7 +117,7 @@ export const runTask = async (
   const worker = await getWorker()
   logger.trace(truncate(task), 'taskRun')
   const response = await worker.remote.runTask(task, Comlink.proxy(callback))
-  if (response.Call) {
+  if ('Call' in response) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {
     logger.trace({ response }, 'taskResponse')
@@ -186,7 +199,7 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: R
     runtimeLogLevel: 0,
   })
 
-  if (!result.Call) throw new Error(result.Error)
+  if ('Error' in result) throw new Error(result.Error)
   const slotDuration = registry.createType('u64', hexToU8a(result.Call.result)).toNumber()
   return slotDuration
 })
