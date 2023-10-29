@@ -60,23 +60,61 @@ test.describe('index', () => {
 
     // test db methods
     const hightestBlock = await page.evaluate(() => globalThis.chain.db?.queryHighestBlock())
-    expect(hightestBlock?.number).toBe(4_000_002)
+    expect(hightestBlock).toEqual(
+      expect.objectContaining({
+        number: 4_000_002,
+        hash: '0xdd1d5206ce64d643e262f0bdc351147e2ba9e20846fdf78c9c5855ab6e2bc0ca',
+      }),
+    )
     const blockByNumber = await page.evaluate(() => globalThis.chain.db?.queryBlockByNumber(4_000_001))
-    expect(blockByNumber).toBeDefined()
-    expect(blockByNumber?.number).toBe(4_000_001)
+    expect(blockByNumber).toEqual(
+      expect.objectContaining({
+        number: 4_000_001,
+        hash: '0x6b81a9a7fabbe32c1e685b944c8f1afd06be7e58ae48bb8d5ac50cc761d9bb77',
+      }),
+    )
     const blocksCount = await page.evaluate(() => globalThis.chain.db?.blocksCount())
     expect(blocksCount).toBe(2)
     await page.evaluate(
       (hightestBlock) => globalThis.chain.db?.deleteBlock(hightestBlock?.hash as HexString),
       hightestBlock,
     )
-    const blocksCount2 = await page.evaluate(() => globalThis.chain.db?.blocksCount())
-    expect(blocksCount2).toBe(1)
-    const hightestBlock2 = await page.evaluate(() => globalThis.chain.db?.queryHighestBlock())
-    expect(hightestBlock2?.number).toBe(4_000_001)
+    // run test again after deleting hightest block
+    {
+      const blocksCount = await page.evaluate(() => globalThis.chain.db?.blocksCount())
+      expect(blocksCount).toBe(1)
+      const hightestBlock = await page.evaluate(() => globalThis.chain.db?.queryHighestBlock())
+      expect(hightestBlock).toEqual(
+        expect.objectContaining({
+          number: 4_000_001,
+          hash: '0x6b81a9a7fabbe32c1e685b944c8f1afd06be7e58ae48bb8d5ac50cc761d9bb77',
+        }),
+      )
+    }
 
-    await page.evaluate(() => globalThis.chain.db?.saveStorage('0x', '0x', '0x00'))
-    const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0x', '0x'))
-    expect(storage?.value).toBe('0x00')
+    // test storage
+    {
+      const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0xaa', '0x01'))
+      expect(storage).toBeNull()
+    }
+    {
+      await page.evaluate(() => globalThis.chain.db?.saveStorage('0xaa', '0x01', null))
+      const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0xaa', '0x01'))
+      expect(storage).toEqual({ blockHash: '0xaa', key: '0x01', value: null })
+    }
+    {
+      await page.evaluate(() => globalThis.chain.db?.saveStorage('0xaa', '0x01', '0x01'))
+      const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0xaa', '0x01'))
+      expect(storage).toEqual({ blockHash: '0xaa', key: '0x01', value: '0x01' })
+    }
+    {
+      await page.evaluate(() => globalThis.chain.db?.saveStorage('0xbb', '0x02', '0x02'))
+      const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0xbb', '0x02'))
+      expect(storage).toEqual({ blockHash: '0xbb', key: '0x02', value: '0x02' })
+    }
+    {
+      const storage = await page.evaluate(() => globalThis.chain.db?.queryStorage('0xbb', '0x01'))
+      expect(storage).toBeNull()
+    }
   })
 })

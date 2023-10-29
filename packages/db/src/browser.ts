@@ -76,6 +76,6 @@ export class IdbDatabase implements Database {
   async queryStorage(blockHash: `0x${string}`, key: `0x${string}`): Promise<KeyValueEntry | null> {
     const db = await this.datasource
     const value = await db.get('keyValue', `${blockHash}-${key}`)
-    return value ? { key, blockHash, value } : null
+    return value !== undefined ? { blockHash, key, value } : null
   }
 }
