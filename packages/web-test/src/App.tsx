@@ -15,11 +15,11 @@ import { ApiPromise } from '@polkadot/api'
 import { Buffer } from 'buffer'
 import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
+import { IdbDatabase } from '@acala-network/chopsticks-db/browser'
 import { createTestPairs } from '@polkadot/keyring'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
-// import { SqljsDatabase } from '@acala-network/chopsticks-db/browser'
 
 window.Buffer = Buffer
 
@@ -109,8 +109,7 @@ function App() {
 			endpoint: config.endpoint,
 			block: config.block,
 			mockSignatureHost: true,
-			// disable cache, this makes it slower
-			// db: new SqljsDatabase('cache'),
+			db: new IdbDatabase('cache'),
 		})
 		globalThis.chain = chain
 
