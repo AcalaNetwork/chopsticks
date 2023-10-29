@@ -57,6 +57,10 @@
 			"types": "./lib/*.d.ts",
 			"default": "./lib/*.js"
 		},
+		"./plugins/*": {
+			"types": "./lib/plugins/*.d.ts",
+			"default": "./lib/plugins/*.js"
+		},
 		"./package.json": "./package.json"
 	}
 }
