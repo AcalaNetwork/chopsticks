@@ -105,7 +105,7 @@ export class Api {
     return this.#provider.send<HexString | null>(
       'chain_getBlockHash',
       Number.isInteger(blockNumber) ? [blockNumber] : [],
-      !!blockNumber
+      !!blockNumber,
     )
   }
 
