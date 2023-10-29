@@ -11,8 +11,7 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
-		"@polkadot/rpc-provider": "^10.10.1",
-		"@polkadot/types": "^10.10.1",
+		"@polkadot/api": "^10.10.1",
 		"@polkadot/util-crypto": "^12.5.1",
 		"comlink": "^4.4.1",
 		"eventemitter3": "^5.0.1",
