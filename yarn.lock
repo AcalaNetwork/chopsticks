@@ -17,8 +17,7 @@ __metadata:
   resolution: "@acala-network/chopsticks-core@workspace:packages/core"
   dependencies:
     "@acala-network/chopsticks-executor": "workspace:*"
-    "@polkadot/rpc-provider": ^10.10.1
-    "@polkadot/types": ^10.10.1
+    "@polkadot/api": ^10.10.1
     "@polkadot/util-crypto": ^12.5.1
     "@types/lodash": ^4.14.199
     comlink: ^4.4.1
@@ -1692,7 +1691,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/rpc-provider@npm:10.10.1, @polkadot/rpc-provider@npm:^10.10.1":
+"@polkadot/rpc-provider@npm:10.10.1":
   version: 10.10.1
   resolution: "@polkadot/rpc-provider@npm:10.10.1"
   dependencies:
@@ -1774,7 +1773,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types@npm:10.10.1, @polkadot/types@npm:^10.10.1":
+"@polkadot/types@npm:10.10.1":
   version: 10.10.1
   resolution: "@polkadot/types@npm:10.10.1"
   dependencies:
