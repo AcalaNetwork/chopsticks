@@ -1,0 +1,7 @@
+{
+	"entryPoints": ["src/types.ts"],
+	"out": "../../docs-src/chopsticks",
+	"plugin": "typedoc-plugin-markdown",
+	"readme": "none",
+	"tsconfig": "tsconfig.esm.json"
+}

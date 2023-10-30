@@ -4,9 +4,9 @@
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"scripts": {
-		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"build": "tsc -p ./tsconfig.json; yarn copyfiles",
-		"copyfiles": "cp -r src/wasm-executor/*.mjs lib/wasm-executor/",
+		"clean": "rm -rf dist tsconfig.tsbuildinfo",
+		"build": "yarn clean && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json && yarn copyfiles",
+		"copyfiles": "cp -r src/wasm-executor/*.mjs dist/cjs/wasm-executor/ && cp -r src/wasm-executor/*.mjs dist/esm/wasm-executor/",
 		"docs:prep": "typedoc"
 	},
 	"dependencies": {
@@ -25,23 +25,30 @@
 		"typescript": "^5.1.6"
 	},
 	"files": [
-		"lib"
+		"dist"
 	],
-	"main": "./lib/index.js",
-	"types": "./lib/index.d.ts",
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"types": "./dist/types/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./lib/index.d.ts",
-			"default": "./lib/index.js"
+			"types": "./dist/types/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"import": "./dist/esm/index.js",
+			"default": "./dist/esm/index.js"
 		},
 		"./*": {
-			"types": "./lib/*.d.ts",
-			"default": "./lib/*.js"
+			"types": "./dist/esm/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"import": "./dist/esm/index.js",
+			"default": "./dist/esm/index.js"
 		},
 		"./package.json": "./package.json"
 	},
 	"browser": {
-		"./lib/wasm-executor/node-wasm-executor.mjs": "./lib/wasm-executor/browser-wasm-executor.mjs",
-		"./lib/wasm-executor/node-worker.js": "./lib/wasm-executor/browser-worker.js"
+		"./dist/cjs/wasm-executor/node-wasm-executor.mjs": "./dist/cjs/wasm-executor/browser-wasm-executor.mjs",
+		"./dist/cjs/wasm-executor/node-worker.js": "./dist/cjs/wasm-executor/browser-worker.js",
+		"./dist/esm/wasm-executor/node-wasm-executor.mjs": "./dist/esm/wasm-executor/browser-wasm-executor.mjs",
+		"./dist/esm/wasm-executor/node-worker.js": "./dist/esm/wasm-executor/browser-worker.js"
 	}
 }

@@ -10,5 +10,5 @@
 		"sourceMap": true
 	},
 	"include": ["src/**/*"],
-	"references": [{ "path": "../core" }, { "path": "../db" }]
+	"references": [{ "path": "../core/tsconfig.esm.json" }, { "path": "../db/tsconfig.esm.json" }]
 }

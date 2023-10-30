@@ -4,8 +4,8 @@
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"scripts": {
-		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"build": "tsc -p ./tsconfig.json"
+		"clean": "rm -rf dist tsconfig.tsbuildinfo",
+		"build": "yarn clean && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
@@ -17,18 +17,23 @@
 		"typescript": "^5.1.6"
 	},
 	"files": [
-		"lib"
+		"dist"
 	],
-	"main": "./lib/index.js",
-	"types": "./lib/index.d.ts",
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"types": "./dist/types/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./lib/index.d.ts",
-			"default": "./lib/index.js"
+			"types": "./dist/types/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"import": "./dist/esm/index.js",
+			"default": "./dist/esm/index.js"
 		},
 		"./*": {
-			"types": "./lib/*.d.ts",
-			"default": "./lib/*.js"
+			"types": "./dist/types/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"import": "./dist/esm/index.js",
+			"default": "./dist/esm/index.js"
 		},
 		"./package.json": "./package.json"
 	}
