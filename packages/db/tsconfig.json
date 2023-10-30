@@ -2,10 +2,10 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"lib": ["es2021", "dom", "dom.iterable"],
-		"isolatedModules": true,
+		"outDir": "dist/cjs",
 		"declarationDir": "dist/types"
 	},
 	"include": ["src/**/*.ts"],
-	"exclude": ["src/**/*.test.ts"]
+	"exclude": ["src/**/*.test.ts"],
+	"references": [{ "path": "../core/tsconfig.json" }]
 }

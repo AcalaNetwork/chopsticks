@@ -1,9 +1,12 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
+		"isolatedModules": false,
 		"rootDir": "src",
+		"outDir": "dist/cjs",
 		"declarationDir": "dist/types"
 	},
 	"include": ["src/**/*"],
-	"exclude": ["src/**/*.test.ts"]
+	"exclude": ["src/**/*.test.ts"],
+	"references": [{ "path": "../core/tsconfig.json" }, { "path": "../db/tsconfig.json" }]
 }

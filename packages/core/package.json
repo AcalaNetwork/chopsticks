@@ -5,7 +5,7 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
-		"build": "yarn clean && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json && yarn copyfiles",
+		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json && yarn copyfiles",
 		"copyfiles": "cp -r src/wasm-executor/*.mjs dist/cjs/wasm-executor/ && cp -r src/wasm-executor/*.mjs dist/esm/wasm-executor/",
 		"docs:prep": "typedoc"
 	},
@@ -25,7 +25,9 @@
 		"typescript": "^5.1.6"
 	},
 	"files": [
-		"dist"
+		"dist/esm",
+		"dist/cjs",
+		"dist/types"
 	],
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",

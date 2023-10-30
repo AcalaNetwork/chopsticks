@@ -6,7 +6,7 @@
 	"bin": "./chopsticks.js",
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
-		"build": "yarn clean && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json",
+		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json",
 		"script:start": "cd ../..; ts-node --transpile-only -r tsconfig-paths/register packages/chopsticks/src/cli.ts",
 		"script:run": "cd ../..; LOG_LEVEL=trace ts-node-dev --transpile-only -r tsconfig-paths/register --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/dev.yml",
 		"dev:karura": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/karura.yml",
@@ -42,7 +42,9 @@
 		"typescript": "^5.1.6"
 	},
 	"files": [
-		"dist",
+		"dist/esm",
+		"dist/cjs",
+		"dist/types",
 		"template",
 		"chopsticks.js"
 	],

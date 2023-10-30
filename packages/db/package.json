@@ -5,7 +5,7 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
-		"build": "yarn clean && tsc -p ./tsconfig.cjs.json && tsc -p ./tsconfig.esm.json"
+		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
@@ -17,7 +17,9 @@
 		"typescript": "^5.1.6"
 	},
 	"files": [
-		"dist"
+		"dist/esm",
+		"dist/cjs",
+		"dist/types"
 	],
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
