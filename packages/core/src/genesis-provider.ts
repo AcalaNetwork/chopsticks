@@ -98,7 +98,7 @@ export class GenesisProvider implements ProviderInterface {
   getHeader = async () => {
     return {
       blockHash: this.blockHash,
-      number: 0,
+      number: '0x0' as HexString,
       stateRoot: await this.#stateRoot,
       digest: {
         logs: [],

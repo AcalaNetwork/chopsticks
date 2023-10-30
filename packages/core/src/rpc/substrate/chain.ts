@@ -56,7 +56,7 @@ export const chain_getBlock: Handler<
   }
   return {
     block: {
-      header: await block.header,
+      header: processHeader(await block.header),
       extrinsics: await block.extrinsics,
     },
     justifications: null,
