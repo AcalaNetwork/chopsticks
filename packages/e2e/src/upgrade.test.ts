@@ -8,13 +8,12 @@ import networks from './networks'
 
 describe('upgrade', async () => {
   const { alice, bob } = testingPairs()
-  const acala = await networks.acala({
+  const { api, dev, chain, teardown } = await networks.acala({
     blockNumber: 2000000,
   })
-  const { api, dev, chain } = acala
 
   afterAll(async () => {
-    await acala.teardown()
+    await teardown()
   })
 
   it('setCode works', async () => {

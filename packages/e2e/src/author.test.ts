@@ -6,10 +6,9 @@ import networks from './networks'
 
 describe('author rpc', async () => {
   const { alice, bob } = testingPairs()
-  const acala = await networks.acala()
-  const { api, dev } = acala
+  const { api, dev, teardown } = await networks.acala()
 
-  await acala.dev.setStorage({
+  await dev.setStorage({
     System: {
       Account: [
         [[alice.address], { data: { free: 10 * 1e12 } }],
@@ -22,7 +21,7 @@ describe('author rpc', async () => {
   })
 
   afterAll(async () => {
-    await acala.teardown()
+    await teardown()
   })
 
   it('works', async () => {

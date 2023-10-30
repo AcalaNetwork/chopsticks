@@ -3,11 +3,10 @@ import { afterAll, describe, expect, it } from 'vitest'
 import networks from './networks'
 
 describe('relaychain dev rpc', async () => {
-  const polkadot = await networks.polkadot()
-  const { dev } = polkadot
+  const { dev, teardown } = await networks.polkadot()
 
   afterAll(async () => {
-    await polkadot.teardown()
+    await teardown()
   })
 
   it('build blocks', async () => {

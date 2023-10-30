@@ -4,8 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import networks from './networks'
 
 describe('Batch request', async () => {
-  const acala = await networks.acala()
-  const { chain, url } = acala
+  const { chain, url, teardown } = await networks.acala()
   const wsClient = new WebSocket(url)
 
   beforeAll(async () => {
@@ -16,7 +15,7 @@ describe('Batch request', async () => {
 
   afterAll(async () => {
     wsClient.close()
-    await acala.teardown()
+    await teardown()
   })
 
   it('batch getStorage', async () => {

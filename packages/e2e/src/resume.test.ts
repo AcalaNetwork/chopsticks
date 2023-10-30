@@ -159,6 +159,9 @@ describe('resume', async () => {
 
       await matchSnapshot(polkadot.api.query.system.account(alice.address))
       await matchSystemEvents(polkadot)
+
+      await acala.teardown()
+      await polkadot.teardown()
     })
   })
 })

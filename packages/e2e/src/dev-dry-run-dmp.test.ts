@@ -4,7 +4,7 @@ import networks from './networks'
 
 describe('dev_dryRun dmp', () => {
   it('works', async () => {
-    const acala = await networks.acala({
+    const { ws, teardown } = await networks.acala({
       blockHash: '0x1d9223c88161b512ebaac53c2c7df6dc6bd2731b12273b898f582af929cc5331',
     })
     const params = [
@@ -19,7 +19,8 @@ describe('dev_dryRun dmp', () => {
         ],
       },
     ]
-    const resp = await acala.ws.send('dev_dryRun', params)
+    const resp = await ws.send('dev_dryRun', params)
     expect(resp.new.system.events).toMatchSnapshot()
+    await teardown()
   })
 })
