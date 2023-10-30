@@ -105,15 +105,16 @@ export class Api {
     return this.#provider.send<HexString | null>(
       'chain_getBlockHash',
       Number.isInteger(blockNumber) ? [blockNumber] : [],
+      !!blockNumber,
     )
   }
 
   async getHeader(hash?: string) {
-    return this.#provider.send<Header | null>('chain_getHeader', hash ? [hash] : [])
+    return this.#provider.send<Header | null>('chain_getHeader', hash ? [hash] : [], !!hash)
   }
 
   async getBlock(hash?: string) {
-    return this.#provider.send<SignedBlock | null>('chain_getBlock', hash ? [hash] : [])
+    return this.#provider.send<SignedBlock | null>('chain_getBlock', hash ? [hash] : [], !!hash)
   }
 
   async getStorage(key: string, hash?: string) {
@@ -122,12 +123,12 @@ export class Api {
       // child storage key, use childstate_getStorage
       const params = [child, storageKey]
       if (hash) params.push(hash as HexString)
-      return this.#provider.send<HexString | null>('childstate_getStorage', params)
+      return this.#provider.send<HexString | null>('childstate_getStorage', params, !!hash)
     } else {
       // main storage key, use state_getStorage
       const params = [key]
       if (hash) params.push(hash)
-      return this.#provider.send<HexString | null>('state_getStorage', params)
+      return this.#provider.send<HexString | null>('state_getStorage', params, !!hash)
     }
   }
 
@@ -139,13 +140,13 @@ export class Api {
       const params = [child, storageKey, pageSize, stripChildPrefix(startKey as HexString)]
       if (hash) params.push(hash as HexString)
       return this.#provider
-        .send<HexString[]>('childstate_getKeysPaged', params)
+        .send<HexString[]>('childstate_getKeysPaged', params, !!hash)
         .then((keys) => keys.map((key) => prefixedChildKey(child, key)))
     } else {
       // main storage key, use state_getKeysPaged
       const params = [prefix, pageSize, startKey]
       if (hash) params.push(hash)
-      return this.#provider.send<HexString[]>('state_getKeysPaged', params)
+      return this.#provider.send<HexString[]>('state_getKeysPaged', params, !!hash)
     }
   }
 }

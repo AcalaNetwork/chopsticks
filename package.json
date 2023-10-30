@@ -60,6 +60,6 @@
 		"wasm-pack": "^0.12.1"
 	},
 	"resolutions": {
-		"typeorm@^0.3.17": "patch:typeorm@npm%3A0.3.17#./.yarn/patches/typeorm-npm-0.3.17-f8c2578e7f.patch"
+		"@polkadot/rpc-provider@10.10.1": "patch:@polkadot/rpc-provider@npm%3A10.10.1#./.yarn/patches/@polkadot-rpc-provider-npm-10.10.1-c60ba50fe2.patch"
 	}
 }
