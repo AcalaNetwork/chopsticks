@@ -5,7 +5,7 @@
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
 	"scripts": {
-		"clean": "rm -rf dist tsconfig.tsbuildinfo",
+		"clean": "rm -rf dist",
 		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json",
 		"script:start": "cd ../..; ts-node --transpile-only -r tsconfig-paths/register packages/chopsticks/src/cli.ts",
 		"script:run": "cd ../..; LOG_LEVEL=trace ts-node-dev --transpile-only -r tsconfig-paths/register --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/dev.yml",

@@ -4,7 +4,7 @@
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"scripts": {
-		"clean": "rm -rf dist tsconfig.tsbuildinfo",
+		"clean": "rm -rf dist",
 		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json"
 	},
 	"dependencies": {
