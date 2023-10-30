@@ -224,8 +224,9 @@ export class Block {
   get wasm() {
     if (!this.#wasm) {
       this.#wasm = (async (): Promise<HexString> => {
+        const parent = (await this.parentBlock) ?? this
         const wasmKey = stringToHex(':code')
-        const wasm = await this.get(wasmKey)
+        const wasm = await parent.get(wasmKey)
         if (!wasm) {
           throw new Error('No wasm found')
         }
@@ -290,7 +291,9 @@ export class Block {
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.call('Metadata_metadata', []).then((resp) => compactHex(hexToU8a(resp.result)))
+      this.#metadata = this.parentBlock
+        .then((p) => (p ?? this).call('Metadata_metadata', []))
+        .then((resp) => compactHex(hexToU8a(resp.result)))
     }
     return this.#metadata
   }
