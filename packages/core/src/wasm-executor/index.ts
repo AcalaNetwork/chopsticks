@@ -63,10 +63,13 @@ const logger = defaultLogger.child({ name: 'executor' })
 let __executor_worker: Promise<{ remote: Comlink.Remote<WasmExecutor>; terminate: () => Promise<void> }> | undefined
 const getWorker = async () => {
   if (__executor_worker) return __executor_worker
-  if (typeof Worker !== 'undefined') {
-    __executor_worker = import('./browser-worker').then(({ startWorker }) => startWorker())
-  } else {
+
+  const isNode = typeof process !== 'undefined' && process?.versions?.node // true for node or bun
+
+  if (isNode) {
     __executor_worker = import('./node-worker').then(({ startWorker }) => startWorker())
+  } else {
+    __executor_worker = import('./browser-worker').then(({ startWorker }) => startWorker())
   }
   return __executor_worker
 }
