@@ -5,8 +5,8 @@
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.js",
 	"scripts": {
-		"clean": "rm -rf lib tsconfig.tsbuildinfo",
-		"build": "tsc -p ./tsconfig.json",
+		"clean": "rm -rf dist",
+		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json",
 		"script:start": "cd ../..; ts-node --transpile-only -r tsconfig-paths/register packages/chopsticks/src/cli.ts",
 		"script:run": "cd ../..; LOG_LEVEL=trace ts-node-dev --transpile-only -r tsconfig-paths/register --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/dev.yml",
 		"dev:karura": "cd ../..; ts-node-dev --transpile-only --inspect -r tsconfig-paths/register --notify=false packages/chopsticks/src/cli.ts -- --config=configs/karura.yml",
@@ -42,24 +42,33 @@
 		"typescript": "^5.1.6"
 	},
 	"files": [
-		"lib",
+		"dist/esm/**",
+		"dist/cjs/**",
+		"dist/types/**",
 		"template",
 		"chopsticks.js"
 	],
-	"main": "./lib/index.js",
-	"types": "./lib/index.d.ts",
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"types": "./dist/types/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./lib/index.d.ts",
-			"default": "./lib/index.js"
+			"types": "./dist/types/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"import": "./dist/esm/index.js",
+			"default": "./dist/esm/index.js"
 		},
 		"./*": {
-			"types": "./lib/*.d.ts",
-			"default": "./lib/*.js"
+			"types": "./dist/types/index.d.ts",
+			"require": "./dist/cjs/index.js",
+			"import": "./dist/esm/index.js",
+			"default": "./dist/esm/index.js"
 		},
 		"./plugins/*": {
-			"types": "./lib/plugins/*.d.ts",
-			"default": "./lib/plugins/*.js"
+			"types": "./dist/types/plugins/*.d.ts",
+			"require": "./dist/cjs/plugins/*.js",
+			"import": "./dist/esm/plugins/*.js",
+			"default": "./dist/esm/plugins/*.js"
 		},
 		"./package.json": "./package.json"
 	}

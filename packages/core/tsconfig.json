@@ -1,18 +1,10 @@
 {
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"outDir": "lib",
 		"rootDir": "src",
-		"lib": ["es2021", "dom", "dom.iterable"],
-		"isolatedModules": true
+		"outDir": "./dist/cjs",
+		"declarationDir": "./dist/types"
 	},
 	"include": ["src/**/*"],
-	"exclude": ["src/**/*.test.ts"],
-	"typedocOptions": {
-		"entryPoints": ["src/index.ts"],
-		"out": "../../docs-src/core",
-		"plugin": "typedoc-plugin-markdown",
-		"readme": "none",
-		"excludePrivate": true
-	}
+	"exclude": ["src/**/*.test.ts"]
 }
