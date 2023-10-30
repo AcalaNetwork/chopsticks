@@ -107,3 +107,13 @@ export const stripChildPrefix = (key: HexString) => {
   if (!child) return key
   return storageKey
 }
+
+export const printRuntimeLogs = (logs: string[]) => {
+  if (!logs.length) return
+
+  console.group('RuntimeLogs:')
+  for (const log of logs) {
+    console.log(log)
+  }
+  console.groupEnd()
+}

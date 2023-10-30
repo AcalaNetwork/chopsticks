@@ -10,8 +10,7 @@ import type { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
-import { compactHex } from '../utils'
-import { defaultLogger } from '../logger'
+import { compactHex, printRuntimeLogs } from '../utils'
 import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor'
 import type { RuntimeVersion } from '../wasm-executor'
 
@@ -322,9 +321,7 @@ export class Block {
       taskHandler(this),
     )
     if ('Call' in response) {
-      for (const log of response.Call.runtimeLogs) {
-        defaultLogger.info(`RuntimeLogs:\n${log}`)
-      }
+      printRuntimeLogs(response.Call.runtimeLogs)
 
       if (this.chain.offchainWorker) {
         // apply offchain storage

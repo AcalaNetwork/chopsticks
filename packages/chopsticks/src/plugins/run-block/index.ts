@@ -6,10 +6,9 @@ import { z } from 'zod'
 import _ from 'lodash'
 import type yargs from 'yargs'
 
-import { Block, Context, decodeKeyValue, runTask, taskHandler } from '@acala-network/chopsticks-core'
+import { Block, Context, decodeKeyValue, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
 
 import { Config } from '../../schema'
-import { defaultLogger } from '../../logger'
 import { defaultOptions, mockOptions } from '../../cli-options'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
 import { openHtml } from '../../utils/open-html'
@@ -66,9 +65,7 @@ export const cli = (y: yargs.Argv) => {
         throw new Error(result.Error)
       }
 
-      for (const logs of result.Call.runtimeLogs) {
-        defaultLogger.info(`RuntimeLogs:\n${logs}`)
-      }
+      printRuntimeLogs(result.Call.runtimeLogs)
 
       if (argv.html) {
         const filePath = await generateHtmlDiffPreviewFile(parent, result.Call.storageDiff, block.hash)
