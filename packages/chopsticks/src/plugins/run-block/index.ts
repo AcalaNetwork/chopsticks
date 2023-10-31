@@ -6,7 +6,7 @@ import { z } from 'zod'
 import _ from 'lodash'
 import type yargs from 'yargs'
 
-import { Block, Context, decodeKeyValue, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
+import { Block, Context, compactHex, decodeKeyValue, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
 
 import { Config } from '../../schema'
 import { defaultOptions, mockOptions } from '../../cli-options'
@@ -139,13 +139,18 @@ export interface RunBlockResponse {
      */
     phase: Phase
     /**
-     * Parsed storage diff. Only available when `includeParsed` is true.
+     * The modified storages of this phase.
      */
-    parsed?: Record<string, Record<string, any>>
-    /**
-     * Raw storage diff. Only available when `includeRaw` is true.
-     */
-    raw?: [HexString, HexString | null][]
+    storageDiff: {
+      /**
+       * Raw storage diff in bytes. Only available when `includeRaw` is true.
+       */
+      raw?: { key: HexString; value: HexString | null }
+      /**
+       * Decoded storage diff. Only available when `includeParsed` is true.
+       */
+      parsed?: any
+    }[]
     /**
      * Runtime logs.
      */
@@ -198,6 +203,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
   const header = registry.createType<Header>('Header', block.header)
 
   const wasm = await parentBlock.wasm
+  const meta = await parentBlock.meta
 
   const blockNumber = parentBlock.number + 1
   const hash: HexString = `0x${Math.round(Math.random() * 100000000)
@@ -213,6 +219,10 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
   const resp = {
     phases: [],
   } as RunBlockResponse
+
+  // exclude system events because it can be stupidly large and redudant
+  const systemEventsKey = compactHex(meta.query.system.events())
+  console.log('systemEventsKey', systemEventsKey)
 
   const run = async (fn: string, args: HexString[]) => {
     const result = await runTask(
@@ -230,28 +240,24 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
       throw new Error(result.Error)
     }
 
-    const resp = {} as any
+    const resp = { storageDiff: [] } as Omit<RunBlockResponse['phases'][number], 'phase'>
     const raw = result.Call.storageDiff
 
     newBlock.pushStorageLayer().setAll(raw)
 
-    if (includeRawStorage) {
-      resp.raw = raw
-    }
-
-    if (includeParsed) {
-      const meta = await newBlock.meta
-      const parsed = {}
-      for (const [key, value] of raw) {
-        _.merge(parsed, decodeKeyValue(meta, newBlock, key, value, false))
+    for (const [key, value] of raw) {
+      if (key === systemEventsKey) {
+        continue
       }
 
-      // clear events because it can be stupidly large and redudant
-      if (parsed['system']?.['events']) {
-        delete parsed['system']['events']
+      const obj = {} as typeof resp['storageDiff'][number]
+      if (includeRawStorage) {
+        obj.raw = { key, value }
       }
-
-      resp.parsed = parsed
+      if (includeParsed) {
+        obj.parsed = decodeKeyValue(await newBlock.meta, newBlock, key, value, false)
+      }
+      resp.storageDiff.push(obj)
     }
 
     resp.logs = result.Call.runtimeLogs
