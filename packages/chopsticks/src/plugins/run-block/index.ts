@@ -6,7 +6,15 @@ import { z } from 'zod'
 import _ from 'lodash'
 import type yargs from 'yargs'
 
-import { Block, Context, compactHex, decodeKeyValue, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
+import {
+  Block,
+  Context,
+  compactHex,
+  decodeKeyValue,
+  printRuntimeLogs,
+  runTask,
+  taskHandler,
+} from '@acala-network/chopsticks-core'
 
 import { Config } from '../../schema'
 import { defaultOptions, mockOptions } from '../../cli-options'
@@ -249,7 +257,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         continue
       }
 
-      const obj = {} as typeof resp['storageDiff'][number]
+      const obj = {} as (typeof resp)['storageDiff'][number]
       if (includeRawStorage) {
         obj.raw = { key, value }
       }
