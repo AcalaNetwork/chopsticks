@@ -222,7 +222,6 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
 
   // exclude system events because it can be stupidly large and redudant
   const systemEventsKey = compactHex(meta.query.system.events())
-  console.log('systemEventsKey', systemEventsKey)
 
   const run = async (fn: string, args: HexString[]) => {
     const result = await runTask(
