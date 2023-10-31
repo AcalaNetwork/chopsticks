@@ -1,7 +1,7 @@
 {
 	"name": "@acala-network/chopsticks-executor",
 	"description": "Chopsticks executor",
-	"version": "0.8.5-6",
+	"version": "0.9.0",
 	"license": "Apache-2.0",
 	"repository": {
 		"type": "git",
