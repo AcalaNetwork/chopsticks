@@ -88,7 +88,7 @@ __metadata:
     "@types/lodash": ^4.14.199
     "@types/node": ^20.5.7
     "@types/ws": ^8.5.6
-    "@types/yargs": ^17.0.24
+    "@types/yargs": ^17.0.29
     axios: ^1.5.1
     dotenv: ^16.3.1
     global-agent: ^3.0.0
@@ -2468,12 +2468,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yargs@npm:^17.0.24":
-  version: 17.0.24
-  resolution: "@types/yargs@npm:17.0.24"
+"@types/yargs@npm:^17.0.29":
+  version: 17.0.29
+  resolution: "@types/yargs@npm:17.0.29"
   dependencies:
     "@types/yargs-parser": "*"
-  checksum: 5f3ac4dc4f6e211c1627340160fbe2fd247ceba002190da6cf9155af1798450501d628c9165a183f30a224fc68fa5e700490d740ff4c73e2cdef95bc4e8ba7bf
+  checksum: 8bbc0edd573a5a084cb13a9985c124490fd74e73b1ed8a3058861c13124e103b00a19770dc55c53215653a7845d7033e0695917b75153cfe9618d5b2fd3cf86e
   languageName: node
   linkType: hard
 
