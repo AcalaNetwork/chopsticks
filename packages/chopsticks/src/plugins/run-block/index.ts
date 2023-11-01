@@ -270,10 +270,10 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         const decoded = decodeKeyValue(await newBlock.meta, newBlock, key, value, false)
         if (decoded) {
           obj.parsed = {
-            section: decoded?.section,
-            method: decoded?.method,
-            key: decoded?.key.map((x) => x.toString()),
-            value: decoded?.value?.toString(),
+            section: decoded.section,
+            method: decoded.method,
+            key: decoded.key?.map((x) => x.toString()),
+            value: decoded.value?.toString(),
           }
         }
       }
