@@ -20,7 +20,7 @@
 		"@acala-network/chopsticks-core": "workspace:*",
 		"@acala-network/chopsticks-db": "workspace:*",
 		"@pnpm/npm-conf": "^2.2.2",
-		"axios": "^1.5.1",
+		"axios": "^1.6.0",
 		"dotenv": "^16.3.1",
 		"global-agent": "^3.0.0",
 		"js-yaml": "^4.1.0",
@@ -36,7 +36,7 @@
 		"@types/lodash": "^4.14.199",
 		"@types/node": "^20.5.7",
 		"@types/ws": "^8.5.6",
-		"@types/yargs": "^17.0.24",
+		"@types/yargs": "^17.0.29",
 		"ts-node": "^10.9.1",
 		"ts-node-dev": "^2.0.0",
 		"typescript": "^5.1.6"
