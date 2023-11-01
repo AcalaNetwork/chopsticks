@@ -1,50 +1,67 @@
-import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { Header } from '@polkadot/types/interfaces'
 import { defaultLogger } from '@acala-network/chopsticks-core'
 import _ from 'lodash'
 import type yargs from 'yargs'
 
-import { Config } from '../../schema'
+import { createServer } from '../../server'
 import { defaultOptions } from '../../cli-options'
+import { handler } from '../../rpc'
 import { setupContext } from '../../context'
+import type { Config } from '../../schema'
 
-const options = _.pick(defaultOptions, ['endpoint', 'wasm-override', 'runtime-log-level', 'offchain-worker'])
 const logger = defaultLogger.child({ name: 'follow-chain' })
+const options = _.pick(defaultOptions, ['endpoint', 'wasm-override', 'runtime-log-level', 'offchain-worker'])
 
 export const cli = (y: yargs.Argv) => {
   y.command(
     'follow-chain',
     'Always follow the latest block on upstream',
-    (yargs) => yargs.options(options),
+    (yargs) =>
+      yargs.options({
+        ...options,
+        'head-mode': {
+          desc: 'Head mode',
+          choices: ['latest', 'finalized'],
+          default: 'finalized',
+        },
+        port: {
+          desc: 'Port to listen on',
+          number: true,
+        },
+      }),
     async (argv) => {
-      const { chain } = await setupContext(argv as Config, true)
-
-      let provider: ProviderInterface
+      const port = argv.port ?? 8000
       const endpoint = argv.endpoint as string
       if (/^(https|http):\/\//.test(endpoint || '')) {
-        provider = new HttpProvider(endpoint as string)
-      } else {
-        provider = new WsProvider(endpoint as string)
+        throw Error('http provider is not supported')
       }
-      const apiPromise = await ApiPromise.create({
-        provider,
-        signedExtensions: {
-          SetEvmOrigin: {
-            extrinsic: {},
-            payload: {},
-          },
+
+      const context = await setupContext(argv as Config, true)
+      const chain = context.chain
+
+      // TODO: fix subscribe
+      await chain.api[argv['head-mode'] === 'latest' ? 'subscribeRemoteNewHeads' : 'subscribeRemoteFinalizedHeads'](
+        async (error, header: Header) => {
+          try {
+            if (error) throw error
+
+            logger.info({ header: header.toJSON() }, `New ${argv['head-mode']} head from upstream`)
+            const block = await chain.getBlock(header.hash.toHex())
+            if (!block) throw Error(`cant find block ', ${header.hash.toHex()}`)
+            logger.info({ blockNumber: block?.number }, 'New block')
+
+            // TODO: run block
+            // await chain.setHead(block)
+          } catch (e) {
+            logger.error(e)
+            await close()
+          }
         },
-      })
+      )
 
-      await apiPromise.isReady
+      const { close, port: listenPort } = await createServer(handler(context), port)
 
-      apiPromise.rpc.chain.subscribeFinalizedHeads(async (header) => {
-        logger.info({ header: header.toJSON() }, 'New head from upstream')
-        const block = await chain.getBlock(header.hash.toHex())
-        if (!block) throw Error(`cant find block ', ${header.hash.toHex()}`)
-        logger.info({ blockNumber: block?.number }, 'New block')
-        await chain.setHead(block)
-      })
+      logger.info(`${await context.chain.api.getSystemChain()} RPC listening on port ${listenPort}`)
     },
   )
 }
