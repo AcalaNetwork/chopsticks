@@ -84,8 +84,8 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
 
   // override wasm before importing storage, in case new pallets have been
   // added that have storage imports
-  await overrideStorage(chain, argv['import-storage'], at)
   await overrideWasm(chain, argv['wasm-override'], at)
+  await overrideStorage(chain, argv['import-storage'], at)
 
   return { chain }
 }
