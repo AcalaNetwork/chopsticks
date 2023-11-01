@@ -2,6 +2,28 @@
 
 exports[`decoder > decode key-value 1`] = `
 {
+  "key": [
+    "25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa",
+  ],
+  "method": "account",
+  "section": "system",
+  "value": {
+    "consumers": "0",
+    "data": {
+      "feeFrozen": "0",
+      "free": "10,000,000,000",
+      "miscFrozen": "0",
+      "reserved": "0",
+    },
+    "nonce": "0",
+    "providers": "0",
+    "sufficients": "0",
+  },
+}
+`;
+
+exports[`decoder > decode key-value 2`] = `
+{
   "system": {
     "account": {
       "25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa": {
@@ -21,7 +43,25 @@ exports[`decoder > decode key-value 1`] = `
 }
 `;
 
-exports[`decoder > decode key-value 2`] = `
+exports[`decoder > decode key-value 3`] = `
+{
+  "key": [
+    "25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa",
+    {
+      "token": "ACA",
+    },
+  ],
+  "method": "accounts",
+  "section": "tokens",
+  "value": {
+    "free": "10,000,000,000",
+    "frozen": "0",
+    "reserved": "0",
+  },
+}
+`;
+
+exports[`decoder > decode key-value 4`] = `
 {
   "tokens": {
     "accounts": {
@@ -38,6 +78,28 @@ exports[`decoder > decode key-value 2`] = `
 `;
 
 exports[`decoder > works with multiple chains 1`] = `
+{
+  "key": [
+    "15oF4uVJwmo4TdGW7VfQxNLavjCXviqxT9S1MgbjMNHr6Sp5",
+  ],
+  "method": "account",
+  "section": "system",
+  "value": {
+    "consumers": "0",
+    "data": {
+      "feeFrozen": "0",
+      "free": "10,000,000,000",
+      "miscFrozen": "0",
+      "reserved": "0",
+    },
+    "nonce": "0",
+    "providers": "0",
+    "sufficients": "0",
+  },
+}
+`;
+
+exports[`decoder > works with multiple chains 2`] = `
 {
   "system": {
     "account": {
