@@ -157,7 +157,12 @@ export interface RunBlockResponse {
       /**
        * Decoded storage diff. Only available when `includeParsed` is true.
        */
-      parsed?: any
+      parsed?: {
+        method: string
+        section: string
+        key: any[]
+        value: any
+      }
     }[]
     /**
      * Runtime logs.
@@ -262,7 +267,15 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         obj.raw = { key, value }
       }
       if (includeParsed) {
-        obj.parsed = decodeKeyValue(await newBlock.meta, newBlock, key, value, false)
+        const decoded = decodeKeyValue(await newBlock.meta, newBlock, key, value, false)
+        if (decoded) {
+          obj.parsed = {
+            section: decoded?.section,
+            method: decoded?.method,
+            key: decoded?.key.map((x) => x.toString()),
+            value: decoded?.value?.toString(),
+          }
+        }
       }
       resp.storageDiff.push(obj)
     }
