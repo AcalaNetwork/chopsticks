@@ -1,5 +1,6 @@
+import { Block, defaultLogger, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
+import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
-import { defaultLogger, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
 import _ from 'lodash'
 import type yargs from 'yargs'
 
@@ -50,11 +51,10 @@ export const cli = (y: yargs.Argv) => {
             const parent = await chain.getBlock(data.parentHash)
             if (!parent) throw Error(`Cannot find parent', ${data.parentHash}`)
             const registry = await parent.registry
-            const header = registry.createType('Header', data)
+            const header = registry.createType<Header>('Header', data)
             const wasm = await parent.wasm
 
-            const block = await chain.getBlock(header.hash.toHex())
-            if (!block) throw Error(`Cannot find block ${header.hash.toHex()}`)
+            const block = new Block(chain, header.number.toNumber(), header.hash.toHex(), parent)
             await chain.setHead(block)
 
             const calls: [string, HexString[]][] = [['Core_initialize_block', [header.toHex()]]]
