@@ -4,7 +4,6 @@ import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
