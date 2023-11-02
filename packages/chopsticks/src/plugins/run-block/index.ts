@@ -1,6 +1,7 @@
 import { GenericExtrinsic } from '@polkadot/types'
 import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
+import { u8aToHex } from '@polkadot/util'
 import { writeFileSync } from 'node:fs'
 import { z } from 'zod'
 import _ from 'lodash'
@@ -200,6 +201,7 @@ export const name = 'runBlock'
  * Run a set of extrinsics on top of a block and get the storage diff
  * and optionally the parsed storage diff and block details.
  * NOTE: The extrinsics should include inherents or tranasctions may have unexpected results.
+ * NOTE: system.events and system.extrinsicData are excluded from storage diff to reduce size.
  *
  * This function is a dev rpc handler. Use `dev_runBlock` as the method name when calling it.
  */
@@ -236,6 +238,8 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
 
   // exclude system events because it can be stupidly large and redudant
   const systemEventsKey = compactHex(meta.query.system.events())
+  // large and not really useful
+  const systemExtrinsicDataKey = u8aToHex(meta.query.system.extrinsicData.keyPrefix())
 
   const run = async (fn: string, args: HexString[]) => {
     const result = await runTask(
@@ -262,6 +266,9 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
       if (key === systemEventsKey) {
         continue
       }
+      if (key.startsWith(systemExtrinsicDataKey)) {
+        continue
+      }
 
       const obj = {} as (typeof resp)['storageDiff'][number]
       if (includeRawStorage) {
@@ -273,8 +280,8 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
           obj.parsed = {
             section: decoded.section,
             method: decoded.method,
-            key: decoded.key?.map((x) => x.toString()),
-            value: decoded.value?.toString(),
+            key: decoded.key,
+            value: decoded.value,
           }
         }
       }
