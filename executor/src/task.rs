@@ -341,17 +341,14 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
 
                 success
                     .storage_changes
-                    .trie_diffs()
-                    .iter()
-                    .for_each(|(child, diff)| {
-                        diff.diff_iter_unordered().for_each(|(key, value, _)| {
-                            let prefixed_key = if let Some(child) = child {
-                                prefixed_child_key(child.iter().copied(), key.iter().copied())
-                            } else {
-                                key.to_vec()
-                            };
-                            storage_changes.insert(prefixed_key, value.map(|x| x.to_vec()));
-                        });
+                    .storage_changes_iter_unordered()
+                    .for_each(|(child, key, value)| {
+                        let prefixed_key = if let Some(child) = child {
+                            prefixed_child_key(child.iter().copied(), key.iter().copied())
+                        } else {
+                            key.to_vec()
+                        };
+                        storage_changes.insert(prefixed_key, value.map(|x| x.to_vec()));
                     });
 
                 storage_main_trie_changes = success.storage_changes.into_main_trie_diff();
