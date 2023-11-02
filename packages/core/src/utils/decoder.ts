@@ -75,9 +75,6 @@ export const decodeKeyValue = (
 
   const decodeValue = () => {
     if (!value) return null
-    if (storage.section === 'substrate' && storage.method === 'code') {
-      return `:code blake2_256 ${blake2AsHex(value, 256)} (${hexToU8a(value).length} bytes)`
-    }
     return meta.registry.createType(decodedKey.outputType, hexToU8a(value))[toHuman ? 'toHuman' : 'toJSON']()
   }
 
