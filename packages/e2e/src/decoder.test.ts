@@ -43,7 +43,14 @@ describe('decoder', async () => {
     it('works with well known keys', async () => {
       const meta = await chain.head.meta
       expect(decodeKeyValue(meta, chain.head, '0x3a636f6465', '0x12345678')).toMatchSnapshot()
-      expect(decodeKeyValue(meta, chain.head, '0x3a72656c61795f64697370617463685f71756575655f72656d61696e696e675f63617061636974790c0d0000', '0xaaaa020000001000')).toMatchSnapshot()
+      expect(
+        decodeKeyValue(
+          meta,
+          chain.head,
+          '0x3a72656c61795f64697370617463685f71756575655f72656d61696e696e675f63617061636974790c0d0000',
+          '0xaaaa020000001000',
+        ),
+      ).toMatchSnapshot()
       expect(decodeKeyValue(meta, chain.head, '0x3a7472616e73616374696f6e5f6c6576656c3a')).toMatchSnapshot()
       expect(decodeKeyValue(meta, chain.head, '0x3a65787472696e7369635f696e646578', '0x02000000')).toMatchSnapshot()
     })
