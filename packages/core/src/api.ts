@@ -1,6 +1,6 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils'
 
 export type ChainProperties = {
@@ -148,5 +148,19 @@ export class Api {
       if (hash) params.push(hash)
       return this.#provider.send<HexString[]>('state_getKeysPaged', params, !!hash)
     }
+  }
+
+  async subscribeRemoteNewHeads(cb: ProviderInterfaceCallback) {
+    if (!this.#provider.hasSubscriptions) {
+      throw new Error('subscribeRemoteNewHeads only works with subscriptions')
+    }
+    return this.#provider.subscribe('chain_newHead', 'chain_subscribeNewHeads', [], cb)
+  }
+
+  async subscribeRemoteFinalizedHeads(cb: ProviderInterfaceCallback) {
+    if (!this.#provider.hasSubscriptions) {
+      throw new Error('subscribeRemoteFinalizedHeads only works with subscriptions')
+    }
+    return this.#provider.subscribe('chain_finalizedHead', 'chain_subscribeFinalizedHeads', [], cb)
   }
 }
