@@ -1,12 +1,10 @@
 import { HexString } from '@polkadot/util/types'
 import { defaultLogger, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
-import { writeFileSync } from 'fs'
 import _ from 'lodash'
 import type yargs from 'yargs'
 
 import { createServer } from '../../server'
 import { defaultOptions } from '../../cli-options'
-import { generateHtmlDiffPreviewFile, openHtml } from '../../utils'
 import { handler } from '../../rpc'
 import { setupContext } from '../../context'
 import type { Config } from '../../schema'
@@ -29,16 +27,6 @@ export const cli = (y: yargs.Argv) => {
           desc: 'Head mode',
           choices: ['latest', 'finalized'],
           default: 'finalized',
-        },
-        'output-path': {
-          desc: 'File path to print run block output',
-          string: true,
-        },
-        html: {
-          desc: 'Generate html with storage diff',
-        },
-        open: {
-          desc: 'Open generated html',
         },
       }),
     async (argv) => {
@@ -93,18 +81,6 @@ export const cli = (y: yargs.Argv) => {
             }
 
             printRuntimeLogs(result.Call.runtimeLogs)
-
-            if (argv.html) {
-              const filePath = await generateHtmlDiffPreviewFile(parent, result.Call.storageDiff, block.hash)
-              logger.info({ filePath }, `Generated preview`)
-              if (argv.open) {
-                openHtml(filePath)
-              }
-            } else if (argv.outputPath) {
-              writeFileSync(argv.outputPath, JSON.stringify(result, null, 2))
-            } else {
-              console.dir(result, { depth: null, colors: false })
-            }
           } catch (e) {
             logger.error(e, 'Error when processing new head')
             await close()
