@@ -14,6 +14,7 @@ use smoldot::{
         calculate_root::{root_merkle_value, RootMerkleValueCalculation},
         nibbles_to_bytes_suffix_extend, HashFunction, TrieEntryVersion,
     },
+    verify::body_only::LogEmitInfo,
 };
 use std::collections::BTreeMap;
 
@@ -70,11 +71,19 @@ pub struct TaskCall {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+pub struct LogInfo {
+    message: String,
+    level: Option<u32>,
+    target: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct CallResponse {
     result: HexString,
     storage_diff: Vec<(HexString, Option<HexString>)>,
     offchain_storage_diff: Vec<(HexString, Option<HexString>)>,
-    runtime_logs: Vec<String>,
+    runtime_logs: Vec<LogInfo>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -123,7 +132,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     })
     .unwrap();
     let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
-    let mut runtime_logs: Vec<String> = vec![];
+    let mut runtime_logs: Vec<LogInfo> = vec![];
 
     for (call, params) in task.calls {
         let mut vm = runtime_host::run(runtime_host::Config {
@@ -287,6 +296,40 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         req.resume(success)
                     }
                 },
+
+                RuntimeHostVm::LogEmit(req) => {
+                    {
+                        let info = req.info();
+                        let log = match info {
+                            LogEmitInfo::Num(v) => LogInfo {
+                                message: v.to_string(),
+                                level: None,
+                                target: None,
+                            },
+                            LogEmitInfo::Utf8(v) => LogInfo {
+                                message: v.to_string(),
+                                level: None,
+                                target: None,
+                            },
+                            LogEmitInfo::Hex(v) => LogInfo {
+                                message: v.to_string(),
+                                level: None,
+                                target: None,
+                            },
+                            LogEmitInfo::Log {
+                                log_level,
+                                target,
+                                message,
+                            } => LogInfo {
+                                message: message.to_string(),
+                                level: Some(log_level),
+                                target: Some(target.to_string()),
+                            },
+                        };
+                        runtime_logs.push(log);
+                    }
+                    req.resume()
+                }
             }
         };
 
@@ -312,10 +355,6 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     });
 
                 storage_main_trie_changes = success.storage_changes.into_main_trie_diff();
-
-                if !success.logs.is_empty() {
-                    runtime_logs.push(success.logs);
-                }
             }
             Err(err) => {
                 ret = Err(err.to_string());

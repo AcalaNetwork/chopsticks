@@ -9,6 +9,7 @@ import type yargs from 'yargs'
 import {
   Block,
   Context,
+  RuntimeLog,
   compactHex,
   decodeKeyValue,
   printRuntimeLogs,
@@ -167,7 +168,7 @@ export interface RunBlockResponse {
     /**
      * Runtime logs.
      */
-    logs?: string[]
+    logs?: RuntimeLog[]
   }[]
   /**
    * Block details. Only available when `includeBlockDetails` is true.
