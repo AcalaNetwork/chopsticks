@@ -113,7 +113,7 @@ exports[`decoder > with acala > works with well known keys 1`] = `
 exports[`decoder > with acala > works with well known keys 2`] = `
 {
   "key": [
-    202178560,
+    3340,
   ],
   "method": "relayDispatchQueueRemainingCapacity",
   "section": "substrate",
@@ -130,6 +130,15 @@ exports[`decoder > with acala > works with well known keys 3`] = `
   "method": "transactionLevel",
   "section": "substrate",
   "value": undefined,
+}
+`;
+
+exports[`decoder > with acala > works with well known keys 4`] = `
+{
+  "key": [],
+  "method": "extrinsicIndex",
+  "section": "substrate",
+  "value": 2,
 }
 `;
 

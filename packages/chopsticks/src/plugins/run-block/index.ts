@@ -1,6 +1,7 @@
 import { GenericExtrinsic } from '@polkadot/types'
 import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
+import { u8aToHex } from '@polkadot/util'
 import { writeFileSync } from 'node:fs'
 import { z } from 'zod'
 import _ from 'lodash'
@@ -237,7 +238,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
   // exclude system events because it can be stupidly large and redudant
   const systemEventsKey = compactHex(meta.query.system.events())
   // large and not really useful
-  const systemExtrinsicDataKey = compactHex(meta.query.system.extrinsicData())
+  const systemExtrinsicDataKey = u8aToHex(meta.query.system.extrinsicData.keyPrefix())
 
   const run = async (fn: string, args: HexString[]) => {
     const result = await runTask(
@@ -261,7 +262,10 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     newBlock.pushStorageLayer().setAll(raw)
 
     for (const [key, value] of raw) {
-      if (key === systemEventsKey || key === systemExtrinsicDataKey) {
+      if (key === systemEventsKey) {
+        continue
+      }
+      if (key.startsWith(systemExtrinsicDataKey)) {
         continue
       }
 
