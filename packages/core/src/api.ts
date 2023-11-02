@@ -1,7 +1,6 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
-import { WsProvider } from '@polkadot/api'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils'
 
 export type ChainProperties = {
@@ -152,16 +151,16 @@ export class Api {
   }
 
   async subscribeRemoteNewHeads(cb: ProviderInterfaceCallback) {
-    if (!(this.#provider instanceof WsProvider)) {
-      throw new Error('subscribeRemoteNewHeads only works with WsProvider')
+    if (!this.#provider.hasSubscriptions) {
+      throw new Error('subscribeRemoteNewHeads only works with subscriptions')
     }
-    return this.#provider.subscribe('', 'chain_subscribeNewHeads', [], cb)
+    return this.#provider.subscribe('chain_newHead', 'chain_subscribeNewHeads', [], cb)
   }
 
   async subscribeRemoteFinalizedHeads(cb: ProviderInterfaceCallback) {
-    if (!(this.#provider instanceof WsProvider)) {
-      throw new Error('subscribeRemoteFinalizedHeads only works with WsProvider')
+    if (!this.#provider.hasSubscriptions) {
+      throw new Error('subscribeRemoteFinalizedHeads only works with subscriptions')
     }
-    return this.#provider.subscribe('chain', 'chain_subscribeFinalizedHeads', [], cb)
+    return this.#provider.subscribe('chain_finalizedHead', 'chain_subscribeFinalizedHeads', [], cb)
   }
 }
