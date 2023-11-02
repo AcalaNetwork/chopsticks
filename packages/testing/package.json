@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-testing",
-	"version": "0.9.0",
+	"version": "0.9.1-1",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"scripts": {
