@@ -199,6 +199,7 @@ export const name = 'runBlock'
  * Run a set of extrinsics on top of a block and get the storage diff
  * and optionally the parsed storage diff and block details.
  * NOTE: The extrinsics should include inherents or tranasctions may have unexpected results.
+ * NOTE: system.events are system.extrinsicData are excluded from storage diff to reduce size.
  *
  * This function is a dev rpc handler. Use `dev_runBlock` as the method name when calling it.
  */
@@ -235,6 +236,8 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
 
   // exclude system events because it can be stupidly large and redudant
   const systemEventsKey = compactHex(meta.query.system.events())
+  // large and not really useful
+  const systemExtrinsicDataKey = compactHex(meta.query.system.extrinsicData())
 
   const run = async (fn: string, args: HexString[]) => {
     const result = await runTask(
@@ -258,7 +261,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     newBlock.pushStorageLayer().setAll(raw)
 
     for (const [key, value] of raw) {
-      if (key === systemEventsKey) {
+      if (key === systemEventsKey || key === systemExtrinsicDataKey) {
         continue
       }
 

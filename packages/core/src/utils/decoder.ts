@@ -8,6 +8,8 @@ import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
+import { decodeWellKnownKey } from './well-known-keys'
+
 const _CACHE: Record<string, Map<HexString, StorageEntry>> = {}
 
 const getCache = (uid: string): Map<HexString, StorageEntry> => {
@@ -55,6 +57,16 @@ export const decodeKeyValue = (
   value?: HexString | null,
   toHuman = true,
 ) => {
+  const res = decodeWellKnownKey(meta.registry, key, value)
+  if (res) {
+    return {
+      section: 'substrate',
+      method: res.name,
+      key: res.key,
+      value: res.value,
+    }
+  }
+
   const { storage, decodedKey } = decodeKey(meta, block, key)
 
   if (!storage || !decodedKey) {
