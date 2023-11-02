@@ -58,7 +58,7 @@ export const decodeKeyValue = (
   const { storage, decodedKey } = decodeKey(meta, block, key)
 
   if (!storage || !decodedKey) {
-    return { [key]: value }
+    return undefined
   }
 
   const decodeValue = () => {
@@ -69,33 +69,35 @@ export const decodeKeyValue = (
     return meta.registry.createType(decodedKey.outputType, hexToU8a(value))[toHuman ? 'toHuman' : 'toJSON']()
   }
 
-  switch (decodedKey.args.length) {
-    case 2: {
-      return {
-        [storage.section]: {
-          [storage.method]: {
-            [decodedKey.args[0].toString()]: {
-              [decodedKey.args[1].toString()]: decodeValue(),
-            },
-          },
-        },
-      }
+  return {
+    section: storage.section,
+    method: storage.method,
+    key: decodedKey.args,
+    value: decodeValue(),
+  }
+}
+
+export const toStorageObject = (decoded: ReturnType<typeof decodeKeyValue>) => {
+  if (!decoded) {
+    return undefined
+  }
+
+  const { section, method, key, value } = decoded
+
+  let obj = value
+
+  if (key) {
+    for (let i = key.length - 1; i >= 0; i--) {
+      const k = key[i]
+      const newObj = { [k.toString()]: obj }
+      obj = newObj
     }
-    case 1: {
-      return {
-        [storage.section]: {
-          [storage.method]: {
-            [decodedKey.args[0].toString()]: decodeValue(),
-          },
-        },
-      }
-    }
-    default:
-      return {
-        [storage.section]: {
-          [storage.method]: decodeValue(),
-        },
-      }
+  }
+
+  return {
+    [section]: {
+      [method]: obj,
+    },
   }
 }
 
@@ -110,8 +112,12 @@ export const decodeBlockStorageDiff = async (block: Block, diff: [HexString, Hex
   const newState = {}
   const meta = await block.meta
   for (const [key, value] of diff) {
-    _.merge(oldState, decodeKeyValue(meta, block, key, (await block.get(key)) as any))
-    _.merge(newState, decodeKeyValue(meta, block, key, value))
+    const oldValue = await block.get(key)
+    const oldDecoded = toStorageObject(decodeKeyValue(meta, block, key, oldValue)) ?? { [key]: oldValue }
+    _.merge(oldState, oldDecoded)
+
+    const newDecoded = toStorageObject(decodeKeyValue(meta, block, key, value)) ?? { [key]: value }
+    _.merge(newState, newDecoded)
   }
   return [oldState, newState]
 }

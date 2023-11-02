@@ -154,13 +154,13 @@ export class Block {
   /**
    * Get the block storage by key.
    */
-  async get(key: string): Promise<string | undefined> {
+  async get(key: string): Promise<HexString | undefined> {
     const val = await this.storage.get(key, true)
     switch (val) {
       case StorageValueKind.Deleted:
         return undefined
       default:
-        return val
+        return val as HexString
     }
   }
 

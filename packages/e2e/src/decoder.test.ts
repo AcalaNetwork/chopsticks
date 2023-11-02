@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import { decodeKey, decodeKeyValue } from '@acala-network/chopsticks-core/utils/decoder'
+import { decodeKey, decodeKeyValue, toStorageObject } from '@acala-network/chopsticks-core/utils/decoder'
 
 import networks from './networks'
 
@@ -26,10 +26,14 @@ describe('decoder', async () => {
     const meta = await chain.head.meta
     const data = { data: { free: 10000000000 } }
     const value = meta.registry.createType('AccountInfo', data)
-    expect(decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())).toMatchSnapshot()
+    const decoded = decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())
+    expect(decoded).toMatchSnapshot()
+    expect(toStorageObject(decoded)).toMatchSnapshot()
 
     const ormlAccountData = meta.registry.createType('AccountData', data.data)
-    expect(decodeKeyValue(meta, chain.head, TOKENS_ACCOUNTS, ormlAccountData.toHex())).toMatchSnapshot()
+    const decoded2 = decodeKeyValue(meta, chain.head, TOKENS_ACCOUNTS, ormlAccountData.toHex())
+    expect(decoded2).toMatchSnapshot()
+    expect(toStorageObject(decoded2)).toMatchSnapshot()
   })
 
   it('works with multiple chains', async () => {
@@ -38,7 +42,9 @@ describe('decoder', async () => {
     const meta = await chain.head.meta
     const data = { data: { free: 10000000000 } }
     const value = meta.registry.createType('AccountInfo', data)
-    expect(decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())).toMatchSnapshot()
+    const decoded = decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())
+    expect(decoded).toMatchSnapshot()
+    expect(toStorageObject(decoded)).toMatchSnapshot()
     await teardown()
   })
 })
