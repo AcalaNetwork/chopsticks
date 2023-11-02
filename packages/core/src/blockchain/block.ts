@@ -12,14 +12,7 @@ import { Blockchain } from '.'
 import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
 import { compactHex, printRuntimeLogs } from '../utils'
 import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor'
-import type { RuntimeVersion } from '../wasm-executor'
-
-export type TaskCallResponse = {
-  result: HexString
-  storageDiff: [HexString, HexString | null][]
-  offchainStorageDiff: [HexString, HexString | null][]
-  runtimeLogs: string[]
-}
+import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor'
 
 /**
  * Block class.

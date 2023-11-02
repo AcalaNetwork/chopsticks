@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`decoder > decode key-value 1`] = `
+exports[`decoder > with acala > decode key-value 1`] = `
 {
   "key": [
     "25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa",
@@ -22,7 +22,7 @@ exports[`decoder > decode key-value 1`] = `
 }
 `;
 
-exports[`decoder > decode key-value 2`] = `
+exports[`decoder > with acala > decode key-value 2`] = `
 {
   "system": {
     "account": {
@@ -43,7 +43,7 @@ exports[`decoder > decode key-value 2`] = `
 }
 `;
 
-exports[`decoder > decode key-value 3`] = `
+exports[`decoder > with acala > decode key-value 3`] = `
 {
   "key": [
     "25fqepuLngYL2DK9ApTejNzqPadUUZ9ALYyKWX2jyvEiuZLa",
@@ -61,7 +61,7 @@ exports[`decoder > decode key-value 3`] = `
 }
 `;
 
-exports[`decoder > decode key-value 4`] = `
+exports[`decoder > with acala > decode key-value 4`] = `
 {
   "tokens": {
     "accounts": {
@@ -74,6 +74,71 @@ exports[`decoder > decode key-value 4`] = `
       },
     },
   },
+}
+`;
+
+exports[`decoder > with acala > decode key-value 5`] = `
+{
+  "key": [],
+  "method": "now",
+  "section": "timestamp",
+  "value": "64,188,750,128,742,400",
+}
+`;
+
+exports[`decoder > with acala > decode key-value 6`] = `
+{
+  "timestamp": {
+    "now": "64,188,750,128,742,400",
+  },
+}
+`;
+
+exports[`decoder > with acala > decode keys 1`] = `
+{
+  "decodedKey": "0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9de1e86a9a8c739864cf3cc5ec2bea59fd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
+  "storage": [Function],
+}
+`;
+
+exports[`decoder > with acala > works with well known keys 1`] = `
+{
+  "key": [],
+  "method": "code",
+  "section": "substrate",
+  "value": "<:code blake2_256 0x97e86e044a53385b642a902fd8ed05534d7590412a608f43dbb70e1f0e3664c7 (4 bytes)>",
+}
+`;
+
+exports[`decoder > with acala > works with well known keys 2`] = `
+{
+  "key": [
+    3340,
+  ],
+  "method": "relayDispatchQueueRemainingCapacity",
+  "section": "substrate",
+  "value": [
+    174762,
+    1048576,
+  ],
+}
+`;
+
+exports[`decoder > with acala > works with well known keys 3`] = `
+{
+  "key": [],
+  "method": "transactionLevel",
+  "section": "substrate",
+  "value": undefined,
+}
+`;
+
+exports[`decoder > with acala > works with well known keys 4`] = `
+{
+  "key": [],
+  "method": "extrinsicIndex",
+  "section": "substrate",
+  "value": 2,
 }
 `;
 

@@ -24,14 +24,22 @@ export type RuntimeVersion = {
   stateVersion: number
 }
 
+export type RuntimeLog = {
+  message: string
+  level?: number
+  target?: string
+}
+
+export type TaskCallResponse = {
+  result: HexString
+  storageDiff: [HexString, HexString | null][]
+  offchainStorageDiff: [HexString, HexString | null][]
+  runtimeLogs: RuntimeLog[]
+}
+
 export type TaskResponse =
   | {
-      Call: {
-        result: HexString
-        storageDiff: [HexString, HexString | null][]
-        offchainStorageDiff: [HexString, HexString | null][]
-        runtimeLogs: string[]
-      }
+      Call: TaskCallResponse
     }
   | {
       Error: string

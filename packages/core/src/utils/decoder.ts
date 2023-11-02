@@ -4,9 +4,10 @@ import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
+
+import { decodeWellKnownKey } from './well-known-keys'
 
 const _CACHE: Record<string, Map<HexString, StorageEntry>> = {}
 
@@ -55,6 +56,16 @@ export const decodeKeyValue = (
   value?: HexString | null,
   toHuman = true,
 ) => {
+  const res = decodeWellKnownKey(meta.registry, key, value)
+  if (res) {
+    return {
+      section: 'substrate',
+      method: res.name,
+      key: res.key,
+      value: res.value,
+    }
+  }
+
   const { storage, decodedKey } = decodeKey(meta, block, key)
 
   if (!storage || !decodedKey) {
@@ -63,9 +74,6 @@ export const decodeKeyValue = (
 
   const decodeValue = () => {
     if (!value) return null
-    if (storage.section === 'substrate' && storage.method === 'code') {
-      return `:code blake2_256 ${blake2AsHex(value, 256)} (${hexToU8a(value).length} bytes)`
-    }
     return meta.registry.createType(decodedKey.outputType, hexToU8a(value))[toHuman ? 'toHuman' : 'toJSON']()
   }
 
