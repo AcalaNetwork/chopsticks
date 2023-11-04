@@ -2,7 +2,7 @@ import { Block, defaultLogger, printRuntimeLogs, runTask, taskHandler } from '@a
 import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
-import type yargs from 'yargs'
+import type { Argv } from 'yargs'
 
 import { createServer } from '../../server'
 import { defaultOptions } from '../../cli-options'
@@ -13,7 +13,7 @@ import type { Config } from '../../schema'
 const logger = defaultLogger.child({ name: 'follow-chain' })
 const options = _.pick(defaultOptions, ['endpoint', 'wasm-override', 'runtime-log-level', 'offchain-worker'])
 
-export const cli = (y: yargs.Argv) => {
+export const cli = (y: Argv) => {
   y.command(
     'follow-chain',
     'Always follow the latest block on upstream',

@@ -1,5 +1,5 @@
 import { writeFileSync } from 'node:fs'
-import type yargs from 'yargs'
+import type { Argv } from 'yargs'
 
 import { Config } from '../../schema'
 import { defaultOptions } from '../../cli-options'
@@ -7,7 +7,7 @@ import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
 import { openHtml } from '../../utils/open-html'
 import { setupContext } from '../../context'
 
-export const cli = (y: yargs.Argv) => {
+export const cli = (y: Argv) => {
   y.command(
     'try-runtime',
     'Runs runtime upgrade',
