@@ -1,4 +1,4 @@
-import { EventEmitter } from 'eventemitter3'
+import { default as EventEmitter } from 'eventemitter3'
 import { HexString } from '@polkadot/util/types'
 import {
   ProviderInterface,

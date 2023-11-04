@@ -2,9 +2,9 @@ import { Config } from '../../schema'
 import { defaultOptions, mockOptions } from '../../cli-options'
 import { dryRunExtrinsic } from './dry-run-extrinsic'
 import { dryRunPreimage } from './dry-run-preimage'
-import type yargs from 'yargs'
+import type { Argv } from 'yargs'
 
-export const cli = (y: yargs.Argv) => {
+export const cli = (y: Argv) => {
   y.command(
     'dry-run',
     'Dry run an extrinsic',

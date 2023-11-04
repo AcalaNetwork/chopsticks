@@ -5,7 +5,7 @@
 	"license": "Apache-2.0",
 	"scripts": {
 		"clean": "rm -rf dist",
-		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json && yarn copyfiles",
+		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json && echo '{\"type\": \"module\"}' > ./dist/esm/package.json && yarn copyfiles",
 		"copyfiles": "cp -r src/wasm-executor/*.mjs dist/cjs/wasm-executor/ && cp -r src/wasm-executor/*.mjs dist/esm/wasm-executor/",
 		"docs:prep": "typedoc"
 	},
@@ -45,12 +45,11 @@
 			"import": "./dist/esm/index.js",
 			"default": "./dist/esm/index.js"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./package.esm.json": "./dist/esm/package.json"
 	},
 	"browser": {
-		"./dist/cjs/wasm-executor/node-wasm-executor.mjs": "./dist/cjs/wasm-executor/browser-wasm-executor.mjs",
 		"./dist/cjs/wasm-executor/node-worker.js": "./dist/cjs/wasm-executor/browser-worker.js",
-		"./dist/esm/wasm-executor/node-wasm-executor.mjs": "./dist/esm/wasm-executor/browser-wasm-executor.mjs",
 		"./dist/esm/wasm-executor/node-worker.js": "./dist/esm/wasm-executor/browser-worker.js"
 	}
 }

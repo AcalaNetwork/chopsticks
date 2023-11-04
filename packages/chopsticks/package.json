@@ -6,7 +6,7 @@
 	"bin": "./chopsticks.js",
 	"scripts": {
 		"clean": "rm -rf dist",
-		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json && yarn copyfiles",
+		"build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./tsconfig.esm.json && echo '{\"type\": \"module\"}' > ./dist/esm/package.json && yarn copyfiles",
 		"copyfiles": "cp -r src/utils/template dist/cjs/utils/ && cp -r src/utils/template dist/esm/utils/",
 		"script:start": "cd ../..; ts-node --transpile-only -r tsconfig-paths/register packages/chopsticks/src/cli.ts",
 		"script:run": "cd ../..; LOG_LEVEL=trace ts-node-dev --transpile-only -r tsconfig-paths/register --inspect --notify=false packages/chopsticks/src/cli.ts -- --config=configs/dev.yml",
@@ -70,6 +70,7 @@
 			"import": "./dist/esm/plugins/*.js",
 			"default": "./dist/esm/plugins/*.js"
 		},
-		"./package.json": "./package.json"
+		"./package.json": "./package.json",
+		"./package.esm.json": "./dist/esm/package.json"
 	}
 }

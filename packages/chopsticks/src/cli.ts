@@ -2,6 +2,7 @@ import { config as dotenvConfig } from 'dotenv'
 import { hideBin } from 'yargs/helpers'
 import _ from 'lodash'
 import yargs from 'yargs'
+import type { MiddlewareFunction } from 'yargs'
 
 import { Blockchain, BuildBlockMode, connectParachains, connectVertical } from '@acala-network/chopsticks-core'
 import { Config, fetchConfig } from './schema'
@@ -11,7 +12,7 @@ import { setupWithServer } from '.'
 
 dotenvConfig()
 
-const processArgv: yargs.MiddlewareFunction<{ config?: string; port?: number }> = async (argv) => {
+const processArgv: MiddlewareFunction<{ config?: string; port?: number }> = async (argv) => {
   if (argv.config) {
     Object.assign(argv, _.defaults(argv, await fetchConfig(argv.config)))
   }

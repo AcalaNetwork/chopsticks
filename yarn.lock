@@ -6800,17 +6800,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino-abstract-transport@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "pino-abstract-transport@npm:1.0.0"
-  dependencies:
-    readable-stream: ^4.0.0
-    split2: ^4.0.0
-  checksum: 05dd0eda52dd99fd204b39fe7b62656744b63e863bc052cdd5105d25f226a236966d0a46e39a1ace4838f6e988c608837ff946d2d0bc92835ca7baa0a3bff8d8
-  languageName: node
-  linkType: hard
-
-"pino-abstract-transport@npm:v1.1.0":
+"pino-abstract-transport@npm:^1.0.0, pino-abstract-transport@npm:v1.1.0":
   version: 1.1.0
   resolution: "pino-abstract-transport@npm:1.1.0"
   dependencies:
@@ -7555,16 +7545,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sonic-boom@npm:^3.0.0":
-  version: 3.3.0
-  resolution: "sonic-boom@npm:3.3.0"
-  dependencies:
-    atomic-sleep: ^1.0.0
-  checksum: 4a290dd0f3edf49894bb72c631ee304dc3f9be0752c43d516808a365f341821f5cf49997c80ee7c0e67167e0e5131dc71afe7c58812858eb965d6b9746c0cac7
-  languageName: node
-  linkType: hard
-
-"sonic-boom@npm:^3.7.0":
+"sonic-boom@npm:^3.0.0, sonic-boom@npm:^3.7.0":
   version: 3.7.0
   resolution: "sonic-boom@npm:3.7.0"
   dependencies:

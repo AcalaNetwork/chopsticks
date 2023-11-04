@@ -3,9 +3,9 @@ import { HexString } from '@polkadot/util/types'
 import { decodeKey } from '@acala-network/chopsticks-core'
 import { defaultOptions } from '../../cli-options'
 import { setupContext } from '../../context'
-import type yargs from 'yargs'
+import type { Argv } from 'yargs'
 
-export const cli = (y: yargs.Argv) => {
+export const cli = (y: Argv) => {
   y.command(
     'decode-key <key>',
     'Deocde a key',

@@ -5,7 +5,7 @@ import { u8aToHex } from '@polkadot/util'
 import { writeFileSync } from 'node:fs'
 import { z } from 'zod'
 import _ from 'lodash'
-import type yargs from 'yargs'
+import type { Argv } from 'yargs'
 
 import {
   Block,
@@ -24,7 +24,7 @@ import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
 import { openHtml } from '../../utils/open-html'
 import { setupContext } from '../../context'
 
-export const cli = (y: yargs.Argv) => {
+export const cli = (y: Argv) => {
   y.command(
     'run-block',
     'Replay a block',
