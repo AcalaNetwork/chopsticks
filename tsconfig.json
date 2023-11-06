@@ -1,7 +1,7 @@
 {
 	"extends": "./tsconfig.base.json",
 	"exclude": ["**/node_modules", "**/lib"],
-	"include": ["./packages/**/*", "loader.js"],
+	"include": ["./packages/**/*"],
 	"ts-node": {
 		"transpileOnly": true,
 		"files": true,
