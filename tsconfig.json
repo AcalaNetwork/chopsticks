@@ -1,5 +1,11 @@
 {
 	"extends": "./tsconfig.base.json",
 	"exclude": ["**/node_modules", "**/lib"],
-	"include": ["./packages/**/*"]
+	"include": ["./packages/**/*", "loader.js"],
+	"ts-node": {
+		"transpileOnly": true,
+		"files": true,
+		"esm": true,
+		"swc": true
+	}
 }

@@ -3,11 +3,12 @@
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
 	},
 	"engines": {
-		"node": ">=v14"
+		"node": ">=v18"
 	},
 	"devDependencies": {
 		"@acala-network/chopsticks": "workspace:*",

@@ -6,3 +6,5 @@ lib/
 dist/
 packages/core/scripts/
 chopsticks.js
+packages/core/src/wasm-executor/browser-wasm-executor.js
+packages/core/src/wasm-executor/node-wasm-executor.js
