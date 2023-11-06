@@ -1,9 +1,7 @@
 import { wrap } from 'comlink'
 
 export const startWorker = async <T>() => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const worker = new Worker(new URL('browser-wasm-executor.mjs', import.meta.url), {
+  const worker = new Worker(new URL('browser-wasm-executor.js', import.meta.url), {
     type: 'module',
     name: 'chopsticks-wasm-executor',
   })

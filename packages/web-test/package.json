@@ -3,6 +3,7 @@
 	"author": "Acala Network <hello@acala.network>",
 	"license": "Apache-2.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"build": "npx vite build",
 		"vite:serve": "npx vite --port 3000 --host",
