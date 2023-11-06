@@ -43,6 +43,3 @@ export const rpc = async (context: Context, params: [StorageValues, HexString?])
   )
   return hash
 }
-
-export const name = null
-export const cli = null

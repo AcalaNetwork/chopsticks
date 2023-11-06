@@ -63,6 +63,3 @@ export const cli = (y: Argv) => {
     },
   )
 }
-
-export const name = null
-export const rpc = null
