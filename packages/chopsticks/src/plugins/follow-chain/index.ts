@@ -66,6 +66,7 @@ export const cli = (y: Argv) => {
             const wasm = await parent.wasm
 
             const block = new Block(chain, header.number.toNumber(), header.hash.toHex(), parent, {
+              header,
               storage: parent.storage,
             })
             await chain.setHead(block)
