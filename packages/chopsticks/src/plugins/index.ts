@@ -22,21 +22,10 @@ const plugins = [
   'try-runtime',
 ]
 
-;(async () => {
-  for (const plugin of plugins) {
-    const { rpc, name } = await import(`./${plugin}`)
-    if (rpc) {
-      const methodName = name || _.camelCase(plugin)
-      pluginHandlers[`dev_${methodName}`] = rpc
-      logger.debug(`Registered plugin ${plugin} RPC`)
-    }
-  }
-})()
-
 export const loadRpcPlugin = async (method: string) => {
   if (pluginHandlers[method]) return pluginHandlers[method]
 
-  const pluginName = _.snakeCase(method.split('_')[1])
+  const pluginName = _.snakeCase(method.split('dev_')[1])
   if (!pluginName) return undefined
 
   const { rpc } = await import(`./${pluginName}`)
