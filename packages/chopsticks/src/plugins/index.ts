@@ -33,6 +33,21 @@ const plugins = [
   }
 })()
 
+export const loadRpcPlugin = async (method: string) => {
+  if (pluginHandlers[method]) return pluginHandlers[method]
+
+  const pluginName = _.snakeCase(method.split('_')[1])
+  if (!pluginName) return undefined
+
+  const { rpc } = await import(`./${pluginName}`)
+  if (!rpc) return undefined
+
+  pluginHandlers[method] = rpc
+  logger.debug(`Registered plugin ${pluginName} RPC`)
+
+  return rpc
+}
+
 export const pluginExtendCli = async (y: Argv) => {
   for (const plugin of plugins) {
     const { cli } = await import(`./${plugin}`)
