@@ -1,6 +1,6 @@
-endpoint: wss://kusama-bridge-hub-rpc.polkadot.io
+endpoint: wss://polkadot-bridge-hub-rpc.polkadot.io
 mock-signature-host: true
-block: ${env.KUSAMA_BRIDGEHUB_BLOCK_NUMBER}
+block: ${env.POLKADOT_BRIDGEHUB_BLOCK_NUMBER}
 db: ./db.sqlite
 
 import-storage:
