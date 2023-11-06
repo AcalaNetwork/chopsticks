@@ -102,3 +102,6 @@ export const rpc = async (context: Context, params: [NewBlockParams]) => {
 
   return finalHash
 }
+
+export const name = null
+export const cli = null

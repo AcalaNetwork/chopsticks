@@ -30,3 +30,6 @@ export const rpc = async (context: Context, [hashOrNumber]: [HexString | number]
   await context.chain.setHead(block)
   return block.hash
 }
+
+export const name = null
+export const cli = null

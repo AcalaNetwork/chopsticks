@@ -25,3 +25,6 @@ export const rpc = async (context: Context, [runtimeLogLevel]: [number]) => {
 
   context.chain.runtimeLogLevel = runtimeLogLevel
 }
+
+export const name = null
+export const cli = null

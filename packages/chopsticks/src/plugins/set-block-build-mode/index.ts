@@ -26,3 +26,6 @@ export const rpc = async (context: Context, [mode]: [BuildBlockMode]) => {
 
   context.chain.txPool.mode = mode
 }
+
+export const name = null
+export const cli = null

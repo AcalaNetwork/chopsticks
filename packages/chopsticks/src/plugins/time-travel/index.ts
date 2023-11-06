@@ -21,3 +21,6 @@ export const rpc = async (context: Context, [date]: [string | number]) => {
   await timeTravel(context.chain, timestamp)
   return timestamp
 }
+
+export const name = null
+export const cli = null
