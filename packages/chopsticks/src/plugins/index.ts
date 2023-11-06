@@ -25,7 +25,7 @@ const plugins = [
 export const loadRpcPlugin = async (method: string) => {
   if (pluginHandlers[method]) return pluginHandlers[method]
 
-  const pluginName = _.snakeCase(method.split('dev_')[1])
+  const pluginName = _.snakeCase(method.split('dev_')[1]).replaceAll('_', '-')
   if (!pluginName) return undefined
 
   const { rpc } = await import(`./${pluginName}`)
@@ -37,12 +37,17 @@ export const loadRpcPlugin = async (method: string) => {
   return rpc
 }
 
-export const pluginExtendCli = async (y: Argv) => {
-  for (const plugin of plugins) {
-    const { cli } = await import(`./${plugin}`)
-    if (cli) {
-      cli(y)
-      logger.debug(`Registered plugin ${plugin} CLI`)
-    }
+export const pluginExtendCli = async (argv: Argv) => {
+  const args = await argv.parse()
+  const commands = args._
+  if (!commands?.length) return
+
+  const plugin = commands.find((arg) => plugins.includes(arg as string))
+  if (!plugin) return
+
+  const { cli } = await import(`./${plugin}`)
+  if (cli) {
+    cli(argv)
+    logger.debug(`Registered plugin ${plugin} CLI`)
   }
 }

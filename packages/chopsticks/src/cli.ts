@@ -94,7 +94,6 @@ const commands = yargs(hideBin(process.argv))
       }
     },
   )
-  .strict()
   .help()
   .alias('help', 'h')
   .alias('version', 'v')
@@ -107,4 +106,4 @@ const commands = yargs(hideBin(process.argv))
   .usage('Usage: $0 <command> [options]')
   .example('$0', '-c acala')
 
-pluginExtendCli(commands).then(() => commands.parse())
+pluginExtendCli(commands).then(() => commands.strict().parse())
