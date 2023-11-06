@@ -20,6 +20,10 @@ export const cli = (y: Argv) => {
     (yargs) =>
       yargs.options({
         ...options,
+        endpoint: {
+          ...options.endpoint,
+          required: true,
+        },
         port: {
           desc: 'Port to listen on',
           number: true,
