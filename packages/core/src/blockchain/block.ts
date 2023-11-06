@@ -53,9 +53,9 @@ export class Block {
     parentBlock?: Block,
     block?: {
       /** See `@polkadot/types/interfaces` Header */
-      header: Header
+      header?: Header
       /** Extrinsics */
-      extrinsics: HexString[]
+      extrinsics?: HexString[]
       /** Storage provider. Default to {@link RemoteStorageLayer} with {@link Blockchain.api chain.api} as remote. */
       storage?: StorageLayerProvider
       /** Storage diff to apply. */
