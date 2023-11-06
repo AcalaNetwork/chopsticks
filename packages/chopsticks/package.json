@@ -3,7 +3,7 @@
 	"version": "0.9.1-3",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
-	"bin": "./chopsticks.js",
+	"bin": "./chopsticks.cjs",
 	"type": "module",
 	"scripts": {
 		"clean": "rm -rf dist",
