@@ -42,7 +42,7 @@
 		"dist/esm/**",
 		"dist/cjs/**",
 		"dist/types/**",
-		"chopsticks.js"
+		"chopsticks.cjs"
 	],
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
