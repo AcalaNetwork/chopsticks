@@ -97,7 +97,8 @@ export const toStorageObject = (decoded: ReturnType<typeof decodeKeyValue>) => {
   if (key) {
     for (let i = key.length - 1; i >= 0; i--) {
       const k = key[i]
-      const newObj = { [k.toString()]: obj }
+      const strKey = ['string', 'number'].includes(typeof k) ? k : JSON.stringify(k)
+      const newObj = { [strKey]: obj }
       obj = newObj
     }
   }
