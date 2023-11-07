@@ -124,7 +124,7 @@ export interface RunBlockParams {
    */
   includeBlockDetails: Params['includeBlockDetails']
   /**
-   * The parent block hash to run on top of. Deafult to chain head.
+   * The parent block hash to run on top of. Default to chain head.
    */
   parent: Params['parent']
   /**
