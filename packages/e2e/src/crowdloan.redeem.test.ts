@@ -20,7 +20,7 @@ describe('Polkadot Crowdloan Refund', async () => {
   }, 200_000)
 
   it.runIf(process.env.CI)(
-    "should refund Acala's contributers",
+    "should refund Acala's contributors",
     async () => {
       // trigger refund
       await expect(api.tx.crowdloan.refund(3336).signAndSend(alice)).resolves.toBeTruthy()

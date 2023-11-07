@@ -308,7 +308,7 @@ function App() {
 				>
 					Alice transfer 1000 to Bob
 				</Button>
-				{transferDisabled && <Pre>Transfering...</Pre>}
+				{transferDisabled && <Pre>Transferring...</Pre>}
 				{bobBalance && <Pre>Bob balance: {bobBalance}</Pre>}
 			</Section>
 		</Container>
