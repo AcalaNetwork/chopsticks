@@ -1,5 +1,5 @@
 {
-	"name": "@acala-network/web-test",
+	"name": "web-test",
 	"author": "Acala Network <hello@acala.network>",
 	"license": "Apache-2.0",
 	"private": true,

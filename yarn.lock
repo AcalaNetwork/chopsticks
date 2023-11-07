@@ -112,28 +112,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@acala-network/web-test@workspace:packages/web-test":
-  version: 0.0.0-use.local
-  resolution: "@acala-network/web-test@workspace:packages/web-test"
-  dependencies:
-    "@acala-network/chopsticks-core": "workspace:*"
-    "@acala-network/chopsticks-db": "workspace:*"
-    "@emotion/react": ^11.11.1
-    "@emotion/styled": ^11.11.0
-    "@mui/material": ^5.14.11
-    "@playwright/test": ^1.37.1
-    "@types/react": ^18
-    "@types/react-dom": ^18
-    "@vitejs/plugin-react": ^4.1.0
-    crypto-browserify: ^3.12.0
-    path-browserify: ^1.0.1
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    stream-browserify: ^3.0.0
-    typescript: ^5.1.6
-  languageName: unknown
-  linkType: soft
-
 "@algolia/autocomplete-core@npm:1.9.3":
   version: 1.9.3
   resolution: "@algolia/autocomplete-core@npm:1.9.3"
@@ -6899,6 +6877,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-test-8fbed1@workspace:packages/node-test":
+  version: 0.0.0-use.local
+  resolution: "node-test-8fbed1@workspace:packages/node-test"
+  dependencies:
+    "@acala-network/chopsticks": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "nopt@npm:^5.0.0":
   version: 5.0.0
   resolution: "nopt@npm:5.0.0"
@@ -9228,6 +9214,28 @@ __metadata:
   checksum: b119c78574b6d65935e35098c2afdcd752b84268e18746606af149e3c424e15621b6f1ff0b42b2676dc012fc4f0d313f964b41a4b5031e525faa03997457da02
   languageName: node
   linkType: hard
+
+"web-test@workspace:packages/web-test":
+  version: 0.0.0-use.local
+  resolution: "web-test@workspace:packages/web-test"
+  dependencies:
+    "@acala-network/chopsticks-core": "workspace:*"
+    "@acala-network/chopsticks-db": "workspace:*"
+    "@emotion/react": ^11.11.1
+    "@emotion/styled": ^11.11.0
+    "@mui/material": ^5.14.11
+    "@playwright/test": ^1.37.1
+    "@types/react": ^18
+    "@types/react-dom": ^18
+    "@vitejs/plugin-react": ^4.1.0
+    crypto-browserify: ^3.12.0
+    path-browserify: ^1.0.1
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    stream-browserify: ^3.0.0
+    typescript: ^5.1.6
+  languageName: unknown
+  linkType: soft
 
 "webidl-conversions@npm:^3.0.0":
   version: 3.0.1
