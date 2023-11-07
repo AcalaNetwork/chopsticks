@@ -40,6 +40,7 @@ jobs:
     - run: yarn lint
     - run: yarn build
     - run: yarn test
+      timeout-minutes: 30
 
   sidecar:
     if: ${{ github.ref_name == 'master' }}
@@ -74,7 +75,7 @@ jobs:
     - name: Test Sidecar
       run: yarn workspace @acala-network/chopsticks-e2e run sidecar
 
-  playwright:
+  web-test:
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v3

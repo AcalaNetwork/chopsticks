@@ -219,6 +219,9 @@ export const releaseWorker = async () => {
   if (!__executor_worker) return
   const executor = await __executor_worker
   executor.remote[Comlink.releaseProxy]()
+  // this delay seems to fix hanging tests
+  // https://github.com/vitest-dev/vitest/issues/3077
+  await new Promise((resolve) => setTimeout(resolve, 50))
   await executor.terminate()
   __executor_worker = undefined
 }

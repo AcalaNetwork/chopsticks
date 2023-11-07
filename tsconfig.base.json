@@ -4,7 +4,7 @@
 		"esModuleInterop": true,
 		"lib": ["esnext", "dom", "dom.iterable"],
 		"isolatedModules": true,
-		"module": "esnext",
+		"module": "nodenext",
 		"moduleResolution": "nodenext",
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
