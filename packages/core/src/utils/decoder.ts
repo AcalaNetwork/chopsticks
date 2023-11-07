@@ -1,5 +1,5 @@
 import '@polkadot/types-codec'
-import { Block } from '../blockchain/block'
+import { Block } from '../blockchain/block.js'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
@@ -7,7 +7,7 @@ import { StorageKey } from '@polkadot/types'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
-import { decodeWellKnownKey } from './well-known-keys'
+import { decodeWellKnownKey } from './well-known-keys.js'
 
 const _CACHE: Record<string, Map<HexString, StorageEntry>> = {}
 

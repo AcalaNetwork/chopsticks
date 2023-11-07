@@ -1,5 +1,5 @@
 import { BuildBlockMode, Context, ResponseError } from '@acala-network/chopsticks-core'
-import { defaultLogger } from '../../logger'
+import { defaultLogger } from '../../logger.js'
 
 /**
  * Set a build block mode. See [BuildBlockMode](../core/enums/BuildBlockMode).

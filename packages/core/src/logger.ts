@@ -1,6 +1,6 @@
-import createLogger from 'pino'
+import { pino } from 'pino'
 
-export const defaultLogger = createLogger({
+export const defaultLogger = pino({
   level: (typeof process === 'object' && process.env.LOG_LEVEL) || 'info',
   transport: {
     target: 'pino-pretty',

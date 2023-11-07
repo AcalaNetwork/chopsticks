@@ -1,8 +1,8 @@
 import { SubmittableResult } from '@polkadot/api'
 import { afterAll, describe, expect, it } from 'vitest'
 
-import { defer, expectJson, mockCallback, testingPairs } from './helper'
-import networks from './networks'
+import { defer, expectJson, mockCallback, testingPairs } from './helper.js'
+import networks from './networks.js'
 
 describe('author rpc', async () => {
   const { alice, bob } = testingPairs()

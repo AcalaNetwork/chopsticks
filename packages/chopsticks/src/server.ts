@@ -2,7 +2,7 @@ import { AddressInfo, WebSocket, WebSocketServer } from 'ws'
 import { ResponseError, SubscriptionManager } from '@acala-network/chopsticks-core'
 import { z } from 'zod'
 
-import { defaultLogger, truncate } from './logger'
+import { defaultLogger, truncate } from './logger.js'
 
 const logger = defaultLogger.child({ name: 'ws' })
 

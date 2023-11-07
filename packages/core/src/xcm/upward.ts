@@ -1,7 +1,7 @@
 import { hexToU8a } from '@polkadot/util'
 
-import { Blockchain } from '../blockchain'
-import { compactHex, getParaId } from '../utils'
+import { Blockchain } from '../blockchain/index.js'
+import { compactHex, getParaId } from '../utils/index.js'
 
 export const connectUpward = async (parachain: Blockchain, relaychain: Blockchain) => {
   const meta = await parachain.head.meta

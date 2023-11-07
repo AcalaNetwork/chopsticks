@@ -1,2 +1,2 @@
-export * from './cli'
-export * from './rpc'
+export * from './cli.js'
+export * from './rpc.js'

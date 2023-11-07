@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import networks from './networks'
+import networks from './networks.js'
 
 describe('max-memory-block-count', async () => {
   const acala = await networks.acala({ maxMemoryBlockCount: 2 })

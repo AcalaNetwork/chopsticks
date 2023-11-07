@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import { decodeKey, decodeKeyValue, toStorageObject } from '@acala-network/chopsticks-core/utils/decoder'
+import { decodeKey, decodeKeyValue, toStorageObject } from '@acala-network/chopsticks-core/utils/decoder.js'
 
-import networks from './networks'
+import networks from './networks.js'
 
 const SYSTEM_ACCOUNT =
   '0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9de1e86a9a8c739864cf3cc5ec2bea59fd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d'

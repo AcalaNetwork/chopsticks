@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm'
 
-import { BaseSqlDatabase } from './base-sql'
-import { openDb } from './db'
+import { BaseSqlDatabase } from './base-sql.js'
+import { openDb } from './db/index.js'
 
 export class SqliteDatabase extends BaseSqlDatabase {
   datasource: Promise<DataSource>

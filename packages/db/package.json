@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-db",
-	"version": "0.9.1-3",
+	"version": "0.9.1-4",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
@@ -38,10 +38,10 @@
 			"default": "./dist/esm/index.js"
 		},
 		"./*": {
-			"types": "./dist/types/index.d.ts",
-			"require": "./dist/cjs/index.js",
-			"import": "./dist/esm/index.js",
-			"default": "./dist/esm/index.js"
+			"types": "./dist/types/*.d.ts",
+			"require": "./dist/cjs/*.js",
+			"import": "./dist/esm/*.js",
+			"default": "./dist/esm/*.js"
 		},
 		"./package.json": "./package.json",
 		"./package.cjs.json": "./dist/cjs/package.json"

@@ -2,8 +2,8 @@ import { HexString } from '@polkadot/util/types'
 import { z } from 'zod'
 
 import { Context, ResponseError } from '@acala-network/chopsticks-core'
-import { decodeStorageDiff } from '../../utils/decoder'
-import { generateHtmlDiff } from '../../utils/generate-html-diff'
+import { decodeStorageDiff } from '../../utils/decoder.js'
+import { generateHtmlDiff } from '../../utils/generate-html-diff.js'
 
 const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
 const zHash = z.string().length(66).and(zHex)

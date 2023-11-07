@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { testingPairs } from '@acala-network/chopsticks-testing'
 
-import networks from './networks'
+import networks from './networks.js'
 
 describe('Polkadot Crowdloan Refund', async () => {
   const { alice } = testingPairs()

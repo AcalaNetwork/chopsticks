@@ -1,9 +1,9 @@
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 
-import { Block } from '../../block'
-import { BuildBlockParams } from '../../txpool'
-import { CreateInherents } from '..'
+import { Block } from '../../block.js'
+import { BuildBlockParams } from '../../txpool.js'
+import { CreateInherents } from '../index.js'
 
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements CreateInherents {

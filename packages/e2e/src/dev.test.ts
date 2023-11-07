@@ -1,8 +1,8 @@
 import { afterAll, describe, expect, it } from 'vitest'
 import { u8aToHex } from '@polkadot/util'
 
-import { expectJson, testingPairs } from './helper'
-import networks from './networks'
+import { expectJson, testingPairs } from './helper.js'
+import networks from './networks.js'
 
 describe('dev rpc', async () => {
   const { alice, bob } = testingPairs()

@@ -2,12 +2,12 @@ import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a } from '@polkadot/util'
 
-import { Config } from '../../schema'
-import { defaultLogger } from '../../logger'
-import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
+import { Config } from '../../schema/index.js'
+import { defaultLogger } from '../../logger.js'
+import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { newHeader, printRuntimeLogs, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
-import { openHtml } from '../../utils/open-html'
-import { setupContext } from '../../context'
+import { openHtml } from '../../utils/open-html.js'
+import { setupContext } from '../../context.js'
 
 export const dryRunPreimage = async (argv: Config) => {
   const context = await setupContext(argv)

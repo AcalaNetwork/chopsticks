@@ -4,11 +4,11 @@ import { HttpProvider, WsProvider } from '@polkadot/rpc-provider'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
 
-import { Api } from './api'
-import { Blockchain } from './blockchain'
-import { BuildBlockMode } from './blockchain/txpool'
-import { Database } from './database'
-import { GenesisProvider } from './genesis-provider'
+import { Api } from './api.js'
+import { Blockchain } from './blockchain/index.js'
+import { BuildBlockMode } from './blockchain/txpool.js'
+import { Database } from './database.js'
+import { GenesisProvider } from './genesis-provider.js'
 import {
   InherentProviders,
   ParaInherentEnter,
@@ -16,8 +16,8 @@ import {
   SetNimbusAuthorInherent,
   SetTimestamp,
   SetValidationData,
-} from './blockchain/inherent'
-import { defaultLogger } from './logger'
+} from './blockchain/inherent/index.js'
+import { defaultLogger } from './logger.js'
 
 export type SetupOptions = {
   endpoint?: string

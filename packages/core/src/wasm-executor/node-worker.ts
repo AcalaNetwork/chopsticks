@@ -7,7 +7,7 @@ export const startWorker = async <T>() => {
     name: 'chopsticks-wasm-executor',
   })
   return {
-    remote: wrap<T>(nodeEndpoint(worker)),
+    remote: wrap<T>((nodeEndpoint as any)(worker)),
     terminate: async () => {
       await worker.terminate()
     },

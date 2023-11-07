@@ -1,7 +1,7 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
-import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils'
+import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
 
 export type ChainProperties = {
   ss58Format?: number
