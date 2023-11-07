@@ -5,11 +5,8 @@
 	"license": "Apache-2.0",
 	"type": "module",
 	"scripts": {
-		"clean": "rm -rf dist",
-		"build": "yarn clean && yarn build:cjs && yarn build:esm && yarn build:types",
-		"build:cjs": "swc ./src --config-file ../../.cjsswcrc -d dist/cjs && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
-		"build:esm": "swc ./src --config-file ../../.esmswcrc -d dist/esm",
-		"build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir dist/types"
+		"clean": "rm -rf dist tsconfig.tsbuildinfo",
+		"build": "yarn clean && npx rollup -c && tsc -p tsconfig.json"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*"
@@ -24,25 +21,23 @@
 		"typescript": "^5.1.6"
 	},
 	"files": [
-		"dist/esm/**",
-		"dist/cjs/**",
-		"dist/types/**"
+		"dist",
+		"*.d.ts",
+		"*.mjs"
 	],
-	"main": "./dist/cjs/index.js",
-	"module": "./dist/esm/index.js",
-	"types": "./dist/types/index.d.ts",
+	"main": "./dist/index.mjs",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./dist/types/index.d.ts",
-			"require": "./dist/cjs/index.js",
-			"import": "./dist/esm/index.js",
-			"default": "./dist/esm/index.js"
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.mjs"
 		},
 		"./*": {
-			"types": "./dist/types/index.d.ts",
-			"require": "./dist/cjs/index.js",
-			"import": "./dist/esm/index.js",
-			"default": "./dist/esm/index.js"
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.cjs",
+			"import": "./dist/index.mjs"
 		},
 		"./package.json": "./package.json",
 		"./package.cjs.json": "./dist/cjs/package.json"
