@@ -2,8 +2,8 @@ import { ApiPromise } from '@polkadot/api'
 import { BuildBlockMode, ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { env, expectHex, expectJson, testingPairs } from './helper'
-import networks from './networks'
+import { env, expectHex, expectJson, testingPairs } from './helper.js'
+import networks from './networks.js'
 
 const { alice, bob } = testingPairs()
 

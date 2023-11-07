@@ -7,7 +7,7 @@ import {
   substrate,
 } from '@acala-network/chopsticks-core'
 
-import { pluginHandlers } from '../plugins'
+import { pluginHandlers } from '../plugins/index.js'
 
 const allHandlers: Handlers = {
   ...substrate,

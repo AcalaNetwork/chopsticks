@@ -2,7 +2,7 @@ import { BlockEntry, Database, KeyValueEntry } from '@acala-network/chopsticks-c
 import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
 
-import { BlockEntity, KeyValuePair } from './db/entities'
+import { BlockEntity, KeyValuePair } from './db/entities.js'
 
 export abstract class BaseSqlDatabase implements Database {
   abstract datasource: Promise<DataSource>

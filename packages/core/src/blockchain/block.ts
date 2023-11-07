@@ -8,11 +8,17 @@ import { hexToU8a, objectSpread, stringToHex } from '@polkadot/util'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { HexString } from '@polkadot/util/types'
 
-import { Blockchain } from '.'
-import { RemoteStorageLayer, StorageLayer, StorageLayerProvider, StorageValue, StorageValueKind } from './storage-layer'
-import { compactHex, printRuntimeLogs } from '../utils'
-import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor'
-import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor'
+import { Blockchain } from './index.js'
+import {
+  RemoteStorageLayer,
+  StorageLayer,
+  StorageLayerProvider,
+  StorageValue,
+  StorageValueKind,
+} from './storage-layer.js'
+import { compactHex, printRuntimeLogs } from '../utils/index.js'
+import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor/index.js'
+import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor/index.js'
 
 /**
  * Block class.

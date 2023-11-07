@@ -1,5 +1,5 @@
-import { Handlers } from './shared'
-import substrate from './substrate'
+import { Handlers } from './shared.js'
+import substrate from './substrate/index.js'
 
 export const allHandlers: Handlers = {
   ...substrate,
@@ -10,6 +10,6 @@ export const allHandlers: Handlers = {
     }),
 }
 
-export { default as substrate } from './substrate'
-export { ResponseError } from './shared'
-export type { Context, SubscriptionManager, Handler, Handlers } from './shared'
+export { default as substrate } from './substrate/index.js'
+export { ResponseError } from './shared.js'
+export type { Context, SubscriptionManager, Handler, Handlers } from './shared.js'

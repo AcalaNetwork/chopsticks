@@ -4,8 +4,8 @@ import { StorageKey } from '@polkadot/types'
 import { stringCamelCase } from '@polkadot/util/string'
 import { u8aToHex } from '@polkadot/util'
 
-import { Blockchain } from '../blockchain'
-import { StorageValueKind } from '../blockchain/storage-layer'
+import { Blockchain } from '../blockchain/index.js'
+import { StorageValueKind } from '../blockchain/storage-layer.js'
 
 type RawStorageValues = [string, string | null][]
 type StorageConfig = Record<string, Record<string, any>>

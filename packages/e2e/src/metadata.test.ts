@@ -1,4 +1,4 @@
-import { chain, setupApi } from './helper'
+import { chain, setupApi } from './helper.js'
 import { describe, expect, it } from 'vitest'
 
 setupApi({

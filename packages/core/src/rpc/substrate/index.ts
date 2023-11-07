@@ -1,8 +1,8 @@
-import * as AuthorRPC from './author'
-import * as ChainRPC from './chain'
-import * as PaymentRPC from './payment'
-import * as StateRPC from './state'
-import * as SystemRPC from './system'
+import * as AuthorRPC from './author.js'
+import * as ChainRPC from './chain.js'
+import * as PaymentRPC from './payment.js'
+import * as StateRPC from './state.js'
+import * as SystemRPC from './system.js'
 
 export { AuthorRPC }
 export { ChainRPC }

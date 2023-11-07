@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest'
 
-import networks from './networks'
+import networks from './networks.js'
 
 describe('relaychain dev rpc', async () => {
   const { dev, teardown } = await networks.polkadot()

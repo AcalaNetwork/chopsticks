@@ -1,9 +1,9 @@
 import { HexString } from '@polkadot/util/types'
 import { hexToU8a } from '@polkadot/util'
 
-import { Blockchain } from '../blockchain'
-import { compactHex } from '../utils'
-import { logger } from '.'
+import { Blockchain } from '../blockchain/index.js'
+import { compactHex } from '../utils/index.js'
+import { logger } from './index.js'
 
 export const connectHorizontal = async (parachains: Record<number, Blockchain>) => {
   for (const [id, chain] of Object.entries(parachains)) {

@@ -55,10 +55,10 @@
 			"default": "./dist/esm/index.js"
 		},
 		"./*": {
-			"types": "./dist/types/index.d.ts",
-			"require": "./dist/cjs/index.js",
-			"import": "./dist/esm/index.js",
-			"default": "./dist/esm/index.js"
+			"types": "./dist/types/*.d.ts",
+			"require": "./dist/cjs/*.js",
+			"import": "./dist/esm/*.js",
+			"default": "./dist/esm/*.js"
 		},
 		"./plugins/*": {
 			"types": "./dist/types/plugins/*.d.ts",

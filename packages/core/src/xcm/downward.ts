@@ -1,10 +1,10 @@
 import { hexToU8a } from '@polkadot/util'
 
-import { Blockchain } from '../blockchain'
-import { DownwardMessage } from '../blockchain/txpool'
-import { compactHex, getParaId } from '../utils'
-import { logger } from '.'
-import { setStorage } from '../utils/set-storage'
+import { Blockchain } from '../blockchain/index.js'
+import { DownwardMessage } from '../blockchain/txpool.js'
+import { compactHex, getParaId } from '../utils/index.js'
+import { logger } from './index.js'
+import { setStorage } from '../utils/set-storage.js'
 
 export const connectDownward = async (relaychain: Blockchain, parachain: Blockchain) => {
   const meta = await relaychain.head.meta

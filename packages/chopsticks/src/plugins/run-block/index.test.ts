@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { setup } from '@acala-network/chopsticks-core'
 
-import { rpc } from '.'
+import { rpc } from './index.js'
 
 describe('run-block', () => {
   it('should work', async () => {

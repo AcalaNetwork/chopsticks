@@ -1,11 +1,11 @@
 import { assert, describe, expect, it } from 'vitest'
-import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward'
-import { matchSnapshot } from './helper'
+import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
+import { matchSnapshot } from './helper.js'
 import { matchSystemEvents, testingPairs } from '@acala-network/chopsticks-testing'
 import { resolve } from 'node:path'
 import { setStorage } from '@acala-network/chopsticks'
 import { tmpdir } from 'node:os'
-import networks from './networks'
+import networks from './networks.js'
 
 describe('resume', async () => {
   const buildBlocksAndTeardown = async (network = 'acala', dbName = 'db.sqlite') => {

@@ -5,10 +5,10 @@ import yargs from 'yargs'
 import type { MiddlewareFunction } from 'yargs'
 
 import { Blockchain, BuildBlockMode, connectParachains, connectVertical } from '@acala-network/chopsticks-core'
-import { Config, fetchConfig } from './schema'
-import { defaultOptions, mockOptions } from './cli-options'
-import { pluginExtendCli } from './plugins'
-import { setupWithServer } from '.'
+import { Config, fetchConfig } from './schema/index.js'
+import { defaultOptions, mockOptions } from './cli-options.js'
+import { pluginExtendCli } from './plugins/index.js'
+import { setupWithServer } from './index.js'
 
 dotenvConfig()
 

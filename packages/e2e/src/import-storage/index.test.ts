@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import path from 'path'
 
-import { api, chain, setupApi } from '../helper'
-import { overrideStorage, overrideWasm } from '@acala-network/chopsticks/utils/override'
+import { api, chain, setupApi } from '../helper.js'
+import { overrideStorage, overrideWasm } from '@acala-network/chopsticks/utils/override.js'
 
 setupApi({
   endpoint: 'wss://acala-rpc-1.aca-api.network',

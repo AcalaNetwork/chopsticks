@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import networks from './networks'
+import networks from './networks.js'
 
 describe('Batch request', async () => {
   const { chain, url, teardown } = await networks.acala()

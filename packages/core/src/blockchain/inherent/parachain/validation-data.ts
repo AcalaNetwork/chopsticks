@@ -4,9 +4,9 @@ import { HexString } from '@polkadot/util/types'
 import { hexToU8a, u8aConcat } from '@polkadot/util'
 import _ from 'lodash'
 
-import { Block } from '../../block'
-import { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool'
-import { CreateInherents } from '..'
+import { Block } from '../../block.js'
+import { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool.js'
+import { CreateInherents } from '../index.js'
 import {
   WELL_KNOWN_KEYS,
   dmqMqcHead,
@@ -14,10 +14,10 @@ import {
   hrmpEgressChannelIndex,
   hrmpIngressChannelIndex,
   upgradeGoAheadSignal,
-} from '../../../utils/proof'
+} from '../../../utils/proof.js'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
-import { compactHex, getParaId } from '../../../utils'
-import { createProof, decodeProof } from '../../../wasm-executor'
+import { compactHex, getParaId } from '../../../utils/index.js'
+import { createProof, decodeProof } from '../../../wasm-executor/index.js'
 
 const MOCK_VALIDATION_DATA = {
   validationData: {

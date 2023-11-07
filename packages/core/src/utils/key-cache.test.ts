@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import KeyCache from './key-cache'
+import KeyCache from './key-cache.js'
 
 const KEY_0 = '0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9_00'
 const KEY_1 = '0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9_01'

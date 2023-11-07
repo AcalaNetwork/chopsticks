@@ -2,10 +2,10 @@ import { BN, hexToU8a, u8aToHex } from '@polkadot/util'
 import { HexString } from '@polkadot/util/types'
 import { Slot } from '@polkadot/types/interfaces'
 
-import { Blockchain } from '../blockchain'
-import { compactHex } from '.'
-import { getAuraSlotDuration } from '../wasm-executor'
-import { setStorage } from './set-storage'
+import { Blockchain } from '../blockchain/index.js'
+import { compactHex } from './index.js'
+import { getAuraSlotDuration } from '../wasm-executor/index.js'
+import { setStorage } from './set-storage.js'
 
 export const getCurrentSlot = async (chain: Blockchain) => {
   const meta = await chain.head.meta

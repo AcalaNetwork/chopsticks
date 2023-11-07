@@ -1,4 +1,4 @@
-import { default as EventEmitter } from 'eventemitter3'
+import { EventEmitter } from 'eventemitter3'
 import {
   ProviderInterface,
   ProviderInterfaceCallback,
@@ -6,11 +6,11 @@ import {
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
 
-import { Blockchain } from './blockchain'
-import { Context, Handlers, allHandlers } from './rpc'
-import { Database } from './database'
-import { defaultLogger } from './logger'
-import { setup } from './setup'
+import { Blockchain } from './blockchain/index.js'
+import { Context, Handlers, allHandlers } from './rpc/index.js'
+import { Database } from './database.js'
+import { defaultLogger } from './logger.js'
+import { setup } from './setup.js'
 
 const providerHandlers: Handlers = {
   ...allHandlers,
@@ -39,13 +39,11 @@ interface Subscription extends SubscriptionHandler {
  */
 export class ChopsticksProvider implements ProviderInterface {
   #isConnected = false
-  #eventemitter: EventEmitter
+  #eventemitter = new EventEmitter()
   #isReadyPromise: Promise<void>
   #subscriptions: Record<string, Subscription> = {}
 
   constructor(public readonly chain: Blockchain) {
-    this.#eventemitter = new EventEmitter()
-
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', resolve)
       this.#eventemitter.once('error', reject)
