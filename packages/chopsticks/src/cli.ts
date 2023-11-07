@@ -107,7 +107,7 @@ const commands = yargs(hideBin(process.argv))
   .usage('Usage: $0 <command> [options]')
   .example('$0', '-c acala')
 
-if (!process.env.NO_PLUGINS) {
+if (!process.env.DISABLE_PLUGINS) {
   pluginExtendCli(commands).then(() => commands.parse())
 } else {
   commands.parse()

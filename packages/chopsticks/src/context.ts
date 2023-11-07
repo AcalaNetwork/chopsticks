@@ -88,7 +88,7 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   await overrideWasm(chain, argv['wasm-override'], at)
   await overrideStorage(chain, argv['import-storage'], at)
 
-  if (!process.env.NO_PLUGINS) {
+  if (!process.env.DISABLE_PLUGINS) {
     await loadRPCPlugins()
   }
 
