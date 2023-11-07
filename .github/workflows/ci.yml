@@ -141,7 +141,8 @@ jobs:
           cache: 'yarn'
       - run: yarn --immutable
       - run: yarn build
-      - run: |
+      - name: Run Node tests
+        run: |
           cd packages/node-test
           node index.cjs
           node index.mjs
