@@ -7,6 +7,7 @@ import type { Argv } from 'yargs'
 import { createServer } from '../../server'
 import { defaultOptions } from '../../cli-options'
 import { handler } from '../../rpc'
+import { overrideWasm } from '../../utils'
 import { setupContext } from '../../context'
 import type { Config } from '../../schema'
 
@@ -48,11 +49,13 @@ export const cli = (y: Argv) => {
         throw Error('`execute-block` requires `wasm-override`')
       }
 
-      const context = await setupContext(argv as Config, true)
+      const context = await setupContext(argv as Config)
       const { close, port: listenPort } = await createServer(handler(context), port)
       logger.info(`${await context.chain.api.getSystemChain()} RPC listening on port ${listenPort}`)
 
       const chain = context.chain
+
+      let wasmSet = false
 
       chain.api[argv.headMode === 'latest' ? 'subscribeRemoteNewHeads' : 'subscribeRemoteFinalizedHeads'](
         async (error, data) => {
@@ -63,6 +66,12 @@ export const cli = (y: Argv) => {
             if (!parent) throw Error(`Cannot find parent', ${data.parentHash}`)
             const registry = await parent.registry
             const header = registry.createType<Header>('Header', data)
+            if (!wasmSet) {
+              wasmSet = true
+              if (argv.wasmOverride) {
+                await overrideWasm(chain, argv.wasmOverride as string, header.hash.toHex())
+              }
+            }
             const wasm = await parent.wasm
 
             const block = new Block(chain, header.number.toNumber(), header.hash.toHex(), parent, {
