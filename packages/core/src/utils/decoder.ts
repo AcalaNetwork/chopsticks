@@ -80,7 +80,7 @@ export const decodeKeyValue = (
   return {
     section: storage.section,
     method: storage.method,
-    key: decodedKey.args.map(x => x.toJSON()),
+    key: decodedKey.args.map((x) => x.toJSON()),
     value: decodeValue(),
   }
 }
