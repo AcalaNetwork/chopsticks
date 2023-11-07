@@ -105,10 +105,44 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Run Playwright tests
-        run: yarn workspace @acala-network/web-test test
+        run: yarn workspace web-test run test
       - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
           path: packages/web-test/playwright-report/
           retention-days: 30
+
+  node-test:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            executor/target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          toolchain: nightly-2022-10-30
+          components: rustfmt
+          target: wasm32-unknown-unknown
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+      - run: yarn --immutable
+      - run: yarn build
+      - name: Run Node tests
+        run: |
+          cd packages/node-test
+          node index.cjs
+          node index.mjs

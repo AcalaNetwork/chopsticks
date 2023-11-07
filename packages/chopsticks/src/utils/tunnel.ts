@@ -1,4 +1,5 @@
-import 'global-agent/bootstrap'
+import { bootstrap } from 'global-agent'
+bootstrap()
 import npmConf from '@pnpm/npm-conf'
 
 const npmConfig = npmConf().config
