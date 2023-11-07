@@ -21,7 +21,7 @@ __metadata:
     "@polkadot/util-crypto": ^12.5.1
     "@swc/cli": 0.1.62
     "@swc/core": ^1.3.96
-    "@types/lodash": ^4.14.200
+    "@types/lodash": ^4.14.201
     comlink: ^4.4.1
     eventemitter3: ^5.0.1
     lodash: ^4.17.21
@@ -92,11 +92,11 @@ __metadata:
     "@swc/cli": 0.1.62
     "@swc/core": ^1.3.96
     "@types/global-agent": ^2.1.3
-    "@types/js-yaml": ^4.0.8
-    "@types/lodash": ^4.14.200
-    "@types/node": ^20.8.10
+    "@types/js-yaml": ^4.0.9
+    "@types/lodash": ^4.14.201
+    "@types/node": ^20.9.0
     "@types/ws": ^8.5.9
-    "@types/yargs": ^17.0.30
+    "@types/yargs": ^17.0.31
     axios: ^1.6.0
     dotenv: ^16.3.1
     global-agent: ^3.0.0
@@ -2383,10 +2383,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/js-yaml@npm:^4.0.8":
-  version: 4.0.8
-  resolution: "@types/js-yaml@npm:4.0.8"
-  checksum: a5a77a5a1eac7e7fb667156c251c2b947ca4ddfdda570726369dd50bd5b2b1d0da2d0fb4273d1b10aa1782406d7b3da8923d957df4fb89dbfa1db06f43297de2
+"@types/js-yaml@npm:^4.0.9":
+  version: 4.0.9
+  resolution: "@types/js-yaml@npm:4.0.9"
+  checksum: e5e5e49b5789a29fdb1f7d204f82de11cb9e8f6cb24ab064c616da5d6e1b3ccfbf95aa5d1498a9fbd3b9e745564e69b4a20b6c530b5a8bbb2d4eb830cda9bc69
   languageName: node
   linkType: hard
 
@@ -2420,10 +2420,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.200":
-  version: 4.14.200
-  resolution: "@types/lodash@npm:4.14.200"
-  checksum: 6471f8bb5da692a6ecf03a8da4935bfbc341e67ee9bcb4f5730bfacff0c367232548f0a01e8ac5ea18c6fe78fb085d502494e33ccb47a7ee87cbdee03b47d00d
+"@types/lodash@npm:^4.14.201":
+  version: 4.14.201
+  resolution: "@types/lodash@npm:4.14.201"
+  checksum: 484be655298e9b2dc2d218ea934071b2ea31e4a531c561dd220dbda65237e8d08c20dc2d457ac24f29be7fe167415bf7bb9360ea0d80bdb8b0f0ec8d8db92fae
   languageName: node
   linkType: hard
 
@@ -2444,12 +2444,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.8.10":
-  version: 20.8.10
-  resolution: "@types/node@npm:20.8.10"
+"@types/node@npm:*, @types/node@npm:^20.9.0":
+  version: 20.9.0
+  resolution: "@types/node@npm:20.9.0"
   dependencies:
     undici-types: ~5.26.4
-  checksum: 7c61190e43e8074a1b571e52ff14c880bc67a0447f2fe5ed0e1a023eb8a23d5f815658edb98890f7578afe0f090433c4a635c7c87311762544e20dd78723e515
+  checksum: bfd927da6bff8a32051fa44bb47ca32a56d2c8bc8ba0170770f181cc1fa3c0b05863c9b930f0ba8604a48d5eb0d319166601709ca53bf2deae0025d8b6c6b8a3
   languageName: node
   linkType: hard
 
@@ -2476,12 +2476,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.2.14":
-  version: 18.2.14
-  resolution: "@types/react-dom@npm:18.2.14"
+"@types/react-dom@npm:^18.2.15":
+  version: 18.2.15
+  resolution: "@types/react-dom@npm:18.2.15"
   dependencies:
     "@types/react": "*"
-  checksum: 890289c70d1966c168037637c09cacefe6205bdd27a33252144a6b432595a2943775ac1a1accac0beddaeb67f8fdf721e076acb1adc990b08e51c3d9fd4e780c
+  checksum: 8e9631600c21ff561328e38a951d1991b3b3b20f538af4c0efbd1327c883a5573a63f50e1b945c34fa51b114b30e1ca5e62317bd54f21e063d6697b4be843a03
   languageName: node
   linkType: hard
 
@@ -2494,14 +2494,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:^18.2.36":
-  version: 18.2.36
-  resolution: "@types/react@npm:18.2.36"
+"@types/react@npm:*, @types/react@npm:^18.2.37":
+  version: 18.2.37
+  resolution: "@types/react@npm:18.2.37"
   dependencies:
     "@types/prop-types": "*"
     "@types/scheduler": "*"
     csstype: ^3.0.2
-  checksum: 561fab294117983f3d245a63730bcffb423fc2a1b0f27d20c870abc5d980bc206a74f741cb11b5170fcdf0e747ac05448369cd930fbf345f74ed567f8fef3a9e
+  checksum: 2d2599f1a09e4f678509161fea8baeaf76d21deee460f4f3ccc1ca431ebe85f896d7d0b906127de17e97ed57240cec61955eb97d0b5d9cbf4e97fd6620b1acdb
   languageName: node
   linkType: hard
 
@@ -2551,12 +2551,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/yargs@npm:^17.0.30":
-  version: 17.0.30
-  resolution: "@types/yargs@npm:17.0.30"
+"@types/yargs@npm:^17.0.31":
+  version: 17.0.31
+  resolution: "@types/yargs@npm:17.0.31"
   dependencies:
     "@types/yargs-parser": "*"
-  checksum: 62d9e23923420a7353253512b45289a1928d5eeb073bb2fee947257ba41fcc5bc6f78b9e087162ea2e00c7e98d27d043ef85615ad856f0d7def5c6d60f610e58
+  checksum: a7f4fe5b05162790cbcbccceb22821e2cb3e49d95a4d8403352f258744cd504124f3ab502eddb2262f5d2d9cc6a0547851ae44621b14fe4c505d8f1434c2a19e
   languageName: node
   linkType: hard
 
@@ -3727,7 +3727,7 @@ __metadata:
   resolution: "chopsticks-monorepo@workspace:."
   dependencies:
     "@swc/core": ^1.3.96
-    "@types/node": ^20.8.10
+    "@types/node": ^20.9.0
     "@types/prettier": ^3.0.0
     "@typescript-eslint/eslint-plugin": ^6.10.0
     "@typescript-eslint/parser": ^6.10.0
@@ -9252,8 +9252,8 @@ __metadata:
     "@emotion/styled": ^11.11.0
     "@mui/material": ^5.14.17
     "@playwright/test": ^1.39.0
-    "@types/react": ^18.2.36
-    "@types/react-dom": ^18.2.14
+    "@types/react": ^18.2.37
+    "@types/react-dom": ^18.2.15
     "@vitejs/plugin-react": ^4.1.1
     crypto-browserify: ^3.12.0
     path-browserify: ^1.0.1
