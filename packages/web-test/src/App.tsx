@@ -12,7 +12,6 @@ import {
 	Typography,
 } from '@mui/material'
 import { ApiPromise } from '@polkadot/api'
-import { Buffer } from 'buffer'
 import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser.js'
@@ -20,8 +19,6 @@ import { createTestPairs } from '@polkadot/keyring'
 import { styled } from '@mui/system'
 import { useEffect, useState } from 'react'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
-
-window.Buffer = Buffer
 
 const { alice, bob } = createTestPairs()
 
