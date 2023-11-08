@@ -1,8 +1,9 @@
 {
-	"name": "@acala-network/web-test",
+	"name": "web-test",
 	"author": "Acala Network <hello@acala.network>",
 	"license": "Apache-2.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"build": "npx vite build",
 		"vite:serve": "npx vite --port 3000 --host",
@@ -15,16 +16,16 @@
 		"@acala-network/chopsticks-db": "workspace:*",
 		"@emotion/react": "^11.11.1",
 		"@emotion/styled": "^11.11.0",
-		"@mui/material": "^5.14.11",
-		"@playwright/test": "^1.37.1",
-		"@types/react": "^18",
-		"@types/react-dom": "^18",
-		"@vitejs/plugin-react": "^4.1.0",
+		"@mui/material": "^5.14.17",
+		"@playwright/test": "^1.39.0",
+		"@types/react": "^18.2.37",
+		"@types/react-dom": "^18.2.15",
+		"@vitejs/plugin-react": "^4.1.1",
 		"crypto-browserify": "^3.12.0",
 		"path-browserify": "^1.0.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"stream-browserify": "^3.0.0",
-		"typescript": "^5.1.6"
+		"typescript": "^5.2.2"
 	}
 }

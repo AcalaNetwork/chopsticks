@@ -3,12 +3,12 @@ import { StorageKey } from '@polkadot/types'
 import { compactStripLength, u8aToHex } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 
-import { Blockchain } from '../blockchain'
-import { RuntimeLog } from '../wasm-executor'
+import { Blockchain } from '../blockchain/index.js'
+import { RuntimeLog } from '../wasm-executor/index.js'
 
-export * from './set-storage'
-export * from './time-travel'
-export * from './decoder'
+export * from './set-storage.js'
+export * from './time-travel.js'
+export * from './decoder.js'
 
 export type GetKeys = (startKey?: string) => Promise<StorageKey<any>[]>
 

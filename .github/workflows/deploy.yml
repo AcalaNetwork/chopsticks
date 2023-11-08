@@ -41,8 +41,7 @@ jobs:
         run: |
           yarn --immutable
           yarn check
-          yarn build-wasm
-          yarn build
+          yarn build:web-test
       - name: Generate Docs
         run: |
           yarn docs:build

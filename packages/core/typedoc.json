@@ -4,5 +4,5 @@
 	"plugin": "typedoc-plugin-markdown",
 	"readme": "none",
 	"excludePrivate": true,
-	"tsconfig": "tsconfig.esm.json"
+	"tsconfig": "tsconfig.json"
 }

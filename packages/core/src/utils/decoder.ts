@@ -1,5 +1,5 @@
 import '@polkadot/types-codec'
-import { Block } from '../blockchain/block'
+import { Block } from '../blockchain/block.js'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
@@ -7,7 +7,7 @@ import { StorageKey } from '@polkadot/types'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
-import { decodeWellKnownKey } from './well-known-keys'
+import { decodeWellKnownKey } from './well-known-keys.js'
 
 const _CACHE: Record<string, Map<HexString, StorageEntry>> = {}
 
@@ -80,7 +80,7 @@ export const decodeKeyValue = (
   return {
     section: storage.section,
     method: storage.method,
-    key: decodedKey.args,
+    key: decodedKey.args.map((x) => x.toJSON()),
     value: decodeValue(),
   }
 }
@@ -97,7 +97,8 @@ export const toStorageObject = (decoded: ReturnType<typeof decodeKeyValue>) => {
   if (key) {
     for (let i = key.length - 1; i >= 0; i--) {
       const k = key[i]
-      const newObj = { [k.toString()]: obj }
+      const strKey = ['string', 'number'].includes(typeof k) ? k : JSON.stringify(k)
+      const newObj = { [strKey]: obj }
       obj = newObj
     }
   }

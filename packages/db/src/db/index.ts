@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm'
 
-import * as entities from './entities'
+import * as entities from './entities.js'
 
 export const openDb = async (dbPath: string): Promise<DataSource> => {
   const source = new DataSource({

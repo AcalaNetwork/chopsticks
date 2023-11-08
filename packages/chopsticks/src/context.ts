@@ -1,9 +1,10 @@
-import './utils/tunnel'
+import './utils/tunnel.js'
 import { BlockEntry, GenesisProvider, defaultLogger, isUrl, setup, timeTravel } from '@acala-network/chopsticks-core'
-import { Config } from './schema'
+import { Config } from './schema/index.js'
 import { HexString } from '@polkadot/util/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
-import { overrideStorage, overrideWasm } from './utils/override'
+import { loadRPCPlugins } from './plugins/index.js'
+import { overrideStorage, overrideWasm } from './utils/override.js'
 import axios from 'axios'
 
 const logger = defaultLogger.child({ name: 'setup-context' })
@@ -86,6 +87,10 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   // added that have storage imports
   await overrideWasm(chain, argv['wasm-override'], at)
   await overrideStorage(chain, argv['import-storage'], at)
+
+  if (!process.env.DISABLE_PLUGINS) {
+    await loadRPCPlugins()
+  }
 
   return { chain }
 }

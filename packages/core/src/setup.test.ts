@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { setup } from './setup'
+import { setup } from './setup.js'
 
 test('handle invalid block ', async () => {
   await expect(setup({ endpoint: 'wss://acala-rpc-0.aca-api.network', block: '0x' })).rejects.toThrow('invalid length')

@@ -1,11 +1,11 @@
 import { writeFileSync } from 'node:fs'
 import type { Argv } from 'yargs'
 
-import { Config } from '../../schema'
-import { defaultOptions } from '../../cli-options'
-import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
-import { openHtml } from '../../utils/open-html'
-import { setupContext } from '../../context'
+import { Config } from '../../schema/index.js'
+import { defaultOptions } from '../../cli-options.js'
+import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
+import { openHtml } from '../../utils/open-html.js'
+import { setupContext } from '../../context.js'
 
 export const cli = (y: Argv) => {
   y.command(

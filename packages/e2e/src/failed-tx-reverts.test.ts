@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest'
-import { testingPairs } from './helper'
-import networks from './networks'
+import { testingPairs } from './helper.js'
+import networks from './networks.js'
 
 // SPECIAL TEST CASE. DO NOT CHANGE
 describe('failed tx should revert storage changes', async () => {

@@ -1,4 +1,4 @@
-import { Api } from './api'
+import { Api } from './api.js'
 import { WsProvider } from '@polkadot/rpc-provider'
 import { expect, test } from 'vitest'
 

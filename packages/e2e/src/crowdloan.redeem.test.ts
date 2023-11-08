@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { testingPairs } from '@acala-network/chopsticks-testing'
 
-import networks from './networks'
+import networks from './networks.js'
 
 describe('Polkadot Crowdloan Refund', async () => {
   const { alice } = testingPairs()
@@ -20,7 +20,7 @@ describe('Polkadot Crowdloan Refund', async () => {
   }, 200_000)
 
   it.runIf(process.env.CI)(
-    "should refund Acala's contributers",
+    "should refund Acala's contributors",
     async () => {
       // trigger refund
       await expect(api.tx.crowdloan.refund(3336).signAndSend(alice)).resolves.toBeTruthy()

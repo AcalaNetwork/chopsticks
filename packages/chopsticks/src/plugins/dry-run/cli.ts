@@ -1,7 +1,7 @@
-import { Config } from '../../schema'
-import { defaultOptions, mockOptions } from '../../cli-options'
-import { dryRunExtrinsic } from './dry-run-extrinsic'
-import { dryRunPreimage } from './dry-run-preimage'
+import { Config } from '../../schema/index.js'
+import { defaultOptions, mockOptions } from '../../cli-options.js'
+import { dryRunExtrinsic } from './dry-run-extrinsic.js'
+import { dryRunPreimage } from './dry-run-preimage.js'
 import type { Argv } from 'yargs'
 
 export const cli = (y: Argv) => {

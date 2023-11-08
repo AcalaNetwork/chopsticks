@@ -17,5 +17,5 @@ export type {
   SubscriptionManager,
   Handler,
 } from '@acala-network/chopsticks-core'
-export * from '@acala-network/chopsticks-core/src/rpc/substrate'
-export * from './plugins/types'
+export * from '@acala-network/chopsticks-core/rpc/substrate/index.js'
+export * from './plugins/types.js'
