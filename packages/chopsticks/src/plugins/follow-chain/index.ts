@@ -1,5 +1,4 @@
 import { Block, defaultLogger, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
-import { Block as BlockType, Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
@@ -32,7 +31,7 @@ export const cli = (y: Argv) => {
         'head-mode': {
           desc: 'Head mode',
           choices: ['latest', 'finalized'],
-          default: 'finalized',
+          default: 'latest',
         },
         'execute-block': {
           desc: 'Call TryRuntime_execute_block, make sure the wasm is provided and built with `try-runtime` feature',
@@ -54,25 +53,26 @@ export const cli = (y: Argv) => {
       logger.info(`${await context.chain.api.getSystemChain()} RPC listening on port ${listenPort}`)
 
       const chain = context.chain
-
-      let wasmSet = false
+      let finalizedHeadSetup = false
 
       chain.api[argv.headMode === 'latest' ? 'subscribeRemoteNewHeads' : 'subscribeRemoteFinalizedHeads'](
+        // TODO: this needs to be sequential
         async (error, data) => {
           try {
             if (error) throw error
-            logger.info({ header: data }, `Follow ${argv.headMode} head from upstream`)
+
+            // first subscribe value from `subscribeRemoteNewHeads` is the current head
+            // we don't need to process it. For `subscribeRemoteFinalizedHeads`, we need
+            // to process the first value as it is the current finalized head and we need
+            // to set head to it and override wasm.
+            if (argv.headMode === 'latest' && Number(data.number) === chain.head.number) return
+
+            logger.info(`Follow ${argv.headMode} head from upstream number: ${Number(data.number)}`)
+
             const parent = await chain.getBlock(data.parentHash)
             if (!parent) throw Error(`Cannot find parent', ${data.parentHash}`)
             const registry = await parent.registry
-            const header = registry.createType<Header>('Header', data)
-            if (!wasmSet) {
-              wasmSet = true
-              if (argv.wasmOverride) {
-                await overrideWasm(chain, argv.wasmOverride as string, header.hash.toHex())
-              }
-            }
-            const wasm = await parent.wasm
+            const header = registry.createType('Header', data)
 
             const block = new Block(chain, header.number.toNumber(), header.hash.toHex(), parent, {
               header,
@@ -80,6 +80,18 @@ export const cli = (y: Argv) => {
             })
             await chain.setHead(block)
 
+            // for head mode finalized, we override wasm when chain head is set to finalized head
+            // for head mode latest, wasm is overriden when we call setupContext
+            // TODO: if finalized then setup context with finalized head
+            if (argv.headMode === 'finalized' && finalizedHeadSetup === false) {
+              finalizedHeadSetup = true
+              await overrideWasm(chain, argv.wasmOverride as string, block.hash)
+              logger.info('Finalized head setup complete')
+              return
+            }
+
+            // TODO: getting error if running block with overriden wasm ???
+            // something isn't right: OFF	 [runtime::storage]:	 Corrupted state at...
             {
               // replay block
               const calls: [string, HexString[]][] = [['Core_initialize_block', [header.toHex()]]]
@@ -92,7 +104,7 @@ export const cli = (y: Argv) => {
 
               const runBlockResult = await runTask(
                 {
-                  wasm,
+                  wasm: await parent.wasm,
                   calls,
                   mockSignatureHost: false,
                   allowUnresolvedImports: false,
@@ -122,32 +134,25 @@ export const cli = (y: Argv) => {
                 },
               })
 
-              const blockData = registry.createType<BlockType>('Block', {
-                header: await block.header,
-                extrinsics: await block.extrinsics,
-              })
+              {
+                const blockData = registry.createType('Block', {
+                  header: await block.header,
+                  extrinsics: await block.extrinsics,
+                })
 
-              const select_try_state = registry.createType('TryStateSelect', 'All')
+                const select_try_state = registry.createType('TryStateSelect', 'All')
 
-              const calls: [string, HexString[]][] = [
-                ['TryRuntime_execute_block', [blockData.toHex(), '0x00', '0x00', select_try_state.toHex()]],
-              ]
+                // params: [block, false, false, TryStateSelect::All]
+                const result = await block.call('TryRuntime_execute_block', [
+                  blockData.toHex(),
+                  '0x00',
+                  '0x00',
+                  select_try_state.toHex(),
+                ])
 
-              const executeBlockResult = await runTask(
-                {
-                  wasm,
-                  calls,
-                  mockSignatureHost: false,
-                  allowUnresolvedImports: false,
-                  runtimeLogLevel: (argv.runtimeLogLevel as number) || 0,
-                },
-                taskHandler(parent),
-              )
-
-              if ('Error' in executeBlockResult) {
-                throw new Error(executeBlockResult.Error)
+                const weight = registry.createType('Weight', result.result)
+                logger.info({ weight: weight.toHuman() }, 'TryRuntime_execute_block')
               }
-              printRuntimeLogs(executeBlockResult.Call.runtimeLogs)
             }
           } catch (e) {
             logger.error(e, 'Error when processing new head')
