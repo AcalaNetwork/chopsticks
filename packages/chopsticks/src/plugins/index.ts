@@ -14,9 +14,9 @@ const plugins = readdirSync(new URL('.', import.meta.url)).filter((file) =>
   lstatSync(new URL(file, import.meta.url)).isDirectory(),
 )
 
-// find all rpc exports
-export const rpcPluginMethods = readdirSync(new URL('.', import.meta.url))
-  .filter((file) => existsSync(new URL(`${file}/rpc.ts`, import.meta.url)))
+// find all rpc methods
+export const rpcPluginMethods = plugins
+  .filter((name) => readdirSync(new URL(name, import.meta.url)).some((file) => file.startsWith('rpc')))
   .map((name) => `dev_${_.camelCase(name)}`)
 
 export const loadRpcPlugin = async (method: string) => {
