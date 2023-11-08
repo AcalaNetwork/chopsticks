@@ -8,8 +8,8 @@
 		"url": "https://github.com/AcalaNetwork/chopsticks"
 	},
 	"scripts": {
-		"clean": "rm -rf web node",
-		"build": "wasm-pack build --target web --out-dir browser; wasm-pack build --target nodejs --out-dir node; scripts/pack-wasm.cjs"
+		"clean": "rm -rf browser node",
+		"build": "npx wasm-pack build --target web --out-dir browser && npx wasm-pack build --target nodejs --out-dir node && scripts/pack-wasm.cjs"
 	},
 	"dependencies": {
 		"@polkadot/util": "^12.5.1",
