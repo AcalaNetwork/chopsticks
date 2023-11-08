@@ -20,7 +20,7 @@ export const rpcPluginMethods = readdirSync(new URL('.', import.meta.url))
   .map((name) => `dev_${_.camelCase(name)}`)
 
 export const loadRpcPlugin = async (method: string) => {
-  if (!process.env.DISABLE_PLUGINS) {
+  if (process.env.DISABLE_PLUGINS) {
     return undefined
   }
   if (rpcPluginHandlers[method]) return rpcPluginHandlers[method]
