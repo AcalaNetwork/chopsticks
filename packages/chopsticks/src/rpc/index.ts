@@ -7,14 +7,14 @@ import {
   substrate,
 } from '@acala-network/chopsticks-core'
 
-import { loadRpcPlugin, pluginHandlers } from '../plugins/index.js'
+import { loadRpcPlugin, rpcPluginMethods } from '../plugins/index.js'
 
 const allHandlers: Handlers = {
   ...substrate,
   rpc_methods: async () =>
     Promise.resolve({
       version: 1,
-      methods: [...Object.keys(allHandlers), ...Object.keys(pluginHandlers)],
+      methods: [...Object.keys(allHandlers), ...rpcPluginMethods],
     }),
 }
 
