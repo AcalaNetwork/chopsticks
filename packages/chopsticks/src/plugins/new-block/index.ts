@@ -1,6 +1,6 @@
 import { Context, DownwardMessage, HorizontalMessage, ResponseError } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
-import { defaultLogger } from '../../logger'
+import { defaultLogger } from '../../logger.js'
 
 export interface NewBlockParams {
   /**

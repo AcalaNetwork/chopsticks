@@ -3,17 +3,18 @@
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"private": true,
+	"type": "module",
 	"scripts": {
 		"sidecar": "sh ./scripts/sidecar-chopsticks.sh"
 	},
 	"engines": {
-		"node": ">=v14"
+		"node": ">=v18"
 	},
 	"devDependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-testing": "workspace:*",
 		"@polkadot/api": "^10.10.1",
-		"typescript": "^5.1.6",
+		"typescript": "^5.2.2",
 		"vitest": "^0.34.6"
 	}
 }

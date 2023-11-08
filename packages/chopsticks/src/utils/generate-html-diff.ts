@@ -1,13 +1,12 @@
 import { Block } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
-import { decodeStorageDiff } from './decoder'
+import { decodeStorageDiff } from './decoder.js'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import _ from 'lodash'
-import url from 'node:url'
 
 export const generateHtmlDiff = async (block: Block, diff: [HexString, HexString | null][]) => {
   const { oldState, delta } = await decodeStorageDiff(block, diff)
-  const htmlTemplate = readFileSync(url.resolve(__filename, './template/diff.html'), 'utf-8')
+  const htmlTemplate = readFileSync(new URL('template/diff.html', import.meta.url), 'utf-8')
   return _.template(htmlTemplate)({ left: JSON.stringify(oldState), delta: JSON.stringify(delta) })
 }
 

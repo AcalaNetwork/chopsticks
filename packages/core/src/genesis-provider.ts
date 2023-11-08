@@ -1,4 +1,3 @@
-import { default as EventEmitter } from 'eventemitter3'
 import { HexString } from '@polkadot/util/types'
 import {
   ProviderInterface,
@@ -7,16 +6,16 @@ import {
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
 
-import { Genesis, genesisSchema } from './schema'
-import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor'
-
+import { EventEmitter } from 'eventemitter3'
+import { Genesis, genesisSchema } from './schema/index.js'
+import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
 /**
  * Provider to start a chain from genesis
  */
 export class GenesisProvider implements ProviderInterface {
   #isConnected = false
 
-  #eventemitter: EventEmitter
+  #eventemitter = new EventEmitter()
   #isReadyPromise: Promise<void>
 
   #genesis: Genesis
@@ -41,8 +40,6 @@ export class GenesisProvider implements ProviderInterface {
       ),
       1,
     )
-
-    this.#eventemitter = new EventEmitter()
 
     this.#isReadyPromise = new Promise((resolve, reject): void => {
       this.#eventemitter.once('connected', (): void => {

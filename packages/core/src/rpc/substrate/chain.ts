@@ -1,7 +1,7 @@
 import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 
-import { Handler, ResponseError } from '../shared'
+import { Handler, ResponseError } from '../shared.js'
 
 const processHeader = (header: Header) => {
   const res = header.toJSON() as any

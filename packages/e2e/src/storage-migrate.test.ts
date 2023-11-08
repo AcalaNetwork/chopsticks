@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { api, dev, setupApi } from './helper'
+import { api, dev, setupApi } from './helper.js'
 
 setupApi({
   endpoint: 'wss://kusama-archive.mangata.online',

@@ -18,7 +18,7 @@ fn setup_console(level: Option<String>) {
 
 #[wasm_bindgen(typescript_custom_section)]
 const _: &'static str = r#"
-import { HexString } from '@polkadot/util/types';
+type HexString = `0x${string}`;
 export interface JsCallback {
 	getStorage: (key: HexString) => Promise<string | undefined>
 	getStateRoot: () => Promise<string>

@@ -2,31 +2,30 @@
 	"compilerOptions": {
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
-		"lib": ["es2021", "dom", "dom.iterable"],
+		"lib": ["esnext", "dom", "dom.iterable"],
 		"isolatedModules": true,
-		"module": "CommonJS",
-		"moduleResolution": "node",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noImplicitAny": false,
-		"target": "es2021",
-		"skipLibCheck": true,
+		"target": "esnext",
+		"skipLibCheck": false,
 		"strict": true,
 		"declaration": true,
 		"resolveJsonModule": true,
+		"forceConsistentCasingInFileNames": true,
 		"baseUrl": ".",
 		"composite": true,
 		"paths": {
-			"@acala-network/chopsticks": ["packages/chopsticks/src"],
+			"@acala-network/chopsticks": ["packages/chopsticks/src/index.ts"],
 			"@acala-network/chopsticks/*": ["packages/chopsticks/src/*"],
-			"@acala-network/chopsticks-core": ["packages/core/src"],
+			"@acala-network/chopsticks-core": ["packages/core/src/index.ts"],
 			"@acala-network/chopsticks-core/*": ["packages/core/src/*"],
-			"@acala-network/chopsticks-db": ["packages/db/src"],
+			"@acala-network/chopsticks-db": ["packages/db/src/index.ts"],
 			"@acala-network/chopsticks-db/*": ["packages/db/src/*"],
-			"@acala-network/chopsticks-testing": ["packages/testing/src"],
-			"@acala-network/chopsticks-testing/*": ["packages/testing/src/*"],
-			"@acala-network/web-test": ["packages/web/src"],
-			"@acala-network/web-test/*": ["packages/web/src/*"]
+			"@acala-network/chopsticks-testing": ["packages/testing/src/index.ts"],
+			"@acala-network/chopsticks-testing/*": ["packages/testing/src/*"]
 		}
 	}
 }

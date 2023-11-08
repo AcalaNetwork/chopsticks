@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { getCurrentTimestamp, getSlotDuration, timeTravel } from '@acala-network/chopsticks-core/utils/time-travel'
+import { getCurrentTimestamp, getSlotDuration, timeTravel } from '@acala-network/chopsticks-core/utils/time-travel.js'
 
-import networks from './networks'
+import networks from './networks.js'
 
 describe.each(['polkadot', 'acala'])('Can time-travel on %s', async (name) => {
   const { chain, ws } = await networks[name as keyof typeof networks]()

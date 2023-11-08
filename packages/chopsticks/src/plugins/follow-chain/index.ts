@@ -4,12 +4,12 @@ import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 
-import { createServer } from '../../server'
-import { defaultOptions } from '../../cli-options'
-import { handler } from '../../rpc'
-import { overrideWasm } from '../../utils'
-import { setupContext } from '../../context'
-import type { Config } from '../../schema'
+import { createServer } from '../../server.js'
+import { defaultOptions } from '../../cli-options.js'
+import { handler } from '../../rpc/index.js'
+import { overrideWasm } from '../../utils/index.js'
+import { setupContext } from '../../context.js'
+import type { Config } from '../../schema/index.js'
 
 const logger = defaultLogger.child({ name: 'follow-chain' })
 const options = _.pick(defaultOptions, ['endpoint', 'wasm-override', 'runtime-log-level', 'offchain-worker'])

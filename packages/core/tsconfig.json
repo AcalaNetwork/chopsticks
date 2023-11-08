@@ -2,8 +2,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "./dist/cjs",
-		"declarationDir": "./dist/types"
+		"declarationDir": "dist/types"
 	},
 	"include": ["src/**/*"],
 	"exclude": ["src/**/*.test.ts"]

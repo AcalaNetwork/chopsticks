@@ -9,6 +9,7 @@ export default defineConfig({
 		hookTimeout: 30000,
 		testTimeout: 120000,
 		include: ['packages/**/*.test.ts'],
+		bail: process.env.CI ? 1 : undefined /* use defaults */,
 	},
 	plugins: [swc.vite(), tsconfigPaths()],
 })

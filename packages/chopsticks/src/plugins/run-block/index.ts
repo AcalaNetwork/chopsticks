@@ -18,11 +18,11 @@ import {
   taskHandler,
 } from '@acala-network/chopsticks-core'
 
-import { Config } from '../../schema'
-import { defaultOptions, mockOptions } from '../../cli-options'
-import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff'
-import { openHtml } from '../../utils/open-html'
-import { setupContext } from '../../context'
+import { Config } from '../../schema/index.js'
+import { defaultOptions, mockOptions } from '../../cli-options.js'
+import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
+import { openHtml } from '../../utils/open-html.js'
+import { setupContext } from '../../context.js'
 
 export const cli = (y: Argv) => {
   y.command(
@@ -124,7 +124,7 @@ export interface RunBlockParams {
    */
   includeBlockDetails: Params['includeBlockDetails']
   /**
-   * The parent block hash to run on top of. Deafult to chain head.
+   * The parent block hash to run on top of. Default to chain head.
    */
   parent: Params['parent']
   /**

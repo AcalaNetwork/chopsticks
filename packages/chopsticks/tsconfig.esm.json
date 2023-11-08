@@ -1,8 +1,0 @@
-{
-	"extends": "./tsconfig.json",
-	"compilerOptions": {
-		"module": "ES2022",
-		"outDir": "dist/esm"
-	},
-	"references": [{ "path": "../core/tsconfig.esm.json" }, { "path": "../db/tsconfig.esm.json" }]
-}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { api, dev, env, expectJson, setupApi, testingPairs } from './helper'
+import { api, dev, env, expectJson, setupApi, testingPairs } from './helper.js'
 
 setupApi(env.acala)
 

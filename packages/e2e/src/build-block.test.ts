@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest'
 
-import { setupAll } from './helper'
+import { setupAll } from './helper.js'
 
 const KUSAMA_STORAGE = {
   FellowshipCollective: {

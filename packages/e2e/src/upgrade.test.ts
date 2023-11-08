@@ -2,9 +2,9 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { expectJson, testingPairs } from './helper'
+import { expectJson, testingPairs } from './helper.js'
 
-import networks from './networks'
+import networks from './networks.js'
 
 describe('upgrade', async () => {
   const { alice, bob } = testingPairs()

@@ -5,10 +5,10 @@ import { hexToString, hexToU8a } from '@polkadot/util'
 import { randomAsHex } from '@polkadot/util-crypto'
 import _ from 'lodash'
 
-import { Block } from '../blockchain/block'
-import { PREFIX_LENGTH } from '../utils/key-cache'
-import { defaultLogger, truncate } from '../logger'
-import { stripChildPrefix } from '../utils'
+import { Block } from '../blockchain/block.js'
+import { PREFIX_LENGTH } from '../utils/key-cache.js'
+import { defaultLogger, truncate } from '../logger.js'
+import { stripChildPrefix } from '../utils/index.js'
 
 import type { JsCallback } from '@acala-network/chopsticks-executor'
 export { JsCallback }
@@ -75,9 +75,9 @@ const getWorker = async () => {
   const isNode = typeof process !== 'undefined' && process?.versions?.node // true for node or bun
 
   if (isNode) {
-    __executor_worker = import('./node-worker').then(({ startWorker }) => startWorker())
+    __executor_worker = import('./node-worker.js').then(({ startWorker }) => startWorker())
   } else {
-    __executor_worker = import('./browser-worker').then(({ startWorker }) => startWorker())
+    __executor_worker = import('./browser-worker.js').then(({ startWorker }) => startWorker())
   }
   return __executor_worker
 }
@@ -219,6 +219,9 @@ export const releaseWorker = async () => {
   if (!__executor_worker) return
   const executor = await __executor_worker
   executor.remote[Comlink.releaseProxy]()
+  // this delay seems to fix hanging tests
+  // https://github.com/vitest-dev/vitest/issues/3077
+  await new Promise((resolve) => setTimeout(resolve, 50))
   await executor.terminate()
   __executor_worker = undefined
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import networks from './networks'
+import networks from './networks.js'
 
 describe('dev_dryRun dmp', () => {
   it('works', async () => {

@@ -10,8 +10,8 @@ import {
   hrmpEgressChannelIndex,
   hrmpIngressChannelIndex,
   upgradeGoAheadSignal,
-} from '../utils/proof'
-import { calculateStateRoot, createProof, decodeProof, getAuraSlotDuration, getRuntimeVersion } from '.'
+} from '../utils/proof.js'
+import { calculateStateRoot, createProof, decodeProof, getAuraSlotDuration, getRuntimeVersion } from './index.js'
 
 const getCode = () => {
   const code = String(readFileSync(path.join(__dirname, '../../../e2e/blobs/acala-runtime-2101.txt'))).trim()

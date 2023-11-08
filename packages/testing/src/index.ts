@@ -8,14 +8,14 @@ import {
   setupWithServer,
 } from '@acala-network/chopsticks'
 import { Codec } from '@polkadot/types/types'
-import { Config } from '@acala-network/chopsticks/schema'
+import { Config } from '@acala-network/chopsticks/schema/index.js'
 import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { expect } from 'vitest'
 
-export * from './check'
-export * from './signFake'
+export * from './check.js'
+export * from './signFake.js'
 
 export type SetupOption = {
   endpoint: string

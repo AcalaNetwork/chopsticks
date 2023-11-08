@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { setupApi, ws } from './helper'
+import { setupApi, ws } from './helper.js'
 
 setupApi({
   endpoint: 'wss://rpc.polkadot.io',

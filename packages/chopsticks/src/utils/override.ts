@@ -3,7 +3,7 @@ import { HexString } from '@polkadot/util/types'
 import { existsSync, readFileSync } from 'node:fs'
 import yaml from 'js-yaml'
 
-import { defaultLogger } from '../logger'
+import { defaultLogger } from '../logger.js'
 
 export const overrideStorage = async (chain: Blockchain, storage?: string | StorageValues, at?: HexString) => {
   if (storage == null) {
