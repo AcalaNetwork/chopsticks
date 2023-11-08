@@ -39,19 +39,13 @@ export const loadRpcPlugin = async (method: string) => {
   return rpc
 }
 
-export const pluginExtendCli = async (argv: Argv) => {
-  const args = await argv.parse()
-  const commands = args._
-  if (!commands?.length) return
-
-  const plugin = commands.find((arg) => plugins.includes(arg as string))
-  if (!plugin) return
-
-  const location = new URL(`${plugin}/index.js`, import.meta.url)
-
-  const { cli } = await import(location.pathname)
-  if (cli) {
-    cli(argv)
-    logger.debug(`Registered plugin ${plugin} CLI`)
+export const pluginExtendCli = async (y: Argv) => {
+  for (const plugin of plugins) {
+    const location = new URL(`${plugin}/index.js`, import.meta.url)
+    const { cli } = await import(location.pathname)
+    if (cli) {
+      cli(y)
+      logger.debug(`Registered plugin CLI: ${plugin}`)
+    }
   }
 }
