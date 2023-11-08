@@ -49,8 +49,18 @@ const wellKnownKeys = [
     },
     type: '(u32, u32)',
   },
+  {
+    name: 'relay_dispatch_queue_size',
+    prefixHex: '0xf5207f03cfdce586301014700e2c2593fad157e461d71fd4c1f936839a5f1f3e',
+    decodeKey: (registry: Registry, key: HexString) => {
+      // get last 4 bytes
+      const last4Bytes = '0x' + key.slice(-8)
+      return [registry.createType('u32', hexToU8a(last4Bytes)).toJSON()]
+    },
+    type: '(u32, u32)'
+  }
 ].map((def) => {
-  const prefix = stringToHex(def.prefix || def.key)
+  const prefix = def.prefixHex ?? stringToHex(def.prefix || def.key)
   return {
     name: def.name,
     prefix,
