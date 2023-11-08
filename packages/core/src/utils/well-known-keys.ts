@@ -57,8 +57,8 @@ const wellKnownKeys = [
       const last4Bytes = '0x' + key.slice(-8)
       return [registry.createType('u32', hexToU8a(last4Bytes)).toJSON()]
     },
-    type: '(u32, u32)'
-  }
+    type: '(u32, u32)',
+  },
 ].map((def) => {
   const prefix = def.prefixHex ?? stringToHex(def.prefix || def.key)
   return {

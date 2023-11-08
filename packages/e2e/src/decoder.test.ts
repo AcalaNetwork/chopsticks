@@ -53,7 +53,14 @@ describe('decoder', async () => {
       ).toMatchSnapshot()
       expect(decodeKeyValue(meta, chain.head, '0x3a7472616e73616374696f6e5f6c6576656c3a')).toMatchSnapshot()
       expect(decodeKeyValue(meta, chain.head, '0x3a65787472696e7369635f696e646578', '0x02000000')).toMatchSnapshot()
-      expect(decodeKeyValue(meta, chain.head, '0xf5207f03cfdce586301014700e2c2593fad157e461d71fd4c1f936839a5f1f3e63f5a4efb16ffa83d0070000', '0x0100000043000000')).toMatchSnapshot()
+      expect(
+        decodeKeyValue(
+          meta,
+          chain.head,
+          '0xf5207f03cfdce586301014700e2c2593fad157e461d71fd4c1f936839a5f1f3e63f5a4efb16ffa83d0070000',
+          '0x0100000043000000',
+        ),
+      ).toMatchSnapshot()
     })
   })
 
