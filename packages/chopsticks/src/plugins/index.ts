@@ -15,6 +15,9 @@ const plugins = readdirSync(new URL('.', import.meta.url)).filter((file) =>
 )
 
 export const loadRpcPlugin = async (method: string) => {
+  if (!process.env.DISABLE_PLUGINS) {
+    return undefined
+  }
   if (pluginHandlers[method]) return pluginHandlers[method]
 
   const plugin = _.snakeCase(method.split('dev_')[1]).replaceAll('_', '-')
