@@ -9,7 +9,7 @@
 	},
 	"scripts": {
 		"clean": "rm -rf browser node",
-		"build": "npx wasm-pack build --target web --out-dir browser && npx wasm-pack build --target nodejs --out-dir node && scripts/pack-wasm.cjs"
+		"build": "wasm-pack build --target web --out-dir browser; wasm-pack build --target nodejs --out-dir node; scripts/pack-wasm.cjs"
 	},
 	"dependencies": {
 		"@polkadot/util": "^12.5.1",
