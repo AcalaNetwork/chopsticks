@@ -330,12 +330,12 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                 message,
                             } => {
                                 let level = match log_level {
-                                    1 => log::Level::Error.to_string(),
-                                    2 => log::Level::Warn.to_string(),
-                                    3 => log::Level::Info.to_string(),
-                                    4 => log::Level::Debug.to_string(),
-                                    5 => log::Level::Trace.to_string(),
-                                    _ => "".to_string(),
+                                    0 => "ERROR".to_string(),
+                                    1 => "WARN".to_string(),
+                                    2 => "INFO".to_string(),
+                                    3 => "DEBUG".to_string(),
+                                    4 => "TRACE".to_string(),
+                                    l => format!("_{l}_"),
                                 };
                                 log::info!(
                                     "{}: {}",
