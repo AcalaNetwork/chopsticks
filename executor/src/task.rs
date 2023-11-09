@@ -301,7 +301,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     {
                         match req.info() {
                             LogEmitInfo::Num(v) => {
-                                log::log!(log::Level::Info, "{}", v);
+                                log::info!("{}", v);
                                 runtime_logs.push(LogInfo {
                                     message: format!("{}", v),
                                     level: None,
@@ -309,7 +309,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                 });
                             }
                             LogEmitInfo::Utf8(v) => {
-                                log::log!(log::Level::Info, "{}", v.to_string());
+                                log::info!("{}", v.to_string());
                                 runtime_logs.push(LogInfo {
                                     message: v.to_string(),
                                     level: None,
@@ -317,7 +317,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                 });
                             }
                             LogEmitInfo::Hex(v) => {
-                                log::log!(log::Level::Info, "{}", v.to_string());
+                                log::info!("{}", v.to_string());
                                 runtime_logs.push(LogInfo {
                                     message: v.to_string(),
                                     level: None,
