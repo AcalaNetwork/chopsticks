@@ -20,7 +20,7 @@ describe.runIf(process.env.CI).each([
 
   { chain: 'Kusama', endpoint: 'wss://kusama-rpc.polkadot.io', storage: KUSAMA_STORAGE },
   { chain: 'Statemine', endpoint: 'wss://statemine-rpc.polkadot.io' },
-  { chain: 'Karura', endpoint: 'wss://karura-rpc-1.aca-api.network' },
+  { chain: 'Karura', endpoint: 'wss://karura-rpc-3.aca-api.network' },
 
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
   { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
