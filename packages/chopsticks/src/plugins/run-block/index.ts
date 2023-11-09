@@ -18,7 +18,7 @@ import {
   taskHandler,
 } from '@acala-network/chopsticks-core'
 
-import { Config } from '../../schema/index.js'
+import { Config, zHash, zHex } from '../../schema/index.js'
 import { defaultOptions, mockOptions } from '../../cli-options.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { openHtml } from '../../utils/open-html.js'
@@ -93,9 +93,6 @@ export const cli = (y: Argv) => {
     },
   )
 }
-
-const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
-const zHash = z.string().length(66).and(zHex)
 
 const schema = z.object({
   includeRaw: z.boolean().optional(),
