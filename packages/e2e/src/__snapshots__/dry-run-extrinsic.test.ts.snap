@@ -28,7 +28,7 @@ exports[`dry-run-extrinsic > dry run extrinsic 2`] = `
   ],
   [
     "0x26aa394eea5630e07c48ae0c9558cef7a86da5a932684f199539836fcb8c886f",
-    "0x6a140000",
+    "0x68150000",
   ],
   [
     "0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9280b197190fc1a763257f65171ea366e88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee",
@@ -89,7 +89,7 @@ exports[`dry-run-extrinsic > dry run extrinsic with fake signature 2`] = `
   ],
   [
     "0x26aa394eea5630e07c48ae0c9558cef7a86da5a932684f199539836fcb8c886f",
-    "0x48140000",
+    "0x46150000",
   ],
   [
     "0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371da9280b197190fc1a763257f65171ea366e88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee",
