@@ -5,7 +5,7 @@ import { hexToU8a } from '@polkadot/util'
 import { Config } from '../../schema/index.js'
 import { defaultLogger } from '../../logger.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
-import { newHeader, printRuntimeLogs, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
+import { newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
 import { openHtml } from '../../utils/open-html.js'
 import { setupContext } from '../../context.js'
 
@@ -84,8 +84,6 @@ export const dryRunPreimage = async (argv: Config) => {
   if ('Error' in result) {
     throw new Error(result.Error)
   }
-
-  printRuntimeLogs(result.Call.runtimeLogs)
 
   const filePath = await generateHtmlDiffPreviewFile(block, result.Call.storageDiff, hash)
   console.log(`Generated preview ${filePath}`)

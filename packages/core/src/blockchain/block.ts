@@ -16,7 +16,7 @@ import {
   StorageValue,
   StorageValueKind,
 } from './storage-layer.js'
-import { compactHex, printRuntimeLogs } from '../utils/index.js'
+import { compactHex } from '../utils/index.js'
 import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor/index.js'
 import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor/index.js'
 
@@ -320,8 +320,6 @@ export class Block {
       taskHandler(this),
     )
     if ('Call' in response) {
-      printRuntimeLogs(response.Call.runtimeLogs)
-
       if (this.chain.offchainWorker) {
         // apply offchain storage
         for (const [key, value] of response.Call.offchainStorageDiff) {
