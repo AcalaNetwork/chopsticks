@@ -13,7 +13,6 @@ import {
   RuntimeLog,
   compactHex,
   decodeKeyValue,
-  printRuntimeLogs,
   runTask,
   taskHandler,
 } from '@acala-network/chopsticks-core'
@@ -74,8 +73,6 @@ export const cli = (y: Argv) => {
       if ('Error' in result) {
         throw new Error(result.Error)
       }
-
-      printRuntimeLogs(result.Call.runtimeLogs)
 
       if (argv.html) {
         const filePath = await generateHtmlDiffPreviewFile(parent, result.Call.storageDiff, block.hash)

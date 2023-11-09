@@ -299,34 +299,56 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
 
                 RuntimeHostVm::LogEmit(req) => {
                     {
-                        let info = req.info();
-                        let log = match info {
-                            LogEmitInfo::Num(v) => LogInfo {
-                                message: v.to_string(),
-                                level: None,
-                                target: None,
-                            },
-                            LogEmitInfo::Utf8(v) => LogInfo {
-                                message: v.to_string(),
-                                level: None,
-                                target: None,
-                            },
-                            LogEmitInfo::Hex(v) => LogInfo {
-                                message: v.to_string(),
-                                level: None,
-                                target: None,
-                            },
+                        match req.info() {
+                            LogEmitInfo::Num(v) => {
+                                log::info!("{}", v);
+                                runtime_logs.push(LogInfo {
+                                    message: format!("{}", v),
+                                    level: None,
+                                    target: None,
+                                });
+                            }
+                            LogEmitInfo::Utf8(v) => {
+                                log::info!("{}", v.to_string());
+                                runtime_logs.push(LogInfo {
+                                    message: v.to_string(),
+                                    level: None,
+                                    target: None,
+                                });
+                            }
+                            LogEmitInfo::Hex(v) => {
+                                log::info!("{}", v.to_string());
+                                runtime_logs.push(LogInfo {
+                                    message: v.to_string(),
+                                    level: None,
+                                    target: None,
+                                });
+                            }
                             LogEmitInfo::Log {
                                 log_level,
                                 target,
                                 message,
-                            } => LogInfo {
-                                message: message.to_string(),
-                                level: Some(log_level),
-                                target: Some(target.to_string()),
-                            },
+                            } => {
+                                let level = match log_level {
+                                    0 => "ERROR".to_string(),
+                                    1 => "WARN".to_string(),
+                                    2 => "INFO".to_string(),
+                                    3 => "DEBUG".to_string(),
+                                    4 => "TRACE".to_string(),
+                                    l => format!("_{l}_"),
+                                };
+                                log::info!(
+                                    "{}: {}",
+                                    format!("{:<28}{:>6}", target.to_string(), level),
+                                    message.to_string()
+                                );
+                                runtime_logs.push(LogInfo {
+                                    message: message.to_string(),
+                                    level: Some(log_level),
+                                    target: Some(target.to_string()),
+                                });
+                            }
                         };
-                        runtime_logs.push(log);
                     }
                     req.resume()
                 }
