@@ -4,7 +4,6 @@ import { compactStripLength, u8aToHex } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 
 import { Blockchain } from '../blockchain/index.js'
-import { RuntimeLog } from '../wasm-executor/index.js'
 
 export * from './set-storage.js'
 export * from './time-travel.js'
