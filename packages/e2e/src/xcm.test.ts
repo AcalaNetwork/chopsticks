@@ -1,6 +1,6 @@
 import { beforeEach, describe, it } from 'vitest'
 
-import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
+import { DownwardMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
 import { connectDownward } from '@acala-network/chopsticks-core/xcm/downward.js'
 import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
 import { matchSystemEvents, testingPairs } from '@acala-network/chopsticks-testing'
