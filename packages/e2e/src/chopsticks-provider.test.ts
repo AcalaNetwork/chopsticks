@@ -13,12 +13,7 @@ describe('chopsticks provider works', async () => {
   const chopsticksProvider = new ChopsticksProvider(chain)
   const api = await ApiPromise.create({
     provider: chopsticksProvider,
-    signedExtensions: {
-      SetEvmOrigin: {
-        extrinsic: {},
-        payload: {},
-      },
-    },
+    noInitWarn: true,
   })
 
   beforeAll(async () => {

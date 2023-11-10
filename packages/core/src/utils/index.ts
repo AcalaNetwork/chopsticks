@@ -4,7 +4,6 @@ import { compactStripLength, u8aToHex } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 
 import { Blockchain } from '../blockchain/index.js'
-import { RuntimeLog } from '../wasm-executor/index.js'
 
 export * from './set-storage.js'
 export * from './time-travel.js'
@@ -107,28 +106,4 @@ export const stripChildPrefix = (key: HexString) => {
   const [child, storageKey] = splitChildKey(key)
   if (!child) return key
   return storageKey
-}
-
-const logLevels = ['OFF', 'ERROR', 'WARN', 'INFO', 'DEBUG', 'TRACE']
-
-export const formatRuntimeLog = (log: RuntimeLog) => {
-  let msg = ''
-  if (log.level != null) {
-    msg += `${logLevels[log.level]}\t `
-  }
-  if (log.target) {
-    msg += `[${log.target}]:\t `
-  }
-  msg += log.message
-  return msg
-}
-
-export const printRuntimeLogs = (logs: RuntimeLog[]) => {
-  if (!logs.length) return
-
-  console.group('RuntimeLogs:')
-  for (const log of logs) {
-    console.log(formatRuntimeLog(log))
-  }
-  console.groupEnd()
 }

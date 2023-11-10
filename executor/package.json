@@ -1,14 +1,14 @@
 {
 	"name": "@acala-network/chopsticks-executor",
 	"description": "Chopsticks executor",
-	"version": "0.9.1",
+	"version": "0.9.2-2",
 	"license": "Apache-2.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/AcalaNetwork/chopsticks"
 	},
 	"scripts": {
-		"clean": "rm -rf web node",
+		"clean": "rm -rf browser node",
 		"build": "wasm-pack build --target web --out-dir browser; wasm-pack build --target nodejs --out-dir node; scripts/pack-wasm.cjs"
 	},
 	"dependencies": {

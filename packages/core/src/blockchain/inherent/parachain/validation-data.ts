@@ -1,7 +1,7 @@
-import { AbridgedHrmpChannel, HrmpChannelId } from '@polkadot/types/interfaces'
+import { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { hexToU8a, u8aConcat } from '@polkadot/util'
+import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from '../../block.js'
@@ -13,6 +13,7 @@ import {
   hrmpChannels,
   hrmpEgressChannelIndex,
   hrmpIngressChannelIndex,
+  paraHead,
   upgradeGoAheadSignal,
 } from '../../../utils/proof.js'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
@@ -101,10 +102,21 @@ export class SetValidationData implements CreateInherents {
       )
 
       for (const key of Object.values(WELL_KNOWN_KEYS)) {
-        newEntries.push([key, decoded[key]])
+        if (key === WELL_KNOWN_KEYS.CURRENT_SLOT) {
+          // increment current slot
+          const currentSlot = meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
+          const newSlot = meta.registry.createType<Slot>('Slot', currentSlot + 2)
+          newEntries.push([key, u8aToHex(newSlot.toU8a())])
+        } else {
+          newEntries.push([key, decoded[key]])
+        }
       }
       newEntries.push([hrmpIngressChannelIndexKey, decoded[hrmpIngressChannelIndexKey]])
       newEntries.push([hrmpEgressChannelIndexKey, decoded[hrmpEgressChannelIndexKey]])
+
+      // inject paraHead
+      const headData = meta.registry.createType('HeadData', (await parent.header).toHex())
+      newEntries.push([paraHead(paraId), u8aToHex(headData.toU8a())])
 
       // inject downward messages
       let dmqMqcHeadHash = decoded[dmqMqcHeadKey]

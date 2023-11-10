@@ -41,3 +41,8 @@ export const hrmpChannels = (channelId: HrmpChannelId) => {
   const prefix = '0x6a0da05ca59913bc38a8630590f2627cb6604cff828a6e3f579ca6c59ace013d'
   return hash(prefix, channelId.toU8a())
 }
+
+export const paraHead = (paraId: u32) => {
+  const prefix = '0xcd710b30bd2eab0352ddcc26417aa1941b3c252fcb29d88eff4f3de5de4476c3'
+  return hash(prefix, paraId.toU8a())
+}

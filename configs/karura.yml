@@ -1,4 +1,4 @@
-endpoint: wss://karura-rpc-0.aca-api.network
+endpoint: wss://karura-rpc.aca-api.network
 mock-signature-host: true
 block: ${env.KARURA_BLOCK_NUMBER}
 db: ./db.sqlite
