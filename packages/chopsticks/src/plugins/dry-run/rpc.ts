@@ -44,9 +44,6 @@ const schema = z.object({
   at: zHash.optional(),
 })
 
-// custom rpc name (optional). e.g. dryRun will be called as dev_dryRun
-export const name = 'dryRun'
-
 type Params = z.infer<typeof schema>
 
 export interface DryRunParams {
