@@ -13,6 +13,8 @@ import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 
+export * from './signFake.js'
+
 export type SetupOption = {
   endpoint: string
   blockNumber?: number
