@@ -27,6 +27,7 @@ export type SetupOption = {
   port?: number
   maxMemoryBlockCount?: number
   resume?: boolean | HexString | number
+  runtimeLogLevel?: number
 }
 
 export type SetupConfig = Config & {
@@ -43,6 +44,7 @@ export const createConfig = ({
   port,
   maxMemoryBlockCount,
   resume,
+  runtimeLogLevel,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -53,6 +55,7 @@ export const createConfig = ({
     'mock-signature-host': true,
     'build-block-mode': BuildBlockMode.Manual,
     'max-memory-block-count': maxMemoryBlockCount ?? 100,
+    'runtime-log-level': runtimeLogLevel,
     db,
     'wasm-override': wasmOverride,
     timeout,
@@ -74,8 +77,6 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
     provider: ws,
     noInitWarn: true,
   })
-
-  await api.isReady
 
   return {
     url,
