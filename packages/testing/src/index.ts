@@ -72,12 +72,7 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
   const ws = new WsProvider(url, undefined, undefined, timeout)
   const api = await ApiPromise.create({
     provider: ws,
-    signedExtensions: {
-      SetEvmOrigin: {
-        extrinsic: {},
-        payload: {},
-      },
-    },
+    noInitWarn: true,
   })
 
   await api.isReady
