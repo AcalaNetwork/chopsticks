@@ -25,7 +25,9 @@
 			"@acala-network/chopsticks-db": ["packages/db/src/index.ts"],
 			"@acala-network/chopsticks-db/*": ["packages/db/src/*"],
 			"@acala-network/chopsticks-testing": ["packages/testing/src/index.ts"],
-			"@acala-network/chopsticks-testing/*": ["packages/testing/src/*"]
+			"@acala-network/chopsticks-testing/*": ["packages/testing/src/*"],
+			"@acala-network/chopsticks-utils": ["packages/utils/src/index.ts"],
+			"@acala-network/chopsticks-utils/*": ["packages/utils/src/*"]
 		}
 	}
 }

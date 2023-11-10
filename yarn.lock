@@ -72,13 +72,24 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-testing@workspace:packages/testing"
   dependencies:
-    "@acala-network/chopsticks": "workspace:*"
+    "@acala-network/chopsticks-utils": "workspace:*"
     "@swc/cli": 0.1.62
     "@swc/core": ^1.3.96
     "@types/chai": ^4.3.10
     typescript: ^5.2.2
   peerDependencies:
     vitest: ^0.34.0
+  languageName: unknown
+  linkType: soft
+
+"@acala-network/chopsticks-utils@workspace:*, @acala-network/chopsticks-utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@acala-network/chopsticks-utils@workspace:packages/utils"
+  dependencies:
+    "@acala-network/chopsticks": "workspace:*"
+    "@swc/cli": 0.1.62
+    "@swc/core": ^1.3.96
+    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 

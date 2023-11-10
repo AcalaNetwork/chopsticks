@@ -71,5 +71,10 @@ jobs:
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
+    - name: Publish @acala-network/chopsticks-utils
+      run: yarn workspace @acala-network/chopsticks-utils npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
     - run: |
         git checkout ./.yarnrc.yml
