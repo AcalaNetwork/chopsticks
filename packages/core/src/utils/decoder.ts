@@ -14,7 +14,7 @@ const _CACHE: Record<string, LRUCache<HexString, StorageEntry>> = {}
 
 function createCache() {
   return new LRUCache<HexString, StorageEntry>({
-    max: 500, // The maximum number of items in the cache
+    max: 50, // The maximum number of items in the cache
   })
 }
 
