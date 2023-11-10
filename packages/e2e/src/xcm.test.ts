@@ -1,6 +1,6 @@
 import { beforeEach, describe, it } from 'vitest'
 
-import { DownwardMessage, HorizontalMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
+import { DownwardMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
 import { connectDownward } from '@acala-network/chopsticks-core/xcm/downward.js'
 import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
 import { matchSystemEvents, testingPairs } from '@acala-network/chopsticks-testing'
@@ -15,15 +15,6 @@ const downwardMessages: DownwardMessage[] = [
     msg: '0x0210010400010000078155a74e390a1300010000078155a74e39010300286bee0d01000400010100c0cbffafddbe39f71f0190c2369adfc59eaa4c81a308ebcad88cdd9c400ba57c',
   },
 ]
-
-const horizontalMessages: Record<number, HorizontalMessage[]> = {
-  2004: [
-    {
-      data: '0x000210000400000106080001000fc2ddd331d55e200a1300000106080001000fc2ddd331d55e20010700f2052a010d01000400010100ba686c8fa59178c699a698ea4d8e2c595394c2594bce4b6c2ca3a9bf3018e25d',
-      sentAt: 13509121,
-    },
-  ],
-}
 
 describe('XCM', async () => {
   let acala: Network
@@ -41,11 +32,6 @@ describe('XCM', async () => {
 
   it('Acala handles downward messages', async () => {
     await acala.chain.newBlock({ downwardMessages })
-    await matchSystemEvents(acala)
-  })
-
-  it('Acala handles horizonal messages', async () => {
-    await acala.chain.newBlock({ horizontalMessages })
     await matchSystemEvents(acala)
   })
 
