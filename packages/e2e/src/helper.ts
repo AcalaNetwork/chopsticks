@@ -65,9 +65,7 @@ export const setupAll = async ({
   } else {
     provider = new WsProvider(endpoint)
   }
-  const api = new Api(provider, {
-    SetEvmOrigin: { payload: {}, extrinsic: {} },
-  })
+  const api = new Api(provider)
 
   await api.isReady
 

@@ -273,6 +273,7 @@ export class Block {
             getSpecExtensions(registry, chain, version.specName),
             this.#chain.api.signedExtensions,
           ),
+          true,
         )
         return registry
       })
