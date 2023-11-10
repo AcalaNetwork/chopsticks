@@ -19,7 +19,6 @@ import { createServer } from '@acala-network/chopsticks/server.js'
 import { defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { genesisFromUrl } from '@acala-network/chopsticks/context.js'
 import { handler } from '@acala-network/chopsticks/rpc/index.js'
-import { loadRPCPlugins } from '@acala-network/chopsticks/plugins/index.js'
 
 export { expectJson, expectHex, testingPairs } from '@acala-network/chopsticks-testing'
 
@@ -105,10 +104,6 @@ export const setupAll = async ({
         runtimeLogLevel,
         db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
       })
-
-      if (!process.env.DISABLE_PLUGINS) {
-        await loadRPCPlugins()
-      }
 
       const { port, close } = await createServer(handler({ chain }))
 

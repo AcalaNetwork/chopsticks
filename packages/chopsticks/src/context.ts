@@ -3,7 +3,6 @@ import { BlockEntry, GenesisProvider, defaultLogger, isUrl, setup, timeTravel } 
 import { Config } from './schema/index.js'
 import { HexString } from '@polkadot/util/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
-import { loadRPCPlugins } from './plugins/index.js'
 import { overrideStorage, overrideWasm } from './utils/override.js'
 import axios from 'axios'
 
@@ -87,10 +86,6 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
   // added that have storage imports
   await overrideWasm(chain, argv['wasm-override'], at)
   await overrideStorage(chain, argv['import-storage'], at)
-
-  if (!process.env.DISABLE_PLUGINS) {
-    await loadRPCPlugins()
-  }
 
   return { chain }
 }
