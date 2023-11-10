@@ -142,6 +142,20 @@ exports[`decoder > with acala > works with well known keys 4`] = `
 }
 `;
 
+exports[`decoder > with acala > works with well known keys 5`] = `
+{
+  "key": [
+    2000,
+  ],
+  "method": "relay_dispatch_queue_size",
+  "section": "substrate",
+  "value": [
+    1,
+    67,
+  ],
+}
+`;
+
 exports[`decoder > works with multiple chains 1`] = `
 {
   "key": [

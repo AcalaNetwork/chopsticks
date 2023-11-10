@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 
-import { printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
+import { runTask, taskHandler } from '@acala-network/chopsticks-core'
 
 import { Config } from '../../schema/index.js'
 import { defaultOptions, mockOptions } from '../../cli-options.js'
@@ -61,8 +61,6 @@ export const cli = (y: Argv) => {
       if ('Error' in result) {
         throw new Error(result.Error)
       }
-
-      printRuntimeLogs(result.Call.runtimeLogs)
 
       if (argv.html) {
         const filePath = await generateHtmlDiffPreviewFile(parent, result.Call.storageDiff, block.hash)

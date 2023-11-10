@@ -110,12 +110,7 @@ export const setupAll = async ({
       const ws = new WsProvider(`ws://localhost:${port}`, undefined, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
         provider: ws,
-        signedExtensions: {
-          SetEvmOrigin: {
-            extrinsic: {},
-            payload: {},
-          },
-        },
+        noInitWarn: true,
       })
 
       await apiPromise.isReady

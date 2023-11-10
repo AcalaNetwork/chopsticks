@@ -1,4 +1,4 @@
-import { Block, defaultLogger, printRuntimeLogs, runTask, taskHandler } from '@acala-network/chopsticks-core'
+import { Block, defaultLogger, runTask, taskHandler } from '@acala-network/chopsticks-core'
 import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
@@ -79,8 +79,6 @@ export const cli = (y: Argv) => {
             if ('Error' in result) {
               throw new Error(result.Error)
             }
-
-            printRuntimeLogs(result.Call.runtimeLogs)
           } catch (e) {
             logger.error(e, 'Error when processing new head')
             await close()

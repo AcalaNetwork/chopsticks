@@ -1,8 +1,9 @@
-endpoint: wss://kusama-rpc.dwellir.com
+endpoint: wss://kusama-rpc.polkadot.io
 mock-signature-host: true
 block: ${env.KUSAMA_BLOCK_NUMBER}
 db: ./db.sqlite
-# wasm-override: kusama_runtime-v9380.compact.compressed.wasm
+# wasm-override: staging_kusama_runtime.wasm
+runtime-log-level: 5
 
 import-storage:
   System:
