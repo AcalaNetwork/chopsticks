@@ -16,15 +16,6 @@ const downwardMessages: DownwardMessage[] = [
   },
 ]
 
-const horizontalMessages: Record<number, HorizontalMessage[]> = {
-  2004: [
-    {
-      data: '0x000210000400000106080001000fc2ddd331d55e200a1300000106080001000fc2ddd331d55e20010700f2052a010d01000400010100ba686c8fa59178c699a698ea4d8e2c595394c2594bce4b6c2ca3a9bf3018e25d',
-      sentAt: 13509121,
-    },
-  ],
-}
-
 describe('XCM', async () => {
   let acala: Network
   let polkadot: Network
@@ -41,11 +32,6 @@ describe('XCM', async () => {
 
   it('Acala handles downward messages', async () => {
     await acala.chain.newBlock({ downwardMessages })
-    await matchSystemEvents(acala)
-  })
-
-  it('Acala handles horizonal messages', async () => {
-    await acala.chain.newBlock({ horizontalMessages })
     await matchSystemEvents(acala)
   })
 

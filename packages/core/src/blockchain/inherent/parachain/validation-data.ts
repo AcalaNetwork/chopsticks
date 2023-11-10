@@ -177,7 +177,10 @@ export class SetValidationData implements CreateInherents {
           .toJSON()
         const paraMessages: HorizontalMessage[] = []
 
-        for (const { data, sentAt } of messages) {
+        for (const { data, sentAt: _unused } of messages) {
+          // fake relaychain sentAt to make validationData think this msg was sent at previous block
+          const sentAt = extrinsic.validationData.relayParentNumber + 1
+
           // calculate new hash
           const bytes = meta.registry.createType('Bytes', data)
           abridgedHrmp.mqcHead = blake2AsHex(
