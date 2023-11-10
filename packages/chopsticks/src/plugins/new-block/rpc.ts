@@ -1,36 +1,70 @@
-import { Context, DownwardMessage, HorizontalMessage, ResponseError } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
+import { Context, ResponseError } from '@acala-network/chopsticks-core'
+import { z } from 'zod'
+
 import { defaultLogger } from '../../logger.js'
+import { zHex } from '../../schema/index.js'
+
+const schema = z.object({
+  count: z.number().optional(),
+  to: z.number().optional(),
+  dmp: z
+    .array(
+      z.object({
+        sentAt: z.number(),
+        msg: zHex,
+      }),
+    )
+    .min(1)
+    .optional(),
+  ump: z.record(z.number(), z.array(zHex).min(1)).optional(),
+  hrmp: z
+    .record(
+      z.number(),
+      z
+        .array(
+          z.object({
+            sentAt: z.number(),
+            data: zHex,
+          }),
+        )
+        .min(1),
+    )
+    .optional(),
+  transactions: z.array(zHex).min(1).optional(),
+  unsafeBlockHeight: z.number().optional(),
+})
+
+type Params = z.infer<typeof schema>
 
 export interface NewBlockParams {
   /**
    * The number of blocks to build
    */
-  count: number
+  count: Params['count']
   /**
    * The block number to build to
    */
-  to: number
+  to: Params['to']
   /**
    * The downward messages to include in the block
    */
-  dmp: DownwardMessage[]
+  dmp: Params['dmp']
   /**
    * The upward messages to include in the block
    */
-  ump: Record<number, HexString[]>
+  ump: Params['ump']
   /**
    * The horizontal messages to include in the block
    */
-  hrmp: Record<number, HorizontalMessage[]>
+  hrmp: Params['hrmp']
   /**
    * The transactions to include in the block
    */
-  transactions: HexString[]
+  transactions: Params['transactions']
   /**
    * Build block using a specific block height (unsafe)
    */
-  unsafeBlockHeight: number
+  unsafeBlockHeight: Params['unsafeBlockHeight']
 }
 
 /**
@@ -71,16 +105,14 @@ export interface NewBlockParams {
  * await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight: 100000001 }])
  * ```
  */
-export const rpc = async (context: Context, params: [NewBlockParams]) => {
-  const [param] = params
-  const { count, to, hrmp, ump, dmp, transactions, unsafeBlockHeight } = param || {}
+export const rpc = async (context: Context, [params]: [NewBlockParams]) => {
+  const { count, to, hrmp, ump, dmp, transactions, unsafeBlockHeight } = schema.parse(params || {})
   const now = context.chain.head.number
   const diff = to ? to - now : count
-  const finalCount = diff > 0 ? diff : 1
+  const finalCount = diff !== undefined ? Math.max(diff, 1) : 1
 
   let finalHash: string | undefined
-
-  if (unsafeBlockHeight < now) {
+  if (unsafeBlockHeight !== undefined && unsafeBlockHeight <= now) {
     throw new ResponseError(1, 'unsafeBlockHeight must be greater than current block height')
   }
 

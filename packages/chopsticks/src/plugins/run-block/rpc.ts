@@ -14,9 +14,7 @@ import {
   runTask,
   taskHandler,
 } from '@acala-network/chopsticks-core'
-
-const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
-const zHash = z.string().length(66).and(zHex)
+import { zHash, zHex } from '../../schema/index.js'
 
 const schema = z.object({
   includeRaw: z.boolean().optional(),
@@ -115,6 +113,8 @@ export interface RunBlockResponse {
     }[]
   }
 }
+
+export const name = 'runBlock'
 
 /**
  * Run a set of extrinsics on top of a block and get the storage diff

@@ -4,6 +4,8 @@ import { defaultLogger } from '../../logger.js'
 /**
  * Set a build block mode. See [BuildBlockMode](../core/enums/BuildBlockMode).
  *
+ * 1 - Batch, 2 - Instant, 3 - Manual
+ *
  * This function is a dev rpc handler. Use `dev_setBlockBuildMode` as the method name when calling it.
  *
  * @param context - The context object of the rpc handler
@@ -18,7 +20,7 @@ import { defaultLogger } from '../../logger.js'
  * ```
  */
 export const rpc = async (context: Context, [mode]: [BuildBlockMode]) => {
-  defaultLogger.debug({ mode }, 'dev_setBlockBuildMode')
+  defaultLogger.debug({ mode: BuildBlockMode[mode] }, 'dev_setBlockBuildMode')
 
   if (BuildBlockMode[mode] === undefined) {
     throw new ResponseError(1, `Invalid mode ${mode}`)

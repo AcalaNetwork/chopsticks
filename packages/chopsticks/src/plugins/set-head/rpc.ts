@@ -1,5 +1,10 @@
 import { Block, Context, ResponseError } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
+import { z } from 'zod'
+
+import { zHash } from '../../schema/index.js'
+
+const schema = zHash.or(z.number())
+type Params = z.infer<typeof schema>
 
 /**
  * Set head.
@@ -16,7 +21,8 @@ import { HexString } from '@polkadot/util/types'
  * await ws.send('dev_setHead', [1000000])
  * ```
  */
-export const rpc = async (context: Context, [hashOrNumber]: [HexString | number]) => {
+export const rpc = async (context: Context, [params]: [Params]) => {
+  const hashOrNumber = schema.parse(params)
   let block: Block | undefined
   if (typeof hashOrNumber === 'number') {
     const blockNumber = hashOrNumber > 0 ? hashOrNumber : context.chain.head.number + hashOrNumber
