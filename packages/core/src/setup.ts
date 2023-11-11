@@ -40,7 +40,7 @@ export const setup = async (options: SetupOptions) => {
   } else if (/^(https|http):\/\//.test(options.endpoint || '')) {
     provider = new HttpProvider(options.endpoint)
   } else {
-    provider = new WsProvider(options.endpoint)
+    provider = new WsProvider(options.endpoint, 3_000)
   }
   const api = new Api(provider)
   await api.isReady

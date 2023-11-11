@@ -63,7 +63,7 @@ export const setupAll = async ({
   } else if (/^(https|http):\/\//.test(endpoint || '')) {
     provider = new HttpProvider(endpoint)
   } else {
-    provider = new WsProvider(endpoint)
+    provider = new WsProvider(endpoint, 3_000)
   }
   const api = new Api(provider)
 
@@ -105,7 +105,7 @@ export const setupAll = async ({
 
       const { port, close } = await createServer(handler({ chain }))
 
-      const ws = new WsProvider(`ws://localhost:${port}`, undefined, undefined, 300_000)
+      const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
         provider: ws,
         noInitWarn: true,
