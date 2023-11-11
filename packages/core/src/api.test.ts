@@ -3,7 +3,7 @@ import { WsProvider } from '@polkadot/rpc-provider'
 import { expect, test } from 'vitest'
 
 test('handle invalid block hash', async () => {
-  const api = new Api(new WsProvider('wss://acala-rpc-0.aca-api.network'))
+  const api = new Api(new WsProvider('wss://acala-rpc-0.aca-api.network', 3_000))
   await api.isReady
 
   await expect(api.getHeader('0x')).rejects.toThrow('invalid length')
