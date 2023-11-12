@@ -2,6 +2,7 @@ import '@polkadot/types-codec'
 import { Block } from '../blockchain/block.js'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
+import { LRUCache } from 'lru-cache'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
@@ -9,19 +10,27 @@ import _ from 'lodash'
 
 import { decodeWellKnownKey } from './well-known-keys.js'
 
-const _CACHE: Record<string, Map<HexString, StorageEntry>> = {}
+const _CACHE: Record<string, LRUCache<HexString, StorageEntry>> = {}
 
-const getCache = (uid: string): Map<HexString, StorageEntry> => {
+function createCache() {
+  return new LRUCache<HexString, StorageEntry>({
+    max: 50, // The maximum number of items in the cache
+  })
+}
+
+const getCache = (uid: string): LRUCache<HexString, StorageEntry> => {
   if (!_CACHE[uid]) {
-    _CACHE[uid] = new Map()
+    _CACHE[uid] = createCache()
   }
   return _CACHE[uid]
 }
 
 const getStorageEntry = (meta: DecoratedMeta, block: Block, key: HexString) => {
   const cache = getCache(block.chain.uid)
-  for (const [prefix, storageEntry] of cache.entries()) {
-    if (key.startsWith(prefix)) return storageEntry
+  for (const prefix of cache.keys()) {
+    if (key.startsWith(prefix))
+      // update the recency of the cache entry
+      return cache.get(prefix)
   }
   for (const module of Object.values(meta.query)) {
     for (const storage of Object.values(module)) {
