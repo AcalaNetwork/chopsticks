@@ -86,7 +86,7 @@ function App() {
 	const [extrinsic, setExtrinsic] = useState('')
 	const [dryRunResult, setDryRunResult] = useState('')
 	const [config, setConfig] = useState<SetupOptions>({
-		endpoint: 'wss://acala-rpc-0.aca-api.network',
+		endpoint: 'wss://acala-rpc.aca-api.network',
 		block: 4_000_000,
 	})
 	const [blocks, setBlocks] = useState<{ number: number; hash: HexString }[]>([])
