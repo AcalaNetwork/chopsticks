@@ -129,7 +129,7 @@ function App() {
 		})
 
 		const provider = new ChopsticksProvider(globalThis.chain)
-		const api = new ApiPromise({ provider })
+		const api = new ApiPromise({ provider, noInitWarn: true })
 		await api.isReadyOrError
 		globalThis.api = api
 

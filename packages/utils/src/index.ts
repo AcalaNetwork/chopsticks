@@ -25,6 +25,7 @@ export type SetupOption = {
   port?: number
   maxMemoryBlockCount?: number
   resume?: boolean | HexString | number
+  runtimeLogLevel?: number
 }
 
 export type SetupConfig = Config & {
@@ -41,6 +42,7 @@ export const createConfig = ({
   port,
   maxMemoryBlockCount,
   resume,
+  runtimeLogLevel,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -51,6 +53,7 @@ export const createConfig = ({
     'mock-signature-host': true,
     'build-block-mode': BuildBlockMode.Manual,
     'max-memory-block-count': maxMemoryBlockCount ?? 100,
+    'runtime-log-level': runtimeLogLevel,
     db,
     'wasm-override': wasmOverride,
     timeout,
@@ -67,13 +70,11 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
   const { chain, listenPort, close } = await setupWithServer(config)
 
   const url = `ws://localhost:${listenPort}`
-  const ws = new WsProvider(url, undefined, undefined, timeout)
+  const ws = new WsProvider(url, 3_000, undefined, timeout)
   const api = await ApiPromise.create({
     provider: ws,
     noInitWarn: true,
   })
-
-  await api.isReady
 
   return {
     url,
@@ -102,10 +103,7 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
       await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])
 
       // log a bit later to ensure the message is visible
-      setTimeout(
-        () => console.log(`Server paused. Polkadot.js apps URL: https://polkadot.js.org/apps/?rpc=${url}`),
-        100,
-      )
+      setTimeout(() => console.log(`Test paused. Polkadot.js apps URL: https://polkadot.js.org/apps/?rpc=${url}`), 100)
 
       return new Promise((_resolve) => {}) // wait forever
     },
