@@ -1,11 +1,9 @@
-import { ChainProperties, Header } from '@polkadot/types/interfaces'
+import { Header } from '@polkadot/types/interfaces'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { expandMetadata } from '@polkadot/types/metadata'
-import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
-import { hexToU8a, objectSpread, stringToHex } from '@polkadot/util'
-import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
+import { hexToU8a, stringToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from './index.js'
@@ -254,29 +252,9 @@ export class Block {
    */
   get registry(): Promise<TypeRegistry> {
     if (!this.#registry) {
-      this.#registry = Promise.all([
-        this.metadata,
-        this.#chain.api.chainProperties,
-        this.#chain.api.chain,
-        this.runtimeVersion,
-      ]).then(([data, properties, chain, version]) => {
-        const registry = new TypeRegistry(this.hash)
-        registry.setKnownTypes(this.chain.registeredTypes)
-        registry.setChainProperties(registry.createType('ChainProperties', properties) as ChainProperties)
-        registry.register(getSpecTypes(registry, chain, version.specName, version.specVersion))
-        registry.setHasher(getSpecHasher(registry, chain, version.specName))
-        registry.setMetadata(
-          new Metadata(registry, data),
-          undefined,
-          objectSpread<ExtDef>(
-            {},
-            getSpecExtensions(registry, chain, version.specName),
-            this.#chain.api.signedExtensions,
-          ),
-          true,
-        )
-        return registry
-      })
+      this.#registry = Promise.all([this.metadata, this.runtimeVersion]).then(([data, version]) =>
+        this.#chain.buildRegistry(data, version),
+      )
     }
     return this.#registry
   }
