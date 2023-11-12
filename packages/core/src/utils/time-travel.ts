@@ -28,7 +28,7 @@ export const getSlotDuration = async (chain: Blockchain) => {
   return meta.consts.babe
     ? (meta.consts.babe.expectedBlockTime as any as BN).toNumber()
     : meta.query.aura
-    ? getAuraSlotDuration(await chain.head.wasm, meta.registry)
+    ? getAuraSlotDuration(await chain.head.wasm)
     : 12_000
 }
 

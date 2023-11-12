@@ -1,5 +1,5 @@
-import { Header } from '@polkadot/types/interfaces'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import { Header } from '@polkadot/types/interfaces'
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { expandMetadata } from '@polkadot/types/metadata'
