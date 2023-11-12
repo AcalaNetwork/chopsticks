@@ -1,7 +1,6 @@
 import * as Comlink from 'comlink'
 import { HexString } from '@polkadot/util/types'
-import { Registry } from '@polkadot/types-codec/types'
-import { hexToString, hexToU8a } from '@polkadot/util'
+import { hexToString, hexToU8a, u8aToBn } from '@polkadot/util'
 import { randomAsHex } from '@polkadot/util-crypto'
 import _ from 'lodash'
 
@@ -201,7 +200,7 @@ export const emptyTaskHandler = {
   },
 }
 
-export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: Registry): Promise<number> => {
+export const getAuraSlotDuration = _.memoize(async (wasm: HexString): Promise<number> => {
   const result = await runTask({
     wasm,
     calls: [['AuraApi_slot_duration', []]],
@@ -211,8 +210,7 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString, registry: R
   })
 
   if ('Error' in result) throw new Error(result.Error)
-  const slotDuration = registry.createType('u64', hexToU8a(result.Call.result)).toNumber()
-  return slotDuration
+  return u8aToBn(hexToU8a(result.Call.result).subarray(0, 8 /* u64: 8 bytes */)).toNumber()
 })
 
 export const releaseWorker = async () => {

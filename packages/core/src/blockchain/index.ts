@@ -1,8 +1,12 @@
-import { ApplyExtrinsicResult, Header } from '@polkadot/types/interfaces'
+import { ApplyExtrinsicResult, ChainProperties, Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
+import { Metadata, TypeRegistry } from '@polkadot/types'
 import { RegisteredTypes } from '@polkadot/types/types'
-import { blake2AsHex } from '@polkadot/util-crypto'
-import { u8aConcat, u8aToHex } from '@polkadot/util'
+import { blake2AsHex, xxhashAsHex } from '@polkadot/util-crypto'
+import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
+import { objectSpread, u8aConcat, u8aToHex } from '@polkadot/util'
+import _ from 'lodash'
+import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api.js'
@@ -12,11 +16,11 @@ import { Database } from '../database.js'
 import { HeadState } from './head-state.js'
 import { InherentProvider } from './inherent/index.js'
 import { OffchainWorker } from '../offchain.js'
+import { RuntimeVersion, releaseWorker } from '../wasm-executor/index.js'
 import { StorageValue } from './storage-layer.js'
 import { compactHex } from '../utils/index.js'
 import { defaultLogger } from '../logger.js'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder.js'
-import { releaseWorker } from '../wasm-executor/index.js'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 
@@ -96,6 +100,27 @@ export class Blockchain {
   readonly offchainWorker: OffchainWorker | undefined
   readonly #maxMemoryBlockCount: number
 
+  // first arg is used as cache key
+  readonly #registryBuilder = _.memoize(
+    async (_cacheKey: string, metadata: HexString, version: RuntimeVersion): Promise<TypeRegistry> => {
+      const chain = await this.api.chain
+      const properties = await this.api.chainProperties
+
+      const registry = new TypeRegistry()
+      registry.setKnownTypes(this.registeredTypes)
+      registry.setChainProperties(registry.createType('ChainProperties', properties) as ChainProperties)
+      registry.register(getSpecTypes(registry, chain, version.specName, version.specVersion))
+      registry.setHasher(getSpecHasher(registry, chain, version.specName))
+      registry.setMetadata(
+        new Metadata(registry, metadata),
+        undefined,
+        objectSpread<ExtDef>({}, getSpecExtensions(registry, chain, version.specName), this.api.signedExtensions),
+        true,
+      )
+      return registry
+    },
+  )
+
   /**
    * @param options - Options for instantiating the blockchain
    */
@@ -160,6 +185,11 @@ export class Blockchain {
   set runtimeLogLevel(level: number) {
     this.#runtimeLogLevel = level
     logger.debug(`Runtime log level set to ${logger.level}`)
+  }
+
+  async buildRegistry(metadata: HexString, version: RuntimeVersion) {
+    const cacheKey = `${xxhashAsHex(metadata, 256)}-${version.specVersion}`
+    return this.#registryBuilder(cacheKey, metadata, version)
   }
 
   async saveBlockToDB(block: Block) {

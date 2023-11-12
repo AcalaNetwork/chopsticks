@@ -144,7 +144,7 @@ describe('wasm', () => {
   })
 
   it('get aura slot duration', async () => {
-    const slotDuration = await getAuraSlotDuration(getCode(), new TypeRegistry())
+    const slotDuration = await getAuraSlotDuration(getCode())
     expect(slotDuration).eq(12000)
   })
 })
