@@ -21,7 +21,7 @@ export interface StorageLayerProvider {
   /**
    * Get the value of a storage key.
    */
-  get(key: string, cache: boolean): Promise<StorageValue>
+  get(key: string, cache: boolean): Promise<StorageValue | null>
   /**
    * Fold the storage layer into another layer.
    */
@@ -107,7 +107,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 }
 
 export class StorageLayer implements StorageLayerProvider {
-  readonly #store: Map<string, StorageValue | Promise<StorageValue>> = new Map()
+  readonly #store: Map<string, StorageValue | null | Promise<StorageValue | null>> = new Map()
   readonly #keys: string[] = []
   readonly #deletedPrefix: string[] = []
   #parent?: StorageLayerProvider
@@ -133,7 +133,7 @@ export class StorageLayer implements StorageLayerProvider {
     }
   }
 
-  async get(key: string, cache: boolean): Promise<StorageValue | undefined> {
+  async get(key: string, cache: boolean): Promise<StorageValue | null> {
     if (this.#store.has(key)) {
       return this.#store.get(key)
     }
@@ -153,7 +153,7 @@ export class StorageLayer implements StorageLayerProvider {
     return undefined
   }
 
-  set(key: string, value: StorageValue): void {
+  set(key: string, value: StorageValue | null): void {
     switch (value) {
       case StorageValueKind.Deleted:
         this.#store.set(key, StorageValueKind.Deleted)
@@ -184,7 +184,7 @@ export class StorageLayer implements StorageLayerProvider {
       values = Object.entries(values)
     }
     for (const [key, value] of values) {
-      this.set(key, value || StorageValueKind.Deleted)
+      this.set(key, value !== undefined ? value : StorageValueKind.Deleted)
     }
   }
 
