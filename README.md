@@ -131,6 +131,14 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --prei
           }
         ]
       ]
+    },
+    "Whitelist": {
+      "WhitelistedCall": [
+        [
+          ["0x3146d2141cdb95de80488d6cecbb5d7577dd59069efc366cb1be7fe64f02e62c"],
+          "0x" // please use 0x for null values
+        ],
+      ]
     }
   }
   ```
