@@ -17,6 +17,10 @@
 		"@acala-network/chopsticks-core": "workspace:*",
 		"@acala-network/chopsticks-db": "workspace:*",
 		"@pnpm/npm-conf": "^2.2.2",
+		"@polkadot/api-augment": "^10.10.1",
+		"@polkadot/types": "^10.10.1",
+		"@polkadot/util": "^12.5.1",
+		"@polkadot/util-crypto": "^12.5.1",
 		"axios": "^1.6.0",
 		"dotenv": "^16.3.1",
 		"global-agent": "^3.0.0",
@@ -36,7 +40,8 @@
 		"@types/node": "^20.9.0",
 		"@types/ws": "^8.5.9",
 		"@types/yargs": "^17.0.31",
-		"typescript": "^5.2.2"
+		"typescript": "^5.2.2",
+		"vitest": "^0.34.6"
 	},
 	"files": [
 		"dist/esm/**",

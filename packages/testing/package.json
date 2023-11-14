@@ -12,7 +12,9 @@
 		"build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir dist/types"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks-utils": "workspace:*"
+		"@acala-network/chopsticks-utils": "workspace:*",
+		"@polkadot/api": "^10.10.1",
+		"@polkadot/types": "^10.10.1"
 	},
 	"peerDependencies": {
 		"vitest": "^0.34.0"
