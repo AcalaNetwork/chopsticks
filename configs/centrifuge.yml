@@ -1,0 +1,50 @@
+endpoint: wss://centrifuge-parachain.api.onfinality.io/public-ws/
+mock-signature-host: true
+block: ${env.CENTRIFUGE_BLOCK_NUMBER}
+db: ./db.sqlite
+# wasm-override: centrifuge-1023.wasm
+
+import-storage:
+  # Sudo:
+  #   Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+  System:
+    Account:
+      -
+        -
+          - "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+        - providers: 1
+          data:
+            free: "1000000000000000000000000"
+  Council:
+    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+  Elections:
+    Members:
+      - who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        stake: "10000000000000000000000"
+        deposit: "10000000000000000000000"
+  OrmlTokens:
+    Accounts:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 6
+        - free: 1000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 4
+        - free: "1000000000000000000000"
+  Proxy:
+    Proxies:
+      -
+        -
+          - 4dTeMxuPJCK7zQGhFcgCivSJqBs9Wo2SuMSQeYCCuVJ9xrE2
+        -
+          -
+            - delegate: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+            - proxyType: "Any"
+            - delay: 0
+          - "350000000000000000"
+
+
+
