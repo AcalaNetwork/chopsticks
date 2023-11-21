@@ -33,3 +33,20 @@ exports[`HRMP > Statemine handles horizonal messages > system events 1`] = `
   },
 ]
 `;
+
+exports[`HRMP > Statemine handles horizonal messages block#5,800,000 > system events 1`] = `
+[
+  {
+    "data": {
+      "messageHash": "(hash)",
+      "messageId": "(hash)",
+      "weight": {
+        "proofSize": "(rounded 3600)",
+        "refTime": "(rounded 310000000)",
+      },
+    },
+    "method": "Success",
+    "section": "xcmpQueue",
+  },
+]
+`;

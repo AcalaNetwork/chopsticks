@@ -16,16 +16,18 @@
 		"@acala-network/chopsticks-db": "workspace:*",
 		"@emotion/react": "^11.11.1",
 		"@emotion/styled": "^11.11.0",
-		"@mui/material": "^5.14.17",
-		"@playwright/test": "^1.39.0",
-		"@types/react": "^18.2.37",
-		"@types/react-dom": "^18.2.15",
-		"@vitejs/plugin-react": "^4.1.1",
+		"@mui/material": "^5.14.18",
+		"@playwright/test": "^1.40.0",
+		"@types/react": "^18.2.38",
+		"@types/react-dom": "^18.2.16",
+		"@vitejs/plugin-react": "^4.2.0",
 		"crypto-browserify": "^3.12.0",
 		"path-browserify": "^1.0.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"stream-browserify": "^3.0.0",
-		"typescript": "^5.2.2"
+		"typescript": "^5.2.2",
+		"vite": "^4.5.0",
+		"vite-tsconfig-paths": "^4.2.1"
 	}
 }

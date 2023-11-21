@@ -5,7 +5,7 @@
 		"outDir": "lib",
 		"rootDir": "src",
 		"target": "es2021",
-		"module": "ESNext",
+		"module": "NodeNext",
 		"lib": ["es2021", "dom", "dom.iterable"],
 		"sourceMap": true
 	},
