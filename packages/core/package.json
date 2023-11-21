@@ -23,16 +23,16 @@
 		"comlink": "^4.4.1",
 		"eventemitter3": "^5.0.1",
 		"lodash": "^4.17.21",
-		"lru-cache": "^10.0.1",
-		"pino": "^8.16.1",
+		"lru-cache": "^10.0.3",
+		"pino": "^8.16.2",
 		"pino-pretty": "^10.2.3",
 		"rxjs": "^7.8.1",
 		"zod": "^3.22.4"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.1.62",
-		"@swc/core": "^1.3.96",
-		"@types/lodash": "^4.14.201",
+		"@swc/cli": "0.1.63",
+		"@swc/core": "^1.3.99",
+		"@types/lodash": "^4.14.202",
 		"typescript": "^5.2.2",
 		"vitest": "^0.34.6"
 	},
