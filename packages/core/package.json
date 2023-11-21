@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-core",
-	"version": "0.9.2",
+	"version": "0.9.3-1",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
@@ -14,7 +14,6 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
-		"@polkadot/api": "^10.10.1",
 		"@polkadot/rpc-provider": "^10.10.1",
 		"@polkadot/types": "^10.10.1",
 		"@polkadot/types-codec": "^10.10.1",

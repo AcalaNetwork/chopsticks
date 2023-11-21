@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-utils",
-	"version": "0.9.2",
+	"version": "0.9.3-1",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
@@ -12,7 +12,9 @@
 		"build:types": "tsc -p tsconfig.json --emitDeclarationOnly --outDir dist/types"
 	},
 	"dependencies": {
-		"@acala-network/chopsticks": "workspace:*"
+		"@acala-network/chopsticks": "workspace:*",
+		"@polkadot/api": "^10.10.1",
+		"@polkadot/types": "^10.10.1"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.1.62",

@@ -35,4 +35,11 @@ describe('HRMP', () => {
     await matchSystemEvents(acala, 'xcmpQueue', 'Success')
     await acala.teardown()
   })
+
+  it('Statemine handles horizonal messages block#5,800,000', async () => {
+    const statemine = await setupContext({ endpoint: 'wss://statemine-rpc.polkadot.io', blockNumber: 5_800_000 })
+    await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
+    await matchSystemEvents(statemine, 'xcmpQueue', 'Success')
+    await statemine.teardown()
+  })
 })
