@@ -16,7 +16,7 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 export * from './signFake.js'
 
 export type SetupOption = {
-  endpoint: string
+  endpoint: string | string[]
   blockNumber?: number
   blockHash?: HexString
   wasmOverride?: string

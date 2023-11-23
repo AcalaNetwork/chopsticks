@@ -13,7 +13,7 @@ export const zHash = z.string().length(66).and(zHex)
 export const configSchema = z
   .object({
     port: z.number().optional(),
-    endpoint: z.string().optional(),
+    endpoint: z.union([z.string(), z.array(z.string())]).optional(),
     block: z.union([z.string().length(66).startsWith('0x'), z.number(), z.null()]).optional(),
     'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
     'import-storage': z.any().optional(),
