@@ -90,7 +90,7 @@ __metadata:
     "@types/chai": "npm:^4.3.11"
     typescript: "npm:^5.2.2"
   peerDependencies:
-    vitest: ^1.0.0-beta.5
+    vitest: "*"
   languageName: unknown
   linkType: soft
 
