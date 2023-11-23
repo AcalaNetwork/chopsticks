@@ -34,14 +34,14 @@ describe('import-storage', () => {
   })
 
   it('wasm override works', async () => {
-    expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
+    expect(await chain.head.runtimeVersion).toEqual(expect.objectContaining({ specVersion: 2096 }))
     const oldWasm = await chain.head.wasm
     await overrideWasm(chain, path.join(__dirname, '../../blobs/acala-runtime-2101.txt'))
     expect(await chain.head.wasm).not.eq(oldWasm)
-    expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
+    expect(await chain.head.runtimeVersion).toEqual(expect.objectContaining({ specVersion: 2101 }))
     const blockNumber = chain.head.number
     // can produce blocks
-    await expect(chain.newBlock()).resolves.toContain({ number: blockNumber + 1 })
+    await expect(chain.newBlock()).resolves.toEqual(expect.objectContaining({ number: blockNumber + 1 }))
   })
 
   it('able to reset storage map', async () => {

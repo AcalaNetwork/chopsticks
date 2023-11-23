@@ -28,10 +28,10 @@ describe('upgrade', async () => {
 
     const runtime = readFileSync(path.join(__dirname, '../blobs/acala-runtime-2101.txt')).toString().trim()
 
-    expect(await chain.head.runtimeVersion).toContain({ specVersion: 2096 })
+    expect(await chain.head.runtimeVersion).toEqual(expect.objectContaining({ specVersion: 2096 }))
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
     await dev.newBlock({ count: 3 })
-    expect(await chain.head.runtimeVersion).toContain({ specVersion: 2101 })
+    expect(await chain.head.runtimeVersion).toEqual(expect.objectContaining({ specVersion: 2101 }))
     expect(api.runtimeVersion.specVersion).toMatchInlineSnapshot(`2101`)
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
