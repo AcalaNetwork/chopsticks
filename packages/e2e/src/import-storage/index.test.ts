@@ -5,7 +5,7 @@ import { api, chain, setupApi } from '../helper.js'
 import { overrideStorage, overrideWasm } from '@acala-network/chopsticks/utils/override.js'
 
 setupApi({
-  endpoint: 'wss://acala-rpc-1.aca-api.network',
+  endpoint: 'wss://acala-rpc.aca-api.network',
   blockHash: '0x663c25dc86521f4b7f74dcbc26224bb0fac40e316e6b0bcf6a51de373f37afac', // 2_000_000
 })
 

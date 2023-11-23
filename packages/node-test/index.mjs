@@ -1,7 +1,6 @@
-import { setupWithServer } from '@acala-network/chopsticks'
+import { setupWithServer, destroyWorker } from '@acala-network/chopsticks'
 
 const server = await setupWithServer({ endpoint: 'wss://rpc.polkadot.io', db: 'db.sqlite' })
 await server.chain.newBlock()
 await server.close()
-
-process.exit(0)
+await destroyWorker()
