@@ -23,7 +23,7 @@ import { handler } from '@acala-network/chopsticks/rpc/index.js'
 export { expectJson, expectHex, testingPairs } from '@acala-network/chopsticks-testing'
 
 export type SetupOption = {
-  endpoint?: string
+  endpoint?: string | string[]
   blockHash?: HexString
   mockSignatureHost?: boolean
   allowUnresolvedImports?: boolean
@@ -60,7 +60,7 @@ export const setupAll = async ({
   let provider: ProviderInterface
   if (genesis) {
     provider = await genesisFromUrl(genesis)
-  } else if (/^(https|http):\/\//.test(endpoint || '')) {
+  } else if (typeof endpoint === 'string' && /^(https|http):\/\//.test(endpoint || '')) {
     provider = new HttpProvider(endpoint)
   } else {
     provider = new WsProvider(endpoint, 3_000)

@@ -20,7 +20,7 @@ import {
 import { defaultLogger } from './logger.js'
 
 export type SetupOptions = {
-  endpoint?: string
+  endpoint?: string | string[]
   block?: string | number | null
   genesis?: GenesisProvider
   buildBlockMode?: BuildBlockMode
@@ -37,7 +37,7 @@ export const setup = async (options: SetupOptions) => {
   let provider: ProviderInterface
   if (options.genesis) {
     provider = options.genesis
-  } else if (/^(https|http):\/\//.test(options.endpoint || '')) {
+  } else if (typeof options.endpoint === 'string' && /^(https|http):\/\//.test(options.endpoint || '')) {
     provider = new HttpProvider(options.endpoint)
   } else {
     provider = new WsProvider(options.endpoint, 3_000)

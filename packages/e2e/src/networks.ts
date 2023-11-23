@@ -5,8 +5,8 @@ import { SetupOption, setupContext } from '@acala-network/chopsticks-testing'
 dotenvConfig
 
 const endpoints = {
-  polkadot: 'wss://rpc.polkadot.io',
-  acala: 'wss://acala-rpc-1.aca-api.network',
+  polkadot: ['wss://rpc.polkadot.io', 'wss://polkadot-rpc.dwellir.com'],
+  acala: ['wss://acala-rpc.aca-api.network', 'wss://acala-rpc.dwellir.com'],
 }
 
 const toNumber = (value: string | undefined): number | undefined => {
