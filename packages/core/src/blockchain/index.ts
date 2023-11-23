@@ -16,7 +16,7 @@ import { Database } from '../database.js'
 import { HeadState } from './head-state.js'
 import { InherentProvider } from './inherent/index.js'
 import { OffchainWorker } from '../offchain.js'
-import { RuntimeVersion, releaseWorker } from '../wasm-executor/index.js'
+import { RuntimeVersion } from '../wasm-executor/index.js'
 import { StorageValue } from './storage-layer.js'
 import { compactHex } from '../utils/index.js'
 import { defaultLogger } from '../logger.js'
@@ -536,10 +536,9 @@ export class Blockchain {
   }
 
   /**
-   * Close the db and release worker.
+   * Close the db and disconnect api.
    */
   async close() {
-    await releaseWorker()
     await this.api.disconnect()
     await this.db?.close()
   }
