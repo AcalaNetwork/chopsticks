@@ -5,4 +5,4 @@ async function main() {
 	await server.chain.newBlock()
 	await server.close()
 }
-main()
+main().finally(() => process.exit(0))
