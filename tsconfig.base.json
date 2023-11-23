@@ -10,7 +10,7 @@
 		"noUnusedParameters": true,
 		"noImplicitAny": false,
 		"target": "esnext",
-		"skipLibCheck": false,
+		"skipLibCheck": true,
 		"strict": true,
 		"declaration": true,
 		"resolveJsonModule": true,

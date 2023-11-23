@@ -18,6 +18,8 @@ export type RedactOptions = {
   hash?: boolean // 32 byte hex
   hex?: boolean // any hex with 0x prefix
   address?: boolean // base58 address
+  redactKeys?: RegExp // redact value for keys matching regex
+  removeKeys?: RegExp // filter out keys matching regex
 }
 
 export class Checker {
@@ -140,7 +142,21 @@ export class Checker {
         return obj
       }
       if (typeof obj === 'object') {
-        return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, process(v)]))
+        return Object.fromEntries(
+          Object.entries(obj)
+            .filter(([k]) => {
+              if (this.#redactOptions?.removeKeys?.test(k)) {
+                return false
+              }
+              return true
+            })
+            .map(([k, v]) => {
+              if (this.#redactOptions?.redactKeys?.test(k)) {
+                return [k, '(redacted)']
+              }
+              return [k, process(v)]
+            }),
+        )
       }
       return obj
     }
@@ -216,7 +232,7 @@ export const checkUmp = ({ api }: Api) =>
 export const checkHrmp = ({ api }: Api) =>
   check(api.query.parachainSystem.hrmpOutboundMessages(), 'hrmp').map((value) =>
     (value as any[]).map(({ recipient, data }) => ({
-      data: api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data),
+      data: api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data).toJSON(),
       recipient,
     })),
   )
