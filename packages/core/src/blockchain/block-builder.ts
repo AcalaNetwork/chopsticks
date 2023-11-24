@@ -363,10 +363,7 @@ export const dryRunExtrinsic = async (
     return newBlock.call('BlockBuilder_apply_extrinsic', [generic.toHex()])
   }
 
-  logger.debug(
-    { call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toHuman() },
-    'dry_run_extrinsic',
-  )
+  logger.debug({ call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toHuman() }, 'dry_run_extrinsic')
   return newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
 }
 
