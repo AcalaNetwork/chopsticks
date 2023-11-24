@@ -358,15 +358,12 @@ export const dryRunExtrinsic = async (
     mockSignature.set([0xde, 0xad, 0xbe, 0xef])
     generic.signature.set(mockSignature)
 
-    defaultLogger.info({ call: call.toHuman() }, 'dry_run_call')
+    logger.debug({ call: call.toHuman() }, 'dry_run_call')
 
     return newBlock.call('BlockBuilder_apply_extrinsic', [generic.toHex()])
   }
 
-  defaultLogger.info(
-    { call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toHuman() },
-    'dry_run_extrinsic',
-  )
+  logger.debug({ call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toHuman() }, 'dry_run_extrinsic')
   return newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
 }
 

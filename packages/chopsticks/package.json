@@ -71,6 +71,12 @@
 			"import": "./dist/esm/plugins/*.js",
 			"default": "./dist/esm/plugins/*.js"
 		},
+		"./utils/*": {
+			"types": "./dist/types/utils/*.d.ts",
+			"require": "./dist/cjs/utils/*.js",
+			"import": "./dist/esm/utils/*.js",
+			"default": "./dist/esm/utils/*.js"
+		},
 		"./package.json": "./package.json",
 		"./package.cjs.json": "./dist/cjs/package.json"
 	}
