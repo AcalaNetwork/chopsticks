@@ -162,8 +162,6 @@ describe('wasm', () => {
   it('handles panic', async () => {
     const worker = await getWorker()
 
-    console.log('before')
-
     await expect(() => worker.remote.testing(
       Comlink.proxy({
         ...emptyTaskHandler,
@@ -174,6 +172,7 @@ describe('wasm', () => {
       '0x0000',
     )).rejects.toThrowError('panic')
 
+    // ensure the worker is still good
     const slotDuration = await getAuraSlotDuration(getCode())
     expect(slotDuration).eq(12000)
   })
