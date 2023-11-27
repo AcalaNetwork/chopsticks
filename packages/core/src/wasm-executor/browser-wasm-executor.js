@@ -22,6 +22,10 @@ const runTask = async (task, callback) => {
   return pkg.run_task(task, callback, 'info')
 }
 
-const wasmExecutor = { runTask, getRuntimeVersion, calculateStateRoot, createProof, decodeProof }
+const testing = async (callback, key) => {
+  return pkg.testing(callback, key)
+}
+
+const wasmExecutor = { runTask, getRuntimeVersion, calculateStateRoot, createProof, decodeProof, testing }
 
 Comlink.expose(wasmExecutor)

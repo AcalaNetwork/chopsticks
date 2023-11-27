@@ -11,7 +11,7 @@ mod proof;
 mod task;
 
 fn setup_console(level: Option<String>) {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    console_error_panic_hook::set_once();
     let level = level.map(|x| x.to_uppercase()).unwrap_or("INFO".into());
     let _ = console_log::init_with_level(log::Level::from_str(level.as_str()).unwrap());
 }
@@ -35,34 +35,41 @@ extern "C" {
     #[wasm_bindgen(typescript_type = "JsCallback")]
     pub type JsCallback;
 
-    #[wasm_bindgen(structural, method, js_name = "getStorage")]
-    pub async fn get_storage(this: &JsCallback, key: JsValue) -> JsValue;
+    #[wasm_bindgen(catch, structural, method, js_name = "getStorage")]
+    pub async fn get_storage(this: &JsCallback, key: JsValue) -> Result<JsValue, JsValue>;
 
-    #[wasm_bindgen(structural, method, js_name = "getStateRoot")]
-    pub async fn get_state_root(this: &JsCallback) -> JsValue;
+    #[wasm_bindgen(catch, structural, method, js_name = "getStateRoot")]
+    pub async fn get_state_root(this: &JsCallback) -> Result<JsValue, JsValue>;
 
-    #[wasm_bindgen(structural, method, js_name = "getNextKey")]
-    pub async fn get_next_key(this: &JsCallback, prefix: JsValue, key: JsValue) -> JsValue;
+    #[wasm_bindgen(catch, structural, method, js_name = "getNextKey")]
+    pub async fn get_next_key(
+        this: &JsCallback,
+        prefix: JsValue,
+        key: JsValue,
+    ) -> Result<JsValue, JsValue>;
 
-    #[wasm_bindgen(structural, method, js_name = "offchainGetStorage")]
-    pub async fn offchain_get_storage(this: &JsCallback, key: JsValue) -> JsValue;
+    #[wasm_bindgen(catch, structural, method, js_name = "offchainGetStorage")]
+    pub async fn offchain_get_storage(this: &JsCallback, key: JsValue) -> Result<JsValue, JsValue>;
 
-    #[wasm_bindgen(structural, method, js_name = "offchainTimestamp")]
-    pub async fn offchain_timestamp(this: &JsCallback) -> JsValue;
+    #[wasm_bindgen(catch, structural, method, js_name = "offchainTimestamp")]
+    pub async fn offchain_timestamp(this: &JsCallback) -> Result<JsValue, JsValue>;
 
-    #[wasm_bindgen(structural, method, js_name = "offchainRandomSeed")]
-    pub async fn offchain_random_seed(this: &JsCallback) -> JsValue;
+    #[wasm_bindgen(catch, structural, method, js_name = "offchainRandomSeed")]
+    pub async fn offchain_random_seed(this: &JsCallback) -> Result<JsValue, JsValue>;
 
-    #[wasm_bindgen(structural, method, js_name = "offchainSubmitTransaction")]
-    pub async fn offchain_submit_transaction(this: &JsCallback, tx: JsValue) -> JsValue;
+    #[wasm_bindgen(catch, structural, method, js_name = "offchainSubmitTransaction")]
+    pub async fn offchain_submit_transaction(
+        this: &JsCallback,
+        tx: JsValue,
+    ) -> Result<JsValue, JsValue>;
 }
 
 #[wasm_bindgen]
-pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsValue> {
+pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsError> {
     setup_console(None);
 
     let code = serde_wasm_bindgen::from_value::<HexString>(code)?;
-    let runtime_version = task::runtime_version(code).await?;
+    let runtime_version = task::runtime_version(code).await;
     let result = serde_wasm_bindgen::to_value(&runtime_version)?;
 
     Ok(result)
@@ -72,13 +79,13 @@ pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsValue> {
 pub async fn calculate_state_root(
     entries: JsValue,
     trie_version: JsValue,
-) -> Result<JsValue, JsValue> {
+) -> Result<JsValue, JsError> {
     setup_console(None);
 
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
     let trie_version = serde_wasm_bindgen::from_value::<u8>(trie_version)?;
-    let trie_version =
-        TrieEntryVersion::try_from(trie_version).map_err(|_| "invalid trie version")?;
+    let trie_version = TrieEntryVersion::try_from(trie_version)
+        .map_err(|_| JsError::new("invalid trie version"))?;
     let hash = task::calculate_state_root(entries, trie_version);
     let result = serde_wasm_bindgen::to_value(&hash)?;
 
@@ -90,7 +97,7 @@ pub async fn decode_proof(
     root_trie_hash: JsValue,
     keys: JsValue,
     nodes: JsValue,
-) -> Result<JsValue, JsValue> {
+) -> Result<JsValue, JsError> {
     setup_console(None);
 
     let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
@@ -100,14 +107,15 @@ pub async fn decode_proof(
         root_trie_hash,
         keys,
         nodes.into_iter().map(|x| x.0).collect(),
-    )?;
+    )
+    .map_err(|e| JsError::new(e.as_str()))?;
     let result = serde_wasm_bindgen::to_value(&entries)?;
 
     Ok(result)
 }
 
 #[wasm_bindgen]
-pub async fn create_proof(nodes: JsValue, entries: JsValue) -> Result<JsValue, JsValue> {
+pub async fn create_proof(nodes: JsValue, entries: JsValue) -> Result<JsValue, JsError> {
     setup_console(None);
 
     let proof = serde_wasm_bindgen::from_value::<Vec<HexString>>(nodes)?;
@@ -117,7 +125,8 @@ pub async fn create_proof(nodes: JsValue, entries: JsValue) -> Result<JsValue, J
             .into_iter()
             .map(|(key, value)| (key.0, value.map(|x| x.0))),
     );
-    let proof = proof::create_proof(proof.into_iter().map(|x| x.0).collect(), entries)?;
+    let proof = proof::create_proof(proof.into_iter().map(|x| x.0).collect(), entries)
+        .map_err(|e| JsError::new(e.as_str()))?;
     let result = serde_wasm_bindgen::to_value(&proof)?;
 
     Ok(result)
@@ -136,4 +145,11 @@ pub async fn run_task(
     let result = serde_wasm_bindgen::to_value(&result)?;
 
     Ok(result)
+}
+
+#[wasm_bindgen]
+pub async fn testing(js: JsCallback, key: JsValue) -> Result<JsValue, JsValue> {
+    setup_console(None);
+
+    js.get_storage(key).await
 }
