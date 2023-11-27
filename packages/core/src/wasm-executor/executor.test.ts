@@ -159,12 +159,12 @@ describe('wasm', () => {
     expect(slotDuration).eq(12000)
   })
 
-  it.only('handles panic', async () => {
+  it('handles panic', async () => {
     const worker = await getWorker()
 
     console.log('before')
 
-    await worker.remote.testing(
+    await expect(() => worker.remote.testing(
       Comlink.proxy({
         ...emptyTaskHandler,
         getStorage: () => {
@@ -172,9 +172,7 @@ describe('wasm', () => {
         },
       }),
       '0x0000',
-    )
-
-    console.log('after')
+    )).rejects.toThrowError('panic')
 
     const slotDuration = await getAuraSlotDuration(getCode())
     expect(slotDuration).eq(12000)
