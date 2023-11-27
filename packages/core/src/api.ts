@@ -2,6 +2,7 @@ import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
+import { RuntimeVersion } from './index.js'
 
 export type ChainProperties = {
   ss58Format?: number
@@ -87,6 +88,14 @@ export class Api {
       this.#chainProperties = this.getSystemProperties()
     }
     return this.#chainProperties
+  }
+
+  async getRuntimeVersion() {
+    return this.#provider.send<RuntimeVersion>('state_getRuntimeVersion', [])
+  }
+
+  async getMetadata(hash?: string) {
+    return this.#provider.send<HexString>('state_getMetadata', hash ? [hash] : [])
   }
 
   async getSystemName() {

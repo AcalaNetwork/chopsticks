@@ -261,14 +261,14 @@ export class Block {
 
   get runtimeVersion(): Promise<RuntimeVersion> {
     if (!this.#runtimeVersion) {
-      this.#runtimeVersion = this.wasm.then(getRuntimeVersion)
+      this.#runtimeVersion = this.#chain.api.getRuntimeVersion() //this.wasm.then(getRuntimeVersion)
     }
     return this.#runtimeVersion
   }
 
   get metadata(): Promise<HexString> {
     if (!this.#metadata) {
-      this.#metadata = this.call('Metadata_metadata', []).then((resp) => compactHex(hexToU8a(resp.result)))
+      this.#metadata = this.#chain.api.getMetadata() //this.call('Metadata_metadata', []).then((resp) => compactHex(hexToU8a(resp.result)))
     }
     return this.#metadata
   }
