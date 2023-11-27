@@ -21,7 +21,6 @@ import {
   getAuraSlotDuration,
   getRuntimeVersion,
   getWorker,
-  runTask,
 } from './index.js'
 
 const getCode = _.memoize(() => {
@@ -162,15 +161,17 @@ describe('wasm', () => {
   it('handles panic', async () => {
     const worker = await getWorker()
 
-    await expect(() => worker.remote.testing(
-      Comlink.proxy({
-        ...emptyTaskHandler,
-        getStorage: () => {
-          throw new Error('panic')
-        },
-      }),
-      '0x0000',
-    )).rejects.toThrowError('panic')
+    await expect(() =>
+      worker.remote.testing(
+        Comlink.proxy({
+          ...emptyTaskHandler,
+          getStorage: () => {
+            throw new Error('panic')
+          },
+        }),
+        '0x0000',
+      ),
+    ).rejects.toThrowError('panic')
 
     // ensure the worker is still good
     const slotDuration = await getAuraSlotDuration(getCode())

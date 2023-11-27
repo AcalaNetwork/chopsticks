@@ -63,7 +63,7 @@ export interface WasmExecutor {
     },
     callback?: JsCallback,
   ) => Promise<TaskResponse>
-  testing: (callback?: JsCallback, key: any) => Promise<any>
+  testing: (callback: JsCallback, key: any) => Promise<any>
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
