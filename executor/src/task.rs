@@ -17,6 +17,7 @@ use smoldot::{
     verify::body_only::LogEmitInfo,
 };
 use std::collections::BTreeMap;
+use wasm_bindgen::prelude::*;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -108,18 +109,18 @@ fn prefixed_child_key(child: impl Iterator<Item = u8>, key: impl Iterator<Item =
     .concat()
 }
 
-fn handle_value(value: wasm_bindgen::JsValue) -> Result<Option<Vec<u8>>, String> {
+fn handle_value(value: wasm_bindgen::JsValue) -> Result<Option<Vec<u8>>, JsError> {
     if value.is_string() {
         let encoded = from_value::<HexString>(value)
             .map(|x| x.0)
-            .map_err(|e| e.to_string())?;
+            ?;
         Ok(Some(encoded))
     } else {
         Ok(None)
     }
 }
 
-pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, String> {
+pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, JsValue> {
     let mut storage_main_trie_changes = TrieDiff::default();
     let mut storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
     let mut offchain_storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
@@ -172,13 +173,12 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         )
                     } else {
                         // otherwise, ask chopsticks
-                        let key = to_value(&key).map_err(|e| e.to_string())?;
+                        let key = to_value(&key)?;
 
-                        let value = js.get_storage(key).await;
+                        let value = js.get_storage(key).await?;
                         let value = if value.is_string() {
                             let encoded = from_value::<HexString>(value)
-                                .map(|x| x.0)
-                                .map_err(|e| e.to_string())?;
+                                .map(|x| x.0)?;
                             Some(encoded)
                         } else {
                             None
@@ -188,10 +188,9 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                 }
 
                 RuntimeHostVm::ClosestDescendantMerkleValue(req) => {
-                    let value = js.get_state_root().await;
+                    let value = js.get_state_root().await?;
                     let value = from_value::<HexString>(value)
-                        .map(|x| x.0)
-                        .map_err(|e| e.to_string())?;
+                        .map(|x| x.0)?;
                     req.inject_merkle_value(Some(value.as_ref()))
                 }
 
@@ -218,9 +217,9 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                         } else {
                             HexString(nibbles_to_bytes_suffix_extend(req.key()).collect::<Vec<_>>())
                         };
-                        let prefix = to_value(&prefix).map_err(|e| e.to_string())?;
-                        let key = to_value(&key).map_err(|e| e.to_string())?;
-                        let value = js.get_next_key(prefix, key).await;
+                        let prefix = to_value(&prefix)?;
+                        let key = to_value(&key)?;
+                        let value = js.get_next_key(prefix, key).await?;
                         req.inject_key(
                             handle_value(value)?.map(|x| bytes_to_nibbles(x.into_iter())),
                         )
@@ -248,8 +247,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                 RuntimeHostVm::Offchain(ctx) => match ctx {
                     OffchainContext::StorageGet(req) => {
                         let key = HexString(req.key().as_ref().to_vec());
-                        let key = to_value(&key).map_err(|e| e.to_string())?;
-                        let value = js.offchain_get_storage(key).await;
+                        let key = to_value(&key)?;
+                        let value = js.offchain_get_storage(key).await?;
                         req.inject_value(handle_value(value)?)
                     }
 
@@ -273,26 +272,26 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
 
                     OffchainContext::Timestamp(req) => {
-                        let value = js.offchain_timestamp().await;
-                        let timestamp = from_value::<u64>(value).map_err(|e| e.to_string())?;
+                        let value = js.offchain_timestamp().await?;
+                        let timestamp = from_value::<u64>(value)?;
                         req.inject_timestamp(timestamp)
                     }
 
                     OffchainContext::RandomSeed(req) => {
-                        let value = js.offchain_random_seed().await;
-                        let random = from_value::<HexString>(value).map_err(|e| e.to_string())?;
+                        let value = js.offchain_random_seed().await?;
+                        let random = from_value::<HexString>(value)?;
                         let value: [u8; 32] = random
                             .0
                             .try_into()
-                            .map_err(|_| "invalid random seed value")?;
+                            .map_err(|_| JsError::new("invalid random seed value"))?;
                         req.inject_random_seed(value)
                     }
 
                     OffchainContext::SubmitTransaction(req) => {
                         let tx = HexString(req.transaction().as_ref().to_vec());
-                        let tx = to_value(&tx).map_err(|e| e.to_string())?;
-                        let success = js.offchain_submit_transaction(tx).await;
-                        let success = from_value::<bool>(success).map_err(|e| e.to_string())?;
+                        let tx = to_value(&tx)?;
+                        let success = js.offchain_submit_transaction(tx).await?;
+                        let success = from_value::<bool>(success)?;
                         req.resume(success)
                     }
                 },
@@ -402,7 +401,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     }))
 }
 
-pub async fn runtime_version(wasm: HexString) -> Result<RuntimeVersion, String> {
+pub async fn runtime_version(wasm: HexString) -> RuntimeVersion {
     let vm_proto = HostVmPrototype::new(Config {
         module: &wasm,
         heap_pages: HeapPages::from(2048),
@@ -413,7 +412,7 @@ pub async fn runtime_version(wasm: HexString) -> Result<RuntimeVersion, String> 
 
     let core_version = vm_proto.runtime_version().decode();
 
-    Ok(RuntimeVersion::new(core_version))
+    RuntimeVersion::new(core_version)
 }
 
 pub fn calculate_state_root(

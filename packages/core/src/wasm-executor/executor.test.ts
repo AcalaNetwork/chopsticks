@@ -1,7 +1,9 @@
+import * as Comlink from 'comlink'
 import { HexString } from '@polkadot/util/types'
 import { TypeRegistry } from '@polkadot/types'
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
+import _ from 'lodash'
 import path from 'node:path'
 
 import {
@@ -11,13 +13,21 @@ import {
   hrmpIngressChannelIndex,
   upgradeGoAheadSignal,
 } from '../utils/proof.js'
-import { calculateStateRoot, createProof, decodeProof, getAuraSlotDuration, getRuntimeVersion } from './index.js'
+import {
+  calculateStateRoot,
+  createProof,
+  decodeProof,
+  emptyTaskHandler,
+  getAuraSlotDuration,
+  getRuntimeVersion,
+  getWorker,
+} from './index.js'
 
-const getCode = () => {
+const getCode = _.memoize(() => {
   const code = String(readFileSync(path.join(__dirname, '../../../e2e/blobs/acala-runtime-2101.txt'))).trim()
   expect(code.length).toBeGreaterThan(2)
   return code as HexString
-}
+})
 
 describe('wasm', () => {
   it('get runtime version from wasm runtime', async () => {
@@ -144,6 +154,26 @@ describe('wasm', () => {
   })
 
   it('get aura slot duration', async () => {
+    const slotDuration = await getAuraSlotDuration(getCode())
+    expect(slotDuration).eq(12000)
+  })
+
+  it('handles panic', async () => {
+    const worker = await getWorker()
+
+    await expect(() =>
+      worker.remote.testing(
+        Comlink.proxy({
+          ...emptyTaskHandler,
+          getStorage: () => {
+            throw new Error('panic')
+          },
+        }),
+        '0x0000',
+      ),
+    ).rejects.toThrowError('panic')
+
+    // ensure the worker is still good
     const slotDuration = await getAuraSlotDuration(getCode())
     expect(slotDuration).eq(12000)
   })
