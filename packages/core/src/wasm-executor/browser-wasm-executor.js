@@ -10,12 +10,12 @@ const calculateStateRoot = async (entries, trie_version) => {
   return pkg.calculate_state_root(entries, trie_version)
 }
 
-const decodeProof = async (trieRootHash, keys, nodes) => {
-  return pkg.decode_proof(trieRootHash, keys, nodes)
+const decodeProof = async (trieRootHash, nodes) => {
+  return pkg.decode_proof(trieRootHash, nodes)
 }
 
-const createProof = async (nodes, entries) => {
-  return pkg.create_proof(nodes, entries)
+const createProof = async (nodes, updates) => {
+  return pkg.create_proof(nodes, updates)
 }
 
 const runTask = async (task, callback) => {

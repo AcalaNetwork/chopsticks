@@ -111,9 +111,7 @@ fn prefixed_child_key(child: impl Iterator<Item = u8>, key: impl Iterator<Item =
 
 fn handle_value(value: wasm_bindgen::JsValue) -> Result<Option<Vec<u8>>, JsError> {
     if value.is_string() {
-        let encoded = from_value::<HexString>(value)
-            .map(|x| x.0)
-            ?;
+        let encoded = from_value::<HexString>(value).map(|x| x.0)?;
         Ok(Some(encoded))
     } else {
         Ok(None)
@@ -177,8 +175,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
 
                         let value = js.get_storage(key).await?;
                         let value = if value.is_string() {
-                            let encoded = from_value::<HexString>(value)
-                                .map(|x| x.0)?;
+                            let encoded = from_value::<HexString>(value).map(|x| x.0)?;
                             Some(encoded)
                         } else {
                             None
@@ -189,8 +186,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
 
                 RuntimeHostVm::ClosestDescendantMerkleValue(req) => {
                     let value = js.get_state_root().await?;
-                    let value = from_value::<HexString>(value)
-                        .map(|x| x.0)?;
+                    let value = from_value::<HexString>(value).map(|x| x.0)?;
                     req.inject_merkle_value(Some(value.as_ref()))
                 }
 

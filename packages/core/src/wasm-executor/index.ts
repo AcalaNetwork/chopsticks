@@ -47,12 +47,8 @@ export type TaskResponse =
 export interface WasmExecutor {
   getRuntimeVersion: (code: HexString) => Promise<RuntimeVersion>
   calculateStateRoot: (entries: [HexString, HexString][], trie_version: number) => Promise<HexString>
-  createProof: (nodes: HexString[], entries: [HexString, HexString | null][]) => Promise<[HexString, HexString[]]>
-  decodeProof: (
-    trieRootHash: HexString,
-    keys: HexString[],
-    nodes: HexString[],
-  ) => Promise<[[HexString, HexString | null]]>
+  createProof: (nodes: HexString[], updates: [HexString, HexString | null][]) => Promise<[HexString, HexString[]]>
+  decodeProof: (trieRootHash: HexString, nodes: HexString[]) => Promise<[[HexString, HexString]]>
   runTask: (
     task: {
       wasm: HexString
@@ -100,18 +96,21 @@ export const calculateStateRoot = async (
   return worker.remote.calculateStateRoot(entries, trie_version)
 }
 
-export const decodeProof = async (trieRootHash: HexString, keys: HexString[], nodes: HexString[]) => {
+export const decodeProof = async (trieRootHash: HexString, nodes: HexString[]) => {
   const worker = await getWorker()
-  const result = await worker.remote.decodeProof(trieRootHash, keys, nodes)
-  return result.reduce((accum, [key, value]) => {
-    accum[key] = value
-    return accum
-  }, {})
+  const result = await worker.remote.decodeProof(trieRootHash, nodes)
+  return result.reduce(
+    (accum, [key, value]) => {
+      accum[key] = value
+      return accum
+    },
+    {} as { [key: HexString]: HexString },
+  )
 }
 
-export const createProof = async (nodes: HexString[], entries: [HexString, HexString | null][]) => {
+export const createProof = async (nodes: HexString[], updates: [HexString, HexString | null][]) => {
   const worker = await getWorker()
-  const [trieRootHash, newNodes] = await worker.remote.createProof(nodes, entries)
+  const [trieRootHash, newNodes] = await worker.remote.createProof(nodes, updates)
   return { trieRootHash, nodes: newNodes }
 }
 

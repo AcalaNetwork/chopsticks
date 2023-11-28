@@ -94,10 +94,8 @@ export class SetValidationData implements CreateInherents {
       const hrmpIngressChannelIndexKey = hrmpIngressChannelIndex(paraId)
       const hrmpEgressChannelIndexKey = hrmpEgressChannelIndex(paraId)
 
-      // TODO: refactor this to have a single decodeProof
       const decoded = await decodeProof(
         extrinsic.validationData.relayParentStorageRoot,
-        [...Object.values(WELL_KNOWN_KEYS), dmqMqcHeadKey, hrmpIngressChannelIndexKey, hrmpEgressChannelIndexKey],
         extrinsic.relayChainState.trieNodes,
       )
 
@@ -164,11 +162,6 @@ export class SetValidationData implements CreateInherents {
           receiver: paraId.toNumber(),
         })
         const hrmpChannelKey = hrmpChannels(channelId)
-        const decoded = await decodeProof(
-          extrinsic.validationData.relayParentStorageRoot,
-          [hrmpChannelKey],
-          extrinsic.relayChainState.trieNodes,
-        )
         const abridgedHrmpRaw = decoded[hrmpChannelKey]
         if (!abridgedHrmpRaw) throw new Error('Canoot find hrmp channels from validation data')
 
@@ -215,11 +208,6 @@ export class SetValidationData implements CreateInherents {
           receiver,
         })
         const hrmpChannelKey = hrmpChannels(channelId)
-        const decoded = await decodeProof(
-          extrinsic.validationData.relayParentStorageRoot,
-          [hrmpChannelKey],
-          extrinsic.relayChainState.trieNodes,
-        )
         newEntries.push([hrmpChannelKey, decoded[hrmpChannelKey]])
       }
 
