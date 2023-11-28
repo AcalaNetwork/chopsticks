@@ -31,15 +31,12 @@
 	],
 	"require": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
-	"types": "./pkg/chopsticks_executor.d.ts",
 	"exports": {
 		".": {
-			"require": "./dist/cjs/index.js",
+			"types": "./pkg/chopsticks_executor.d.ts",
 			"module": "./dist/esm/index.js",
-			"default": "./dist/esm/index.js",
-			"types": "./pkg/chopsticks_executor.d.ts"
-		},
-		"./package.json": "./package.json",
-		"./package.cjs.json": "./dist/cjs/package.json"
+			"require": "./dist/cjs/index.js",
+			"default": "./dist/esm/index.js"
+		}
 	}
 }

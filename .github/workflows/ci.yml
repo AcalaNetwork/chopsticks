@@ -39,6 +39,7 @@ jobs:
     - run: yarn build-wasm
     - run: yarn lint
     - run: yarn build
+    - run: yarn publint
     - run: yarn test
       timeout-minutes: 30
 
