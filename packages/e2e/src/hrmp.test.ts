@@ -23,7 +23,7 @@ const acalaHRMP: Record<number, HorizontalMessage[]> = {
 
 describe('HRMP', () => {
   it('Statemine handles horizonal messages', async () => {
-    const statemine = await setupContext({ endpoint: 'wss://statemine-rpc.dwellir.com' })
+    const statemine = await setupContext({ endpoint: 'wss://statemine-rpc-tn.dwellir.com' })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
     await matchSystemEvents(statemine, 'xcmpQueue', 'Success')
     await statemine.teardown()
@@ -37,7 +37,7 @@ describe('HRMP', () => {
   })
 
   it('Statemine handles horizonal messages block#5,800,000', async () => {
-    const statemine = await setupContext({ endpoint: 'wss://statemine-rpc.dwellir.com', blockNumber: 5_800_000 })
+    const statemine = await setupContext({ endpoint: 'wss://statemine-rpc-tn.dwellir.com', blockNumber: 5_800_000 })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
     await matchSystemEvents(statemine, 'xcmpQueue', 'Success')
     await statemine.teardown()

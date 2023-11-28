@@ -6,13 +6,7 @@ import { readFileSync } from 'node:fs'
 import _ from 'lodash'
 import path from 'node:path'
 
-import {
-  WELL_KNOWN_KEYS,
-  dmqMqcHead,
-  hrmpEgressChannelIndex,
-  hrmpIngressChannelIndex,
-  upgradeGoAheadSignal,
-} from '../utils/proof.js'
+import { WELL_KNOWN_KEYS, upgradeGoAheadSignal } from '../utils/proof.js'
 import {
   calculateStateRoot,
   createProof,
@@ -120,16 +114,9 @@ describe('wasm', () => {
     const registry = new TypeRegistry()
     const paraId = registry.createType('u32', 1000)
 
-    const headKey = dmqMqcHead(paraId)
     const upgradeKey = upgradeGoAheadSignal(paraId)
-    const ingressChannelIndexKey = hrmpIngressChannelIndex(paraId)
-    const egressChannelIndexKey = hrmpEgressChannelIndex(paraId)
 
-    const originalDecoded = await decodeProof(
-      ROOT_TRIE_HASH,
-      [headKey, upgradeKey, ingressChannelIndexKey, egressChannelIndexKey, ...Object.values(WELL_KNOWN_KEYS)],
-      NODES,
-    )
+    const originalDecoded = await decodeProof(ROOT_TRIE_HASH, NODES)
     expect(originalDecoded).toMatchSnapshot()
     expect(originalDecoded[upgradeKey]).toBeUndefined()
 
@@ -144,11 +131,7 @@ describe('wasm', () => {
     ])
     expect(trieRootHash).toMatchSnapshot()
     expect(nodes).toMatchSnapshot()
-    const decoded = await decodeProof(
-      trieRootHash,
-      [headKey, upgradeKey, ingressChannelIndexKey, egressChannelIndexKey, ...Object.values(WELL_KNOWN_KEYS)],
-      nodes,
-    )
+    const decoded = await decodeProof(trieRootHash, nodes)
     expect(decoded).toMatchSnapshot()
     expect(decoded[upgradeKey]).toBe('0x01')
   })

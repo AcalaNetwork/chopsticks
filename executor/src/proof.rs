@@ -1,8 +1,8 @@
 use smoldot::{
     json_rpc::methods::{HashHexString, HexString},
     trie::{
-        bytes_to_nibbles,
-        proof_decode::{decode_and_verify_proof, Config},
+        bytes_to_nibbles, nibbles_to_bytes_suffix_extend,
+        proof_decode::{decode_and_verify_proof, Config, StorageValue},
         proof_encode::ProofBuilder,
         trie_node, trie_structure, Nibble,
     },
@@ -10,23 +10,36 @@ use smoldot::{
 use std::collections::BTreeMap;
 
 pub fn decode_proof(
-    hash: HashHexString,
-    keys: Vec<HexString>,
+    trie_root_hash: HashHexString,
     nodes: Vec<Vec<u8>>,
-) -> Result<Vec<(HexString, Option<HexString>)>, String> {
+) -> Result<Vec<(HexString, HexString)>, String> {
     let config = Config::<Vec<u8>> {
         proof: encode_proofs(nodes),
     };
     let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
 
-    let entries = keys
-        .into_iter()
-        .map(|key| {
-            let value = decoded.storage_value(&hash.0, key.as_ref());
-            if let Ok(value) = value {
-                return (key, value.map(|(value, _)| HexString(value.to_owned())));
+    let entries = decoded
+        .iter_ordered()
+        .filter(|(key, entry)| {
+            if key.key.is_empty() {
+                return false;
             }
-            (key, None)
+            if !key.trie_root_hash.eq(&trie_root_hash.0) {
+                return false;
+            }
+            matches!(
+                entry.trie_node_info.storage_value,
+                StorageValue::Known { .. }
+            )
+        })
+        .map(|(key, entry)| {
+            let key = HexString(
+                nibbles_to_bytes_suffix_extend(key.key.iter().cloned()).collect::<Vec<_>>(),
+            );
+            match entry.trie_node_info.storage_value {
+                StorageValue::Known { value, .. } => (key, HexString(value.to_vec())),
+                _ => unreachable!(),
+            }
         })
         .collect::<Vec<_>>();
 
@@ -35,7 +48,7 @@ pub fn decode_proof(
 
 pub fn create_proof(
     nodes: Vec<Vec<u8>>,
-    entries: BTreeMap<Vec<u8>, Option<Vec<u8>>>,
+    updates: BTreeMap<Vec<u8>, Option<Vec<u8>>>,
 ) -> Result<(HashHexString, Vec<HexString>), String> {
     let config = Config::<Vec<u8>> {
         proof: encode_proofs(nodes),
@@ -47,7 +60,7 @@ pub fn create_proof(
 
     let mut deletes: Vec<Vec<u8>> = vec![];
 
-    for (key, value) in entries {
+    for (key, value) in updates {
         if let Some(value) = value {
             trie.node(bytes_to_nibbles(key.iter().cloned()))
                 .into_vacant()
@@ -189,6 +202,9 @@ fn encode_scale_compact_usize(mut value: usize) -> impl AsRef<[u8]> + Clone {
 fn create_proof_works() {
     use hex_literal::hex;
 
+    let current_slot = HexString(
+        hex!("1cb6f36e027abb2091cfb5110ab5087f06155b3cd9a8c9e5e9a23fd5dc13a5ed").to_vec(),
+    );
     let dmq_mqc_head = HexString(hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec());
     let active_config = HexString(
         hex!("06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385").to_vec(),
@@ -200,45 +216,61 @@ fn create_proof_works() {
     );
     let active_config_value = HexString(hex!("00005000005000000a00000000c8000000c800000a0000000a000000c8000000640000000000500000c800000700e8764817020040010a0000000000000000c0220fca950300000000000000000000c0220fca9503000000000000000000e8030000009001000a00000000000000009001008070000000000000000000000a000000050000000500000001000000010500000001c800000006000000580200005802000002000000280000000000000002000000010000000700c817a8040200400101020000000f000000").to_vec());
 
-    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
+    let updates = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([
         (active_config.clone().0, Some(active_config_value.clone().0)),
         (upgrade_go_ahead_signal.clone().0, Some(hex!("01").to_vec())),
     ]);
 
-    let (hash, nodes) = create_proof(get_proof(), entries).unwrap();
+    let (hash, nodes) = create_proof(get_nodes(), updates).unwrap();
 
-    let keys = vec![
-        dmq_mqc_head.clone(),
-        active_config.clone(),
-        upgrade_go_ahead_signal.clone(),
-    ];
     let decoded = decode_proof(
-        hash,
-        keys,
+        hash.clone(),
         nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
     )
     .unwrap();
-    let (key, value) = decoded[0].to_owned();
-    assert_eq!(key, dmq_mqc_head.clone());
-    assert_eq!(value, Some(dmq_mqc_head_value));
-    let (key, value) = decoded[1].to_owned();
-    assert_eq!(key, active_config.clone());
-    assert_eq!(value, Some(active_config_value));
+
+    // active_config is updated
+    let (_key, value) = decoded
+        .iter()
+        .find(|(key, _)| key == &active_config)
+        .unwrap()
+        .to_owned();
+    assert_eq!(value, active_config_value);
+
+    // upgrade_go_ahead_signal is added
+    let (_key, value) = decoded
+        .iter()
+        .find(|(key, _)| key == &upgrade_go_ahead_signal)
+        .unwrap()
+        .to_owned();
+    assert_eq!(value, HexString(hex!("01").to_vec()));
+
+    // dmq_mqc_head is not changed
+    let (_, value) = decoded
+        .iter()
+        .find(|(key, _)| key.eq(&dmq_mqc_head))
+        .unwrap()
+        .to_owned();
+    assert_eq!(value, dmq_mqc_head_value.clone());
 
     // delete entries
-    let entries = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([(dmq_mqc_head.clone().0, None)]);
+    let updates = BTreeMap::<Vec<u8>, Option<Vec<u8>>>::from([(dmq_mqc_head.clone().0, None)]);
+    let (hash, nodes) = create_proof(get_nodes(), updates).unwrap();
+    let decoded =
+        decode_proof(hash, nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>()).unwrap();
+    assert!(decoded
+        .iter()
+        .find(|(key, _)| key == &dmq_mqc_head)
+        .is_none());
 
-    let (hash, nodes) = create_proof(get_proof(), entries).unwrap();
-    let keys = vec![dmq_mqc_head.clone(), active_config, upgrade_go_ahead_signal];
-    let decoded = decode_proof(
-        hash,
-        keys,
-        nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>(),
-    )
-    .unwrap();
-    let (key, value) = decoded[0].to_owned();
-    assert_eq!(key, dmq_mqc_head);
-    assert_eq!(value, None);
+    // current_slot is not changed
+    let (_, value) = decoded
+        .iter()
+        .find(|(key, _)| key.eq(&current_slot))
+        .unwrap()
+        .to_owned();
+    println!("{:?}", value);
+    assert_eq!(value, HexString(hex!("873c991000000000").to_vec()));
 }
 
 #[test]
@@ -248,16 +280,12 @@ fn decode_proof_works() {
     let root = HashHexString(hex!(
         "4a8902b29241020b24b4a1620d0154f756b81ffbcf739a9f06d3447df8123ebd"
     ));
-    let keys = vec![
-		HexString(hex!("63f78c98723ddc9073523ef3beefda0c4d7fefc408aac59dbfe80a72ac8e3ce563f5a4efb16ffa83d0070000").to_vec()), HexString(
-		hex!("cd710b30bd2eab0352ddcc26417aa1949e94c040f5e73d9b7addd6cb603d15d363f5a4efb16ffa83d0070000").to_vec()
-	)];
-    let result = decode_proof(root, keys, get_proof()).unwrap();
+    let result = decode_proof(root, get_nodes()).unwrap();
     println!("{:#?}", result);
 }
 
 #[cfg(test)]
-fn get_proof() -> Vec<Vec<u8>> {
+fn get_nodes() -> Vec<Vec<u8>> {
     use hex_literal::hex;
     vec![
         hex!("5703f5a4efb16ffa83d007000080d205bfd64a59c64fe84480fda7dafd773cb029530c4efe8441bf1f4332bfa48a").to_vec(),

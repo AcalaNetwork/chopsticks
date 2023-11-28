@@ -93,39 +93,30 @@ pub async fn calculate_state_root(
 }
 
 #[wasm_bindgen]
-pub async fn decode_proof(
-    root_trie_hash: JsValue,
-    keys: JsValue,
-    nodes: JsValue,
-) -> Result<JsValue, JsError> {
+pub async fn decode_proof(trie_root_hash: JsValue, nodes: JsValue) -> Result<JsValue, JsError> {
     setup_console(None);
 
-    let root_trie_hash = serde_wasm_bindgen::from_value::<HashHexString>(root_trie_hash)?;
-    let keys = serde_wasm_bindgen::from_value::<Vec<HexString>>(keys)?;
+    let trie_root_hash = serde_wasm_bindgen::from_value::<HashHexString>(trie_root_hash)?;
     let nodes = serde_wasm_bindgen::from_value::<Vec<HexString>>(nodes)?;
-    let entries = proof::decode_proof(
-        root_trie_hash,
-        keys,
-        nodes.into_iter().map(|x| x.0).collect(),
-    )
-    .map_err(|e| JsError::new(e.as_str()))?;
+    let entries = proof::decode_proof(trie_root_hash, nodes.into_iter().map(|x| x.0).collect())
+        .map_err(|e| JsError::new(e.as_str()))?;
     let result = serde_wasm_bindgen::to_value(&entries)?;
 
     Ok(result)
 }
 
 #[wasm_bindgen]
-pub async fn create_proof(nodes: JsValue, entries: JsValue) -> Result<JsValue, JsError> {
+pub async fn create_proof(nodes: JsValue, updates: JsValue) -> Result<JsValue, JsError> {
     setup_console(None);
 
     let proof = serde_wasm_bindgen::from_value::<Vec<HexString>>(nodes)?;
-    let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, Option<HexString>)>>(entries)?;
-    let entries = BTreeMap::from_iter(
-        entries
+    let updates = serde_wasm_bindgen::from_value::<Vec<(HexString, Option<HexString>)>>(updates)?;
+    let updates = BTreeMap::from_iter(
+        updates
             .into_iter()
             .map(|(key, value)| (key.0, value.map(|x| x.0))),
     );
-    let proof = proof::create_proof(proof.into_iter().map(|x| x.0).collect(), entries)
+    let proof = proof::create_proof(proof.into_iter().map(|x| x.0).collect(), updates)
         .map_err(|e| JsError::new(e.as_str()))?;
     let result = serde_wasm_bindgen::to_value(&proof)?;
 
