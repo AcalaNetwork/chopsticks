@@ -7,12 +7,12 @@ import { rpc } from './index.js'
 describe('run-block', () => {
   it('should work', async () => {
     const chain = await setup({
-      endpoint: 'wss://rpc.polkadot.io',
-      block: 18000000,
+      endpoint: 'wss://rpc.ibp.network/polkadot',
+      block: 18000002,
       db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
     })
 
-    const block = (await chain.getBlockAt(18000000))!
+    const block = (await chain.getBlockAt(18000002))!
     const header = await block.header
     const parent = header.parentHash.toHex()
 

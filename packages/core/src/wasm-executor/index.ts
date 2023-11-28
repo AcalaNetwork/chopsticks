@@ -63,12 +63,13 @@ export interface WasmExecutor {
     },
     callback?: JsCallback,
   ) => Promise<TaskResponse>
+  testing: (callback: JsCallback, key: any) => Promise<any>
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
 
 let __executor_worker: Promise<{ remote: Comlink.Remote<WasmExecutor>; terminate: () => Promise<void> }> | undefined
-const getWorker = async () => {
+export const getWorker = async () => {
   if (__executor_worker) return __executor_worker
 
   const isNode = typeof process !== 'undefined' && process?.versions?.node // true for node or bun
