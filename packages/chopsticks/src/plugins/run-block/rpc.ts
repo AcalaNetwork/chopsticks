@@ -110,6 +110,7 @@ export interface RunBlockResponse {
       method: string
       args: any[]
       success: boolean
+      signer: string | null
     }[]
   }
 }
@@ -244,11 +245,14 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
           phase.asApplyExtrinsic.eq(idx),
       )
 
+      const signer = parsed.signer.isEmpty ? null : parsed.signer.toHex()
+
       return {
         section: parsed.method.section,
         method: parsed.method.method,
         args: parsed.method.args.map((arg) => arg.toJSON()),
         success: resultEvent?.event.method === 'ExtrinsicSuccess',
+        signer,
       }
     })
 
