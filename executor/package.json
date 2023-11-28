@@ -12,8 +12,8 @@
 		"clean": "rm -rf pkg dist",
 		"wasm": "yarn clean && wasm-pack build --target web --out-dir pkg && scripts/pack-wasm.cjs",
 		"build": "yarn wasm && yarn build:cjs && yarn build:esm",
-		"build:cjs": "swc ./pkg -C module.type=commonjs -d dist/cjs --copy-files && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
-		"build:esm": "swc ./pkg -C module.type=es6 -d dist/esm --copy-files && echo '{\"type\": \"module\"}' > dist/esm/package.json"
+		"build:cjs": "swc ./pkg -C module.type=commonjs -d dist/cjs --copy-files && cp pkg/chopsticks_executor.d.ts dist/cjs/index.d.ts && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
+		"build:esm": "swc ./pkg -C module.type=es6 -d dist/esm --copy-files && cp pkg/chopsticks_executor.d.ts dist/esm/index.d.ts && echo '{\"type\": \"module\"}' > dist/esm/package.json"
 	},
 	"dependencies": {
 		"@polkadot/util": "^12.5.1",
@@ -26,14 +26,12 @@
 	},
 	"files": [
 		"dist/esm/**",
-		"dist/cjs/**",
-		"pkg/chopsticks_executor.d.ts"
+		"dist/cjs/**"
 	],
-	"require": "./dist/cjs/index.js",
+	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
 	"exports": {
 		".": {
-			"types": "./pkg/chopsticks_executor.d.ts",
 			"module": "./dist/esm/index.js",
 			"require": "./dist/cjs/index.js",
 			"default": "./dist/esm/index.js"
