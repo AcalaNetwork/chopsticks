@@ -25,7 +25,8 @@
 		"docs:prep": "yarn workspaces foreach --all -pvit run docs:prep && cp docs/* docs-src",
 		"docs:dev": "yarn docs:prep && vitepress dev",
 		"docs:build": "yarn docs:prep && vitepress build",
-		"docs:preview": "yarn docs:build && vitepress preview"
+		"docs:preview": "yarn docs:build && vitepress preview",
+		"publint": "sh ./publint.sh"
 	},
 	"engines": {
 		"node": ">=v18"
