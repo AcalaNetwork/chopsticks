@@ -9,6 +9,9 @@ import { hexToU8a, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { decodeWellKnownKey } from './well-known-keys.js'
+import { defaultLogger } from '../logger.js'
+
+const logger = defaultLogger.child({ module: 'decoder' })
 
 const _CACHE: Record<string, LRUCache<HexString, StorageEntry>> = {}
 
@@ -78,12 +81,19 @@ export const decodeKeyValue = (
   const { storage, decodedKey } = decodeKey(meta, block, key)
 
   if (!storage || !decodedKey) {
+    logger.warn({ key, value }, 'Failed to decode storage key')
     return undefined
   }
 
   const decodeValue = () => {
     if (!value) return null
-    return meta.registry.createType(decodedKey.outputType, hexToU8a(value))[toHuman ? 'toHuman' : 'toJSON']()
+    try {
+      return meta.registry.createType(decodedKey.outputType, hexToU8a(value))[toHuman ? 'toHuman' : 'toJSON']()
+    } catch (error) {
+      logger.warn(error, 'Failed to decode storage value')
+      logger.warn({ key, value, section: storage.section, method: storage.method, args: decodedKey.args }, 'Failed to decode storage value')
+      return undefined
+    }
   }
 
   return {
