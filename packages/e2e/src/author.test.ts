@@ -94,21 +94,25 @@ describe('author rpc', async () => {
   it('failed apply extirinsic', async () => {
     const finalized = defer<void>()
     const ready = defer<void>()
+    const broadcast = defer<void>()
     const inBlock = defer<void>()
     const invalid = defer<string>()
 
     const onStatusUpdate = (result: SubmittableResult) => {
       if (result.status.isInvalid) {
-        invalid.resolve(result.status.toString())
+        return invalid.resolve(result.status.toString())
       }
       if (result.status.isReady) {
-        ready.resolve()
+        return ready.resolve()
+      }
+      if (result.status.isBroadcast) {
+        return broadcast.resolve()
       }
       if (result.status.isInBlock) {
-        inBlock.resolve()
+        return inBlock.resolve()
       }
       if (result.status.isFinalized) {
-        finalized.resolve()
+        return finalized.resolve()
       }
     }
 
@@ -119,6 +123,7 @@ describe('author rpc', async () => {
     await dev.newBlock()
 
     await ready.promise
+    await broadcast.promise
     await inBlock.promise
     await finalized.promise
     expect(await invalid.promise).toBe('Invalid')

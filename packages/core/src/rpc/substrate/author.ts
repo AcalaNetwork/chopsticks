@@ -78,6 +78,10 @@ export const author_submitAndWatchExtrinsic: Handler<[HexString], string> = asyn
       callback({
         ready: null,
       })
+      // fake broadcast to alice peer
+      callback({
+        broadcast: ['5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'],
+      })
     }, 50)
   } catch (error) {
     logger.error({ error }, 'ExtrinsicFailed')
