@@ -18,6 +18,22 @@ exports[`author rpc > works 1`] = `
   ],
   [
     SubmittableResult {
+      "blockNumber": undefined,
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "broadcast": [
+          "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        ],
+      },
+      "txHash": "0xde9a25fc11cab85850e9d903f1f013f4496c180a818851bd4858fc86fa7e584b",
+      "txIndex": undefined,
+    },
+  ],
+  [
+    SubmittableResult {
       "blockNumber": 3000001,
       "dispatchError": undefined,
       "dispatchInfo": {
@@ -318,6 +334,22 @@ exports[`author rpc > works 5`] = `
   ],
   [
     SubmittableResult {
+      "blockNumber": undefined,
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "broadcast": [
+          "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        ],
+      },
+      "txHash": "0x2d03306195ffbcddfd21ce5b4f0e132ecb4c6ffaa5f856e710c8c40073435dd5",
+      "txIndex": undefined,
+    },
+  ],
+  [
+    SubmittableResult {
       "blockNumber": 3000002,
       "dispatchError": undefined,
       "dispatchInfo": {
@@ -611,6 +643,22 @@ exports[`author rpc > works 9`] = `
       "internalError": undefined,
       "status": {
         "ready": null,
+      },
+      "txHash": "0xcf5cfc28881efd18f682645f36cd87f088cd68bc0977b4fafa71a367ec550e2f",
+      "txIndex": undefined,
+    },
+  ],
+  [
+    SubmittableResult {
+      "blockNumber": undefined,
+      "dispatchError": undefined,
+      "dispatchInfo": undefined,
+      "events": [],
+      "internalError": undefined,
+      "status": {
+        "broadcast": [
+          "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
+        ],
       },
       "txHash": "0xcf5cfc28881efd18f682645f36cd87f088cd68bc0977b4fafa71a367ec550e2f",
       "txIndex": undefined,
