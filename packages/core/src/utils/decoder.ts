@@ -91,7 +91,10 @@ export const decodeKeyValue = (
       return meta.registry.createType(decodedKey.outputType, hexToU8a(value))[toHuman ? 'toHuman' : 'toJSON']()
     } catch (error) {
       logger.warn(error, 'Failed to decode storage value')
-      logger.warn({ key, value, section: storage.section, method: storage.method, args: decodedKey.args }, 'Failed to decode storage value')
+      logger.warn(
+        { key, value, section: storage.section, method: storage.method, args: decodedKey.args },
+        'Failed to decode storage value',
+      )
       return undefined
     }
   }
