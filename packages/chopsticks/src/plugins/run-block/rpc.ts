@@ -190,6 +190,11 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         continue
       }
 
+      const oldVal = await parentBlock.get(key)
+      if (value === oldVal) {
+        continue
+      }
+
       const obj = {} as (typeof resp)['storageDiff'][number]
       if (includeRawStorage) {
         obj.raw = { key, value }
