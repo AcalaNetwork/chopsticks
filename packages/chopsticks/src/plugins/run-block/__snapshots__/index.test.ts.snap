@@ -10502,6 +10502,18 @@ exports[`run-block > should work 1`] = `
         {
           "parsed": {
             "key": [],
+            "method": "transactionLevel",
+            "section": "substrate",
+            "value": undefined,
+          },
+          "raw": {
+            "key": "0x3a7472616e73616374696f6e5f6c6576656c3a",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
             "method": "onChainVotes",
             "section": "paraInherent",
             "value": {
@@ -13222,12 +13234,36 @@ exports[`run-block > should work 1`] = `
             "value": "0x03000000",
           },
         },
+        {
+          "parsed": {
+            "key": [],
+            "method": "transactionLevel",
+            "section": "substrate",
+            "value": undefined,
+          },
+          "raw": {
+            "key": "0x3a7472616e73616374696f6e5f6c6576656c3a",
+            "value": undefined,
+          },
+        },
       ],
     },
     {
       "logs": [],
       "phase": "Finalization",
       "storageDiff": [
+        {
+          "parsed": {
+            "key": [],
+            "method": "lateness",
+            "section": "babe",
+            "value": null,
+          },
+          "raw": {
+            "key": "0x1cb6f36e027abb2091cfb5110ab5087f0323475657e0890fbdbf66fb24b4649e",
+            "value": undefined,
+          },
+        },
         {
           "parsed": {
             "key": [
@@ -13441,6 +13477,18 @@ exports[`run-block > should work 1`] = `
         {
           "parsed": {
             "key": [],
+            "method": "initialized",
+            "section": "babe",
+            "value": null,
+          },
+          "raw": {
+            "key": "0x1cb6f36e027abb2091cfb5110ab5087ffa92de910a7ce2bd58e99729c69727c1",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
             "method": "blockWeight",
             "section": "system",
             "value": {
@@ -13474,6 +13522,102 @@ exports[`run-block > should work 1`] = `
           },
           "raw": {
             "key": "0x26aa394eea5630e07c48ae0c9558cef7a44704b568d21667356a5a050c1187462869d1aff2e46f1a81981201",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "allExtrinsicsLen",
+            "section": "system",
+            "value": null,
+          },
+          "raw": {
+            "key": "0x26aa394eea5630e07c48ae0c9558cef7a86da5a932684f199539836fcb8c886f",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "executionPhase",
+            "section": "system",
+            "value": null,
+          },
+          "raw": {
+            "key": "0x26aa394eea5630e07c48ae0c9558cef7ff553b5a9862a516939d82b3d3d8661a",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "hasInitialized",
+            "section": "initializer",
+            "value": null,
+          },
+          "raw": {
+            "key": "0x31a3a2ce3603138b8b352e8f192ca55ac9e06aebb5bcb51e5f883784b1269289",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "extrinsicIndex",
+            "section": "substrate",
+            "value": undefined,
+          },
+          "raw": {
+            "key": "0x3a65787472696e7369635f696e646578",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "intrablockEntropy",
+            "section": "substrate",
+            "value": undefined,
+          },
+          "raw": {
+            "key": "0x3a696e747261626c6f636b5f656e74726f7079",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "included",
+            "section": "paraInherent",
+            "value": null,
+          },
+          "raw": {
+            "key": "0x42b50b77ef717947e7043bb52127d665e2b2d1966457295060d0b3c7e44dca63",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "author",
+            "section": "authorship",
+            "value": null,
+          },
+          "raw": {
+            "key": "0xd57bce545fb382c34570e5dfbf338f5e326d21bc67a4b34023d577585d72bfd7",
+            "value": undefined,
+          },
+        },
+        {
+          "parsed": {
+            "key": [],
+            "method": "didUpdate",
+            "section": "timestamp",
+            "value": null,
+          },
+          "raw": {
+            "key": "0xf0c365c3cf59d671eb72da0e7a4113c4bbd108c4899964f707fdaffb82636065",
             "value": undefined,
           },
         },

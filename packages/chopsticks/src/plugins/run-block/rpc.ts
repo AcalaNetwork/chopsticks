@@ -180,6 +180,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     const resp = { storageDiff: [] } as Omit<RunBlockResponse['phases'][number], 'phase'>
     const raw = result.Call.storageDiff
 
+    const previousLayer = newBlock.storage
     newBlock.pushStorageLayer().setAll(raw)
 
     for (const [key, value] of raw) {
@@ -190,7 +191,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         continue
       }
 
-      const oldVal = await parentBlock.get(key)
+      const oldVal = await previousLayer.get(key, false)
       if (value === oldVal) {
         continue
       }
