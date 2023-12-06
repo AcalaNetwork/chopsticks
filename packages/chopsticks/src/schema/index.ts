@@ -17,6 +17,7 @@ export const configSchema = z
     block: z.union([z.string().length(66).startsWith('0x'), z.number(), z.null()]).optional(),
     'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
     'import-storage': z.any().optional(),
+    'allow-unresolved-imports': z.boolean().optional(),
     'mock-signature-host': z.boolean().optional(),
     'max-memory-block-count': z.number().optional(),
     db: z.string().optional(),

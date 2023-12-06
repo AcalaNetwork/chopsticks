@@ -1,5 +1,6 @@
 endpoint: wss://wss.api.moonbase.moonbeam.network
 mock-signature-host: true
+allow-unresolved-imports: true
 block: ${env.MOONBASE_BLOCK_NUMBER}
 db: ./db.sqlite
 
