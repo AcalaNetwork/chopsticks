@@ -54,10 +54,10 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
       let blockData: BlockEntry | null = null
       if (typeof argv.resume === 'string' && argv.resume.startsWith('0x')) {
         blockData = await chain.db.queryBlock(argv.resume as HexString)
-      } else if (typeof argv.resume === 'boolean' || argv.resume) {
+      } else if (typeof argv.resume === 'number') {
+        blockData = await chain.db.queryBlockByNumber(argv.resume)
+      } else if (argv.resume === true) {
         blockData = await chain.db.queryHighestBlock()
-      } else if (Number.isInteger(+argv.resume)) {
-        blockData = await chain.db.queryBlockByNumber(+argv.resume)
       } else {
         throw new Error(`Resume failed. Invalid resume option ${argv.resume}`)
       }
