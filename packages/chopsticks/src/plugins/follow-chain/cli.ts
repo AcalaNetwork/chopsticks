@@ -29,7 +29,6 @@ export const cli = (y: Argv) => {
     (yargs) => yargs.options(getYargsOptions(schema.shape)),
     async (argv) => {
       const config = schema.parse(argv)
-      const port = config.port ?? 8000
       Array.isArray(config.endpoint)
         ? config.endpoint
         : [config.endpoint || ''].forEach((endpoint) => {
@@ -39,7 +38,7 @@ export const cli = (y: Argv) => {
           })
 
       const context = await setupContext(config, true)
-      const { close, port: listenPort } = await createServer(handler(context), port)
+      const { close, port: listenPort } = await createServer(handler(context), config.port)
       logger.info(`${await context.chain.api.getSystemChain()} RPC listening on port ${listenPort}`)
 
       const chain = context.chain
