@@ -54,7 +54,7 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
       let blockData: BlockEntry | null = null
       if (typeof argv.resume === 'string' && argv.resume.startsWith('0x')) {
         blockData = await chain.db.queryBlock(argv.resume as HexString)
-      } else if (typeof argv.resume === 'boolean' || argv.resume === 'true') {
+      } else if (typeof argv.resume === 'boolean' || argv.resume) {
         blockData = await chain.db.queryHighestBlock()
       } else if (Number.isInteger(+argv.resume)) {
         blockData = await chain.db.queryBlockByNumber(+argv.resume)

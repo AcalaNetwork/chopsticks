@@ -1,37 +1,42 @@
 import { HexString } from '@polkadot/util/types'
 import { writeFileSync } from 'node:fs'
+import { z } from 'zod'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 
 import { runTask, taskHandler } from '@acala-network/chopsticks-core'
 
-import { Config } from '../../schema/index.js'
-import { defaultOptions, mockOptions } from '../../cli-options.js'
+import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { openHtml } from '../../utils/open-html.js'
 import { setupContext } from '../../context.js'
+
+const schema = z.object({
+  ...configSchema.shape,
+  ['output-path']: z
+    .string({
+      description: 'File path to print output',
+    })
+    .optional(),
+  html: z
+    .boolean({
+      description: 'Generate html with storage diff',
+    })
+    .optional(),
+  open: z
+    .boolean({
+      description: 'Open generated html',
+    })
+    .optional(),
+})
 
 export const cli = (y: Argv) => {
   y.command(
     'run-block',
     'Replay a block',
-    (yargs) =>
-      yargs.options({
-        ...defaultOptions,
-        ...mockOptions,
-        'output-path': {
-          desc: 'File path to print output',
-          string: true,
-        },
-        html: {
-          desc: 'Generate html with storage diff',
-        },
-        open: {
-          desc: 'Open generated html',
-        },
-      }),
+    (yargs) => yargs.options(getYargsOptions(schema.shape)),
     async (argv) => {
-      const context = await setupContext(argv as Config, true)
+      const context = await setupContext(schema.parse(argv), true)
 
       const header = await context.chain.head.header
       const block = context.chain.head

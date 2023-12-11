@@ -4,9 +4,8 @@ import _ from 'lodash'
 import yargs from 'yargs'
 import type { MiddlewareFunction } from 'yargs'
 
-import { Blockchain, BuildBlockMode, connectParachains, connectVertical } from '@acala-network/chopsticks-core'
-import { Config, fetchConfig } from './schema/index.js'
-import { defaultOptions, mockOptions } from './cli-options.js'
+import { Blockchain, connectParachains, connectVertical } from '@acala-network/chopsticks-core'
+import { configSchema, fetchConfig, getYargsOptions } from './schema/index.js'
 import { pluginExtendCli } from './plugins/index.js'
 import { setupWithServer } from './index.js'
 
@@ -16,7 +15,9 @@ const processArgv: MiddlewareFunction<{ config?: string; port?: number }> = asyn
   if (argv.config) {
     Object.assign(argv, _.defaults(argv, await fetchConfig(argv.config)))
   }
-  argv.port = argv.port ?? (process.env.PORT ? Number(process.env.PORT) : 8000)
+  if (process.env.PORT) {
+    argv.port = Number(process.env.PORT)
+  }
 }
 
 const commands = yargs(hideBin(process.argv))
@@ -26,34 +27,15 @@ const commands = yargs(hideBin(process.argv))
     '*',
     'Dev mode, fork off a chain',
     (yargs) =>
-      yargs.options({
-        ...defaultOptions,
-        ...mockOptions,
-        port: {
-          desc: 'Port to listen on',
-          number: true,
-        },
-        'build-block-mode': {
-          desc: 'Build block mode. Default to Batch',
-          enum: [BuildBlockMode.Batch, BuildBlockMode.Manual, BuildBlockMode.Instant],
-        },
-        'allow-unresolved-imports': {
-          desc: 'Allow wasm unresolved imports',
-          boolean: true,
-        },
-        'max-memory-block-count': {
-          desc: 'Max memory block count',
-          number: true,
-        },
-        resume: {
-          desc: `Resume from the specified block hash or block number in db.
-                 If true, it will resume from the latest block in db.
-                 Note this will override the block option`,
-          string: true,
-        },
-      }),
+      yargs
+        .config(
+          'config',
+          'Path to config file with default options',
+          () => ({}), // we load config in middleware
+        )
+        .options(getYargsOptions(configSchema.shape)),
     async (argv) => {
-      await setupWithServer(argv as Config)
+      await setupWithServer(configSchema.parse(argv))
     },
   )
   .command(
@@ -108,7 +90,13 @@ const commands = yargs(hideBin(process.argv))
   .example('$0', '-c acala')
 
 if (!process.env.DISABLE_PLUGINS) {
-  pluginExtendCli(commands).then(() => commands.parse())
+  pluginExtendCli(
+    commands.config(
+      'config',
+      'Path to config file with default options',
+      () => ({}), // we load config in middleware
+    ),
+  ).then(() => commands.parse())
 } else {
   commands.parse()
 }

@@ -1,8 +1,8 @@
 import { BuildBlockMode, defaultLogger, genesisSchema, isUrl } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
+import { ZodNativeEnum, ZodRawShape, ZodTypeAny, z } from 'zod'
 import { basename, extname } from 'node:path'
 import { readFileSync } from 'node:fs'
-import { z } from 'zod'
 import _ from 'lodash'
 import axios from 'axios'
 import yaml from 'js-yaml'
@@ -10,28 +10,95 @@ import yaml from 'js-yaml'
 export const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
 export const zHash = z.string().length(66).and(zHex)
 
-export const configSchema = z
-  .object({
-    port: z.number().optional(),
-    endpoint: z.union([z.string(), z.array(z.string())]).optional(),
-    block: z.union([z.string().length(66).startsWith('0x'), z.number(), z.null()]).optional(),
-    'build-block-mode': z.nativeEnum(BuildBlockMode).optional(),
-    'import-storage': z.any().optional(),
-    'allow-unresolved-imports': z.boolean().optional(),
-    'mock-signature-host': z.boolean().optional(),
-    'max-memory-block-count': z.number().optional(),
-    db: z.string().optional(),
-    'wasm-override': z.string().optional(),
-    genesis: z.union([z.string(), genesisSchema]).optional(),
-    timestamp: z.number().optional(),
-    'registered-types': z.any().optional(),
-    'runtime-log-level': z.number().min(0).max(5).optional(),
-    'offchain-worker': z.boolean().optional(),
-    resume: z.union([z.string().length(66).startsWith('0x'), z.number(), z.boolean()]).optional(),
-  })
-  .strict()
+export const configSchema = z.object({
+  port: z.number({ description: 'Port to listen on' }).default(8000),
+  endpoint: z.union([z.string(), z.array(z.string())], { description: 'Endpoint to connect to' }).optional(),
+  block: z
+    .union([zHash, z.number(), z.null()], {
+      description: 'Block hash or block number. Default to latest block',
+    })
+    .optional(),
+  'build-block-mode': z.nativeEnum(BuildBlockMode).default(BuildBlockMode.Batch),
+  'import-storage': z.any({ description: 'Pre-defined JSON/YAML storage file path' }).optional(),
+  'allow-unresolved-imports': z.boolean().optional(),
+  'mock-signature-host': z
+    .boolean({
+      description: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
+    })
+    .optional(),
+  'max-memory-block-count': z.number().optional(),
+  db: z.string({ description: 'Path to database' }).optional(),
+  'wasm-override': z.string({ description: 'Path to wasm override' }).optional(),
+  genesis: z.union([z.string(), genesisSchema]).optional(),
+  timestamp: z.number().optional(),
+  'registered-types': z.any().optional(),
+  'runtime-log-level': z
+    .number({
+      description: 'Runtime maximum log level [off = 0; error = 1; warn = 2; info = 3; debug = 4; trace = 5]',
+    })
+    .min(0)
+    .max(5)
+    .optional(),
+  'offchain-worker': z.boolean({ description: 'Enable offchain worker' }).optional(),
+  resume: z
+    .union([zHash, z.number(), z.boolean()], {
+      description:
+        'Resume from the specified block hash or block number in db. If true, it will resume from the latest block in db. Note this will override the block option',
+    })
+    .optional(),
+})
 
 export type Config = z.infer<typeof configSchema>
+
+const getZodType = (option: ZodTypeAny) => {
+  switch (option._def.typeName) {
+    case 'ZodString':
+      return 'string'
+    case 'ZodNumber':
+      return 'number'
+    case 'ZodBoolean':
+      return 'boolean'
+    default:
+      break
+  }
+  if (option._def.innerType) {
+    return getZodType(option._def.innerType)
+  }
+  return undefined
+}
+
+const getZodChoices = (option: ZodTypeAny) => {
+  if (option._def.innerType instanceof ZodNativeEnum) {
+    return Object.values(option._def.innerType._def.values).filter((x: any) => typeof x === 'string') as string[]
+  }
+  if (option._def.innerType) {
+    return getZodChoices(option._def.innerType)
+  }
+  return undefined
+}
+
+const getZodFirstOption = (option: ZodTypeAny) => {
+  const options = option._def.options
+  if (options) {
+    for (const option of options) {
+      const type = getZodType(option)
+      if (type) return type
+    }
+  }
+  if (option._def.innerType) {
+    return getZodFirstOption(option._def.innerType)
+  }
+  return undefined
+}
+
+export const getYargsOptions = (zodShape: ZodRawShape) => {
+  return _.mapValues(zodShape, (option) => ({
+    demandOption: !option.isOptional(),
+    description: option._def.description,
+    type: getZodType(option) || getZodFirstOption(option),
+    choices: getZodChoices(option),
+  }))
+}
 
 const CONFIGS_BASE_URL = 'https://raw.githubusercontent.com/AcalaNetwork/chopsticks/master/configs/'
 
@@ -56,5 +123,5 @@ export const fetchConfig = async (path: string): Promise<Config> => {
     }
   }
   const config = yaml.load(_.template(file, { variable: 'env' })(process.env)) as any
-  return configSchema.parse(config)
+  return configSchema.strict().parse(config)
 }

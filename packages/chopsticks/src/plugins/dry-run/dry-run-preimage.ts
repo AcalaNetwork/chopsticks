@@ -2,14 +2,14 @@ import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { hexToU8a } from '@polkadot/util'
 
-import { Config } from '../../schema/index.js'
+import { DryRunSchemaType } from './index.js'
 import { defaultLogger } from '../../logger.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
 import { openHtml } from '../../utils/open-html.js'
 import { setupContext } from '../../context.js'
 
-export const dryRunPreimage = async (argv: Config) => {
+export const dryRunPreimage = async (argv: DryRunSchemaType) => {
   const context = await setupContext(argv)
 
   const extrinsic = argv['preimage']
@@ -95,7 +95,9 @@ export const dryRunPreimage = async (argv: Config) => {
   // this is useful to test something after preimage is applied
   if (argv['extrinsic']) {
     await context.chain.newBlock()
-    const input = argv['address'] ? { call: argv['extrinsic'], address: argv['address'] } : argv['extrinsic']
+    const input = argv['address']
+      ? { call: argv['extrinsic'] as HexString, address: argv['address'] }
+      : (argv['extrinsic'] as HexString)
     const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(input)
     if (outcome.isErr) {
       throw new Error(outcome.asErr.toString())
