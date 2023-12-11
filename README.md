@@ -1,5 +1,11 @@
 # Chopsticks
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/chopsticks-logo-white.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/chopsticks-logo-dark.svg">
+  <img width="100%" alt="chopsticks logo" src="docs/chopsticks-logo-dark.svg">
+</picture>
+
 Create parallel reality of your Substrate network.
 
 ## Quick Start
