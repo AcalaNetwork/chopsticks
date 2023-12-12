@@ -21,7 +21,7 @@
 	},
 	"devDependencies": {
 		"@swc/cli": "0.1.63",
-		"@swc/core": "^1.3.99",
+		"@swc/core": "^1.3.100",
 		"fflate": "^0.8.1"
 	},
 	"files": [
