@@ -5,12 +5,12 @@ import { connectUpward } from './upward.js'
 import { defaultLogger } from '../logger.js'
 import { getParaId } from '../utils/index.js'
 
-export const logger = defaultLogger.child({ name: 'xcm' })
+export const xcmLogger = defaultLogger.child({ name: 'xcm' })
 
 export const connectVertical = async (relaychain: Blockchain, parachain: Blockchain) => {
   await connectDownward(relaychain, parachain)
   await connectUpward(parachain, relaychain)
-  logger.info(
+  xcmLogger.info(
     `Connected relaychain '${await relaychain.api.getSystemChain()}' with parachain '${await parachain.api.getSystemChain()}'`,
   )
 }
@@ -25,5 +25,5 @@ export const connectParachains = async (parachains: Blockchain[]) => {
 
   await connectHorizontal(list)
 
-  logger.info(`Connected parachains [${Object.keys(list)}]`)
+  xcmLogger.info(`Connected parachains [${Object.keys(list)}]`)
 }

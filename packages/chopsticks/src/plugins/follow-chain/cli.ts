@@ -1,53 +1,53 @@
 import { Block, defaultLogger, runTask, taskHandler } from '@acala-network/chopsticks-core'
 import { Header } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
+import { z } from 'zod'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 
+import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { createServer } from '../../server.js'
-import { defaultOptions } from '../../cli-options.js'
 import { handler } from '../../rpc/index.js'
 import { setupContext } from '../../context.js'
-import type { Config } from '../../schema/index.js'
 
 const logger = defaultLogger.child({ name: 'follow-chain' })
-const options = _.pick(defaultOptions, ['endpoint', 'wasm-override', 'runtime-log-level', 'offchain-worker'])
+
+enum HeadMode {
+  Latest = 'Latest',
+  Finalized = 'Finalized',
+}
+
+const schema = z.object({
+  ..._.pick(configSchema.shape, ['endpoint', 'port', 'wasm-override', 'runtime-log-level', 'offchain-worker']),
+  'head-mode': z.nativeEnum(HeadMode).default(HeadMode.Latest),
+})
 
 export const cli = (y: Argv) => {
   y.command(
     'follow-chain',
     'Always follow the latest block on upstream',
-    (yargs) =>
-      yargs.options({
-        ...options,
-        port: {
-          desc: 'Port to listen on',
-          number: true,
-        },
-        'head-mode': {
-          desc: 'Head mode',
-          choices: ['latest', 'finalized'],
-          default: 'finalized',
-        },
-      }),
+    (yargs) => yargs.options(getYargsOptions(schema.shape)),
     async (argv) => {
-      const port = argv.port ?? 8000
-      const endpoint = argv.endpoint as string
-      if (/^(https|http):\/\//.test(endpoint || '')) {
-        throw Error('http provider is not supported')
-      }
+      const config = schema.parse(argv)
+      Array.isArray(config.endpoint)
+        ? config.endpoint
+        : [config.endpoint || ''].forEach((endpoint) => {
+            if (/^(https|http):\/\//.test(endpoint)) {
+              throw Error('http provider is not supported')
+            }
+          })
 
-      const context = await setupContext(argv as Config, true)
-      const { close, port: listenPort } = await createServer(handler(context), port)
+      const context = await setupContext(config, true)
+      const { close, port: listenPort } = await createServer(handler(context), config.port)
       logger.info(`${await context.chain.api.getSystemChain()} RPC listening on port ${listenPort}`)
 
       const chain = context.chain
 
-      chain.api[argv.headMode === 'latest' ? 'subscribeRemoteNewHeads' : 'subscribeRemoteFinalizedHeads'](
+      chain.api[config['head-mode'] === HeadMode.Latest ? 'subscribeRemoteNewHeads' : 'subscribeRemoteFinalizedHeads'](
         async (error, data) => {
           try {
             if (error) throw error
-            logger.info({ header: data }, `Follow ${argv.headMode} head from upstream`)
+            logger.info({ header: data }, `Follow ${config['head-mode']} head from upstream`)
             const parent = await chain.getBlock(data.parentHash)
             if (!parent) throw Error(`Cannot find parent', ${data.parentHash}`)
             const registry = await parent.registry
@@ -71,7 +71,7 @@ export const cli = (y: Argv) => {
                 calls,
                 mockSignatureHost: false,
                 allowUnresolvedImports: false,
-                runtimeLogLevel: (argv.runtimeLogLevel as number) || 0,
+                runtimeLogLevel: config['runtime-log-level'] || 0,
               },
               taskHandler(parent),
             )

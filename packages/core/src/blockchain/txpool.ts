@@ -15,11 +15,11 @@ export const APPLY_EXTRINSIC_ERROR = 'TxPool::ApplyExtrinsicError'
 
 export enum BuildBlockMode {
   /** One block per batch (default) */
-  Batch,
+  Batch = 'Batch',
   /** One block per tx */
-  Instant,
+  Instant = 'Instant',
   /** Only build when triggered */
-  Manual,
+  Manual = 'Manual',
 }
 
 export interface DownwardMessage {

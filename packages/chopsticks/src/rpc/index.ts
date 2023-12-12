@@ -3,11 +3,13 @@ import {
   Handlers,
   ResponseError,
   SubscriptionManager,
-  logger,
+  defaultLogger,
   substrate,
 } from '@acala-network/chopsticks-core'
 
 import { loadRpcPlugin, rpcPluginMethods } from '../plugins/index.js'
+
+const rpcLogger = defaultLogger.child({ module: 'rpc' })
 
 const allHandlers: Handlers = {
   ...substrate,
@@ -30,12 +32,12 @@ const getHandler = async (method: string) => {
 export const handler =
   (context: Context) =>
   async ({ method, params }: { method: string; params: any[] }, subscriptionManager: SubscriptionManager) => {
-    logger.trace('Handling %s', method)
+    rpcLogger.trace('Handling %s', method)
 
     const handler = await getHandler(method)
 
     if (!handler) {
-      logger.warn('Method not found %s', method)
+      rpcLogger.warn('Method not found %s', method)
       throw new ResponseError(-32601, `Method not found: ${method}`)
     }
 

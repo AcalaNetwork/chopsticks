@@ -3,7 +3,7 @@ import { hexToU8a } from '@polkadot/util'
 
 import { Blockchain } from '../blockchain/index.js'
 import { compactHex } from '../utils/index.js'
-import { logger } from './index.js'
+import { xcmLogger } from './index.js'
 
 export const connectHorizontal = async (parachains: Record<number, Blockchain>) => {
   for (const [id, chain] of Object.entries(parachains)) {
@@ -21,7 +21,7 @@ export const connectHorizontal = async (parachains: Record<number, Blockchain>) 
         .createType('Vec<PolkadotCorePrimitivesOutboundHrmpMessage>', hexToU8a(value))
         .toJSON() as any as { recipient: number; data: HexString }[]
 
-      logger.info({ outboundHrmpMessage }, 'outboundHrmpMessage')
+      xcmLogger.info({ outboundHrmpMessage }, 'outboundHrmpMessage')
 
       for (const { recipient, data } of outboundHrmpMessage) {
         const receiver = parachains[recipient]

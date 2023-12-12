@@ -3,8 +3,8 @@ import { hexToU8a } from '@polkadot/util'
 import { Blockchain } from '../blockchain/index.js'
 import { DownwardMessage } from '../blockchain/txpool.js'
 import { compactHex, getParaId } from '../utils/index.js'
-import { logger } from './index.js'
 import { setStorage } from '../utils/set-storage.js'
+import { xcmLogger } from './index.js'
 
 export const connectDownward = async (relaychain: Blockchain, parachain: Blockchain) => {
   const meta = await relaychain.head.meta
@@ -27,7 +27,7 @@ export const connectDownward = async (relaychain: Blockchain, parachain: Blockch
 
     if (downwardMessages.length === 0) return
 
-    logger.debug({ downwardMessages }, 'downward_message')
+    xcmLogger.debug({ downwardMessages }, 'downward_message')
     parachain.submitDownwardMessages(downwardMessages)
   })
 }
