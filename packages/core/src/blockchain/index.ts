@@ -73,7 +73,6 @@ export interface Options {
  * ```
  */
 export class Blockchain {
-  readonly uid: string = Math.random().toString(36).substring(2)
   /** API instance, for getting on-chain data. */
   readonly api: Api
   /** Datasource for caching storage and blocks data. */
