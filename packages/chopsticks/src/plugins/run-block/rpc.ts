@@ -183,6 +183,8 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     const previousLayer = newBlock.storage
     newBlock.pushStorageLayer().setAll(raw)
 
+    const newBlockMeta = await newBlock.meta
+
     for (const [key, value] of raw) {
       if (key === systemEventsKey) {
         continue
@@ -201,7 +203,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         obj.raw = { key, value }
       }
       if (includeParsed) {
-        const decoded = decodeKeyValue(await newBlock.meta, newBlock, key, value, false)
+        const decoded = decodeKeyValue(newBlockMeta, key, value, false)
         if (decoded) {
           obj.parsed = {
             section: decoded.section,

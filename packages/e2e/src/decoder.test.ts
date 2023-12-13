@@ -18,45 +18,43 @@ describe('decoder', async () => {
     })
 
     it('decode keys', async () => {
-      expect(decodeKey(await chain.head.meta, chain.head, SYSTEM_ACCOUNT)).toMatchSnapshot()
+      expect(decodeKey(await chain.head.meta, SYSTEM_ACCOUNT)).toMatchSnapshot()
     })
 
     it('decode key-value', async () => {
       const meta = await chain.head.meta
       const data = { data: { free: 10000000000 } }
       const value = meta.registry.createType('AccountInfo', data)
-      const decoded = decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())
+      const decoded = decodeKeyValue(meta, SYSTEM_ACCOUNT, value.toHex())
       expect(decoded).toMatchSnapshot()
       expect(toStorageObject(decoded)).toMatchSnapshot()
 
       const ormlAccountData = meta.registry.createType('AccountData', data.data)
-      const decoded2 = decodeKeyValue(meta, chain.head, TOKENS_ACCOUNTS, ormlAccountData.toHex())
+      const decoded2 = decodeKeyValue(meta, TOKENS_ACCOUNTS, ormlAccountData.toHex())
       expect(decoded2).toMatchSnapshot()
       expect(toStorageObject(decoded2)).toMatchSnapshot()
 
       const timestampNow = meta.registry.createType('Moment', data.data)
-      const decoded3 = decodeKeyValue(meta, chain.head, TIMESTAMPE_NOW, timestampNow.toHex())
+      const decoded3 = decodeKeyValue(meta, TIMESTAMPE_NOW, timestampNow.toHex())
       expect(decoded3).toMatchSnapshot()
       expect(toStorageObject(decoded3)).toMatchSnapshot()
     })
 
     it('works with well known keys', async () => {
       const meta = await chain.head.meta
-      expect(decodeKeyValue(meta, chain.head, '0x3a636f6465', '0x12345678')).toMatchSnapshot()
+      expect(decodeKeyValue(meta, '0x3a636f6465', '0x12345678')).toMatchSnapshot()
       expect(
         decodeKeyValue(
           meta,
-          chain.head,
           '0x3a72656c61795f64697370617463685f71756575655f72656d61696e696e675f63617061636974790c0d0000',
           '0xaaaa020000001000',
         ),
       ).toMatchSnapshot()
-      expect(decodeKeyValue(meta, chain.head, '0x3a7472616e73616374696f6e5f6c6576656c3a')).toMatchSnapshot()
-      expect(decodeKeyValue(meta, chain.head, '0x3a65787472696e7369635f696e646578', '0x02000000')).toMatchSnapshot()
+      expect(decodeKeyValue(meta, '0x3a7472616e73616374696f6e5f6c6576656c3a')).toMatchSnapshot()
+      expect(decodeKeyValue(meta, '0x3a65787472696e7369635f696e646578', '0x02000000')).toMatchSnapshot()
       expect(
         decodeKeyValue(
           meta,
-          chain.head,
           '0xf5207f03cfdce586301014700e2c2593fad157e461d71fd4c1f936839a5f1f3e63f5a4efb16ffa83d0070000',
           '0x0100000043000000',
         ),
@@ -70,7 +68,7 @@ describe('decoder', async () => {
     const meta = await chain.head.meta
     const data = { data: { free: 10000000000 } }
     const value = meta.registry.createType('AccountInfo', data)
-    const decoded = decodeKeyValue(meta, chain.head, SYSTEM_ACCOUNT, value.toHex())
+    const decoded = decodeKeyValue(meta, SYSTEM_ACCOUNT, value.toHex())
     expect(decoded).toMatchSnapshot()
     expect(toStorageObject(decoded)).toMatchSnapshot()
     await teardown()

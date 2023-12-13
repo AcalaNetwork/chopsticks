@@ -28,8 +28,8 @@ const getCache = (uid: string): LRUCache<HexString, StorageEntry> => {
   return _CACHE[uid]
 }
 
-const getStorageEntry = (meta: DecoratedMeta, block: Block, key: HexString) => {
-  const cache = getCache(block.chain.uid)
+const getStorageEntry = (meta: DecoratedMeta, key: HexString) => {
+  const cache = getCache(meta.registry.metadata.hash.toHex())
   for (const prefix of cache.keys()) {
     if (key.startsWith(prefix))
       // update the recency of the cache entry
@@ -47,12 +47,8 @@ const getStorageEntry = (meta: DecoratedMeta, block: Block, key: HexString) => {
   return undefined
 }
 
-export const decodeKey = (
-  meta: DecoratedMeta,
-  block: Block,
-  key: HexString,
-): { storage?: StorageEntry; decodedKey?: StorageKey } => {
-  const storage = getStorageEntry(meta, block, key)
+export const decodeKey = (meta: DecoratedMeta, key: HexString): { storage?: StorageEntry; decodedKey?: StorageKey } => {
+  const storage = getStorageEntry(meta, key)
   const decodedKey = meta.registry.createType('StorageKey', key)
   if (storage) {
     decodedKey.setMeta(storage.meta)
@@ -61,13 +57,7 @@ export const decodeKey = (
   return {}
 }
 
-export const decodeKeyValue = (
-  meta: DecoratedMeta,
-  block: Block,
-  key: HexString,
-  value?: HexString | null,
-  toHuman = true,
-) => {
+export const decodeKeyValue = (meta: DecoratedMeta, key: HexString, value?: HexString | null, toHuman = true) => {
   const res = decodeWellKnownKey(meta.registry, key, value)
   if (res) {
     return {
@@ -78,7 +68,7 @@ export const decodeKeyValue = (
     }
   }
 
-  const { storage, decodedKey } = decodeKey(meta, block, key)
+  const { storage, decodedKey } = decodeKey(meta, key)
 
   if (!storage || !decodedKey) {
     logger.warn({ key, value }, 'Failed to decode storage key')
@@ -144,10 +134,10 @@ export const decodeBlockStorageDiff = async (block: Block, diff: [HexString, Hex
   const meta = await block.meta
   for (const [key, value] of diff) {
     const oldValue = await block.get(key)
-    const oldDecoded = toStorageObject(decodeKeyValue(meta, block, key, oldValue)) ?? { [key]: oldValue }
+    const oldDecoded = toStorageObject(decodeKeyValue(meta, key, oldValue)) ?? { [key]: oldValue }
     _.merge(oldState, oldDecoded)
 
-    const newDecoded = toStorageObject(decodeKeyValue(meta, block, key, value)) ?? { [key]: value }
+    const newDecoded = toStorageObject(decodeKeyValue(meta, key, value)) ?? { [key]: value }
     _.merge(newState, newDecoded)
   }
   return [oldState, newState]
