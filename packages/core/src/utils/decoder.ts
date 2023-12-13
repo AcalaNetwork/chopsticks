@@ -3,6 +3,7 @@ import { Block } from '../blockchain/block.js'
 import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
 import { LRUCache } from 'lru-cache'
+import { Registry } from '@polkadot/types-codec/types'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageKey } from '@polkadot/types'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
@@ -13,23 +14,20 @@ import { defaultLogger } from '../logger.js'
 
 const logger = defaultLogger.child({ module: 'decoder' })
 
-const _CACHE: Record<string, LRUCache<HexString, StorageEntry>> = {}
+const _CACHE: LRUCache<Registry, LRUCache<HexString, StorageEntry>> = new LRUCache({ max: 20 /* max 20 registries */ })
 
-function createCache() {
-  return new LRUCache<HexString, StorageEntry>({
-    max: 50, // The maximum number of items in the cache
-  })
-}
-
-const getCache = (uid: string): LRUCache<HexString, StorageEntry> => {
-  if (!_CACHE[uid]) {
-    _CACHE[uid] = createCache()
+const getCache = (registry: Registry): LRUCache<HexString, StorageEntry> => {
+  const cache = _CACHE.get(registry)
+  if (cache) {
+    return cache
   }
-  return _CACHE[uid]
+  const newCache = new LRUCache<HexString, StorageEntry>({ max: 100 /* max 100 storage entries */ })
+  _CACHE.set(registry, newCache)
+  return newCache
 }
 
 const getStorageEntry = (meta: DecoratedMeta, key: HexString) => {
-  const cache = getCache(meta.registry.metadata.hash.toHex())
+  const cache = getCache(meta.registry)
   for (const prefix of cache.keys()) {
     if (key.startsWith(prefix))
       // update the recency of the cache entry
