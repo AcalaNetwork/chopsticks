@@ -60,6 +60,7 @@ An example is available at [acalanetwork.github.io/chopsticks](https://acalanetw
 - [statemine](configs/statemine.yml)
 - [statemint](configs/statemint.yml)
 - [tinkernet](configs/tinkernet.yml)
+- [zeitgeist](configs/zeitgeist.yml)
 
 ## Install
 
