@@ -4,6 +4,8 @@ block: ${env.ROCOCO_BLOCK_NUMBER}
 db: ./db.sqlite
 
 import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
   System:
     Account:
       -
@@ -12,14 +14,3 @@ import-storage:
         - providers: 1
           data:
             free: '10000000000000000000'
-  Council:
-    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
-  PhragmenElection:
-    Members:
-      - who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        stake: 1000000000000
-        deposit: 1000000000000
-  TechnicalCommittee:
-    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
-  TechnicalMembership:
-    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
