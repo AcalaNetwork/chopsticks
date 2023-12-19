@@ -72,3 +72,10 @@ import-storage:
       - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
       - 246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE
       - 249LSvsEyxS4VpEJGg62yhYA7sHy1KcgGW6KzACBCLW1RsZF
+  EvmAccounts:
+    EvmAddresses:
+    - - - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - '0x75E480dB528101a381Ce68544611C169Ad7EB342'
+    Accounts:
+    - - - '0x75E480dB528101a381Ce68544611C169Ad7EB342'
+      - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
