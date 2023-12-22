@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { api, dev, env, expectJson, setupApi, testingPairs } from './helper.js'
+import { api, check, dev, env, setupApi, testingPairs } from './helper.js'
 
 setupApi(env.acala)
 
@@ -12,7 +12,7 @@ describe('system rpc', () => {
     expect(await api.rpc.system.name()).toMatch('Subway')
     expect(await api.rpc.system.version()).toBeInstanceOf(String)
     expect(await api.rpc.system.properties()).not.toBeNull()
-    expectJson(await api.rpc.system.health()).toMatchObject({
+    await check(api.rpc.system.health()).toMatchObject({
       peers: 0,
       isSyncing: false,
       shouldHavePeers: false,

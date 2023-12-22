@@ -1,7 +1,8 @@
 import { describe, it } from 'vitest'
 
 import { HorizontalMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
-import { matchSystemEvents, setupContext } from '@acala-network/chopsticks-testing'
+
+import { checkSystemEvents, setupContext } from './helper.js'
 
 const statemineHRMP: Record<number, HorizontalMessage[]> = {
   2000: [
@@ -25,21 +26,21 @@ describe('HRMP', () => {
   it('Statemine handles horizonal messages', async () => {
     const statemine = await setupContext({ endpoint: 'wss://statemine-rpc-tn.dwellir.com' })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
-    await matchSystemEvents(statemine, 'xcmpQueue', 'Success')
+    await checkSystemEvents(statemine, 'xcmpQueue', 'Success').toMatchSnapshot()
     await statemine.teardown()
   })
 
   it('Acala handles horizonal messages', async () => {
     const acala = await setupContext({ endpoint: 'wss://acala-rpc.aca-api.network' })
     await acala.chain.newBlock({ horizontalMessages: acalaHRMP })
-    await matchSystemEvents(acala, 'xcmpQueue', 'Success')
+    await checkSystemEvents(acala, 'xcmpQueue', 'Success').toMatchSnapshot()
     await acala.teardown()
   })
 
   it('Statemine handles horizonal messages block#5,800,000', async () => {
     const statemine = await setupContext({ endpoint: 'wss://statemine-rpc-tn.dwellir.com', blockNumber: 5_800_000 })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
-    await matchSystemEvents(statemine, 'xcmpQueue', 'Success')
+    await checkSystemEvents(statemine, 'xcmpQueue', 'Success').toMatchSnapshot()
     await statemine.teardown()
   })
 })

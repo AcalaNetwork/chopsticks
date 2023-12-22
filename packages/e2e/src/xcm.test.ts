@@ -3,10 +3,9 @@ import { beforeEach, describe, it } from 'vitest'
 import { DownwardMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
 import { connectDownward } from '@acala-network/chopsticks-core/xcm/downward.js'
 import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
-import { matchSystemEvents, testingPairs } from '@acala-network/chopsticks-testing'
 import { setStorage } from '@acala-network/chopsticks-core'
 
-import { matchSnapshot } from './helper.js'
+import { check, checkSystemEvents, testingPairs } from './helper.js'
 import networks, { Network } from './networks.js'
 
 const downwardMessages: DownwardMessage[] = [
@@ -32,7 +31,7 @@ describe('XCM', async () => {
 
   it('Acala handles downward messages', async () => {
     await acala.chain.newBlock({ downwardMessages })
-    await matchSystemEvents(acala)
+    await checkSystemEvents(acala).toMatchSnapshot()
   })
 
   it('Polkadot send downward messages to Acala', async () => {
@@ -71,10 +70,10 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await polkadot.chain.newBlock()
-    await matchSystemEvents(polkadot)
+    await checkSystemEvents(polkadot).toMatchSnapshot()
 
     await acala.chain.newBlock()
-    await matchSystemEvents(acala)
+    await checkSystemEvents(acala).toMatchSnapshot()
   })
 
   it('Acala send upward messages to Polkadot', async () => {
@@ -91,9 +90,9 @@ describe('XCM', async () => {
       },
     })
 
-    await matchSnapshot(polkadot.api.query.system.account(alice.address))
-    await matchSnapshot(acala.api.query.system.account(alice.address))
-    await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
+    await check(polkadot.api.query.system.account(alice.address)).toMatchSnapshot()
+    await check(acala.api.query.system.account(alice.address)).toMatchSnapshot()
+    await check(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' })).toMatchSnapshot()
 
     await acala.api.tx.xTokens
       .transfer(
@@ -121,12 +120,12 @@ describe('XCM', async () => {
       .signAndSend(alice)
 
     await acala.chain.newBlock()
-    await matchSystemEvents(acala)
-    await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
+    await checkSystemEvents(acala).toMatchSnapshot()
+    await check(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' })).toMatchSnapshot()
 
     await polkadot.chain.newBlock()
 
-    await matchSnapshot(polkadot.api.query.system.account(alice.address))
-    await matchSystemEvents(polkadot)
+    await check(polkadot.api.query.system.account(alice.address)).toMatchSnapshot()
+    await checkSystemEvents(polkadot).toMatchSnapshot()
   })
 })

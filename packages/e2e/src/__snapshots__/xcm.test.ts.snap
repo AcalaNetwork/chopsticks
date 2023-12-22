@@ -388,62 +388,62 @@ exports[`XCM > Acala send upward messages to Polkadot > system events 2`] = `
 
 exports[`XCM > Acala send upward messages to Polkadot 1`] = `
 {
-  "consumers": "0",
+  "consumers": 0,
   "data": {
-    "feeFrozen": "0",
-    "free": "0",
-    "miscFrozen": "0",
-    "reserved": "0",
+    "feeFrozen": 0,
+    "free": 0,
+    "miscFrozen": 0,
+    "reserved": 0,
   },
-  "nonce": "0",
-  "providers": "0",
-  "sufficients": "0",
+  "nonce": 0,
+  "providers": 0,
+  "sufficients": 0,
 }
 `;
 
 exports[`XCM > Acala send upward messages to Polkadot 2`] = `
 {
-  "consumers": "0",
+  "consumers": 0,
   "data": {
-    "feeFrozen": "0",
-    "free": "10,000,000,000,000",
-    "miscFrozen": "0",
-    "reserved": "0",
+    "feeFrozen": 0,
+    "free": 10000000000000,
+    "miscFrozen": 0,
+    "reserved": 0,
   },
-  "nonce": "0",
-  "providers": "0",
-  "sufficients": "0",
+  "nonce": 0,
+  "providers": 0,
+  "sufficients": 0,
 }
 `;
 
 exports[`XCM > Acala send upward messages to Polkadot 3`] = `
 {
-  "free": "10,000,000,000,000",
-  "frozen": "0",
-  "reserved": "0",
+  "free": 10000000000000,
+  "frozen": 0,
+  "reserved": 0,
 }
 `;
 
 exports[`XCM > Acala send upward messages to Polkadot 4`] = `
 {
-  "free": "9,900,000,000,000",
-  "frozen": "0",
-  "reserved": "0",
+  "free": 9900000000000,
+  "frozen": 0,
+  "reserved": 0,
 }
 `;
 
 exports[`XCM > Acala send upward messages to Polkadot 5`] = `
 {
-  "consumers": "0",
+  "consumers": 0,
   "data": {
-    "feeFrozen": "0",
-    "free": "99,591,353,032",
-    "miscFrozen": "0",
-    "reserved": "0",
+    "feeFrozen": 0,
+    "free": 99591353032,
+    "miscFrozen": 0,
+    "reserved": 0,
   },
-  "nonce": "0",
-  "providers": "1",
-  "sufficients": "0",
+  "nonce": 0,
+  "providers": 1,
+  "sufficients": 0,
 }
 `;
 
