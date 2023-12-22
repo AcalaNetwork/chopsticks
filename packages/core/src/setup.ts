@@ -34,6 +34,8 @@ export type SetupOptions = {
 }
 
 export const setup = async (options: SetupOptions) => {
+  defaultLogger.debug(options, 'Setup options')
+
   let provider: ProviderInterface
   if (options.genesis) {
     provider = options.genesis

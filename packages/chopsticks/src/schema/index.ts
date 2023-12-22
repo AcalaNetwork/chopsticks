@@ -58,6 +58,8 @@ const getZodType = (option: ZodTypeAny) => {
       return 'number'
     case 'ZodBoolean':
       return 'boolean'
+    case 'ZodIntersection':
+      return 'string'
     default:
       break
   }
