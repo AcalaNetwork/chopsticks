@@ -5,7 +5,7 @@ mock-signature-host: true
 block: ${env.ACALA_BLOCK_NUMBER}
 db: ./db.sqlite
 runtime-log-level: 5
-wasm-override: acala_runtime.wasm
+# wasm-override: acala_runtime.wasm
 
 import-storage:
   Sudo:
