@@ -60,10 +60,10 @@ const getZodType = (option: ZodTypeAny) => {
       return 'boolean'
     default:
       break
-    }
-    if (option._def.innerType ?? option._def.left) {
-      return getZodType(option._def.innerType ?? option._def.left)
-    }
+  }
+  if (option._def.innerType ?? option._def.left) {
+    return getZodType(option._def.innerType ?? option._def.left)
+  }
   return undefined
 }
 
