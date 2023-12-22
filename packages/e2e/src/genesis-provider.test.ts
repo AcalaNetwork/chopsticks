@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { api, chain, dev, env, expectJson, setupApi, testingPairs } from './helper.js'
+import { api, chain, check, dev, env, setupApi, testingPairs } from './helper.js'
 
 setupApi(env.mandalaGenesis)
 
@@ -25,13 +25,13 @@ describe('genesis provider works', () => {
       },
     })
 
-    expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
+    await check(api.query.system.account(alice.address)).toMatchSnapshot()
 
     await api.tx.currencies.transferNativeCurrency(bob.address, 100 * 1e12).signAndSend(alice)
 
     await dev.newBlock()
 
-    expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
-    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+    await check(api.query.system.account(alice.address)).toMatchSnapshot()
+    await check(api.query.system.account(bob.address)).toMatchSnapshot()
   })
 })

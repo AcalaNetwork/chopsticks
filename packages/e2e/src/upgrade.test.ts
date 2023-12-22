@@ -2,7 +2,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { expectJson, testingPairs } from './helper.js'
+import { check, testingPairs } from './helper.js'
 
 import networks from './networks.js'
 
@@ -36,10 +36,10 @@ describe('upgrade', async () => {
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
     await dev.newBlock()
-    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+    await check(api.query.system.account(bob.address)).toMatchSnapshot()
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
     await dev.newBlock()
-    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+    await check(api.query.system.account(bob.address)).toMatchSnapshot()
   })
 })

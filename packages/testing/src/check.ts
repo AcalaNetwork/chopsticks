@@ -1,6 +1,5 @@
 import { ApiPromise } from '@polkadot/api'
 import { Codec } from '@polkadot/types/types'
-import { expect } from 'vitest'
 
 type CodecOrArray = Codec | Codec[]
 
@@ -22,7 +21,14 @@ export type RedactOptions = {
   removeKeys?: RegExp // filter out keys matching regex
 }
 
+export type ExpectFn = (value: any) => {
+  toMatchSnapshot: (msg?: string) => void
+  toMatch(value: any, msg?: string): void
+  toMatchObject(value: any, msg?: string): void
+}
+
 export class Checker {
+  readonly #expectFn: ExpectFn
   readonly #value: any
   readonly #pipeline: Array<(value: any) => any> = []
 
@@ -30,7 +36,8 @@ export class Checker {
   #message: string | undefined
   #redactOptions: RedactOptions | undefined
 
-  constructor(value: any, message?: string) {
+  constructor(expectFn: ExpectFn, value: any, message?: string) {
+    this.#expectFn = expectFn
     this.#value = value
     this.#message = message
   }
@@ -198,41 +205,62 @@ export class Checker {
   }
 
   async toMatchSnapshot(msg?: string) {
-    return expect(await this.value()).toMatchSnapshot(msg ?? this.#message)
+    return this.#expectFn(await this.value()).toMatchSnapshot(msg ?? this.#message)
+  }
+
+  async toMatch(value: any, msg?: string) {
+    return this.#expectFn(await this.value()).toMatch(value, msg ?? this.#message)
+  }
+
+  async toMatchObject(value: any, msg?: string) {
+    return this.#expectFn(await this.value()).toMatchObject(value, msg ?? this.#message)
   }
 }
 
-export const check = (value: any, msg?: string) => {
-  if (value instanceof Checker) {
-    if (msg) {
-      return value.message(msg)
+export const withExpect = (expectFn: ExpectFn) => {
+  const check = (value: any, msg?: string) => {
+    if (value instanceof Checker) {
+      if (msg) {
+        return value.message(msg)
+      }
+      return value
     }
-    return value
+    return new Checker(expectFn, value, msg)
   }
-  return new Checker(value, msg)
+
+  type Api = { api: ApiPromise }
+
+  const checkEvents = ({ events }: { events: Promise<Codec[] | Codec> }, ...filters: EventFilter[]) =>
+    check(events, 'events')
+      .filterEvents(...filters)
+      .redact()
+
+  const checkSystemEvents = ({ api }: Api, ...filters: EventFilter[]) =>
+    check(api.query.system.events(), 'system events')
+      .filterEvents(...filters)
+      .redact()
+
+  const checkUmp = ({ api }: Api) =>
+    check(api.query.parachainSystem.upwardMessages(), 'ump').map((value) =>
+      api.createType('Vec<XcmVersionedXcm>', value).toJSON(),
+    )
+
+  const checkHrmp = ({ api }: Api) =>
+    check(api.query.parachainSystem.hrmpOutboundMessages(), 'hrmp').map((value) =>
+      (value as any[]).map(({ recipient, data }) => ({
+        data: api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data).toJSON(),
+        recipient,
+      })),
+    )
+
+  const checkHex = (value: any, msg?: string) => check(value, msg).toHex()
+
+  return {
+    check,
+    checkEvents,
+    checkSystemEvents,
+    checkUmp,
+    checkHrmp,
+    checkHex,
+  }
 }
-
-type Api = { api: ApiPromise }
-
-export const checkEvents = ({ events }: { events: Promise<Codec[] | Codec> }, ...filters: EventFilter[]) =>
-  check(events, 'events')
-    .filterEvents(...filters)
-    .redact()
-
-export const checkSystemEvents = ({ api }: Api, ...filters: EventFilter[]) =>
-  check(api.query.system.events(), 'system events')
-    .filterEvents(...filters)
-    .redact()
-
-export const checkUmp = ({ api }: Api) =>
-  check(api.query.parachainSystem.upwardMessages(), 'ump').map((value) =>
-    api.createType('Vec<XcmVersionedXcm>', value).toJSON(),
-  )
-
-export const checkHrmp = ({ api }: Api) =>
-  check(api.query.parachainSystem.hrmpOutboundMessages(), 'hrmp').map((value) =>
-    (value as any[]).map(({ recipient, data }) => ({
-      data: api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data).toJSON(),
-      recipient,
-    })),
-  )

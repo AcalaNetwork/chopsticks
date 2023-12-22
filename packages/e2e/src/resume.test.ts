@@ -1,10 +1,11 @@
+import { resolve } from 'node:path'
+import { tmpdir } from 'node:os'
+
 import { assert, describe, expect, it } from 'vitest'
 import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
-import { matchSnapshot } from './helper.js'
-import { matchSystemEvents, testingPairs } from '@acala-network/chopsticks-testing'
-import { resolve } from 'node:path'
 import { setStorage } from '@acala-network/chopsticks'
-import { tmpdir } from 'node:os'
+
+import { check, checkSystemEvents, testingPairs } from './helper.js'
 import networks from './networks.js'
 
 describe('resume', async () => {
@@ -122,9 +123,9 @@ describe('resume', async () => {
         },
       })
 
-      await matchSnapshot(polkadot.api.query.system.account(alice.address))
-      await matchSnapshot(acala.api.query.system.account(alice.address))
-      await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
+      await check(polkadot.api.query.system.account(alice.address)).toMatchSnapshot()
+      await check(acala.api.query.system.account(alice.address)).toMatchSnapshot()
+      await check(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' })).toMatchSnapshot()
 
       await acala.api.tx.xTokens
         .transfer(
@@ -152,13 +153,13 @@ describe('resume', async () => {
         .signAndSend(alice)
 
       await acala.chain.newBlock()
-      await matchSystemEvents(acala)
-      await matchSnapshot(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' }))
+      await checkSystemEvents(acala).toMatchSnapshot()
+      await check(acala.api.query.tokens.accounts(alice.address, { token: 'DOT' })).toMatchSnapshot()
 
       await polkadot.chain.newBlock()
 
-      await matchSnapshot(polkadot.api.query.system.account(alice.address))
-      await matchSystemEvents(polkadot)
+      await check(polkadot.api.query.system.account(alice.address)).toMatchSnapshot()
+      await checkSystemEvents(polkadot).toMatchSnapshot()
 
       await acala.teardown()
       await polkadot.teardown()
