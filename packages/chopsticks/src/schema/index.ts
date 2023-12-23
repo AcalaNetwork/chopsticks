@@ -61,8 +61,8 @@ const getZodType = (option: ZodTypeAny) => {
     default:
       break
   }
-  if (option._def.innerType) {
-    return getZodType(option._def.innerType)
+  if (option._def.innerType ?? option._def.left) {
+    return getZodType(option._def.innerType ?? option._def.left)
   }
   return undefined
 }

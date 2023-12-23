@@ -14,7 +14,7 @@ it('get yargs options from zod schema', () => {
           "choices": undefined,
           "demandOption": false,
           "description": "Block hash or block number. Default to latest block",
-          "type": "number",
+          "type": "string",
         },
         "build-block-mode": {
           "choices": [
@@ -84,7 +84,7 @@ it('get yargs options from zod schema', () => {
           "choices": undefined,
           "demandOption": false,
           "description": "Resume from the specified block hash or block number in db. If true, it will resume from the latest block in db. Note this will override the block option",
-          "type": "number",
+          "type": "string",
         },
         "runtime-log-level": {
           "choices": undefined,
