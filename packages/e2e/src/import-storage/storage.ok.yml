@@ -4,9 +4,6 @@ Sudo:
 Timestamp:
   Now: 1
 
-System:
-  AllExtrinsicsLen: 0x
-
 StableAsset:
   Pools:
     -
