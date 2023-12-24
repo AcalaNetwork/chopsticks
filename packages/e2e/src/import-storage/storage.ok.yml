@@ -1,6 +1,9 @@
 Sudo:
   Key: null
 
+Timestamp:
+  Now: 1
+
 TechnicalCommittee:
   Members:
     - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
