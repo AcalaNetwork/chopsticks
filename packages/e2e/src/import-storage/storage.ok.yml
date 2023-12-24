@@ -1,8 +1,18 @@
 Sudo:
-  Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+  Key: 0x
 
 Timestamp:
   Now: 1
+
+System:
+  AllExtrinsicsLen: 0x
+
+StableAsset:
+  Pools:
+    -
+      -
+        - 0
+      - 0x
 
 TechnicalCommittee:
   Members:

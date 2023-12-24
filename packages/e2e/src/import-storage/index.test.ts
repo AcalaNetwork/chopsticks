@@ -21,7 +21,12 @@ describe('import-storage', () => {
 
     await overrideStorage(chain, path.join(__dirname, './storage.ok.yml'))
 
-    expect(await block.get(sudoKey)).toBe('0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d')
+    expect(await block.get(sudoKey)).toBe('0x') // None
+
+    {
+      const key = compactHex((await block.meta).query.stableAsset.pools(0))
+      expect(await block.get(key)).toBe('0x') // None
+    }
 
     const key = compactHex((await block.meta).query.timestamp.now())
     expect(await block.get(key)).toBe('0x0100000000000000')

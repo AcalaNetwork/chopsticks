@@ -38,17 +38,25 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
 
       if (storageEntry.meta.type.isPlain) {
         const key = new StorageKey(meta.registry, [storageEntry])
-        storageItems.push([
-          key.toHex(),
-          storage ? u8aToHex(meta.registry.createType(key.outputType, storage).toU8a()) : null,
-        ])
+        if (storageEntry.meta.modifier.isOptional && storage === '0x') {
+          storageItems.push([key.toHex(), '0x'])
+        } else {
+          storageItems.push([
+            key.toHex(),
+            storage ? u8aToHex(meta.registry.createType(key.outputType, storage).toU8a()) : null,
+          ])
+        }
       } else {
         for (const [keys, value] of storage) {
           const key = new StorageKey(meta.registry, [storageEntry, keys])
-          storageItems.push([
-            key.toHex(),
-            value ? u8aToHex(meta.registry.createType(key.outputType, value).toU8a()) : null,
-          ])
+          if (storageEntry.meta.modifier.isOptional && value === '0x') {
+            storageItems.push([key.toHex(), '0x'])
+          } else {
+            storageItems.push([
+              key.toHex(),
+              value ? u8aToHex(meta.registry.createType(key.outputType, value).toU8a()) : null,
+            ])
+          }
         }
       }
     }
