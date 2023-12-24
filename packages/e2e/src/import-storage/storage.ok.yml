@@ -1,5 +1,15 @@
 Sudo:
-  Key: null
+  Key: 0x
+
+Timestamp:
+  Now: 1
+
+StableAsset:
+  Pools:
+    -
+      -
+        - 0
+      - 0x
 
 TechnicalCommittee:
   Members:

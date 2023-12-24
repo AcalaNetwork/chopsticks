@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import path from 'path'
 
 import { api, chain, setupApi } from '../helper.js'
+import { compactHex } from '@acala-network/chopsticks'
 import { overrideStorage, overrideWasm } from '@acala-network/chopsticks/utils/override.js'
 
 setupApi({
@@ -14,12 +15,21 @@ const sudoKey = '0x5c0d1176a568c1f92944340dbfed9e9c530ebca703c85910e7164cb7d1c9e
 describe('import-storage', () => {
   it('works', async () => {
     const block = await chain.getBlock()
+    if (!block) throw new Error('block not found')
 
-    expect(await block?.get(sudoKey)).toBe('0x6d6f646c6163612f747273790000000000000000000000000000000000000000')
+    expect(await block.get(sudoKey)).toBe('0x6d6f646c6163612f747273790000000000000000000000000000000000000000')
 
     await overrideStorage(chain, path.join(__dirname, './storage.ok.yml'))
 
-    expect(await block?.get(sudoKey)).toBeUndefined()
+    expect(await block.get(sudoKey)).toBe('0x') // None
+
+    {
+      const key = compactHex((await block.meta).query.stableAsset.pools(0))
+      expect(await block.get(key)).toBe('0x') // None
+    }
+
+    const key = compactHex((await block.meta).query.timestamp.now())
+    expect(await block.get(key)).toBe('0x0100000000000000')
   })
 
   it('handle errors', async () => {
