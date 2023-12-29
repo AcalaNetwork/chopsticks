@@ -190,7 +190,7 @@ export class LightClient {
     const id = this.#requestId++
     const deferred = defer<StorageResponse>()
     this.#storageResponse.set(id, deferred)
-    await storageRequest({ id, blockHash, keys } satisfies StorageRequest, this)
+    await storageRequest({ id, blockHash, keys, retries: 10 } satisfies StorageRequest, this)
     const response = await deferred.promise
     if (response.errorReason) {
       throw new Error(response.errorReason)
@@ -207,6 +207,7 @@ export class LightClient {
         id,
         blockNumber: typeof block === 'number' ? block : null,
         blockHash: typeof block === 'string' ? block : null,
+        retries: 10,
       } satisfies BlockRequest,
       this,
     )

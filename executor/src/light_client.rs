@@ -32,12 +32,14 @@ export type StorageRequest = {
     id: number
     blockHash: HexString
     keys: HexString[]
+    retries: number
 }
 
 export type BlockRequest = {
     id: number
     blockNumber: number | null
     blockHash: HexString | null
+    retries: number
 }
 
 export type StorageResponse = {
@@ -118,6 +120,7 @@ struct StorageRequest {
     id: usize,
     block_hash: HashHexString,
     keys: Vec<HexString>,
+    retries: usize,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -134,6 +137,7 @@ struct BlockRequest {
     id: usize,
     block_hash: Option<HashHexString>,
     block_number: Option<u64>,
+    retries: usize,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -272,6 +276,7 @@ pub async unsafe fn storage_request(
         id,
         block_hash,
         keys,
+        mut retries,
     } = serde_wasm_bindgen::from_value::<StorageRequest>(request)?;
 
     let peers = ns.peers_list(chain_id).await.collect::<Vec<_>>();
@@ -332,13 +337,31 @@ pub async unsafe fn storage_request(
                         err
                     );
                     // TODO: make this random
-                    // TODO: limit retries
+
+                    if retries == 0 {
+                        let response = BlocksResponse {
+                            id,
+                            blocks: vec![],
+                            error_reason: Some(err.to_string()),
+                        };
+                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
+                        break;
+                    }
 
                     // rotate peer
                     if let Some(next_peer_id) =
                         ns.peers_list(chain_id).await.find(|x| x != &peer_id)
                     {
                         peer_id = next_peer_id;
+                        retries = retries.saturating_sub(1);
+                    } else {
+                        let response = StorageResponse {
+                            id,
+                            items: vec![],
+                            error_reason: Some("no peers".to_string()),
+                        };
+                        callback.storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
+                        break;
                     }
                 }
             }
@@ -368,6 +391,7 @@ pub async unsafe fn blocks_request(
         id,
         block_hash,
         block_number,
+        mut retries,
     } = serde_wasm_bindgen::from_value::<BlockRequest>(request)?;
 
     let peers = ns.peers_list(chain_id).await.collect::<Vec<_>>();
@@ -431,13 +455,31 @@ pub async unsafe fn blocks_request(
                 Err(err) => {
                     log::debug!("blocks request failed with error {:?}, try next peer", err);
                     // TODO: make this random
-                    // TODO: limit retries
+
+                    if retries == 0 {
+                        let response = BlocksResponse {
+                            id,
+                            blocks: vec![],
+                            error_reason: Some(err.to_string()),
+                        };
+                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
+                        break;
+                    }
 
                     // rotate peer
                     if let Some(next_peer_id) =
                         ns.peers_list(chain_id).await.find(|x| x != &peer_id)
                     {
                         peer_id = next_peer_id;
+                        retries = retries.saturating_sub(1);
+                    } else {
+                        let response = BlocksResponse {
+                            id,
+                            blocks: vec![],
+                            error_reason: Some("no peers".to_string()),
+                        };
+                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
+                        break;
                     }
                 }
             }
