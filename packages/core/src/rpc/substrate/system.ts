@@ -1,21 +1,28 @@
 import { HexString } from '@polkadot/util/types'
 import { Index } from '@polkadot/types/interfaces'
 import { hexToU8a } from '@polkadot/util'
+import _ from 'lodash'
 
 import { ChainProperties } from '../../api.js'
 import { Handler } from '../shared.js'
+import { getPeers } from '../../wasm-executor/index.js'
 
 export const system_localPeerId = async () => '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
 export const system_nodeRoles = async () => ['Full']
 export const system_localListenAddresses = async () => []
 export const system_chain: Handler<void, string> = async (context) => {
-  return context.chain.api.getSystemChain()
+  return context.chain.head.runtimeVersion.then((runtime) => _.capitalize(runtime.specName))
 }
 export const system_properties: Handler<void, ChainProperties> = async (context) => {
-  return context.chain.api.getSystemProperties()
+  const meta = await context.chain.head.meta
+  const properties = meta.registry.getChainProperties()
+  if (!properties) {
+    throw new Error('No chain properties found')
+  }
+  return properties.toJSON() as ChainProperties
 }
 export const system_name: Handler<void, string> = async (context) => {
-  return context.chain.api.getSystemName()
+  return context.chain.head.runtimeVersion.then((runtime) => `${_.capitalize(runtime.implName)} Chopsticks`)
 }
 export const system_version: Handler<void, string> = async (_context) => {
   return 'chopsticks-v1'
@@ -23,12 +30,18 @@ export const system_version: Handler<void, string> = async (_context) => {
 export const system_chainType: Handler<void, string> = async (_context) => {
   return 'Development'
 }
-export const system_health = async () => {
+export const system_health: Handler<void, any> = async (context) => {
+  const peers = await getPeers()
   return {
-    peers: 0,
+    peers: peers.length,
     isSyncing: false,
-    shouldHavePeers: false,
+    shouldHavePeers: !!context.chain.lightClient,
   }
+}
+
+export const system_peers: Handler<void, any[]> = async (_context) => {
+  const peers = await getPeers()
+  return peers.map((peerId) => ({ peerId }))
 }
 
 /**

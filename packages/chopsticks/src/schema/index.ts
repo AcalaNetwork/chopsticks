@@ -46,6 +46,12 @@ export const configSchema = z.object({
         'Resume from the specified block hash or block number in db. If true, it will resume from the latest block in db. Note this will override the block option',
     })
     .optional(),
+  p2p: z
+    .object({
+      genesisBlockHash: zHash,
+      bootnodes: z.array(z.string()),
+    })
+    .optional(),
 })
 
 export type Config = z.infer<typeof configSchema>

@@ -46,6 +46,34 @@ pub fn decode_proof(
     Ok(entries)
 }
 
+pub fn inner_decode_proof(config: Config<Vec<u8>>) -> Result<Vec<(HexString, HexString)>, String> {
+    let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
+
+    let entries = decoded
+        .iter_ordered()
+        .filter(|(key, entry)| {
+            if key.key.is_empty() {
+                return false;
+            }
+            matches!(
+                entry.trie_node_info.storage_value,
+                StorageValue::Known { .. }
+            )
+        })
+        .map(|(key, entry)| {
+            let key = HexString(
+                nibbles_to_bytes_suffix_extend(key.key.iter().cloned()).collect::<Vec<_>>(),
+            );
+            match entry.trie_node_info.storage_value {
+                StorageValue::Known { value, .. } => (key, HexString(value.to_vec())),
+                _ => unreachable!(),
+            }
+        })
+        .collect::<Vec<_>>();
+
+    Ok(entries)
+}
+
 pub fn create_proof(
     nodes: Vec<Vec<u8>>,
     updates: BTreeMap<Vec<u8>, Option<Vec<u8>>>,

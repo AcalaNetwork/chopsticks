@@ -37,6 +37,7 @@ import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor/index.js
 export class Block {
   #chain: Blockchain
 
+  #blockData?: Promise<Block>
   #header?: Header | Promise<Header>
   #parentBlock?: WeakRef<Block> | Promise<Block | undefined>
   #extrinsics?: HexString[] | Promise<HexString[]>
@@ -70,7 +71,7 @@ export class Block {
     this.#parentBlock = parentBlock ? new WeakRef(parentBlock) : undefined
     this.#header = block?.header
     this.#extrinsics = block?.extrinsics
-    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db)
+    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db, chain.lightClient)
     this.#storages = []
 
     this.#runtimeVersion = parentBlock?.runtimeVersion
@@ -98,23 +99,51 @@ export class Block {
     return this.#chain
   }
 
+  get blockData(): Promise<Block> {
+    if (!this.#blockData) {
+      if (this.#chain.lightClient) {
+        this.#blockData = Promise.all([this.registry, this.#chain.lightClient.queryBlock(this.hash)]).then(
+          ([registry, b]) => {
+            const blockData = b.blocks[0]
+            const header = registry.createType<Header>('Header', blockData.header)
+            const block = new Block(this.#chain, Number(header.number), header.hash.toHex(), undefined, {
+              extrinsics: blockData.body,
+              header,
+            })
+            this.#chain.registerBlock(block)
+            return block
+          },
+        )
+      } else {
+        this.#blockData = Promise.all([this.registry, this.#chain.api.getBlock(this.hash)]).then(
+          ([registry, blockData]) => {
+            if (!blockData) {
+              throw new Error(`Block ${this.hash} not found`)
+            }
+            const header = registry.createType<Header>('Header', blockData.block.header)
+            const block = new Block(this.#chain, Number(header.number), header.hash.toHex(), undefined, {
+              extrinsics: blockData.block.extrinsics,
+              header,
+            })
+            this.#chain.registerBlock(block)
+            return block
+          },
+        )
+      }
+    }
+    return this.#blockData
+  }
+
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(([registry, header]) =>
-        registry.createType<Header>('Header', header),
-      )
+      this.#header = this.blockData.then((b) => b.header)
     }
     return this.#header
   }
 
   get extrinsics(): HexString[] | Promise<HexString[]> {
     if (!this.#extrinsics) {
-      this.#extrinsics = this.#chain.api.getBlock(this.hash).then((b) => {
-        if (!b) {
-          throw new Error(`Block ${this.hash} not found`)
-        }
-        return b.block.extrinsics
-      })
+      this.#extrinsics = this.blockData.then((b) => b.extrinsics)
     }
     return this.#extrinsics
   }

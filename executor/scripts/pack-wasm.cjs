@@ -19,6 +19,11 @@ const BYTES = '${base64}';
 import { base64Decode, unzlibSync } from '@polkadot/wasm-util';
 const WASM_BYTES = unzlibSync(base64Decode(BYTES, new Uint8Array(LEN_IN)), new Uint8Array(LEN_OUT));
 
+const startedAt = BigInt(Date.now() * 1000);
+globalThis.monotonic = function() {
+    return startedAt + BigInt(Math.floor(globalThis.performance.now() * 1000));
+};
+
 import { initSync } from "./chopsticks_executor.js";
 initSync(new WebAssembly.Module(WASM_BYTES));
 

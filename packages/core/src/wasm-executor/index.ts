@@ -9,7 +9,13 @@ import { PREFIX_LENGTH } from '../utils/key-cache.js'
 import { defaultLogger, truncate } from '../logger.js'
 import { stripChildPrefix } from '../utils/index.js'
 
-import type { JsCallback } from '@acala-network/chopsticks-executor'
+import { LightClientConfig } from './light-client.js'
+import type {
+  BlockRequest,
+  JsCallback,
+  JsLightClientCallback,
+  StorageRequest,
+} from '@acala-network/chopsticks-executor'
 export { JsCallback }
 
 export type RuntimeVersion = {
@@ -60,6 +66,16 @@ export interface WasmExecutor {
     callback?: JsCallback,
   ) => Promise<TaskResponse>
   testing: (callback: JsCallback, key: any) => Promise<any>
+  startNetworkService: (genesis: any, callback: JsLightClientCallback) => Promise<void>
+  getPeers: () => Promise<string[]>
+  streamMessage: (connection_id: number, stream_id: number, data: Uint8Array) => Promise<void>
+  streamWritableBytes: (connection_id: number, stream_id: number, numBytes: number) => Promise<void>
+  connectionStreamOpened: (connection_id: number, stream_id: number, outbound: number) => Promise<void>
+  connectionReset: (connection_id: number, data: Uint8Array) => Promise<void>
+  streamReset: (connection_id: number, stream_id: number) => Promise<void>
+  timerFinished: (callback: JsLightClientCallback) => Promise<void>
+  storageRequest: (req: StorageRequest, callback: JsLightClientCallback) => Promise<void>
+  blocksRequest: (req: BlockRequest, callback: JsLightClientCallback) => Promise<void>
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
@@ -212,6 +228,70 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString): Promise<nu
   if ('Error' in result) throw new Error(result.Error)
   return u8aToBn(hexToU8a(result.Call.result).subarray(0, 8 /* u64: 8 bytes */)).toNumber()
 })
+
+export const startNetworkService = async (config: LightClientConfig, callback: JsLightClientCallback) => {
+  const worker = await getWorker()
+  return worker.remote.startNetworkService(config, Comlink.proxy(callback))
+}
+
+export const storageRequest = async (req: StorageRequest, callback: JsLightClientCallback) => {
+  const worker = await getWorker()
+  return worker.remote.storageRequest(req, callback)
+}
+
+export const blocksRequest = async (req: BlockRequest, callback: JsLightClientCallback) => {
+  const worker = await getWorker()
+  return worker.remote.blocksRequest(req, callback)
+}
+
+export const getPeers = async () => {
+  const worker = await getWorker()
+  return worker.remote.getPeers().catch(() => [] as string[])
+}
+
+export const streamMessage = async (connection_id: number, stream_id: number, data: Uint8Array) => {
+  const worker = await getWorker()
+  return worker.remote.streamMessage(connection_id, stream_id, data)
+}
+
+export const streamWritableBytes = async (connection_id: number, stream_id: number, numBytes: number) => {
+  const worker = await getWorker()
+  return worker.remote.streamWritableBytes(connection_id, stream_id, numBytes)
+}
+
+export const connectionStreamOpened = async (connection_id: number, stream_id: number, outbound: number) => {
+  const worker = await getWorker()
+  return worker.remote.connectionStreamOpened(connection_id, stream_id, outbound)
+}
+
+export const connectionReset = async (connection_id: number, data: Uint8Array) => {
+  const worker = await getWorker()
+  return worker.remote.connectionReset(connection_id, data)
+}
+
+export const streamReset = async (connection_id: number, stream_id: number) => {
+  const worker = await getWorker()
+  return worker.remote.streamReset(connection_id, stream_id)
+}
+
+export const timerFinished = async (callback: JsLightClientCallback) => {
+  const worker = await getWorker()
+  return worker.remote.timerFinished(Comlink.proxy(callback))
+}
+
+export const connectionOpenSingleStream = async (_connectionId: number, _streamId: number) => {
+  // const worker = await getWorker()
+  // return worker.remote.connectionOpenSingleStream(connectionId, streamId)
+}
+
+export const connectionOpenMultiStream = async (
+  _connectionId: number,
+  _localCert: Uint8Array,
+  _remoteCert: Uint8Array,
+) => {
+  // const worker = await getWorker()
+  // return worker.remote.connectionOpenMultiStream(connectionId, localCert, remoteCert)
+}
 
 export const destroyWorker = async () => {
   if (!__executor_worker) return

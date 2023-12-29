@@ -7,8 +7,11 @@ use smoldot::{
 use std::{collections::BTreeMap, str::FromStr};
 use wasm_bindgen::prelude::*;
 
+mod light_client;
+mod platform;
 mod proof;
 mod task;
+mod timers;
 
 fn setup_console(level: Option<String>) {
     console_error_panic_hook::set_once();

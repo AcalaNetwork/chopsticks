@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs'
 import _ from 'lodash'
 import path from 'node:path'
 
+import { LightClient } from './light-client.js'
 import { WELL_KNOWN_KEYS, upgradeGoAheadSignal } from '../utils/proof.js'
 import {
   calculateStateRoot,
@@ -160,4 +161,29 @@ describe('wasm', () => {
     const slotDuration = await getAuraSlotDuration(getCode())
     expect(slotDuration).eq(12000)
   })
+
+  it('LightClient works', async () => {
+    const lightClient = await LightClient.create({
+      genesisBlockHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c',
+      bootnodes: [
+        '/dns/acala-bootnode-4.aca-api.network/tcp/30334/ws/p2p/12D3KooWBLwm4oKY5fsbkdSdipHzYJJHSHhuoyb1eTrH31cidrnY',
+      ],
+    })
+
+    const block = await lightClient.queryBlock('0x15177d4bdc975077b85261c09503bf40932aae9d3a7a2e948870afe3432976be')
+    expect(block).toMatchSnapshot()
+
+    const storage = await Promise.all(
+      [
+        '0x45323df7cc47150b3930e2666b0aa313c522231880238a0c56021b8744a00743',
+        '0x26aa394eea5630e07c48ae0c9558cef734abf5cb34d6244378cddbf18e849d96',
+        '0x45323df7cc47150b3930e2666b0aa31362f8058e9dc65b738fce4a22e26fa4f2',
+      ].map((key) =>
+        lightClient.queryStorage('0x15177d4bdc975077b85261c09503bf40932aae9d3a7a2e948870afe3432976be', [
+          key as HexString,
+        ]),
+      ),
+    )
+    expect(storage).toMatchSnapshot()
+  }, 10000)
 })

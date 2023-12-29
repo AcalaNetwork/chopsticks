@@ -3,6 +3,7 @@ import _ from 'lodash'
 
 import { Api } from '../api.js'
 import { Database } from '../database.js'
+import { LightClient } from '../wasm-executor/light-client.js'
 import { defaultLogger } from '../logger.js'
 import KeyCache, { PREFIX_LENGTH } from '../utils/key-cache.js'
 
@@ -40,12 +41,14 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   readonly #api: Api
   readonly #at: string
   readonly #db: Database | undefined
+  readonly #lightClient: LightClient | undefined
   readonly #keyCache = new KeyCache()
 
-  constructor(api: Api, at: string, db: Database | undefined) {
+  constructor(api: Api, at: string, db: Database | undefined, lightClient: LightClient | undefined) {
     this.#api = api
     this.#at = at
     this.#db = db
+    this.#lightClient = lightClient
   }
 
   async get(key: string, _cache: boolean): Promise<StorageValue> {
@@ -56,9 +59,23 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
-    const data = await this.#api.getStorage(key, this.#at)
-    this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
-    return data ?? undefined
+
+    if (!this.#lightClient) {
+      const data = await this.#api.getStorage(key, this.#at)
+      this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
+      return data ?? undefined
+    }
+
+    const entries = await this.#lightClient?.queryStorage(this.#at as HexString, [key as HexString])
+    let maybeValue: HexString | undefined = undefined
+    for (const [k, v] of entries) {
+      this.#db?.saveStorage(this.#at as HexString, k, v)
+      if (k === key) {
+        maybeValue = v
+      }
+    }
+
+    return maybeValue ?? undefined
   }
 
   async foldInto(_into: StorageLayer): Promise<StorageLayerProvider> {
