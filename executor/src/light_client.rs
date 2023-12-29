@@ -354,14 +354,6 @@ pub async unsafe fn storage_request(
                     {
                         peer_id = next_peer_id;
                         retries = retries.saturating_sub(1);
-                    } else {
-                        let response = StorageResponse {
-                            id,
-                            items: vec![],
-                            error_reason: Some("no peers".to_string()),
-                        };
-                        callback.storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        break;
                     }
                 }
             }
@@ -472,14 +464,6 @@ pub async unsafe fn blocks_request(
                     {
                         peer_id = next_peer_id;
                         retries = retries.saturating_sub(1);
-                    } else {
-                        let response = BlocksResponse {
-                            id,
-                            blocks: vec![],
-                            error_reason: Some("no peers".to_string()),
-                        };
-                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        break;
                     }
                 }
             }
