@@ -1,7 +1,7 @@
 import { afterAll, describe, expect, it } from 'vitest'
 import { u8aToHex } from '@polkadot/util'
 
-import { expectJson, testingPairs } from './helper.js'
+import { check, testingPairs } from './helper.js'
 import networks from './networks.js'
 
 describe('dev rpc', async () => {
@@ -23,20 +23,20 @@ describe('dev rpc', async () => {
   })
 
   it('setStorage', async () => {
-    expectJson(await api.query.sudo.key()).toMatchSnapshot()
+    await check(api.query.sudo.key()).toMatchSnapshot()
 
     await dev.setStorage([[api.query.sudo.key.key(), u8aToHex(alice.addressRaw)]])
 
-    expectJson(await api.query.sudo.key()).toMatchSnapshot()
+    await check(api.query.sudo.key()).toMatchSnapshot()
 
     await api.tx.sudo.sudo(api.tx.balances.setBalance(bob.address, 1000000000000, 0)).signAndSend(alice)
     const hash = await dev.newBlock()
 
-    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+    await check(api.query.system.account(bob.address)).toMatchSnapshot()
 
     await dev.setStorage([[api.query.system.account.key(bob.address), null]], hash)
 
-    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+    await check(api.query.system.account(bob.address)).toMatchSnapshot()
 
     await dev.setStorage({
       System: {
@@ -44,7 +44,7 @@ describe('dev rpc', async () => {
       },
     })
 
-    expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+    await check(api.query.system.account(bob.address)).toMatchSnapshot()
   })
 
   it('setStorage handle errors', async () => {

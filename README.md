@@ -23,6 +23,10 @@ Run node using config file
 npx @acala-network/chopsticks@latest -c acala
 ```
 
+## Wiki
+
+Documentation and tutorials are available at [wiki](https://github.com/AcalaNetwork/chopsticks/wiki).
+
 ## Web testing
 
 Run Chopsticks in browser? Now you can turn a mainnet into a devnet and play with it directly in your browser!
@@ -34,32 +38,6 @@ An example is available at [acalanetwork.github.io/chopsticks](https://acalanetw
 - `PORT`: Set port for Chopsticks to listen on, default is `8000`
 - `LOG_LEVEL`: Set log level, default is `info`. Available options: `trace`, `debug`, `info`, `warn`, `error`
 - `VERBOSE_LOG`: If set, do not truncating log messages
-
-### Example configs can be found here
-
-- [acala](configs/acala.yml)
-- [astar](configs/astar.yml)
-- [basilisk](configs/basilisk.yml)
-- [composable-polkadot](configs/composable-polkadot.yml)
-- [hydradx](configs/hydradx.yml)
-- [interlay](configs/interlay.yml)
-- [karura](configs/karura.yml)
-- [kusama](configs/kusama.yml)
-- [mandala-genesis](configs/mandala-genesis.yml)
-- [mandala](configs/mandala.yml)
-- [mangata](configs/mangata.yml)
-- [moonbase-alpha](configs/moonbase-alpha.yml)
-- [moonbeam](configs/moonbeam.yml)
-- [moonriver](configs/moonriver.yml)
-- [nodle-eden](configs/nodle-eden.yml)
-- [picasso-kusama](configs/picasso-kusama.yml)
-- [picasso-rococo](configs/picasso-rococo.yml)
-- [polkadot](configs/polkadot.yml)
-- [rococo](configs/rococo.yml)
-- [shiden](configs/shiden.yml)
-- [statemine](configs/statemine.yml)
-- [statemint](configs/statemint.yml)
-- [tinkernet](configs/tinkernet.yml)
 
 ## Install
 
@@ -165,13 +143,6 @@ npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 Chopsticks respect `http_proxy` and `https_proxy` environment variables.
 Export `ROARR_LOG=true` environment variable to enable log printing to stdout.
 To learn more, see https://www.npmjs.com/package/global-agent?activeTab=readme
-
-## Documentation
-
-External documentation on Chopsticks can be found at the following links:
-
-- [Chopsticks types documentation](https://acalanetwork.github.io/chopsticks/docs)
-- [Moonbeam documentation site](https://docs.moonbeam.network/builders/build/substrate-api/chopsticks/)
 
 ## Plugins
 

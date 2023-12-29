@@ -38,13 +38,25 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
 
       if (storageEntry.meta.type.isPlain) {
         const key = new StorageKey(meta.registry, [storageEntry])
-        const type = storageEntry.meta.modifier.isOptional ? `Option<${key.outputType}>` : key.outputType
-        storageItems.push([key.toHex(), storage ? meta.registry.createType(type, storage).toHex() : null])
+        if (storageEntry.meta.modifier.isOptional && storage === '0x') {
+          storageItems.push([key.toHex(), '0x'])
+        } else {
+          storageItems.push([
+            key.toHex(),
+            storage ? u8aToHex(meta.registry.createType(key.outputType, storage).toU8a()) : null,
+          ])
+        }
       } else {
         for (const [keys, value] of storage) {
           const key = new StorageKey(meta.registry, [storageEntry, keys])
-          const type = storageEntry.meta.modifier.isOptional ? `Option<${key.outputType}>` : key.outputType
-          storageItems.push([key.toHex(), value ? meta.registry.createType(type, value).toHex() : null])
+          if (storageEntry.meta.modifier.isOptional && value === '0x') {
+            storageItems.push([key.toHex(), '0x'])
+          } else {
+            storageItems.push([
+              key.toHex(),
+              value ? u8aToHex(meta.registry.createType(key.outputType, value).toU8a()) : null,
+            ])
+          }
         }
       }
     }

@@ -1,7 +1,8 @@
-endpoint: wss://rococo-rpc.polkadot.io
+endpoint: wss://ws-quartz.unique.network
 mock-signature-host: true
-block: ${env.ROCOCO_BLOCK_NUMBER}
+block: ${env.QUARTZ_BLOCK_NUMBER}
 db: ./db.sqlite
+runtime-log-level: 5
 
 import-storage:
   Sudo:
@@ -13,4 +14,5 @@ import-storage:
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
         - providers: 1
           data:
-            free: '10000000000000000000'
+            free: '1000000000000000000000'
+

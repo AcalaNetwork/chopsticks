@@ -1,23 +1,23 @@
 import '@polkadot/api-augment'
 import { describe, expect, it } from 'vitest'
 
-import { api, delay, dev, env, expectJson, mockCallback, setupApi } from './helper.js'
+import { api, check, delay, dev, env, mockCallback, setupApi } from './helper.js'
 
 setupApi(env.acala)
 
 describe('storage', () => {
   it('getStorage', async () => {
-    expectJson(await api.query.timestamp.now()).toMatchSnapshot()
-    expectJson(await api.query.system.account('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')).toMatchSnapshot()
+    await check(api.query.timestamp.now()).toMatchSnapshot()
+    await check(api.query.system.account('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')).toMatchSnapshot()
 
     const apiAt = await api.at('0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c')
 
-    expectJson(await apiAt.query.timestamp.now()).toMatchSnapshot()
-    expectJson(await apiAt.query.system.account('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')).toMatchSnapshot()
+    await check(apiAt.query.timestamp.now()).toMatchSnapshot()
+    await check(apiAt.query.system.account('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')).toMatchSnapshot()
   })
 
   it('getStorageMulti', async () => {
-    expectJson(
+    await check(
       await api.query.system.account.multi([
         '23RDJ7SyVgpKqC6M9ad8wvbBsbSr3R4Xqr5NQAKEhWPHbLbs',
         '249QskFMEcb5WcgHF7BH5MesVGHq3imsUACq2RPgtBBdCPMa',
@@ -27,8 +27,8 @@ describe('storage', () => {
 
     const apiAt = await api.at('0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c')
 
-    expectJson(
-      await apiAt.query.system.account.multi([
+    await check(
+      apiAt.query.system.account.multi([
         '23RDJ7SyVgpKqC6M9ad8wvbBsbSr3R4Xqr5NQAKEhWPHbLbs',
         '249QskFMEcb5WcgHF7BH5MesVGHq3imsUACq2RPgtBBdCPMa',
         '263KsUutx8qhRmG7hq6fEaSKE3fdi3KeeEKafkAMJ1cg1AYc',

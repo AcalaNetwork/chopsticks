@@ -1,7 +1,7 @@
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api'
-import { Codec, RegisteredTypes } from '@polkadot/types/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { RegisteredTypes } from '@polkadot/types/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
@@ -20,8 +20,9 @@ import { createServer } from '@acala-network/chopsticks/server.js'
 import { defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { genesisFromUrl } from '@acala-network/chopsticks/context.js'
 import { handler } from '@acala-network/chopsticks/rpc/index.js'
+import { withExpect } from '@acala-network/chopsticks-testing'
 
-export { expectJson, expectHex, testingPairs } from '@acala-network/chopsticks-testing'
+export { testingPairs, setupContext } from '@acala-network/chopsticks-testing'
 
 export type SetupOption = {
   p2p?: LightClientConfig
@@ -171,14 +172,6 @@ export const setupApi = (option: SetupOption) => {
   })
 }
 
-type CodecOrArray = Codec | Codec[]
-
-export const matchSnapshot = (codec: CodecOrArray | Promise<CodecOrArray>) => {
-  return expect(
-    Promise.resolve(codec).then((x) => (Array.isArray(x) ? x.map((x) => x.toHuman()) : x.toHuman())),
-  ).resolves.toMatchSnapshot()
-}
-
 export const dev = {
   newBlock: (param?: { count?: number; to?: number }): Promise<string> => {
     return ws.send('dev_newBlock', [param])
@@ -213,4 +206,6 @@ export const mockCallback = () => {
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export { defer }
+const { check, checkHex, checkSystemEvents } = withExpect(expect)
+
+export { defer, check, checkHex, checkSystemEvents }

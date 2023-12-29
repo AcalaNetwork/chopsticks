@@ -4,7 +4,8 @@ endpoint:
 mock-signature-host: true
 block: ${env.ACALA_BLOCK_NUMBER}
 db: ./db.sqlite
-# wasm-override: acala-2150.wasm
+runtime-log-level: 5
+# wasm-override: acala_runtime.wasm
 
 p2p:
   genesisBlockHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c'
@@ -29,27 +30,32 @@ import-storage:
       -
         -
           - 246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE
-        - data:
+        - providers: 1
+          data:
             free: 1000000000000000
       -
         -
           - 249LSvsEyxS4VpEJGg62yhYA7sHy1KcgGW6KzACBCLW1RsZF
-        - data:
+        - providers: 1
+          data:
             free: 1000000000000000
       -
         -
           - 21y4X7QDByUjnu5KX9W1H5TbG2wTLPDbhYFHqc4v6Q1nTBnu
-        - data:
+        - providers: 1
+          data:
             free: 1000000000000000
       -
         -
           - 265dERKLvMFwWWvtGNUjQBrHFTT88VcEtb5QYh2Zuj79UGMf
-        - data:
+        - providers: 1
+          data:
             free: 1000000000000000
       -
         -
           - 21XH88Kd5vDLkrZMb4D2eYJAB9yKbycfkYBqAaD1wQQi1uJ8
-        - data:
+        - providers: 1
+          data:
             free: 1000000000000000
   Tokens:
     Accounts:
@@ -81,3 +87,10 @@ import-storage:
       - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
       - 246gNkjCexYRsCpdjtVhz35sHjcb21jpqipzT9u4uwKV8iEE
       - 249LSvsEyxS4VpEJGg62yhYA7sHy1KcgGW6KzACBCLW1RsZF
+  EvmAccounts:
+    EvmAddresses:
+    - - - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - '0x75E480dB528101a381Ce68544611C169Ad7EB342'
+    Accounts:
+    - - - '0x75E480dB528101a381Ce68544611C169Ad7EB342'
+      - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY

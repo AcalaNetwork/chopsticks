@@ -1,7 +1,7 @@
 import { SubmittableResult } from '@polkadot/api'
 import { afterAll, describe, expect, it } from 'vitest'
 
-import { defer, expectJson, mockCallback, testingPairs } from './helper.js'
+import { check, defer, mockCallback, testingPairs } from './helper.js'
 import networks from './networks.js'
 
 describe('author rpc', async () => {
@@ -35,9 +35,9 @@ describe('author rpc', async () => {
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
 
-      expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
-      expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
-      expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+      await check(api.rpc.chain.getBlock()).toMatchSnapshot()
+      await check(api.query.system.account(alice.address)).toMatchSnapshot()
+      await check(api.query.system.account(bob.address)).toMatchSnapshot()
     }
 
     {
@@ -50,9 +50,9 @@ describe('author rpc', async () => {
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
 
-      expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
-      expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
-      expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+      await check(api.rpc.chain.getBlock()).toMatchSnapshot()
+      await check(api.query.system.account(alice.address)).toMatchSnapshot()
+      await check(api.query.system.account(bob.address)).toMatchSnapshot()
     }
 
     {
@@ -65,9 +65,9 @@ describe('author rpc', async () => {
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
 
-      expectJson(await api.rpc.chain.getBlock()).toMatchSnapshot()
-      expectJson(await api.query.system.account(alice.address)).toMatchSnapshot()
-      expectJson(await api.query.system.account(bob.address)).toMatchSnapshot()
+      await check(api.rpc.chain.getBlock()).toMatchSnapshot()
+      await check(api.query.system.account(alice.address)).toMatchSnapshot()
+      await check(api.query.system.account(bob.address)).toMatchSnapshot()
     }
   })
 

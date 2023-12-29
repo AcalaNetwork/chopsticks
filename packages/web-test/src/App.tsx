@@ -224,7 +224,7 @@ function App() {
 					</InputLabel>
 					<Input
 						id="endpoint-input"
-						placeholder="wss://acala-rpc-0.aca-api.network"
+						placeholder="wss://acala-rpc.aca-api.network"
 						value={config.endpoint}
 						onChange={(e) => setConfig({ ...config, endpoint: e.target.value })}
 					/>

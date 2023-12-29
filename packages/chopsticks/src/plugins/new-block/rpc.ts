@@ -19,7 +19,7 @@ const schema = z.object({
   ump: z.record(z.number(), z.array(zHex).min(1)).optional(),
   hrmp: z
     .record(
-      z.number(),
+      z.union([z.number(), z.string()]),
       z
         .array(
           z.object({

@@ -26,6 +26,7 @@ export type SetupOption = {
   maxMemoryBlockCount?: number
   resume?: boolean | HexString | number
   runtimeLogLevel?: number
+  allowUnresolvedImports?: boolean
 }
 
 export type SetupConfig = Config & {
@@ -43,6 +44,7 @@ export const createConfig = ({
   maxMemoryBlockCount,
   resume,
   runtimeLogLevel,
+  allowUnresolvedImports,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -58,6 +60,7 @@ export const createConfig = ({
     'wasm-override': wasmOverride,
     timeout,
     resume: resume ?? false,
+    'allow-unresolved-imports': allowUnresolvedImports,
   }
   return config
 }
