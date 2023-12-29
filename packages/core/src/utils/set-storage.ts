@@ -38,8 +38,8 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
 
       if (storageEntry.meta.type.isPlain) {
         const key = new StorageKey(meta.registry, [storageEntry])
-        if (storageEntry.meta.modifier.isOptional && storage === '0x') {
-          storageItems.push([key.toHex(), '0x'])
+        if (typeof storage === 'string' && storage.startsWith('0x')) {
+          storageItems.push([key.toHex(), storage])
         } else {
           storageItems.push([
             key.toHex(),
@@ -49,8 +49,8 @@ function objectToStorageItems(meta: DecoratedMeta, storage: StorageConfig): RawS
       } else {
         for (const [keys, value] of storage) {
           const key = new StorageKey(meta.registry, [storageEntry, keys])
-          if (storageEntry.meta.modifier.isOptional && value === '0x') {
-            storageItems.push([key.toHex(), '0x'])
+          if (typeof value === 'string' && value.startsWith('0x')) {
+            storageItems.push([key.toHex(), value])
           } else {
             storageItems.push([
               key.toHex(),
