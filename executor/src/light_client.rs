@@ -283,7 +283,7 @@ pub async unsafe fn storage_request(
     if peers.len() == 0 {
         return Err("no peers".into());
     }
-    let index = id % peers.len();
+    let mut index = id % peers.len();
     let mut peer_id = peers.get(index).cloned().expect("index out of range");
 
     wasm_bindgen_futures::spawn_local(async move {
@@ -332,29 +332,35 @@ pub async unsafe fn storage_request(
                     break;
                 }
                 Err(err) => {
+                    if retries == 0 {
+                        let response = StorageResponse {
+                            id,
+                            items: vec![],
+                            error_reason: Some(err.to_string()),
+                        };
+                        callback.storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
+                        break;
+                    }
+
                     log::debug!(
                         "storage proof request failed with error {:?}, try next peer",
                         err
                     );
-                    // TODO: make this random
-
-                    if retries == 0 {
-                        let response = BlocksResponse {
-                            id,
-                            blocks: vec![],
-                            error_reason: Some(err.to_string()),
-                        };
-                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        break;
-                    }
 
                     // rotate peer
-                    if let Some(next_peer_id) =
-                        ns.peers_list(chain_id).await.find(|x| x != &peer_id)
-                    {
-                        peer_id = next_peer_id;
-                        retries = retries.saturating_sub(1);
+                    index = index.saturating_add(1) % peers.len();
+                    let peers = ns.peers_list(chain_id).await.collect::<Vec<_>>();
+                    if peers.len() == 0 {
+                        let response = StorageResponse {
+                            id,
+                            items: vec![],
+                            error_reason: Some("no peers".to_string()),
+                        };
+                        callback.storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
+                        break;
                     }
+                    peer_id = peers.get(index).cloned().expect("index out of range");
+                    retries = retries.saturating_sub(1);
                 }
             }
         }
@@ -390,7 +396,7 @@ pub async unsafe fn blocks_request(
     if peers.len() == 0 {
         return Err("no peers".into());
     }
-    let index = id % peers.len();
+    let mut index = id % peers.len();
     let mut peer_id = peers.get(index).cloned().expect("index out of range");
 
     wasm_bindgen_futures::spawn_local(async move {
@@ -445,9 +451,6 @@ pub async unsafe fn blocks_request(
                     break;
                 }
                 Err(err) => {
-                    log::debug!("blocks request failed with error {:?}, try next peer", err);
-                    // TODO: make this random
-
                     if retries == 0 {
                         let response = BlocksResponse {
                             id,
@@ -458,13 +461,22 @@ pub async unsafe fn blocks_request(
                         break;
                     }
 
+                    log::debug!("blocks request failed with error {:?}, try next peer", err);
+
                     // rotate peer
-                    if let Some(next_peer_id) =
-                        ns.peers_list(chain_id).await.find(|x| x != &peer_id)
-                    {
-                        peer_id = next_peer_id;
-                        retries = retries.saturating_sub(1);
+                    index = index.saturating_add(1) % peers.len();
+                    let peers = ns.peers_list(chain_id).await.collect::<Vec<_>>();
+                    if peers.len() == 0 {
+                        let response = BlocksResponse {
+                            id,
+                            blocks: vec![],
+                            error_reason: Some("no peers".to_string()),
+                        };
+                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
+                        break;
                     }
+                    peer_id = peers.get(index).cloned().expect("index out of range");
+                    retries = retries.saturating_sub(1);
                 }
             }
         }
