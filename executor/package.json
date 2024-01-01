@@ -17,7 +17,7 @@
 	},
 	"dependencies": {
 		"@polkadot/util": "^12.5.1",
-		"@polkadot/wasm-util": "^7.2.2"
+		"@polkadot/wasm-util": "^7.3.2"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.1.63",

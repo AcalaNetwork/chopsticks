@@ -71,7 +71,7 @@ __metadata:
   resolution: "@acala-network/chopsticks-executor@workspace:executor"
   dependencies:
     "@polkadot/util": "npm:^12.5.1"
-    "@polkadot/wasm-util": "npm:^7.2.2"
+    "@polkadot/wasm-util": "npm:^7.3.2"
     "@swc/cli": "npm:0.1.63"
     "@swc/core": "npm:^1.3.100"
     fflate: "npm:^0.8.1"
@@ -1762,7 +1762,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/wasm-util@npm:7.3.1, @polkadot/wasm-util@npm:^7.2.2, @polkadot/wasm-util@npm:^7.3.1":
+"@polkadot/wasm-util@npm:7.3.1, @polkadot/wasm-util@npm:^7.3.1":
   version: 7.3.1
   resolution: "@polkadot/wasm-util@npm:7.3.1"
   dependencies:
@@ -1770,6 +1770,17 @@ __metadata:
   peerDependencies:
     "@polkadot/util": "*"
   checksum: 825bc61b5a4a62b6cc6b8bab8842c4964d9a102a61a6866f5ad397c4102acd57317622090a4c23c8e8368371c05bf626f35b09932650231b3407538c1a60651c
+  languageName: node
+  linkType: hard
+
+"@polkadot/wasm-util@npm:^7.3.2":
+  version: 7.3.2
+  resolution: "@polkadot/wasm-util@npm:7.3.2"
+  dependencies:
+    tslib: "npm:^2.6.2"
+  peerDependencies:
+    "@polkadot/util": "*"
+  checksum: 58ef58d357e7983c3bb4008b0159262d5c588234d7be64155c031f452fc0daeb078ff0ac8bb4b0377dac307130b0b548c01fd466968869ed308d50e2c162d23b
   languageName: node
   linkType: hard
 
