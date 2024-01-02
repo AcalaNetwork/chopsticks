@@ -265,17 +265,21 @@ export class Blockchain {
         return blockFromDB
       }
       if (this.lightClient) {
-        const blockData = await this.lightClient.queryBlock(number)
-        if (blockData && blockData.blocks.length > 0) {
-          const data = blockData.blocks[0]
-          const registry = await this.head.registry
-          const header = registry.createType<Header>('Header', data.header)
-          const block = new Block(this, Number(header.number), header.hash.toHex(), undefined, {
-            extrinsics: data.body,
-            header,
-          })
-          this.#registerBlock(block)
-          return block
+        try {
+          const blockData = await this.lightClient.queryBlock(number)
+          if (blockData && blockData.blocks.length > 0) {
+            const data = blockData.blocks[0]
+            const registry = await this.head.registry
+            const header = registry.createType<Header>('Header', data.header)
+            const block = new Block(this, Number(header.number), header.hash.toHex(), undefined, {
+              extrinsics: data.body,
+              header,
+            })
+            this.#registerBlock(block)
+            return block
+          }
+        } catch (error) {
+          logger.warn({ error }, `LightClient queryBlock ${number} failed`)
         }
       }
       const hash = await this.api.getBlockHash(number)
@@ -305,17 +309,23 @@ export class Blockchain {
           try {
             const blockFromDB = await this.loadBlockFromDB(hash)
             if (!blockFromDB) {
-              const blockData = await this.lightClient?.queryBlock(hash)
-              if (blockData && blockData.blocks.length > 0) {
-                const data = blockData.blocks[0]
-                const registry = await this.head.registry
-                const header = registry.createType<Header>('Header', data.header)
-                const block = new Block(this, Number(header.number), hash, undefined, {
-                  extrinsics: data.body,
-                  header,
-                })
-                this.#registerBlock(block)
-                return
+              if (this.lightClient) {
+                try {
+                  const blockData = await this.lightClient?.queryBlock(hash)
+                  if (blockData && blockData.blocks.length > 0) {
+                    const data = blockData.blocks[0]
+                    const registry = await this.head.registry
+                    const header = registry.createType<Header>('Header', data.header)
+                    const block = new Block(this, Number(header.number), hash, undefined, {
+                      extrinsics: data.body,
+                      header,
+                    })
+                    this.#registerBlock(block)
+                    return
+                  }
+                } catch (error) {
+                  logger.warn({ error }, `LightClient queryBlock ${hash} failed`)
+                }
               }
 
               const header = await this.api.getHeader(hash)
