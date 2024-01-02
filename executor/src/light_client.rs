@@ -348,7 +348,6 @@ pub async unsafe fn storage_request(
                     );
 
                     // rotate peer
-                    index = index.saturating_add(1) % peers.len();
                     let peers = ns.peers_list(chain_id).await.collect::<Vec<_>>();
                     if peers.len() == 0 {
                         let response = StorageResponse {
@@ -359,6 +358,7 @@ pub async unsafe fn storage_request(
                         callback.storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
                         break;
                     }
+                    index = index.saturating_add(1) % peers.len();
                     peer_id = peers.get(index).cloned().expect("index out of range");
                     retries = retries.saturating_sub(1);
                 }
@@ -464,7 +464,6 @@ pub async unsafe fn blocks_request(
                     log::debug!("blocks request failed with error {:?}, try next peer", err);
 
                     // rotate peer
-                    index = index.saturating_add(1) % peers.len();
                     let peers = ns.peers_list(chain_id).await.collect::<Vec<_>>();
                     if peers.len() == 0 {
                         let response = BlocksResponse {
@@ -475,6 +474,7 @@ pub async unsafe fn blocks_request(
                         callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
                         break;
                     }
+                    index = index.saturating_add(1) % peers.len();
                     peer_id = peers.get(index).cloned().expect("index out of range");
                     retries = retries.saturating_sub(1);
                 }
