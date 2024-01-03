@@ -833,12 +833,16 @@ pub(crate) fn stream_writable_bytes(connection_id: u32, stream_id: u32, bytes: u
     // As documented, the number of writable bytes must never become exceedingly large (a few
     // megabytes). As such, this can't overflow unless there is a bug on the JavaScript side.
     stream.writable_bytes_extra += usize::try_from(bytes).unwrap();
-    stream.something_happened.notify(usize::max_value());
+    stream.something_happened.notify(usize::MAX);
 }
 
 pub fn stream_message(connection_id: u32, stream_id: u32, message: Vec<u8>) {
     let mut lock = STATE.try_lock().unwrap();
-    let connection = lock.connections.get_mut(&connection_id).unwrap();
+    let connection = lock.connections.get_mut(&connection_id);
+    if connection.is_none() {
+        return;
+    }
+    let connection = connection.unwrap();
 
     // For single stream connections, the docs of this function mentions that `stream_id` can be
     // any value.
@@ -891,7 +895,7 @@ pub fn stream_message(connection_id: u32, stream_id: u32, message: Vec<u8>) {
 
     stream.messages_queue_total_size += message.len();
     stream.messages_queue.push_back(message.into_boxed_slice());
-    stream.something_happened.notify(usize::max_value());
+    stream.something_happened.notify(usize::MAX);
 }
 
 pub fn connection_reset(connection_id: u32, message: Vec<u8>) {
@@ -924,17 +928,18 @@ pub fn connection_reset(connection_id: u32, message: Vec<u8>) {
         _message: message.clone(),
     };
 
-    connection.something_happened.notify(usize::max_value());
+    connection.something_happened.notify(usize::MAX);
 
-    for ((_, _), stream) in lock.streams.range_mut(
-        (connection_id, Some(u32::min_value()))..=(connection_id, Some(u32::max_value())),
-    ) {
+    for ((_, _), stream) in lock
+        .streams
+        .range_mut((connection_id, Some(u32::MAX))..=(connection_id, Some(u32::MAX)))
+    {
         stream.reset = Some(message.clone());
-        stream.something_happened.notify(usize::max_value());
+        stream.something_happened.notify(usize::MAX);
     }
     if let Some(stream) = lock.streams.get_mut(&(connection_id, None)) {
         stream.reset = Some(message);
-        stream.something_happened.notify(usize::max_value());
+        stream.something_happened.notify(usize::MAX);
     }
 }
 
@@ -972,7 +977,7 @@ pub(crate) fn connection_stream_opened(connection_id: u32, stream_id: u32, outbo
             },
         ));
 
-        connection.something_happened.notify(usize::max_value());
+        connection.something_happened.notify(usize::MAX);
     } else {
         panic!()
     }
@@ -991,5 +996,5 @@ pub fn stream_reset(connection_id: u32, stream_id: u32, message: Vec<u8>) {
         .get_mut(&(connection_id, Some(stream_id)))
         .unwrap();
     stream.reset = Some(message);
-    stream.something_happened.notify(usize::max_value());
+    stream.something_happened.notify(usize::MAX);
 }

@@ -94,7 +94,7 @@ export class LightClient {
 
       if (['EHOSTUNREACH', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error['code'])) {
         blacklist.push(address)
-        logger.warn(`${error.message} [blacklisted]`)
+        logger.debug(`${error.message} [blacklisted]`)
       }
 
       const connection = connections[connectionId]
