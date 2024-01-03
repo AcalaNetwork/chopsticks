@@ -21,9 +21,6 @@ pub fn decode_proof(
     let entries = decoded
         .iter_ordered()
         .filter(|(key, entry)| {
-            if key.key.is_empty() {
-                return false;
-            }
             if !key.trie_root_hash.eq(&trie_root_hash.0) {
                 return false;
             }
@@ -33,9 +30,7 @@ pub fn decode_proof(
             )
         })
         .map(|(key, entry)| {
-            let key = HexString(
-                nibbles_to_bytes_suffix_extend(key.key.iter().cloned()).collect::<Vec<_>>(),
-            );
+            let key = HexString(nibbles_to_bytes_suffix_extend(key.key).collect::<Vec<_>>());
             match entry.trie_node_info.storage_value {
                 StorageValue::Known { value, .. } => (key, HexString(value.to_vec())),
                 _ => unreachable!(),
@@ -75,9 +70,7 @@ pub fn create_proof(
     for (entry_key, value) in decoded.iter_ordered() {
         let decoded_value = trie_node::decode(value.node_value).unwrap();
 
-        if let trie_structure::Entry::Vacant(vacant) =
-            trie.node(entry_key.key.iter().map(|x| x.to_owned()))
-        {
+        if let trie_structure::Entry::Vacant(vacant) = trie.node(entry_key.key) {
             if let trie_node::StorageValue::Unhashed(value) = decoded_value.storage_value {
                 vacant.insert_storage_value().insert(value.to_vec(), vec![]);
             }

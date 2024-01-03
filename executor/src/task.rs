@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use serde_wasm_bindgen::{from_value, to_value};
 use smoldot::{
     executor::{
-        host::{Config, HeapPages, HostVmPrototype},
-        runtime_host::{self, OffchainContext, RuntimeHostVm},
+        host::{Config, HeapPages, HostVmPrototype, LogEmitInfo},
+        runtime_call::{self, OffchainContext, RuntimeCall},
         storage_diff::TrieDiff,
         CoreVersionRef,
     },
@@ -14,7 +14,6 @@ use smoldot::{
         calculate_root::{root_merkle_value, RootMerkleValueCalculation},
         nibbles_to_bytes_suffix_extend, HashFunction, TrieEntryVersion,
     },
-    verify::body_only::LogEmitInfo,
 };
 use std::collections::BTreeMap;
 use wasm_bindgen::prelude::*;
@@ -134,7 +133,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut runtime_logs: Vec<LogInfo> = vec![];
 
     for (call, params) in task.calls {
-        let mut vm = runtime_host::run(runtime_host::Config {
+        let mut vm = runtime_call::run(runtime_call::Config {
             virtual_machine: vm_proto.clone(),
             function_to_call: call.as_str(),
             parameter: params.into_iter().map(|x| x.0),
@@ -148,11 +147,11 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
 
         let res = loop {
             vm = match vm {
-                RuntimeHostVm::Finished(res) => {
+                RuntimeCall::Finished(res) => {
                     break res;
                 }
 
-                RuntimeHostVm::StorageGet(req) => {
+                RuntimeCall::StorageGet(req) => {
                     let key = if let Some(child) = req.child_trie() {
                         HexString(prefixed_child_key(
                             child.as_ref().iter().copied(),
@@ -184,13 +183,13 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
                 }
 
-                RuntimeHostVm::ClosestDescendantMerkleValue(req) => {
+                RuntimeCall::ClosestDescendantMerkleValue(req) => {
                     let value = js.get_state_root().await?;
                     let value = from_value::<HexString>(value).map(|x| x.0)?;
                     req.inject_merkle_value(Some(value.as_ref()))
                 }
 
-                RuntimeHostVm::NextKey(req) => {
+                RuntimeCall::NextKey(req) => {
                     if req.branch_nodes() {
                         // root_calculation, skip
                         req.inject_key(None::<Vec<_>>.map(|x| x.into_iter()))
@@ -222,7 +221,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
                 }
 
-                RuntimeHostVm::SignatureVerification(req) => {
+                RuntimeCall::SignatureVerification(req) => {
                     let bypass =
                         task.mock_signature_host && is_magic_signature(req.signature().as_ref());
                     if bypass {
@@ -232,7 +231,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
                 }
 
-                RuntimeHostVm::OffchainStorageSet(req) => {
+                RuntimeCall::OffchainStorageSet(req) => {
                     offchain_storage_changes.insert(
                         req.key().as_ref().to_vec(),
                         req.value().map(|x| x.as_ref().to_vec()),
@@ -240,7 +239,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     req.resume()
                 }
 
-                RuntimeHostVm::Offchain(ctx) => match ctx {
+                RuntimeCall::Offchain(ctx) => match ctx {
                     OffchainContext::StorageGet(req) => {
                         let key = HexString(req.key().as_ref().to_vec());
                         let key = to_value(&key)?;
@@ -292,7 +291,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
                 },
 
-                RuntimeHostVm::LogEmit(req) => {
+                RuntimeCall::LogEmit(req) => {
                     {
                         match req.info() {
                             LogEmitInfo::Num(v) => {
