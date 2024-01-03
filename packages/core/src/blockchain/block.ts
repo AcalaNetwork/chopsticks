@@ -101,42 +101,21 @@ export class Block {
 
   get blockData(): Promise<Block> {
     if (!this.#blockData) {
-      if (this.#chain.lightClient) {
-        this.#blockData = Promise.all([this.registry, this.#chain.lightClient.queryBlock(this.hash)]).then(
-          ([registry, b]) => {
-            const blockData = b.blocks[0]
-            const header = registry.createType<Header>('Header', blockData.header)
-            const block = new Block(this.#chain, Number(header.number), header.hash.toHex(), undefined, {
-              extrinsics: blockData.body,
-              header,
-            })
-            this.#chain.registerBlock(block)
-            return block
-          },
-        )
-      } else {
-        this.#blockData = Promise.all([this.registry, this.#chain.api.getBlock(this.hash)]).then(
-          ([registry, blockData]) => {
-            if (!blockData) {
-              throw new Error(`Block ${this.hash} not found`)
-            }
-            const header = registry.createType<Header>('Header', blockData.block.header)
-            const block = new Block(this.#chain, Number(header.number), header.hash.toHex(), undefined, {
-              extrinsics: blockData.block.extrinsics,
-              header,
-            })
-            this.#chain.registerBlock(block)
-            return block
-          },
-        )
-      }
+      this.#blockData = this.#chain.queryBlock(this.hash).then((block) => {
+        if (!block) throw new Error(`Block ${this.hash} not found`)
+        if (!block.#header) {
+          throw new Error('Header not found, queryBlock should return a block with header')
+        }
+        return block
+      })
     }
     return this.#blockData
   }
 
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = this.blockData.then((b) => b.header)
+      // queryBlock will set header
+      this.#header = this.blockData.then((block) => block.#header!)
     }
     return this.#header
   }

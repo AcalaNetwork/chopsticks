@@ -4,7 +4,7 @@ import { Metadata, TypeRegistry } from '@polkadot/types'
 import { RegisteredTypes } from '@polkadot/types/types'
 import { blake2AsHex, xxhashAsHex } from '@polkadot/util-crypto'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
-import { objectSpread, u8aConcat, u8aToHex } from '@polkadot/util'
+import { hexToU8a, objectSpread, u8aConcat, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
@@ -165,10 +165,6 @@ export class Blockchain {
     this.#maxMemoryBlockCount = maxMemoryBlockCount
   }
 
-  registerBlock(block: Block) {
-    this.#registerBlock(block)
-  }
-
   #registerBlock(block: Block) {
     // if exceed max memory block count, delete the oldest block
     if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
@@ -237,7 +233,7 @@ export class Blockchain {
         const storageDiff = blockData.storageDiff ?? undefined
         const registry = await this.head.registry
         const block = new Block(this, number, hash, parentBlock, {
-          header: registry.createType<Header>('Header', header),
+          header: registry.createType<Header>('Header', hexToU8a(header)),
           extrinsics,
           storage: parentBlock?.storage,
           storageDiff,
@@ -270,10 +266,10 @@ export class Blockchain {
           if (blockData && blockData.blocks.length > 0) {
             const data = blockData.blocks[0]
             const registry = await this.head.registry
-            const header = registry.createType<Header>('Header', data.header)
-            const block = new Block(this, Number(header.number), header.hash.toHex(), undefined, {
-              extrinsics: data.body,
+            const header = registry.createType<Header>('Header', hexToU8a(data.header))
+            const block = new Block(this, number, data.hash, undefined, {
               header,
+              extrinsics: data.body,
             })
             this.#registerBlock(block)
             return block
@@ -293,6 +289,39 @@ export class Blockchain {
   }
 
   /**
+   * Query remote node for block by hash.
+   */
+  async queryBlock(hash: HexString) {
+    const registry = await this.head.registry
+    if (this.lightClient) {
+      try {
+        const blockData = await this.lightClient.queryBlock(hash)
+        if (blockData && blockData.blocks.length > 0) {
+          const data = blockData.blocks[0]
+          const header = registry.createType<Header>('Header', hexToU8a(data.header))
+          const block = new Block(this, header.number.toNumber(), hash, undefined, {
+            header,
+            extrinsics: data.body,
+          })
+          return block
+        }
+      } catch (error) {
+        logger.warn({ error }, `LightClient queryBlock ${hash} failed`)
+      }
+    }
+
+    const blockData = await this.api.getBlock(hash)
+    if (!blockData) {
+      throw new Error(`Block ${hash} not found`)
+    }
+    const block = new Block(this, Number(blockData.block.header.number), hash, undefined, {
+      header: registry.createType<Header>('Header', blockData.block.header),
+      extrinsics: blockData.block.extrinsics,
+    })
+    return block
+  }
+
+  /**
    * Get block by hash.
    */
   async getBlock(hash?: HexString): Promise<Block | undefined> {
@@ -309,30 +338,7 @@ export class Blockchain {
           try {
             const blockFromDB = await this.loadBlockFromDB(hash)
             if (!blockFromDB) {
-              if (this.lightClient) {
-                try {
-                  const blockData = await this.lightClient?.queryBlock(hash)
-                  if (blockData && blockData.blocks.length > 0) {
-                    const data = blockData.blocks[0]
-                    const registry = await this.head.registry
-                    const header = registry.createType<Header>('Header', data.header)
-                    const block = new Block(this, Number(header.number), hash, undefined, {
-                      extrinsics: data.body,
-                      header,
-                    })
-                    this.#registerBlock(block)
-                    return
-                  }
-                } catch (error) {
-                  logger.warn({ error }, `LightClient queryBlock ${hash} failed`)
-                }
-              }
-
-              const header = await this.api.getHeader(hash)
-              if (!header) {
-                throw new Error(`Block ${hash} not found`)
-              }
-              const block = new Block(this, Number(header.number), hash)
+              const block = await this.queryBlock(hash)
               this.#registerBlock(block)
             }
           } catch (e) {

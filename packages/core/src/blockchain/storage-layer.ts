@@ -60,22 +60,25 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
 
-    if (!this.#lightClient) {
-      const data = await this.#api.getStorage(key, this.#at)
-      this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
-      return data ?? undefined
-    }
-
-    const entries = await this.#lightClient?.queryStorage(this.#at as HexString, [key as HexString])
-    let maybeValue: HexString | undefined = undefined
-    for (const [k, v] of entries) {
-      this.#db?.saveStorage(this.#at as HexString, k, v)
-      if (k === key) {
-        maybeValue = v
+    if (this.#lightClient) {
+      try {
+        const entries = await this.#lightClient.queryStorage(this.#at as HexString, [key as HexString])
+        let maybeValue: HexString | undefined = undefined
+        for (const [k, v] of entries) {
+          this.#db?.saveStorage(this.#at as HexString, k, v)
+          if (k === key) {
+            maybeValue = v
+          }
+        }
+        return maybeValue ?? undefined
+      } catch (error) {
+        logger.debug({ at: this.#at, key, error }, 'LightClient queryStorage failed')
       }
     }
 
-    return maybeValue ?? undefined
+    const data = await this.#api.getStorage(key, this.#at)
+    this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
+    return data ?? undefined
   }
 
   async foldInto(_into: StorageLayer): Promise<StorageLayerProvider> {
