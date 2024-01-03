@@ -4,7 +4,7 @@ use serde_wasm_bindgen::{from_value, to_value};
 use smoldot::{
     executor::{
         host::{Config, HeapPages, HostVmPrototype},
-        runtime_host::{self, OffchainContext, RuntimeHostVm},
+        runtime_host::{self, LogEmitInfo, OffchainContext, RuntimeHostVm},
         storage_diff::TrieDiff,
         CoreVersionRef,
     },
@@ -14,7 +14,6 @@ use smoldot::{
         calculate_root::{root_merkle_value, RootMerkleValueCalculation},
         nibbles_to_bytes_suffix_extend, HashFunction, TrieEntryVersion,
     },
-    verify::body_only::LogEmitInfo,
 };
 use std::collections::BTreeMap;
 use wasm_bindgen::prelude::*;

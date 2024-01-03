@@ -16,55 +16,32 @@ pub fn decode_proof(
     let config = Config::<Vec<u8>> {
         proof: encode_proofs(nodes),
     };
-    let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
-
-    let entries = decoded
-        .iter_ordered()
-        .filter(|(key, entry)| {
-            if key.key.is_empty() {
-                return false;
-            }
-            if !key.trie_root_hash.eq(&trie_root_hash.0) {
-                return false;
-            }
-            matches!(
-                entry.trie_node_info.storage_value,
-                StorageValue::Known { .. }
-            )
-        })
-        .map(|(key, entry)| {
-            let key = HexString(
-                nibbles_to_bytes_suffix_extend(key.key.iter().cloned()).collect::<Vec<_>>(),
-            );
-            match entry.trie_node_info.storage_value {
-                StorageValue::Known { value, .. } => (key, HexString(value.to_vec())),
-                _ => unreachable!(),
-            }
-        })
-        .collect::<Vec<_>>();
-
+    let entries = inner_decode_proof(config, Some(&trie_root_hash.0))?;
     Ok(entries)
 }
 
-pub fn inner_decode_proof(config: Config<Vec<u8>>) -> Result<Vec<(HexString, HexString)>, String> {
+pub fn inner_decode_proof(
+    config: Config<Vec<u8>>,
+    trie_root_hash: Option<&[u8; 32]>,
+) -> Result<Vec<(HexString, HexString)>, String> {
     let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
 
     let entries = decoded
         .iter_ordered()
-        .filter(|(key, entry)| {
-            if key.key.is_empty() {
-                return false;
+        .filter(|(entry_key, proof_entry)| {
+            if let Some(trie_root_hash) = trie_root_hash {
+                if !entry_key.trie_root_hash.eq(trie_root_hash) {
+                    return false;
+                }
             }
             matches!(
-                entry.trie_node_info.storage_value,
+                proof_entry.trie_node_info.storage_value,
                 StorageValue::Known { .. }
             )
         })
-        .map(|(key, entry)| {
-            let key = HexString(
-                nibbles_to_bytes_suffix_extend(key.key.iter().cloned()).collect::<Vec<_>>(),
-            );
-            match entry.trie_node_info.storage_value {
+        .map(|(entry_key, proof_entry)| {
+            let key = HexString(nibbles_to_bytes_suffix_extend(entry_key.key).collect::<Vec<_>>());
+            match proof_entry.trie_node_info.storage_value {
                 StorageValue::Known { value, .. } => (key, HexString(value.to_vec())),
                 _ => unreachable!(),
             }
@@ -103,9 +80,7 @@ pub fn create_proof(
     for (entry_key, value) in decoded.iter_ordered() {
         let decoded_value = trie_node::decode(value.node_value).unwrap();
 
-        if let trie_structure::Entry::Vacant(vacant) =
-            trie.node(entry_key.key.iter().map(|x| x.to_owned()))
-        {
+        if let trie_structure::Entry::Vacant(vacant) = trie.node(entry_key.key) {
             if let trie_node::StorageValue::Unhashed(value) = decoded_value.storage_value {
                 vacant.insert_storage_value().insert(value.to_vec(), vec![]);
             }
