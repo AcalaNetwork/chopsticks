@@ -14,12 +14,12 @@ describe('block', async () => {
     const promises: Promise<any>[] = []
     expect(await chain.upcomingBlocks()).toEqual(0)
     promises.push(dev.newBlock())
-    await delay(10)
+    await delay(20)
     expect(await chain.upcomingBlocks()).toEqual(1)
 
     promises.push(dev.newBlock())
     promises.push(dev.newBlock())
-    await delay(10)
+    await delay(20)
     expect(await chain.upcomingBlocks()).toEqual(2)
 
     await Promise.all(promises)
