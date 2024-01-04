@@ -169,7 +169,7 @@ pub async fn start_network_service(
             .to_owned(),
         chains_capacity: 1,
         connections_open_pool_size: 8,
-        connections_open_pool_restore_delay: Duration::from_millis(100),
+        connections_open_pool_restore_delay: Duration::from_secs(3),
     });
 
     let config = serde_wasm_bindgen::from_value::<NetworkServiceConfig>(config)?;
