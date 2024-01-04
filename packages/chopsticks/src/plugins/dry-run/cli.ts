@@ -6,9 +6,11 @@ import type { Argv } from 'yargs'
 
 const schema = z.object({
   ...configSchema.shape,
-  extrinsic: z.string({
-    description: 'Extrinsic or call to dry run. If you pass call here then address is required to fake signature',
-  }),
+  extrinsic: z
+    .string({
+      description: 'Extrinsic or call to dry run. If you pass call here then address is required to fake signature',
+    })
+    .optional(),
   address: z
     .string({
       description: 'Address to fake sign extrinsic',
