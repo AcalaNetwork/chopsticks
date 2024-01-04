@@ -11,6 +11,10 @@ import { setupContext } from '../../context.js'
 export const dryRunExtrinsic = async (argv: DryRunSchemaType) => {
   const context = await setupContext(argv)
 
+  if (!argv.extrinsic) {
+    throw new Error('Extrinsic is required')
+  }
+
   const input = argv['address']
     ? { call: argv['extrinsic'] as HexString, address: argv['address'] }
     : (argv['extrinsic'] as HexString)
