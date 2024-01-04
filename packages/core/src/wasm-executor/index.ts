@@ -66,16 +66,16 @@ export interface WasmExecutor {
     callback?: JsCallback,
   ) => Promise<TaskResponse>
   testing: (callback: JsCallback, key: any) => Promise<any>
-  startNetworkService: (genesis: any, callback: JsLightClientCallback) => Promise<void>
-  getPeers: () => Promise<string[]>
+  startNetworkService: (config: LightClientConfig, callback: JsLightClientCallback) => Promise<number>
+  getPeers: (chainId: number) => Promise<string[]>
   streamMessage: (connection_id: number, stream_id: number, data: Uint8Array) => Promise<void>
   streamWritableBytes: (connection_id: number, stream_id: number, numBytes: number) => Promise<void>
   connectionStreamOpened: (connection_id: number, stream_id: number, outbound: number) => Promise<void>
   connectionReset: (connection_id: number, data: Uint8Array) => Promise<void>
   streamReset: (connection_id: number, stream_id: number) => Promise<void>
   timerFinished: (callback: JsLightClientCallback) => Promise<void>
-  storageRequest: (req: StorageRequest, callback: JsLightClientCallback) => Promise<void>
-  blocksRequest: (req: BlockRequest, callback: JsLightClientCallback) => Promise<void>
+  storageRequest: (chainId: number, req: StorageRequest, callback: JsLightClientCallback) => Promise<void>
+  blocksRequest: (chainId: number, req: BlockRequest, callback: JsLightClientCallback) => Promise<void>
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
@@ -234,19 +234,19 @@ export const startNetworkService = async (config: LightClientConfig, callback: J
   return worker.remote.startNetworkService(config, Comlink.proxy(callback))
 }
 
-export const storageRequest = async (req: StorageRequest, callback: JsLightClientCallback) => {
+export const storageRequest = async (chainId: number, req: StorageRequest, callback: JsLightClientCallback) => {
   const worker = await getWorker()
-  return worker.remote.storageRequest(req, callback)
+  return worker.remote.storageRequest(chainId, req, callback)
 }
 
-export const blocksRequest = async (req: BlockRequest, callback: JsLightClientCallback) => {
+export const blocksRequest = async (chainId: number, req: BlockRequest, callback: JsLightClientCallback) => {
   const worker = await getWorker()
-  return worker.remote.blocksRequest(req, callback)
+  return worker.remote.blocksRequest(chainId, req, callback)
 }
 
-export const getPeers = async () => {
+export const getPeers = async (chainId: number) => {
   const worker = await getWorker()
-  return worker.remote.getPeers().catch(() => [] as string[])
+  return worker.remote.getPeers(chainId).catch(() => [] as string[])
 }
 
 export const streamMessage = async (connection_id: number, stream_id: number, data: Uint8Array) => {

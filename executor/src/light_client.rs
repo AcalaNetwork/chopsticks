@@ -1,15 +1,19 @@
 extern crate console_error_panic_hook;
 
 use serde::{Deserialize, Serialize};
-use smoldot::libp2p::PeerId;
 use smoldot::{
     json_rpc::methods::{HashHexString, HexString},
-    network,
+    libp2p::PeerId,
+    network::{self, service::Multiaddr},
 };
 use smoldot_light::network_service::{Config, ConfigChain, NetworkService, NetworkServiceChain};
-use std::collections::BTreeMap;
-use std::num::NonZeroU32;
-use std::{str::FromStr, sync::Arc, time::Duration};
+use std::{
+    collections::BTreeMap,
+    num::NonZeroU32,
+    str::FromStr,
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 use wasm_bindgen::prelude::*;
 
 use crate::{platform::JsPlatform, proof::inner_decode_proof, setup_console};
@@ -96,7 +100,8 @@ extern "C" {
 unsafe impl Sync for JsLightClientCallback {}
 unsafe impl Send for JsLightClientCallback {}
 
-static mut NETWORK_SERVICE: Option<Arc<NetworkServiceChain<JsPlatform>>> = None;
+static CHAINS: Mutex<BTreeMap<usize, Arc<NetworkServiceChain<JsPlatform>>>> =
+    Mutex::new(BTreeMap::new());
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -148,12 +153,24 @@ struct BlocksResponse {
 }
 
 #[wasm_bindgen]
-pub async unsafe fn start_network_service(
+pub async fn start_network_service(
     config: JsValue,
     callback: JsLightClientCallback,
-) -> Result<(), JsValue> {
-    use smoldot::network::service::Multiaddr;
+) -> Result<usize, JsValue> {
     setup_console(None);
+
+    let platform = JsPlatform {
+        callback: Arc::new(callback),
+    };
+
+    let network_service = NetworkService::new(Config {
+        platform,
+        identify_agent_version: concat!(env!("CARGO_PKG_NAME"), " ", env!("CARGO_PKG_VERSION"))
+            .to_owned(),
+        chains_capacity: 1,
+        connections_open_pool_size: 8,
+        connections_open_pool_restore_delay: Duration::from_millis(100),
+    });
 
     let config = serde_wasm_bindgen::from_value::<NetworkServiceConfig>(config)?;
 
@@ -174,19 +191,7 @@ pub async unsafe fn start_network_service(
         addrs.entry(peer_id).or_default().push(addr);
     }
 
-    let platform = JsPlatform {
-        callback: Arc::new(callback),
-    };
-
-    let ns = NetworkService::new(Config {
-        platform,
-        identify_agent_version: concat!(env!("CARGO_PKG_NAME"), " ", env!("CARGO_PKG_VERSION"))
-            .to_owned(),
-        chains_capacity: 1,
-        connections_open_pool_size: 4,
-        connections_open_pool_restore_delay: Duration::from_secs(3),
-    })
-    .add_chain(ConfigChain {
+    let chain = network_service.add_chain(ConfigChain {
         log_name: "chopsticks".to_string(),
         num_out_slots: 10,
         genesis_block_hash: config.genesis_block_hash.0,
@@ -196,8 +201,8 @@ pub async unsafe fn start_network_service(
         grandpa_protocol_finalized_block_height: None,
     });
 
-    let rx = ns.subscribe().await;
-    ns.discover(addrs, true).await;
+    let rx = chain.subscribe().await;
+    chain.discover(addrs, true).await;
     let event = rx.recv().await.map_err(|e| e.to_string())?;
     if !matches!(
         event,
@@ -206,9 +211,11 @@ pub async unsafe fn start_network_service(
         return Err("failed to connect to bootnodes".into());
     }
 
-    NETWORK_SERVICE.replace(ns.clone());
+    let mut chains = CHAINS.try_lock().unwrap();
+    let chain_id = chains.len();
+    chains.insert(chain_id, chain);
 
-    Ok(())
+    Ok(chain_id)
 }
 
 #[wasm_bindgen]
@@ -242,15 +249,16 @@ pub fn connection_stream_opened(connection_id: u32, stream_id: u32, outbound: u3
 }
 
 #[wasm_bindgen]
-pub async unsafe fn storage_request(
+pub async fn storage_request(
+    chain_id: usize,
     request: JsValue,
     callback: JsLightClientCallback,
 ) -> Result<(), JsValue> {
     setup_console(None);
 
-    let ns = NETWORK_SERVICE
-        .clone()
-        .ok_or("network service not started")?;
+    let chains = CHAINS.try_lock().unwrap();
+    let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
+    drop(chains);
 
     let StorageRequest {
         id,
@@ -259,7 +267,7 @@ pub async unsafe fn storage_request(
         mut retries,
     } = serde_wasm_bindgen::from_value::<StorageRequest>(request)?;
 
-    let peers = ns.peers_list().await.collect::<Vec<_>>();
+    let peers = chain.peers_list().await.collect::<Vec<_>>();
     if peers.len() == 0 {
         return Err("no peers".into());
     }
@@ -273,7 +281,7 @@ pub async unsafe fn storage_request(
         };
 
         loop {
-            let proof = ns
+            let proof = chain
                 .clone()
                 .storage_proof_request(peer_id.clone(), config.clone(), Duration::from_secs(30))
                 .await;
@@ -326,7 +334,7 @@ pub async unsafe fn storage_request(
                     );
 
                     // rotate peer
-                    let peers = ns.peers_list().await.collect::<Vec<_>>();
+                    let peers = chain.peers_list().await.collect::<Vec<_>>();
                     if peers.len() == 0 {
                         let response = StorageResponse {
                             id,
@@ -348,15 +356,16 @@ pub async unsafe fn storage_request(
 }
 
 #[wasm_bindgen]
-pub async unsafe fn blocks_request(
+pub async fn blocks_request(
+    chain_id: usize,
     request: JsValue,
     callback: JsLightClientCallback,
 ) -> Result<(), JsValue> {
     setup_console(None);
 
-    let ns = NETWORK_SERVICE
-        .clone()
-        .ok_or("network service not started")?;
+    let chains = CHAINS.try_lock().unwrap();
+    let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
+    drop(chains);
 
     let BlockRequest {
         id,
@@ -365,7 +374,7 @@ pub async unsafe fn blocks_request(
         mut retries,
     } = serde_wasm_bindgen::from_value::<BlockRequest>(request)?;
 
-    let peers = ns.peers_list().await.collect::<Vec<_>>();
+    let peers = chain.peers_list().await.collect::<Vec<_>>();
     if peers.len() == 0 {
         return Err("no peers".into());
     }
@@ -380,7 +389,7 @@ pub async unsafe fn blocks_request(
                 network::codec::BlocksRequestConfigStart::Number(block_number.unwrap_or(0))
             },
             direction: network::codec::BlocksRequestDirection::Descending,
-            desired_count: NonZeroU32::new_unchecked(1),
+            desired_count: NonZeroU32::new(1).unwrap(),
             fields: network::codec::BlocksRequestFields {
                 header: true,
                 body: true,
@@ -389,7 +398,7 @@ pub async unsafe fn blocks_request(
         };
 
         loop {
-            let response = ns
+            let response = chain
                 .clone()
                 .blocks_request(peer_id.clone(), config.clone(), Duration::from_secs(30))
                 .await;
@@ -432,7 +441,7 @@ pub async unsafe fn blocks_request(
                     log::debug!("blocks request failed with error {:?}, try next peer", err);
 
                     // rotate peer
-                    let peers = ns.peers_list().await.collect::<Vec<_>>();
+                    let peers = chain.peers_list().await.collect::<Vec<_>>();
                     if peers.len() == 0 {
                         let response = BlocksResponse {
                             id,
@@ -454,12 +463,12 @@ pub async unsafe fn blocks_request(
 }
 
 #[wasm_bindgen]
-pub async unsafe fn peers_list() -> Result<JsValue, JsValue> {
-    let ns = NETWORK_SERVICE
-        .clone()
-        .ok_or("network service not started")?;
+pub async fn peers_list(chain_id: usize) -> Result<JsValue, JsValue> {
+    let chains = CHAINS.try_lock().unwrap();
+    let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
+    drop(chains);
 
-    let peers = ns
+    let peers = chain
         .peers_list()
         .await
         .map(|x| x.to_string())

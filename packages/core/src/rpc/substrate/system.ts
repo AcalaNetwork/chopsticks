@@ -5,7 +5,6 @@ import _ from 'lodash'
 
 import { ChainProperties } from '../../api.js'
 import { Handler } from '../shared.js'
-import { getPeers } from '../../wasm-executor/index.js'
 
 export const system_localPeerId = async () => '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
 export const system_nodeRoles = async () => ['Full']
@@ -31,7 +30,7 @@ export const system_chainType: Handler<void, string> = async (_context) => {
   return 'Development'
 }
 export const system_health: Handler<void, any> = async (context) => {
-  const peers = await getPeers()
+  const peers = (await context.chain.lightClient?.getPeers()) ?? []
   return {
     peers: peers.length,
     isSyncing: false,
@@ -39,8 +38,8 @@ export const system_health: Handler<void, any> = async (context) => {
   }
 }
 
-export const system_peers: Handler<void, any[]> = async (_context) => {
-  const peers = await getPeers()
+export const system_peers: Handler<void, any[]> = async (context) => {
+  const peers = (await context.chain.lightClient?.getPeers()) ?? []
   return peers.map((peerId) => ({ peerId }))
 }
 

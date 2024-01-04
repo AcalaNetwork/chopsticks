@@ -57,16 +57,16 @@ const timerFinished = async (callback) => {
   return pkg.timer_finished(callback)
 }
 
-const storageRequest = async (req, callback) => {
-  return pkg.storage_request(req, callback)
+const storageRequest = async (chainId, req, callback) => {
+  return pkg.storage_request(chainId, req, callback)
 }
 
-const blocksRequest = async (req, callback) => {
-  return pkg.blocks_request(req, callback)
+const blocksRequest = async (chainId, req, callback) => {
+  return pkg.blocks_request(chainId, req, callback)
 }
 
-const getPeers = async () => {
-  return pkg.peers_list()
+const getPeers = async (chainId) => {
+  return pkg.peers_list(chainId)
 }
 
 const wasmExecutor = {

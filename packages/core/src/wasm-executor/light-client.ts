@@ -7,6 +7,7 @@ import { Deferred, defer } from '../utils/index.js'
 import {
   blocksRequest,
   connectionReset,
+  getPeers,
   startNetworkService,
   storageRequest,
   streamMessage,
@@ -55,20 +56,20 @@ export class LightClient {
   #storageResponse: Map<number, Deferred<StorageResponse>> = new Map()
   #blockResponse: Map<number, Deferred<BlocksResponse>> = new Map()
 
-  #ready = defer<void>()
+  #chainId = defer<number>()
 
   get isReady() {
-    return this.#ready.promise
+    return this.#chainId.promise.then(() => {})
   }
 
   constructor(config: LightClientConfig) {
     startNetworkService(config, this)
-      .then(() => {
-        this.#ready.resolve()
+      .then((chainId) => {
+        this.#chainId.resolve(chainId)
       })
       .catch((e) => {
         logger.error(e)
-        this.#ready.reject(e)
+        this.#chainId.reject(e)
       })
   }
 
@@ -187,10 +188,11 @@ export class LightClient {
   }
 
   async queryStorage(blockHash: HexString, keys: HexString[]) {
+    const chainId = await this.#chainId.promise
     const id = this.#requestId++
     const deferred = defer<StorageResponse>()
     this.#storageResponse.set(id, deferred)
-    await storageRequest({ id, blockHash, keys, retries: 10 } satisfies StorageRequest, this)
+    await storageRequest(chainId, { id, blockHash, keys, retries: 10 } satisfies StorageRequest, this)
     const response = await deferred.promise
     if (response.errorReason) {
       throw new Error(response.errorReason)
@@ -199,10 +201,12 @@ export class LightClient {
   }
 
   async queryBlock(block: HexString | number) {
+    const chainId = await this.#chainId.promise
     const id = this.#requestId++
     const deferred = defer<BlocksResponse>()
     this.#blockResponse.set(id, deferred)
     await blocksRequest(
+      chainId,
       {
         id,
         blockNumber: typeof block === 'number' ? block : null,
@@ -220,4 +224,9 @@ export class LightClient {
 
   connectionStreamOpen(_connectionId: number) {}
   connectionStreamReset(_connectionId: number, _streamId: number) {}
+
+  async getPeers() {
+    const chainId = await this.#chainId.promise
+    return getPeers(chainId)
+  }
 }
