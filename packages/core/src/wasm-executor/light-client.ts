@@ -1,7 +1,9 @@
 import { BlockRequest, BlocksResponse, StorageRequest, StorageResponse } from '@acala-network/chopsticks-executor'
 import { HexString } from '@polkadot/util/types'
+import { WebSocket } from 'ws'
 import { stringToU8a } from '@polkadot/util'
-import ws from 'ws'
+
+globalThis.WebSocket = typeof globalThis.WebSocket !== 'undefined' ? globalThis.WebSocket : (WebSocket as any)
 
 import { Deferred, defer } from '../utils/index.js'
 import {
@@ -20,12 +22,10 @@ const logger = defaultLogger.child({ name: 'light-client' })
 
 export class Connection {
   public destroyed = false
-  public socket: WebSocket
+  public socket: globalThis.WebSocket
 
   constructor(address: string) {
-    this.socket = globalThis.WebSocket
-      ? new globalThis.WebSocket(address)
-      : (new ws.WebSocket(address) as any as WebSocket)
+    this.socket = new globalThis.WebSocket(address)
     this.socket.binaryType = 'arraybuffer'
   }
 
