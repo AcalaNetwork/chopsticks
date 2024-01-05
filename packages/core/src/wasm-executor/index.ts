@@ -68,11 +68,11 @@ export interface WasmExecutor {
   testing: (callback: JsRuntimeCallback, key: any) => Promise<any>
   startNetworkService: (config: LightClientConfig, callback: JsLightClientCallback) => Promise<number>
   getPeers: (chainId: number) => Promise<string[]>
-  streamMessage: (connection_id: number, stream_id: number, data: Uint8Array) => Promise<void>
-  streamWritableBytes: (connection_id: number, stream_id: number, numBytes: number) => Promise<void>
-  connectionStreamOpened: (connection_id: number, stream_id: number, outbound: number) => Promise<void>
-  connectionReset: (connection_id: number, data: Uint8Array) => Promise<void>
-  streamReset: (connection_id: number, stream_id: number) => Promise<void>
+  streamMessage: (connectionId: number, streamId: number, data: Uint8Array) => Promise<void>
+  streamWritableBytes: (connectionId: number, streamId: number, numBytes: number) => Promise<void>
+  connectionStreamOpened: (connectionId: number, streamId: number, outbound: number) => Promise<void>
+  connectionReset: (connectionId: number, data: Uint8Array) => Promise<void>
+  streamReset: (connectionId: number, streamId: number) => Promise<void>
   timerFinished: (callback: JsLightClientCallback) => Promise<void>
   storageRequest: (chainId: number, req: StorageRequest, callback: JsLightClientCallback) => Promise<void>
   blocksRequest: (chainId: number, req: BlockRequest, callback: JsLightClientCallback) => Promise<void>
@@ -249,29 +249,29 @@ export const getPeers = async (chainId: number) => {
   return worker.remote.getPeers(chainId).catch(() => [] as string[])
 }
 
-export const streamMessage = async (connection_id: number, stream_id: number, data: Uint8Array) => {
+export const streamMessage = async (connectionId: number, streamId: number, data: Uint8Array) => {
   const worker = await getWorker()
-  return worker.remote.streamMessage(connection_id, stream_id, data)
+  return worker.remote.streamMessage(connectionId, streamId, data)
 }
 
-export const streamWritableBytes = async (connection_id: number, stream_id: number, numBytes: number) => {
+export const streamWritableBytes = async (connectionId: number, streamId: number, numBytes: number) => {
   const worker = await getWorker()
-  return worker.remote.streamWritableBytes(connection_id, stream_id, numBytes)
+  return worker.remote.streamWritableBytes(connectionId, streamId, numBytes)
 }
 
-export const connectionStreamOpened = async (connection_id: number, stream_id: number, outbound: number) => {
+export const connectionStreamOpened = async (connectionId: number, streamId: number, outbound: number) => {
   const worker = await getWorker()
-  return worker.remote.connectionStreamOpened(connection_id, stream_id, outbound)
+  return worker.remote.connectionStreamOpened(connectionId, streamId, outbound)
 }
 
-export const connectionReset = async (connection_id: number, data: Uint8Array) => {
+export const connectionReset = async (connectionId: number, data: Uint8Array) => {
   const worker = await getWorker()
-  return worker.remote.connectionReset(connection_id, data)
+  return worker.remote.connectionReset(connectionId, data)
 }
 
-export const streamReset = async (connection_id: number, stream_id: number) => {
+export const streamReset = async (connectionId: number, streamId: number) => {
   const worker = await getWorker()
-  return worker.remote.streamReset(connection_id, stream_id)
+  return worker.remote.streamReset(connectionId, streamId)
 }
 
 export const timerFinished = async (callback: JsLightClientCallback) => {

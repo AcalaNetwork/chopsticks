@@ -23,7 +23,9 @@ export class Connection {
   public socket: WebSocket
 
   constructor(address: string) {
-    this.socket = WebSocket ? new WebSocket(address) : (new ws.WebSocket(address) as any as WebSocket)
+    this.socket = globalThis.WebSocket
+      ? new globalThis.WebSocket(address)
+      : (new ws.WebSocket(address) as any as WebSocket)
     this.socket.binaryType = 'arraybuffer'
   }
 
