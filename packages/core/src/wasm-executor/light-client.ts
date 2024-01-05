@@ -1,7 +1,7 @@
 import { BlockRequest, BlocksResponse, StorageRequest, StorageResponse } from '@acala-network/chopsticks-executor'
 import { HexString } from '@polkadot/util/types'
-import { WebSocket } from 'ws'
 import { stringToU8a } from '@polkadot/util'
+import ws from 'ws'
 
 import { Deferred, defer } from '../utils/index.js'
 import {
@@ -23,7 +23,7 @@ export class Connection {
   public socket: WebSocket
 
   constructor(address: string) {
-    this.socket = new WebSocket(address)
+    this.socket = WebSocket ? new WebSocket(address) : (new ws.WebSocket(address) as any as WebSocket)
     this.socket.binaryType = 'arraybuffer'
   }
 
@@ -33,7 +33,7 @@ export class Connection {
 
   destroy() {
     this.destroyed = true
-    if (this.socket.readyState === WebSocket.OPEN) {
+    if (this.socket.readyState === 1) {
       this.socket.close()
     }
     this.socket.onopen = null
@@ -90,35 +90,35 @@ export class LightClient {
     const connection = new Connection(address)
     connections[connectionId] = connection
 
-    connection.socket.once('error', function (error) {
-      if (this.readyState === WebSocket.OPEN || this.readyState === WebSocket.CONNECTING) return
+    connection.socket.addEventListener('error', function (error) {
+      if (this.readyState === 1 || this.readyState === 0) return
 
       if (['EHOSTUNREACH', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error['code'])) {
         blacklist.push(address)
-        logger.debug(`${error.message} [blacklisted]`)
+        logger.debug(`${error['message'] || ''} [blacklisted]`)
       }
 
       const connection = connections[connectionId]
       if (connection && !connection.destroyed) {
         connection.destroyed = true
         delete connections[connectionId]
-        connectionReset(connectionId, stringToU8a(error.message))
+        connectionReset(connectionId, stringToU8a(error['message'] || ''))
       }
     })
 
-    connection.socket.on('message', function (data) {
+    connection.socket.addEventListener('message', function (event) {
       const connection = connections[connectionId]
       if (!connection || connection.destroyed) return
-      if (connection.socket.readyState != WebSocket.OPEN) return
-      streamMessage(connectionId, 0, new Uint8Array(data as ArrayBuffer))
+      if (connection.socket.readyState != 1) return
+      streamMessage(connectionId, 0, new Uint8Array(event.data as ArrayBuffer))
     })
 
-    connection.socket.once('close', function (_code, reason) {
+    connection.socket.addEventListener('close', function (event) {
       const connection = connections[connectionId]
       if (connection && !connection.destroyed) {
         connection.destroyed = true
         delete connections[connectionId]
-        connectionReset(connectionId, new Uint8Array(reason))
+        connectionReset(connectionId, stringToU8a(event.reason))
       }
     })
 
