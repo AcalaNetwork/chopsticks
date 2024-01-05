@@ -8,7 +8,7 @@ import {
 
 import { EventEmitter } from 'eventemitter3'
 import { Genesis, genesisSchema } from './schema/index.js'
-import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
+import { calculateStateRoot } from './wasm-executor/index.js'
 /**
  * Provider to start a chain from genesis
  */
@@ -108,22 +108,6 @@ export class GenesisProvider implements ProviderInterface {
       block: {
         header: await this.getHeader(),
         extrinsics: [],
-      },
-    }
-  }
-
-  get _jsCallback(): JsCallback {
-    const storage = this.#genesis.genesis.raw.top
-    return {
-      ...emptyTaskHandler,
-      getStorage: async function (key: HexString) {
-        return storage[key]
-      },
-      getStateRoot: async function () {
-        return '0x49416764844ff0d8bad851e8abe686dff9dd2de78621180ef8e9f99bb7a480f1'
-      },
-      getNextKey: async function (_prefix: HexString, _key: HexString) {
-        return undefined
       },
     }
   }

@@ -12,11 +12,11 @@ import { stripChildPrefix } from '../utils/index.js'
 import { LightClientConfig } from './light-client.js'
 import type {
   BlockRequest,
-  JsCallback,
   JsLightClientCallback,
+  JsRuntimeCallback,
   StorageRequest,
 } from '@acala-network/chopsticks-executor'
-export { JsCallback }
+export { JsRuntimeCallback }
 
 export type RuntimeVersion = {
   specName: string
@@ -63,9 +63,9 @@ export interface WasmExecutor {
       allowUnresolvedImports: boolean
       runtimeLogLevel: number
     },
-    callback?: JsCallback,
+    callback?: JsRuntimeCallback,
   ) => Promise<TaskResponse>
-  testing: (callback: JsCallback, key: any) => Promise<any>
+  testing: (callback: JsRuntimeCallback, key: any) => Promise<any>
   startNetworkService: (config: LightClientConfig, callback: JsLightClientCallback) => Promise<number>
   getPeers: (chainId: number) => Promise<string[]>
   streamMessage: (connection_id: number, stream_id: number, data: Uint8Array) => Promise<void>
@@ -138,7 +138,7 @@ export const runTask = async (
     allowUnresolvedImports: boolean
     runtimeLogLevel: number
   },
-  callback: JsCallback = emptyTaskHandler,
+  callback: JsRuntimeCallback = emptyTaskHandler,
 ) => {
   const worker = await getWorker()
   logger.trace(truncate(task), 'taskRun')
@@ -151,7 +151,7 @@ export const runTask = async (
   return response
 }
 
-export const taskHandler = (block: Block): JsCallback => {
+export const taskHandler = (block: Block): JsRuntimeCallback => {
   return {
     getStorage: async function (key: HexString) {
       return block.get(key)

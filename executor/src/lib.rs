@@ -22,7 +22,7 @@ fn setup_console(level: Option<String>) {
 #[wasm_bindgen(typescript_custom_section)]
 const _: &'static str = r#"
 type HexString = `0x${string}`;
-export interface JsCallback {
+export interface JsRuntimeCallback {
 	getStorage: (key: HexString) => Promise<string | undefined>
 	getStateRoot: () => Promise<string>
 	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
@@ -35,34 +35,37 @@ export interface JsCallback {
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(typescript_type = "JsCallback")]
-    pub type JsCallback;
+    #[wasm_bindgen(typescript_type = "JsRuntimeCallback")]
+    pub type JsRuntimeCallback;
 
     #[wasm_bindgen(catch, structural, method, js_name = "getStorage")]
-    pub async fn get_storage(this: &JsCallback, key: JsValue) -> Result<JsValue, JsValue>;
+    pub async fn get_storage(this: &JsRuntimeCallback, key: JsValue) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(catch, structural, method, js_name = "getStateRoot")]
-    pub async fn get_state_root(this: &JsCallback) -> Result<JsValue, JsValue>;
+    pub async fn get_state_root(this: &JsRuntimeCallback) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(catch, structural, method, js_name = "getNextKey")]
     pub async fn get_next_key(
-        this: &JsCallback,
+        this: &JsRuntimeCallback,
         prefix: JsValue,
         key: JsValue,
     ) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(catch, structural, method, js_name = "offchainGetStorage")]
-    pub async fn offchain_get_storage(this: &JsCallback, key: JsValue) -> Result<JsValue, JsValue>;
+    pub async fn offchain_get_storage(
+        this: &JsRuntimeCallback,
+        key: JsValue,
+    ) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(catch, structural, method, js_name = "offchainTimestamp")]
-    pub async fn offchain_timestamp(this: &JsCallback) -> Result<JsValue, JsValue>;
+    pub async fn offchain_timestamp(this: &JsRuntimeCallback) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(catch, structural, method, js_name = "offchainRandomSeed")]
-    pub async fn offchain_random_seed(this: &JsCallback) -> Result<JsValue, JsValue>;
+    pub async fn offchain_random_seed(this: &JsRuntimeCallback) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(catch, structural, method, js_name = "offchainSubmitTransaction")]
     pub async fn offchain_submit_transaction(
-        this: &JsCallback,
+        this: &JsRuntimeCallback,
         tx: JsValue,
     ) -> Result<JsValue, JsValue>;
 }
@@ -129,7 +132,7 @@ pub async fn create_proof(nodes: JsValue, updates: JsValue) -> Result<JsValue, J
 #[wasm_bindgen]
 pub async fn run_task(
     task: JsValue,
-    js: JsCallback,
+    js: JsRuntimeCallback,
     log_level: Option<String>,
 ) -> Result<JsValue, JsValue> {
     setup_console(log_level);
@@ -142,7 +145,7 @@ pub async fn run_task(
 }
 
 #[wasm_bindgen]
-pub async fn testing(js: JsCallback, key: JsValue) -> Result<JsValue, JsValue> {
+pub async fn testing(js: JsRuntimeCallback, key: JsValue) -> Result<JsValue, JsValue> {
     setup_console(None);
 
     js.get_storage(key).await

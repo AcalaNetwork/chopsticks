@@ -117,7 +117,10 @@ fn handle_value(value: wasm_bindgen::JsValue) -> Result<Option<Vec<u8>>, JsError
     }
 }
 
-pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskResponse, JsValue> {
+pub async fn run_task(
+    task: TaskCall,
+    js: crate::JsRuntimeCallback,
+) -> Result<TaskResponse, JsValue> {
     let mut storage_main_trie_changes = TrieDiff::default();
     let mut storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
     let mut offchain_storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
