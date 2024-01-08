@@ -29,7 +29,11 @@ export const configSchema = z.object({
   'max-memory-block-count': z.number().optional(),
   db: z.string({ description: 'Path to database' }).optional(),
   'wasm-override': z.string({ description: 'Path to wasm override' }).optional(),
-  genesis: z.union([z.string(), genesisSchema]).optional(),
+  genesis: z
+    .union([z.string(), genesisSchema], {
+      description: 'URL to genesis config file. NOTE: Only parachains with AURA consensus are supported!',
+    })
+    .optional(),
   timestamp: z.number().optional(),
   'registered-types': z.any().optional(),
   'runtime-log-level': z

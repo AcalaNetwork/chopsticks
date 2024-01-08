@@ -1,8 +1,10 @@
 import '@polkadot/types-codec'
+import { DigestItem } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 import { HttpProvider, WsProvider } from '@polkadot/rpc-provider'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
+import { compactAddLength } from '@polkadot/util'
 
 import { Api } from './api.js'
 import { Blockchain } from './blockchain/index.js'
@@ -18,6 +20,7 @@ import {
   SetValidationData,
 } from './blockchain/inherent/index.js'
 import { defaultLogger } from './logger.js'
+import { getSlotDuration, setStorage } from './index.js'
 
 export type SetupOptions = {
   endpoint?: string | string[]
@@ -31,6 +34,42 @@ export type SetupOptions = {
   registeredTypes?: RegisteredTypes
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
+}
+
+export const genesisSetup = async (chain: Blockchain, genesis: GenesisProvider) => {
+  const meta = await chain.head.meta
+  const timestamp = Date.now()
+  await setStorage(chain, {
+    Timestamp: {
+      Now: timestamp,
+    },
+  })
+
+  const slotDuration = await getSlotDuration(chain)
+  const currentSlot = Math.floor(timestamp / slotDuration)
+
+  if (meta.consts.babe) {
+    await setStorage(chain, {
+      Babe: {
+        CurrentSlot: currentSlot,
+      },
+    })
+
+    genesis.genesisHeaderLogs = [
+      '0x0642414245b50103020200001c5fef100000000044cadd14aaefbda13ac8d85e1a6d58be082e7e2f56a4f95a3c612c784aaa4063f5517bf67d93ce633cde2fde7fbcf8ddca80017aaf8cd48436514687c662f60eda0ffa2c4781906416f4e71a196c9783c60c1b83d54c3a29365d03706714570b',
+    ]
+  } else {
+    await setStorage(chain, {
+      Aura: {
+        CurrentSlot: currentSlot,
+      },
+    })
+
+    const newSlot = compactAddLength(meta.registry.createType('Slot', currentSlot + 1).toU8a())
+    const consensusEngine = meta.registry.createType('ConsensusEngineId', 'aura')
+    const digest = meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensusEngine, newSlot] })
+    genesis.genesisHeaderLogs = [digest.toHex()]
+  }
 }
 
 export const setup = async (options: SetupOptions) => {
@@ -83,7 +122,7 @@ export const setup = async (options: SetupOptions) => {
     new SetBabeRandomness(),
   ])
 
-  return new Blockchain({
+  const chain = new Blockchain({
     api,
     buildBlockMode: options.buildBlockMode,
     inherentProvider: inherents,
@@ -99,4 +138,10 @@ export const setup = async (options: SetupOptions) => {
     offchainWorker: options.offchainWorker,
     maxMemoryBlockCount: options.maxMemoryBlockCount,
   })
+
+  if (options.genesis) {
+    await genesisSetup(chain, options.genesis)
+  }
+
+  return chain
 }
