@@ -12,6 +12,17 @@ export class ParaInherentEnter implements CreateInherents {
       return []
     }
 
+    if (parent.number === 0) {
+      return [
+        new GenericExtrinsic(
+          meta.registry,
+          meta.tx.paraInherent.enter({
+            parentHeader: (await parent.header).toJSON(),
+          }),
+        ).toHex(),
+      ]
+    }
+
     const extrinsics = await parent.extrinsics
 
     const paraEnterExtrinsic = extrinsics.find((extrinsic) => {

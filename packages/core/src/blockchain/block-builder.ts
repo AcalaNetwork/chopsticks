@@ -125,6 +125,14 @@ const initNewBlock = async (
     const resp = await newBlock.call('Core_initialize_block', [header.toHex()])
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
 
+    if (head.number === 0) {
+      // set parent hash for genesis block
+      // this makes sure to override the default parent hash
+      const meta = await head.meta
+      const header = await head.header
+      newBlock.pushStorageLayer().setAll([[compactHex(meta.query.system.parentHash()), header.hash.toHex()]])
+    }
+
     callback?.onPhaseApplied?.('initialize', resp)
   }
 

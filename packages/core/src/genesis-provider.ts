@@ -21,6 +21,8 @@ export class GenesisProvider implements ProviderInterface {
   #genesis: Genesis
   #stateRoot: Promise<HexString>
 
+  public genesisHeaderLogs: HexString[] = []
+
   /**
    * @ignore
    * Create a genesis provider
@@ -89,16 +91,17 @@ export class GenesisProvider implements ProviderInterface {
   }
 
   get blockHash(): HexString {
-    return '0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3'
+    return '0x4545454545454545454545454545454545454545454545454545454545454545'
   }
 
   getHeader = async () => {
     return {
-      blockHash: this.blockHash,
       number: '0x0' as HexString,
       stateRoot: await this.#stateRoot,
+      parentHash: '0x4545454545454545454545454545454545454545454545454545454545454545',
+      extrinsicsRoot: '0x03170a2e7597b7b7e3d84c05391d139a62b157e78786d8c082f29dcf4c111314',
       digest: {
-        logs: [],
+        logs: this.genesisHeaderLogs,
       },
     }
   }

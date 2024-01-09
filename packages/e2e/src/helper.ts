@@ -5,7 +5,13 @@ import { RegisteredTypes } from '@polkadot/types/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
-import { Blockchain, BuildBlockMode, StorageValues } from '@acala-network/chopsticks-core'
+import {
+  Blockchain,
+  BuildBlockMode,
+  GenesisProvider,
+  StorageValues,
+  genesisSetup,
+} from '@acala-network/chopsticks-core'
 import {
   InherentProviders,
   ParaInherentEnter,
@@ -42,10 +48,6 @@ export const env = {
   rococo: {
     endpoint: 'wss://rococo-rpc.polkadot.io',
     blockHash: '0xd7fef00504decd41d5d2e9a04346f6bc639fd428083e3ca941f636a8f88d456a' as HexString,
-  },
-  mandalaGenesis: {
-    genesis:
-      'https://raw.githubusercontent.com/AcalaNetwork/Acala/2c43dbbb380136f2c35bd0db08b286f346b71d61/resources/mandala-dist.json',
   },
 }
 
@@ -103,6 +105,10 @@ export const setupAll = async ({
         runtimeLogLevel,
         db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
       })
+
+      if (genesis) {
+        await genesisSetup(chain, provider as GenesisProvider)
+      }
 
       const { port, close } = await createServer(handler({ chain }))
 
