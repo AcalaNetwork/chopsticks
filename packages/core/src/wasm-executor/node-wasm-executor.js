@@ -33,24 +33,24 @@ const startNetworkService = async (config, callback) => {
   return pkg.start_network_service(config, callback)
 }
 
-const connectionStreamOpened = async (conn_id, stream_id, outbound) => {
-  return pkg.connection_stream_opened(conn_id, stream_id, outbound)
+const connectionStreamOpened = async (connectionId, streamId, outbound) => {
+  return pkg.connection_stream_opened(connectionId, streamId, outbound)
 }
 
-const connectionReset = async (conn_id, data) => {
-  return pkg.connection_reset(conn_id, data)
+const connectionReset = async (connectionId, data) => {
+  return pkg.connection_reset(connectionId, data)
 }
 
-const streamReset = async (conn_id, stream_id) => {
-  return pkg.stream_reset(conn_id, stream_id)
+const streamReset = async (connectionId, streamId) => {
+  return pkg.stream_reset(connectionId, streamId)
 }
 
-const streamMessage = async (conn_id, stream_id, data) => {
-  return pkg.stream_message(conn_id, stream_id, data)
+const streamMessage = async (connectionId, streamId, data) => {
+  return pkg.stream_message(connectionId, streamId, data)
 }
 
-const streamWritableBytes = async (conn_id, stream_id, bytes) => {
-  return pkg.stream_writable_bytes(conn_id, stream_id, bytes)
+const streamWritableBytes = async (connectionId, streamId, bytes) => {
+  return pkg.stream_writable_bytes(connectionId, streamId, bytes)
 }
 
 const timerFinished = async (callback) => {

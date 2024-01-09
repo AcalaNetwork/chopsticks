@@ -22,26 +22,55 @@ const logger = defaultLogger.child({ name: 'light-client' })
 
 export class Connection {
   public destroyed = false
-  public socket: globalThis.WebSocket
+  #socket: globalThis.WebSocket
+
+  #onOpen: (event: Event) => void = (event) => {
+    if (this.onOpen && !this.destroyed) {
+      this.onOpen(this.#socket, event)
+    }
+  }
+
+  #onClose: (event: CloseEvent) => void = (event) => {
+    if (this.onClose && !this.destroyed) {
+      this.onClose(this.#socket, event)
+    }
+  }
+
+  #onMessage: (event: MessageEvent) => void = (event) => {
+    if (this.onMessage && !this.destroyed) {
+      this.onMessage(this.#socket, new Uint8Array(event.data as ArrayBuffer))
+    }
+  }
+
+  #onError: (event: Event) => void = (event) => {
+    if (this.onError && !this.destroyed) {
+      this.onError(this.#socket, event)
+    }
+  }
+
+  public onOpen?: (ws: globalThis.WebSocket, event: Event) => void
+  public onClose?: (ws: globalThis.WebSocket, event: CloseEvent) => void
+  public onMessage?: (ws: globalThis.WebSocket, data: Uint8Array) => void
+  public onError?: (ws: globalThis.WebSocket, event: Event) => void
 
   constructor(address: string) {
-    this.socket = new globalThis.WebSocket(address)
-    this.socket.binaryType = 'arraybuffer'
+    this.#socket = new globalThis.WebSocket(address)
+    this.#socket.binaryType = 'arraybuffer'
+    this.#socket.addEventListener('error', this.#onError)
+    this.#socket.addEventListener('open', this.#onOpen)
+    this.#socket.addEventListener('close', this.#onClose)
+    this.#socket.addEventListener('message', this.#onMessage)
   }
 
   send(data: Uint8Array) {
-    this.socket.send(data)
+    this.#socket.send(data)
   }
 
   destroy() {
     this.destroyed = true
-    if (this.socket.readyState === 1) {
-      this.socket.close()
+    if (this.#socket.readyState === 1) {
+      this.#socket.close()
     }
-    this.socket.onopen = null
-    this.socket.onclose = null
-    this.socket.onmessage = null
-    this.socket.onerror = null
   }
 }
 
@@ -92,10 +121,10 @@ export class LightClient {
     const connection = new Connection(address)
     connections[connectionId] = connection
 
-    connection.socket.addEventListener('error', function (error) {
-      if (this.readyState === 1 || this.readyState === 0) return
+    connection.onError = function (ws, error) {
+      if (ws.readyState === 1 || ws.readyState === 0) return
 
-      if (['EHOSTUNREACH', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error['code'])) {
+      if (!error['code'] || ['EHOSTUNREACH', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error['code'])) {
         blacklist.push(address)
         logger.debug(`${error['message'] || ''} [blacklisted]`)
       }
@@ -106,27 +135,27 @@ export class LightClient {
         delete connections[connectionId]
         connectionReset(connectionId, stringToU8a(error['message'] || ''))
       }
-    })
+    }
 
-    connection.socket.addEventListener('message', function (event) {
+    connection.onMessage = function (ws, data) {
       const connection = connections[connectionId]
       if (!connection || connection.destroyed) return
-      if (connection.socket.readyState != 1) return
-      streamMessage(connectionId, 0, new Uint8Array(event.data as ArrayBuffer))
-    })
+      if (ws.readyState != 1) return
+      streamMessage(connectionId, 0, data)
+    }
 
-    connection.socket.addEventListener('close', function (event) {
+    connection.onClose = function (_ws, event) {
       const connection = connections[connectionId]
       if (connection && !connection.destroyed) {
         connection.destroyed = true
         delete connections[connectionId]
         connectionReset(connectionId, stringToU8a(event.reason))
       }
-    })
+    }
 
-    connection.socket.addEventListener('open', function () {
+    connection.onOpen = function () {
       streamWritableBytes(connectionId, 0, 1024 * 1024)
-    })
+    }
   }
 
   async storageResponse(response: StorageResponse) {
