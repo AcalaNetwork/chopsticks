@@ -186,13 +186,18 @@ export class TxPool {
         delete this.#hrmp[id]
       }
     }
-    await this.buildBlockWithParams({
-      transactions,
-      upwardMessages,
-      downwardMessages,
-      horizontalMessages,
-      unsafeBlockHeight,
-    })
+
+    try {
+      await this.buildBlockWithParams({
+        transactions,
+        upwardMessages,
+        downwardMessages,
+        horizontalMessages,
+        unsafeBlockHeight,
+      })
+    } catch (err) {
+      logger.error({ err }, 'build block failed')
+    }
   }
 
   async upcomingBlocks() {

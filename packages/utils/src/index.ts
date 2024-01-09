@@ -4,6 +4,7 @@ import {
   StorageValues,
   connectParachains,
   connectVertical,
+  defaultLogger,
   fetchConfig,
   setupWithServer,
 } from '@acala-network/chopsticks'
@@ -12,6 +13,8 @@ import { Config } from '@acala-network/chopsticks/schema/index.js'
 import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
+
+const logger = defaultLogger.child({ module: 'utils' })
 
 export * from './signFake.js'
 
@@ -167,7 +170,7 @@ export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'
   const signed = await tx
   const deferred = defer<Codec[]>()
   await signed.send((status) => {
-    console.log('tranaction status: ', status.status.toHuman())
+    logger.debug('tranaction status: ', status.status.toHuman())
     if (status.isInBlock || status.isFinalized) {
       deferred.resolve(status.events)
     }

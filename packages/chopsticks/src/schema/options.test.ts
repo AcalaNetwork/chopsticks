@@ -41,7 +41,7 @@ it('get yargs options from zod schema', () => {
         "genesis": {
           "choices": undefined,
           "demandOption": false,
-          "description": undefined,
+          "description": "URL to genesis config file. NOTE: Only parachains with AURA consensus are supported!",
           "type": "string",
         },
         "import-storage": {
