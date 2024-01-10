@@ -254,14 +254,20 @@ export const blocksRequest = async (chainId: number, req: BlockRequest, callback
 
 export const getPeers = async (chainId: number) => {
   const worker = await getWorker()
-  return worker.remote.getPeers(chainId).then(peers => {
-    return peers.map(([peerId, roles, bestNumber, bestHash]) => ({
-        peerId,
-        roles,
-        bestNumber,
-        bestHash,
-    } satisfies Peer))
-  }).catch(() => [])
+  return worker.remote
+    .getPeers(chainId)
+    .then((peers) => {
+      return peers.map(
+        ([peerId, roles, bestNumber, bestHash]) =>
+          ({
+            peerId,
+            roles,
+            bestNumber,
+            bestHash,
+          }) satisfies Peer,
+      )
+    })
+    .catch(() => [])
 }
 
 export const streamMessage = async (connectionId: number, streamId: number, data: Uint8Array) => {
