@@ -70,6 +70,8 @@ export const genesisSetup = async (chain: Blockchain, genesis: GenesisProvider) 
     const digest = meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensusEngine, newSlot] })
     genesis.genesisHeaderLogs = [digest.toHex()]
   }
+
+  await chain.newBlock()
 }
 
 export const setup = async (options: SetupOptions) => {
