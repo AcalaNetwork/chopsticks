@@ -50,6 +50,13 @@ export type TaskResponse =
       Error: string
     }
 
+export type Peer = {
+  peerId: string
+  roles: string
+  bestNumber: number
+  bestHash: string
+}
+
 export interface WasmExecutor {
   getRuntimeVersion: (code: HexString) => Promise<RuntimeVersion>
   calculateStateRoot: (entries: [HexString, HexString][], trie_version: number) => Promise<HexString>
@@ -67,7 +74,8 @@ export interface WasmExecutor {
   ) => Promise<TaskResponse>
   testing: (callback: JsRuntimeCallback, key: any) => Promise<any>
   startNetworkService: (config: LightClientConfig, callback: JsLightClientCallback) => Promise<number>
-  getPeers: (chainId: number) => Promise<string[]>
+  getPeers: (chainId: number) => Promise<[string, string, number, string][]>
+  getLatestBlock: (chainId: number) => Promise<[number, string]>
   streamMessage: (connectionId: number, streamId: number, data: Uint8Array) => Promise<void>
   streamWritableBytes: (connectionId: number, streamId: number, numBytes: number) => Promise<void>
   connectionStreamOpened: (connectionId: number, streamId: number, outbound: number) => Promise<void>
@@ -246,7 +254,14 @@ export const blocksRequest = async (chainId: number, req: BlockRequest, callback
 
 export const getPeers = async (chainId: number) => {
   const worker = await getWorker()
-  return worker.remote.getPeers(chainId).catch(() => [] as string[])
+  return worker.remote.getPeers(chainId).then(peers => {
+    return peers.map(([peerId, roles, bestNumber, bestHash]) => ({
+        peerId,
+        roles,
+        bestNumber,
+        bestHash,
+    } satisfies Peer))
+  }).catch(() => [])
 }
 
 export const streamMessage = async (connectionId: number, streamId: number, data: Uint8Array) => {
@@ -291,6 +306,11 @@ export const connectionOpenMultiStream = async (
 ) => {
   // const worker = await getWorker()
   // return worker.remote.connectionOpenMultiStream(connectionId, localCert, remoteCert)
+}
+
+export const getLatestBlock = async (chainId: number) => {
+  const worker = await getWorker()
+  return worker.remote.getLatestBlock(chainId)
 }
 
 export const destroyWorker = async () => {

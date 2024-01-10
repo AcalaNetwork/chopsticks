@@ -39,8 +39,7 @@ export const system_health: Handler<void, any> = async (context) => {
 }
 
 export const system_peers: Handler<void, any[]> = async (context) => {
-  const peers = (await context.chain.lightClient?.getPeers()) ?? []
-  return peers.map((peerId) => ({ peerId }))
+  return context.chain.lightClient?.getPeers() ?? []
 }
 
 /**

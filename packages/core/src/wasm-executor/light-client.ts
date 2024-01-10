@@ -9,6 +9,7 @@ import { Deferred, defer } from '../utils/index.js'
 import {
   blocksRequest,
   connectionReset,
+  getLatestBlock,
   getPeers,
   startNetworkService,
   storageRequest,
@@ -259,5 +260,10 @@ export class LightClient {
   async getPeers() {
     const chainId = await this.#chainId.promise
     return getPeers(chainId)
+  }
+
+  async getLatestBlock() {
+    const chainId = await this.#chainId.promise
+    return getLatestBlock(chainId)
   }
 }

@@ -66,6 +66,10 @@ const getPeers = async (chainId) => {
   return pkg.peers_list(chainId)
 }
 
+const getLatestBlock = async (chainId) => {
+  return pkg.latest_block(chainId)
+}
+
 const wasmExecutor = {
   runTask,
   getRuntimeVersion,
@@ -77,6 +81,7 @@ const wasmExecutor = {
   storageRequest,
   blocksRequest,
   getPeers,
+  getLatestBlock,
   connectionStreamOpened,
   connectionReset,
   streamReset,

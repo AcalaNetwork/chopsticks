@@ -120,33 +120,15 @@ impl smoldot_light::platform::PlatformRef for JsPlatform {
         &self,
         connection_type: smoldot_light::platform::ConnectionType,
     ) -> bool {
-        let ty = match connection_type {
-            smoldot_light::platform::ConnectionType::TcpIpv4 => 0,
-            smoldot_light::platform::ConnectionType::TcpIpv6 => 1,
-            smoldot_light::platform::ConnectionType::TcpDns => 2,
-            smoldot_light::platform::ConnectionType::WebSocketIpv4 {
-                remote_is_localhost: true,
-                ..
-            }
-            | smoldot_light::platform::ConnectionType::WebSocketIpv6 {
-                remote_is_localhost: true,
-                ..
-            }
-            | smoldot_light::platform::ConnectionType::WebSocketDns {
-                secure: false,
-                remote_is_localhost: true,
-            } => 7,
-            smoldot_light::platform::ConnectionType::WebSocketIpv4 { .. } => 4,
-            smoldot_light::platform::ConnectionType::WebSocketIpv6 { .. } => 5,
-            smoldot_light::platform::ConnectionType::WebSocketDns { secure: false, .. } => 6,
-            smoldot_light::platform::ConnectionType::WebSocketDns { secure: true, .. } => 14,
-            smoldot_light::platform::ConnectionType::WebRtcIpv4 => 16,
-            smoldot_light::platform::ConnectionType::WebRtcIpv6 => 17,
-        };
-
-        match ty {
-            4 | 5 | 6 | 7 | 14 => true,
-            _ => false,
+        match connection_type {
+            smoldot_light::platform::ConnectionType::TcpIpv4
+            | smoldot_light::platform::ConnectionType::TcpIpv6
+            | smoldot_light::platform::ConnectionType::TcpDns => false,
+            smoldot_light::platform::ConnectionType::WebSocketIpv4 { .. } => true,
+            smoldot_light::platform::ConnectionType::WebSocketIpv6 { .. } => false,
+            smoldot_light::platform::ConnectionType::WebSocketDns { .. } => true,
+            smoldot_light::platform::ConnectionType::WebRtcIpv4 => false,
+            smoldot_light::platform::ConnectionType::WebRtcIpv6 => false,
         }
     }
 

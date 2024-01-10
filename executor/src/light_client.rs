@@ -4,7 +4,10 @@ use serde::{Deserialize, Serialize};
 use smoldot::{
     json_rpc::methods::{HashHexString, HexString},
     libp2p::PeerId,
-    network::{self, service::Multiaddr},
+    network::{
+        self,
+        service::{Multiaddr, Role},
+    },
 };
 use smoldot_light::network_service::{Config, ConfigChain, NetworkService, NetworkServiceChain};
 use std::{
@@ -100,8 +103,52 @@ extern "C" {
 unsafe impl Sync for JsLightClientCallback {}
 unsafe impl Send for JsLightClientCallback {}
 
-static CHAINS: Mutex<BTreeMap<usize, Arc<NetworkServiceChain<JsPlatform>>>> =
-    Mutex::new(BTreeMap::new());
+struct Chain {
+    network_service: Arc<NetworkServiceChain<JsPlatform>>,
+    peers: Mutex<BTreeMap<PeerId, (Role, u64, HashHexString)>>,
+}
+
+impl Chain {
+    fn new(chain: Arc<NetworkServiceChain<JsPlatform>>) -> Self {
+        Self {
+            network_service: chain,
+            peers: Mutex::new(BTreeMap::new()),
+        }
+    }
+
+    fn peers(&self) -> Vec<(PeerId, Role, u64, HashHexString)> {
+        self.peers
+            .lock()
+            .unwrap()
+            .iter()
+            .map(|(peer_id, (role, best_number, best_hash))| {
+                (peer_id.clone(), *role, *best_number, best_hash.clone())
+            })
+            .collect()
+    }
+
+    fn peers_list(&self) -> Vec<PeerId> {
+        self.peers.lock().unwrap().keys().cloned().collect()
+    }
+
+    fn is_connected(&self) -> bool {
+        !self.peers.lock().unwrap().is_empty()
+    }
+
+    fn latest_block(&self) -> Option<(u64, HashHexString)> {
+        let mut values = self
+            .peers
+            .lock()
+            .unwrap()
+            .values()
+            .map(|(_, best_number, best_hash)| (*best_number, best_hash.clone()))
+            .collect::<Vec<_>>();
+        values.sort_by(|(a, _), (b, _)| b.cmp(a));
+        values.first().map(|(number, hash)| (*number, hash.clone()))
+    }
+}
+
+static CHAINS: Mutex<BTreeMap<usize, Arc<Chain>>> = Mutex::new(BTreeMap::new());
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -201,19 +248,49 @@ pub async fn start_network_service(
         grandpa_protocol_finalized_block_height: None,
     });
 
-    let rx = chain.subscribe().await;
-    chain.discover(addrs, true).await;
-    let event = rx.recv().await.map_err(|e| e.to_string())?;
-    if !matches!(
-        event,
-        smoldot_light::network_service::Event::Connected { .. }
-    ) {
-        return Err("failed to connect to bootnodes".into());
-    }
+    let events = chain.subscribe().await;
+    let (connected_tx, connected_rx) = async_channel::unbounded::<()>();
 
-    let mut chains = CHAINS.try_lock().unwrap();
+    let chain_state = Arc::new(Chain::new(chain.clone()));
+    let state = chain_state.clone();
+
+    wasm_bindgen_futures::spawn_local(async move {
+        loop {
+            match events.recv().await {
+                Ok(smoldot_light::network_service::Event::Connected {
+                    peer_id,
+                    role,
+                    best_block_number,
+                    best_block_hash,
+                }) => {
+                    if !connected_tx.is_closed() {
+                        connected_tx.send(()).await.unwrap();
+                        connected_tx.close();
+                    }
+                    let mut peers = state.peers.lock().unwrap();
+                    peers.insert(
+                        peer_id,
+                        (role, best_block_number, HashHexString(best_block_hash)),
+                    );
+                }
+                Ok(smoldot_light::network_service::Event::Disconnected { peer_id }) => {
+                    let mut peers = state.peers.lock().unwrap();
+                    peers.remove(&peer_id);
+                }
+                Ok(_) => {
+                    // ignore
+                }
+                Err(_) => break,
+            }
+        }
+    });
+
+    chain.discover(addrs, true).await;
+    connected_rx.recv().await.map_err(|e| e.to_string())?;
+
+    let mut chains = CHAINS.lock().unwrap();
     let chain_id = chains.len();
-    chains.insert(chain_id, chain);
+    chains.insert(chain_id, chain_state);
 
     Ok(chain_id)
 }
@@ -256,7 +333,7 @@ pub async fn storage_request(
 ) -> Result<(), JsValue> {
     setup_console(None);
 
-    let chains = CHAINS.try_lock().unwrap();
+    let chains = CHAINS.lock().unwrap();
     let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
     drop(chains);
 
@@ -267,10 +344,10 @@ pub async fn storage_request(
         mut retries,
     } = serde_wasm_bindgen::from_value::<StorageRequest>(request)?;
 
-    let peers = chain.peers_list().await.collect::<Vec<_>>();
-    if peers.len() == 0 {
+    if !chain.is_connected() {
         return Err("no peers".into());
     }
+    let peers = chain.peers_list();
     let mut index = id % peers.len();
     let mut peer_id = peers.get(index).cloned().expect("index out of range");
 
@@ -282,6 +359,7 @@ pub async fn storage_request(
 
         loop {
             let proof = chain
+                .network_service
                 .clone()
                 .storage_proof_request(peer_id.clone(), config.clone(), Duration::from_secs(30))
                 .await;
@@ -334,7 +412,7 @@ pub async fn storage_request(
                     );
 
                     // rotate peer
-                    let peers = chain.peers_list().await.collect::<Vec<_>>();
+                    let peers = chain.peers_list();
                     if peers.len() == 0 {
                         let response = StorageResponse {
                             id,
@@ -363,7 +441,7 @@ pub async fn blocks_request(
 ) -> Result<(), JsValue> {
     setup_console(None);
 
-    let chains = CHAINS.try_lock().unwrap();
+    let chains = CHAINS.lock().unwrap();
     let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
     drop(chains);
 
@@ -374,10 +452,10 @@ pub async fn blocks_request(
         mut retries,
     } = serde_wasm_bindgen::from_value::<BlockRequest>(request)?;
 
-    let peers = chain.peers_list().await.collect::<Vec<_>>();
-    if peers.len() == 0 {
+    if !chain.is_connected() {
         return Err("no peers".into());
     }
+    let peers = chain.peers_list();
     let mut index = id % peers.len();
     let mut peer_id = peers.get(index).cloned().expect("index out of range");
 
@@ -399,6 +477,7 @@ pub async fn blocks_request(
 
         loop {
             let response = chain
+                .network_service
                 .clone()
                 .blocks_request(peer_id.clone(), config.clone(), Duration::from_secs(30))
                 .await;
@@ -441,7 +520,7 @@ pub async fn blocks_request(
                     log::debug!("blocks request failed with error {:?}, try next peer", err);
 
                     // rotate peer
-                    let peers = chain.peers_list().await.collect::<Vec<_>>();
+                    let peers = chain.peers_list();
                     if peers.len() == 0 {
                         let response = BlocksResponse {
                             id,
@@ -463,15 +542,28 @@ pub async fn blocks_request(
 }
 
 #[wasm_bindgen]
-pub async fn peers_list(chain_id: usize) -> Result<JsValue, JsValue> {
-    let chains = CHAINS.try_lock().unwrap();
+pub fn peers_list(chain_id: usize) -> Result<JsValue, JsValue> {
+    let chains = CHAINS.lock().unwrap();
     let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
-    drop(chains);
-
     let peers = chain
-        .peers_list()
-        .await
-        .map(|x| x.to_string())
+        .peers()
+        .into_iter()
+        .map(|(peer_id, role, best_number, best_hash)| {
+            (
+                peer_id.to_string(),
+                format!("{:?}", role),
+                best_number,
+                best_hash,
+            )
+        })
         .collect::<Vec<_>>();
     serde_wasm_bindgen::to_value(&peers).map_err(|x| x.into())
+}
+
+#[wasm_bindgen]
+pub fn latest_block(chain_id: usize) -> Result<JsValue, JsValue> {
+    let chains = CHAINS.lock().unwrap();
+    let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
+    let latest = chain.latest_block().ok_or("no peers")?;
+    serde_wasm_bindgen::to_value(&latest).map_err(|x| x.into())
 }
