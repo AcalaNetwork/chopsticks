@@ -262,18 +262,15 @@ export class Blockchain {
       }
       if (this.lightClient) {
         try {
-          const blockData = await this.lightClient.queryBlock(number)
-          if (blockData && blockData.blocks.length > 0) {
-            const data = blockData.blocks[0]
-            const registry = await this.head.registry
-            const header = registry.createType<Header>('Header', hexToU8a(data.header))
-            const block = new Block(this, number, data.hash, undefined, {
-              header,
-              extrinsics: data.body,
-            })
-            this.#registerBlock(block)
-            return block
-          }
+          const data = await this.lightClient.queryBlock(number)
+          const registry = await this.head.registry
+          const header = registry.createType<Header>('Header', hexToU8a(data.header))
+          const block = new Block(this, number, data.hash, undefined, {
+            header,
+            extrinsics: data.body,
+          })
+          this.#registerBlock(block)
+          return block
         } catch (error) {
           logger.warn({ error }, `LightClient queryBlock ${number} failed`)
         }
@@ -295,16 +292,13 @@ export class Blockchain {
     const registry = await this.head.registry
     if (this.lightClient) {
       try {
-        const blockData = await this.lightClient.queryBlock(hash)
-        if (blockData && blockData.blocks.length > 0) {
-          const data = blockData.blocks[0]
-          const header = registry.createType<Header>('Header', hexToU8a(data.header))
-          const block = new Block(this, header.number.toNumber(), hash, undefined, {
-            header,
-            extrinsics: data.body,
-          })
-          return block
-        }
+        const data = await this.lightClient.queryBlock(hash)
+        const header = registry.createType<Header>('Header', hexToU8a(data.header))
+        const block = new Block(this, header.number.toNumber(), hash, undefined, {
+          header,
+          extrinsics: data.body,
+        })
+        return block
       } catch (error) {
         logger.warn({ error }, `LightClient queryBlock ${hash} failed`)
       }

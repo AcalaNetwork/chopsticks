@@ -62,7 +62,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 
     if (this.#lightClient) {
       try {
-        const entries = await this.#lightClient.queryStorage(this.#at as HexString, [key as HexString])
+        const entries = await this.#lightClient.queryStorage([key as HexString], this.#at as HexString)
         let maybeValue: HexString | undefined = undefined
         for (const [k, v] of entries) {
           this.#db?.saveStorage(this.#at as HexString, k, v)

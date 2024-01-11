@@ -30,39 +30,42 @@ export interface JsLightClientCallback {
     connectionStreamOpen: (connectionId: number) => void
     connectionStreamReset: (connectionId: number, streamId: number) => void
     streamSend: (connectionId: number, data: Uint8Array) => void
-    storageResponse: (response: StorageResponse) => void
-    blockResponse: (response: BlocksResponse) => void
+    queryResponse: (requestId: number, response: Response) => void
 }
 
-export type StorageRequest = {
-    id: number
-    blockHash: HexString
-    keys: HexString[]
-    retries: number
-}
+export type Request =
+    {
+        storage: {
+            hash: HexString
+            keys: HexString[]
+        }
+    }
+    |
+    {
+        block: {
+            number: number | null
+            hash: HexString | null
+            header: boolean
+            body: boolean
+        }
+    }
 
-export type BlockRequest = {
-    id: number
-    blockNumber: number | null
-    blockHash: HexString | null
-    retries: number
-}
-
-export type StorageResponse = {
-    id: number
-    items: [HexString, HexString][]
-    errorReason?: string
-}
-
-export type BlocksResponse = {
-    id: number
-    blocks: {
-        hash: HexString,
-        header: HexString,
-        body: HexString[],
-    }[]
-    errorReason?: string
-}
+export type Response =
+    {
+        Storage: [HexString, HexString][]
+    }
+    |
+    {
+        Block: {
+            hash: HexString
+            header: HexString
+            body: HexString[]
+        }
+    }
+    |
+    {
+        Error: string
+    }
 "#;
 
 #[wasm_bindgen]
@@ -93,11 +96,8 @@ extern "C" {
     #[wasm_bindgen(structural, method, js_name = "resetConnection")]
     pub fn reset_connection(this: &JsLightClientCallback, conn_id: u32);
 
-    #[wasm_bindgen(structural, method, js_name = "storageResponse")]
-    pub fn storage_response(this: &JsLightClientCallback, response: JsValue);
-
-    #[wasm_bindgen(structural, method, js_name = "blockResponse")]
-    pub fn block_response(this: &JsLightClientCallback, response: JsValue);
+    #[wasm_bindgen(structural, method, js_name = "queryResponse")]
+    pub fn query_response(this: &JsLightClientCallback, request_id: usize, response: JsValue);
 }
 
 unsafe impl Sync for JsLightClientCallback {}
@@ -159,28 +159,24 @@ struct NetworkServiceConfig {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct StorageRequest {
-    id: usize,
-    block_hash: HashHexString,
-    keys: Vec<HexString>,
-    retries: usize,
+enum Request {
+    Storage {
+        hash: HashHexString,
+        keys: Vec<HexString>,
+    },
+    Block {
+        hash: Option<HashHexString>,
+        number: Option<u64>,
+        header: bool,
+        body: bool,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct StorageResponse {
-    id: usize,
-    items: Vec<(HexString, HexString)>,
-    error_reason: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct BlockRequest {
-    id: usize,
-    block_hash: Option<HashHexString>,
-    block_number: Option<u64>,
-    retries: usize,
+enum Response {
+    Storage(Vec<(HexString, HexString)>),
+    Block(Block),
+    Error(String),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -189,14 +185,6 @@ struct Block {
     hash: HashHexString,
     header: HexString,
     body: Vec<HexString>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct BlocksResponse {
-    id: usize,
-    blocks: Vec<Block>,
-    error_reason: Option<String>,
 }
 
 #[wasm_bindgen]
@@ -296,6 +284,166 @@ pub async fn start_network_service(
 }
 
 #[wasm_bindgen]
+pub fn query_chain(
+    chain_id: usize,
+    request_id: usize,
+    request: JsValue,
+    mut retries: usize,
+    callback: JsLightClientCallback,
+) -> Result<(), JsValue> {
+    setup_console(None);
+
+    let chains = CHAINS.lock().unwrap();
+    let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
+    drop(chains);
+
+    let request = serde_wasm_bindgen::from_value::<Request>(request)?;
+
+    wasm_bindgen_futures::spawn_local(async move {
+        loop {
+            if !chain.is_connected() {
+                let response = Response::Error("no peers".to_string());
+                callback
+                    .query_response(request_id, serde_wasm_bindgen::to_value(&response).unwrap());
+                break;
+            }
+            let peers = chain.peers_list();
+            let index = request_id.saturating_add(retries) % peers.len();
+            let peer_id = peers.get(index).cloned().expect("index out of range");
+            retries = retries.saturating_sub(1);
+
+            match &request {
+                Request::Storage { hash, keys } => {
+                    let proof = chain
+                        .network_service
+                        .clone()
+                        .storage_proof_request(
+                            peer_id,
+                            network::codec::StorageProofRequestConfig {
+                                block_hash: hash.0,
+                                keys: keys.clone().into_iter().map(|x| x.0),
+                            },
+                            Duration::from_secs(30),
+                        )
+                        .await;
+
+                    match proof {
+                        Ok(proof) => {
+                            let result = inner_decode_proof(
+                                smoldot::trie::proof_decode::Config {
+                                    proof: proof.decode().to_vec(),
+                                },
+                                None,
+                            );
+
+                            match result {
+                                Ok(result) => {
+                                    let response = Response::Storage(result);
+                                    callback.query_response(
+                                        request_id,
+                                        serde_wasm_bindgen::to_value(&response).unwrap(),
+                                    );
+                                    break;
+                                }
+                                Err(reason) => {
+                                    log::debug!(
+                                        "storage proof decode failed with error {:?}, try next peer",
+                                        reason
+                                    );
+                                }
+                            }
+                        }
+                        Err(err) => {
+                            log::debug!(
+                                "storage proof request failed with error {:?}, try next peer",
+                                err
+                            );
+                        }
+                    }
+                }
+                Request::Block {
+                    hash,
+                    number,
+                    header,
+                    body,
+                } => {
+                    let response = chain
+                        .network_service
+                        .clone()
+                        .blocks_request(
+                            peer_id,
+                            network::codec::BlocksRequestConfig {
+                                start: if hash.is_some() {
+                                    network::codec::BlocksRequestConfigStart::Hash(
+                                        hash.clone().unwrap().0,
+                                    )
+                                } else {
+                                    network::codec::BlocksRequestConfigStart::Number(
+                                        number.unwrap_or(0),
+                                    )
+                                },
+                                direction: network::codec::BlocksRequestDirection::Descending,
+                                desired_count: NonZeroU32::new(1).unwrap(),
+                                fields: network::codec::BlocksRequestFields {
+                                    header: *header,
+                                    body: *body,
+                                    justifications: false,
+                                },
+                            },
+                            Duration::from_secs(30),
+                        )
+                        .await;
+
+                    match response {
+                        Ok(blocks) => {
+                            let mut result = blocks
+                                .into_iter()
+                                .map(|block| Block {
+                                    hash: HashHexString(block.hash),
+                                    header: HexString(block.header.unwrap_or_default()),
+                                    body: block
+                                        .body
+                                        .unwrap_or_default()
+                                        .into_iter()
+                                        .map(|x| HexString(x))
+                                        .collect(),
+                                })
+                                .collect::<Vec<_>>();
+                            if result.is_empty() {
+                                log::debug!("blocks request returned empty result, try next peer");
+                                continue;
+                            }
+
+                            let response = Response::Block(result.remove(0));
+                            callback.query_response(
+                                request_id,
+                                serde_wasm_bindgen::to_value(&response).unwrap(),
+                            );
+                            break;
+                        }
+                        Err(err) => {
+                            log::debug!(
+                                "blocks request failed with error {:?}, try next peer",
+                                err
+                            );
+                        }
+                    }
+                }
+            }
+
+            if retries == 0 {
+                let response = Response::Error("query out of retries".to_string());
+                callback
+                    .query_response(request_id, serde_wasm_bindgen::to_value(&response).unwrap());
+                break;
+            }
+        }
+    });
+
+    Ok(())
+}
+
+#[wasm_bindgen]
 pub fn stream_message(connection_id: u32, stream_id: u32, data: Vec<u8>) {
     crate::platform::stream_message(connection_id, stream_id, data);
 }
@@ -323,222 +471,6 @@ pub fn timer_finished(callback: JsLightClientCallback) {
 #[wasm_bindgen]
 pub fn connection_stream_opened(connection_id: u32, stream_id: u32, outbound: u32) {
     crate::platform::connection_stream_opened(connection_id, stream_id, outbound);
-}
-
-#[wasm_bindgen]
-pub async fn storage_request(
-    chain_id: usize,
-    request: JsValue,
-    callback: JsLightClientCallback,
-) -> Result<(), JsValue> {
-    setup_console(None);
-
-    let chains = CHAINS.lock().unwrap();
-    let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
-    drop(chains);
-
-    let StorageRequest {
-        id,
-        block_hash,
-        keys,
-        mut retries,
-    } = serde_wasm_bindgen::from_value::<StorageRequest>(request)?;
-
-    if !chain.is_connected() {
-        return Err("no peers".into());
-    }
-    let peers = chain.peers_list();
-    let mut index = id % peers.len();
-    let mut peer_id = peers.get(index).cloned().expect("index out of range");
-
-    wasm_bindgen_futures::spawn_local(async move {
-        let config = network::codec::StorageProofRequestConfig {
-            block_hash: block_hash.0,
-            keys: keys.clone().into_iter().map(|x| x.0),
-        };
-
-        loop {
-            let proof = chain
-                .network_service
-                .clone()
-                .storage_proof_request(peer_id.clone(), config.clone(), Duration::from_secs(30))
-                .await;
-
-            match proof {
-                Ok(proof) => {
-                    let result = inner_decode_proof(
-                        smoldot::trie::proof_decode::Config {
-                            proof: proof.decode().to_vec(),
-                        },
-                        None,
-                    );
-
-                    match result {
-                        Ok(items) => {
-                            let response = StorageResponse {
-                                id,
-                                items,
-                                error_reason: None,
-                            };
-                            callback
-                                .storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        }
-                        Err(e) => {
-                            let response = StorageResponse {
-                                id,
-                                items: vec![],
-                                error_reason: Some(e.to_string()),
-                            };
-                            callback
-                                .storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        }
-                    }
-                    break;
-                }
-                Err(err) => {
-                    if retries == 0 {
-                        let response = StorageResponse {
-                            id,
-                            items: vec![],
-                            error_reason: Some(err.to_string()),
-                        };
-                        callback.storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        break;
-                    }
-
-                    log::debug!(
-                        "storage proof request failed with error {:?}, try next peer",
-                        err
-                    );
-
-                    // rotate peer
-                    let peers = chain.peers_list();
-                    if peers.len() == 0 {
-                        let response = StorageResponse {
-                            id,
-                            items: vec![],
-                            error_reason: Some("no peers".to_string()),
-                        };
-                        callback.storage_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        break;
-                    }
-                    index = index.saturating_add(1) % peers.len();
-                    peer_id = peers.get(index).cloned().expect("index out of range");
-                    retries = retries.saturating_sub(1);
-                }
-            }
-        }
-    });
-
-    Ok(())
-}
-
-#[wasm_bindgen]
-pub async fn blocks_request(
-    chain_id: usize,
-    request: JsValue,
-    callback: JsLightClientCallback,
-) -> Result<(), JsValue> {
-    setup_console(None);
-
-    let chains = CHAINS.lock().unwrap();
-    let chain = chains.get(&chain_id).cloned().ok_or("chain not found")?;
-    drop(chains);
-
-    let BlockRequest {
-        id,
-        block_hash,
-        block_number,
-        mut retries,
-    } = serde_wasm_bindgen::from_value::<BlockRequest>(request)?;
-
-    if !chain.is_connected() {
-        return Err("no peers".into());
-    }
-    let peers = chain.peers_list();
-    let mut index = id % peers.len();
-    let mut peer_id = peers.get(index).cloned().expect("index out of range");
-
-    wasm_bindgen_futures::spawn_local(async move {
-        let config = network::codec::BlocksRequestConfig {
-            start: if block_hash.is_some() {
-                network::codec::BlocksRequestConfigStart::Hash(block_hash.clone().unwrap().0)
-            } else {
-                network::codec::BlocksRequestConfigStart::Number(block_number.unwrap_or(0))
-            },
-            direction: network::codec::BlocksRequestDirection::Descending,
-            desired_count: NonZeroU32::new(1).unwrap(),
-            fields: network::codec::BlocksRequestFields {
-                header: true,
-                body: true,
-                justifications: false,
-            },
-        };
-
-        loop {
-            let response = chain
-                .network_service
-                .clone()
-                .blocks_request(peer_id.clone(), config.clone(), Duration::from_secs(30))
-                .await;
-
-            match response {
-                Ok(blocks) => {
-                    let blocks = blocks
-                        .into_iter()
-                        .map(|block| Block {
-                            hash: HashHexString(block.hash),
-                            header: HexString(block.header.unwrap_or_default()),
-                            body: block
-                                .body
-                                .unwrap_or_default()
-                                .into_iter()
-                                .map(|x| HexString(x))
-                                .collect(),
-                        })
-                        .collect::<Vec<_>>();
-
-                    let response = BlocksResponse {
-                        id,
-                        blocks,
-                        error_reason: None,
-                    };
-                    callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                    break;
-                }
-                Err(err) => {
-                    if retries == 0 {
-                        let response = BlocksResponse {
-                            id,
-                            blocks: vec![],
-                            error_reason: Some(err.to_string()),
-                        };
-                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        break;
-                    }
-
-                    log::debug!("blocks request failed with error {:?}, try next peer", err);
-
-                    // rotate peer
-                    let peers = chain.peers_list();
-                    if peers.len() == 0 {
-                        let response = BlocksResponse {
-                            id,
-                            blocks: vec![],
-                            error_reason: Some("no peers".to_string()),
-                        };
-                        callback.block_response(serde_wasm_bindgen::to_value(&response).unwrap());
-                        break;
-                    }
-                    index = index.saturating_add(1) % peers.len();
-                    peer_id = peers.get(index).cloned().expect("index out of range");
-                    retries = retries.saturating_sub(1);
-                }
-            }
-        }
-    });
-
-    Ok(())
 }
 
 #[wasm_bindgen]

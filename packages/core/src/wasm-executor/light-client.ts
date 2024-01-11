@@ -1,5 +1,5 @@
-import { BlockRequest, BlocksResponse, StorageRequest, StorageResponse } from '@acala-network/chopsticks-executor'
 import { HexString } from '@polkadot/util/types'
+import { Response } from '@acala-network/chopsticks-executor'
 import { WebSocket } from 'ws'
 import { stringToU8a } from '@polkadot/util'
 
@@ -7,12 +7,11 @@ globalThis.WebSocket = typeof globalThis.WebSocket !== 'undefined' ? globalThis.
 
 import { Deferred, defer } from '../utils/index.js'
 import {
-  blocksRequest,
   connectionReset,
   getLatestBlock,
   getPeers,
+  queryChain,
   startNetworkService,
-  storageRequest,
   streamMessage,
   streamWritableBytes,
   timerFinished,
@@ -85,8 +84,7 @@ export class LightClient {
   // blacklist of addresses that we have failed to connect to
   #blacklist: string[] = []
   #connections: Record<number, Connection> = {}
-  #storageResponse: Map<number, Deferred<StorageResponse>> = new Map()
-  #blockResponse: Map<number, Deferred<BlocksResponse>> = new Map()
+  #queryResponse: Map<number, Deferred<Response>> = new Map()
 
   #chainId = defer<number>()
 
@@ -159,14 +157,9 @@ export class LightClient {
     }
   }
 
-  async storageResponse(response: StorageResponse) {
-    this.#storageResponse.get(response.id)?.resolve(response)
-    this.#storageResponse.delete(response.id)
-  }
-
-  async blockResponse(response: BlocksResponse) {
-    this.#blockResponse.get(response.id)?.resolve(response)
-    this.#blockResponse.delete(response.id)
+  async queryResponse(requestId: number, response: Response) {
+    this.#queryResponse.get(requestId)?.resolve(response)
+    this.#queryResponse.delete(requestId)
   }
 
   streamSend(connectionId: number, data: Uint8Array) {
@@ -219,39 +212,60 @@ export class LightClient {
     }
   }
 
-  async queryStorage(blockHash: HexString, keys: HexString[]) {
+  async queryStorage(keys: HexString[], at: HexString) {
     const chainId = await this.#chainId.promise
-    const id = this.#requestId++
-    const deferred = defer<StorageResponse>()
-    this.#storageResponse.set(id, deferred)
-    await storageRequest(chainId, { id, blockHash, keys, retries: 10 } satisfies StorageRequest, this)
+    const requestId = this.#requestId++
+    const deferred = defer<Response>()
+    this.#queryResponse.set(requestId, deferred)
+    await queryChain(
+      chainId,
+      requestId,
+      {
+        storage: {
+          hash: at,
+          keys,
+        },
+      },
+      10,
+      this,
+    )
     const response = await deferred.promise
-    if (response.errorReason) {
-      throw new Error(response.errorReason)
+    if ('Error' in response) {
+      throw new Error(response.Error)
     }
-    return response.items
+    if ('Storage' in response) {
+      return response.Storage
+    }
+    throw new Error('Invalid response')
   }
 
   async queryBlock(block: HexString | number) {
     const chainId = await this.#chainId.promise
-    const id = this.#requestId++
-    const deferred = defer<BlocksResponse>()
-    this.#blockResponse.set(id, deferred)
-    await blocksRequest(
+    const requestId = this.#requestId++
+    const deferred = defer<Response>()
+    this.#queryResponse.set(requestId, deferred)
+    await queryChain(
       chainId,
+      requestId,
       {
-        id,
-        blockNumber: typeof block === 'number' ? block : null,
-        blockHash: typeof block === 'string' ? block : null,
-        retries: 10,
-      } satisfies BlockRequest,
+        block: {
+          number: typeof block === 'number' ? block : null,
+          hash: typeof block === 'string' ? block : null,
+          header: true,
+          body: true,
+        },
+      },
+      10,
       this,
     )
     const response = await deferred.promise
-    if (response.errorReason) {
-      throw new Error(response.errorReason)
+    if ('Error' in response) {
+      throw new Error(response.Error)
     }
-    return response
+    if ('Block' in response) {
+      return response.Block
+    }
+    throw new Error('Invalid response')
   }
 
   connectionStreamOpen(_connectionId: number) {}

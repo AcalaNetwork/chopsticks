@@ -57,12 +57,8 @@ const timerFinished = async (callback) => {
   return pkg.timer_finished(callback)
 }
 
-const storageRequest = async (chainId, req, callback) => {
-  return pkg.storage_request(chainId, req, callback)
-}
-
-const blocksRequest = async (chainId, req, callback) => {
-  return pkg.blocks_request(chainId, req, callback)
+const queryChain = async (chainId, requestId, request, retries, callback) => {
+  return pkg.query_chain(chainId, requestId, request, retries, callback)
 }
 
 const getPeers = async (chainId) => {
@@ -81,8 +77,7 @@ const wasmExecutor = {
   decodeProof,
   testing,
   startNetworkService,
-  storageRequest,
-  blocksRequest,
+  queryChain,
   getPeers,
   getLatestBlock,
   connectionStreamOpened,

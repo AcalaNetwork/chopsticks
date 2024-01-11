@@ -10,12 +10,7 @@ import { defaultLogger, truncate } from '../logger.js'
 import { stripChildPrefix } from '../utils/index.js'
 
 import { LightClientConfig } from './light-client.js'
-import type {
-  BlockRequest,
-  JsLightClientCallback,
-  JsRuntimeCallback,
-  StorageRequest,
-} from '@acala-network/chopsticks-executor'
+import type { JsLightClientCallback, JsRuntimeCallback, Request } from '@acala-network/chopsticks-executor'
 export { JsRuntimeCallback }
 
 export type RuntimeVersion = {
@@ -82,8 +77,13 @@ export interface WasmExecutor {
   connectionReset: (connectionId: number, data: Uint8Array) => Promise<void>
   streamReset: (connectionId: number, streamId: number) => Promise<void>
   timerFinished: (callback: JsLightClientCallback) => Promise<void>
-  storageRequest: (chainId: number, req: StorageRequest, callback: JsLightClientCallback) => Promise<void>
-  blocksRequest: (chainId: number, req: BlockRequest, callback: JsLightClientCallback) => Promise<void>
+  queryChain: (
+    chainId: number,
+    requestId: number,
+    request: Request,
+    retries: number,
+    callback: JsLightClientCallback,
+  ) => Promise<void>
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
@@ -242,14 +242,15 @@ export const startNetworkService = async (config: LightClientConfig, callback: J
   return worker.remote.startNetworkService(config, Comlink.proxy(callback))
 }
 
-export const storageRequest = async (chainId: number, req: StorageRequest, callback: JsLightClientCallback) => {
+export const queryChain = async (
+  chainId: number,
+  requestId: number,
+  request: Request,
+  retries: number,
+  callback: JsLightClientCallback,
+) => {
   const worker = await getWorker()
-  return worker.remote.storageRequest(chainId, req, callback)
-}
-
-export const blocksRequest = async (chainId: number, req: BlockRequest, callback: JsLightClientCallback) => {
-  const worker = await getWorker()
-  return worker.remote.blocksRequest(chainId, req, callback)
+  return worker.remote.queryChain(chainId, requestId, request, retries, callback)
 }
 
 export const getPeers = async (chainId: number) => {
