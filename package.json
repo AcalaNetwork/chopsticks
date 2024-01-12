@@ -58,7 +58,7 @@
 		"typedoc-plugin-markdown": "^3.17.1",
 		"typescript": "^5.3.3",
 		"unplugin-swc": "^1.4.4",
-		"vite-tsconfig-paths": "^4.2.2",
+		"vite-tsconfig-paths": "^4.2.3",
 		"vitepress": "^1.0.0-rc.31",
 		"vitest": "^1.0.4",
 		"wasm-pack": "^0.12.1"
