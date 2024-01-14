@@ -239,11 +239,15 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     const timestamp = await newBlock.read('u64', meta.query.timestamp.now)
     const events = await newBlock.read('Vec<EventRecord>', meta.query.system.events)
     const parsedEvents = events?.map((event) => {
-      const argObj = {}
+      let argObj: any = undefined
       const len = event.event.data.names?.length ?? 0
-      for (let i = 0; i < len; i++) {
-        argObj[event.event.data.names![i]] = event.event.data[i].toJSON()
+      if (len > 0) {
+        argObj = {}
+        for (let i = 0; i < len; i++) {
+          argObj[event.event.data.names![i]] = event.event.data[i].toJSON()
+        }
       }
+
       return {
         phase: event.phase.isApplyExtrinsic
           ? event.phase.asApplyExtrinsic.toNumber()
