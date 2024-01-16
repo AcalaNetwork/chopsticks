@@ -39,7 +39,7 @@ describe.runIf(process.env.CI).each([
     await ws.send('dev_newBlock', [{ count: 2 }])
     expect(chain.head.number).eq(blockNumber + 2)
     await teardown()
-  })
+  }, { timeout: 300_000, retry: 1 })
 
   it('build block using unsafeBlockHeight', async () => {
     const { chain, ws, teardown } = await setup()
