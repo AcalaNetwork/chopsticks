@@ -150,23 +150,16 @@ export class SetValidationData implements CreateInherents {
     }
     newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
 
-    const hrmpIngressChannels = meta.registry
-      .createType('Vec<ParaId>', decoded[hrmpIngressChannelIndexKey])
-      .toJSON() as number[]
-
     const hrmpEgressChannels = meta.registry
       .createType('Vec<ParaId>', decoded[hrmpEgressChannelIndexKey])
       .toJSON() as number[]
 
-    const hrmpMessages = {
-      // reset values, we just need the keys
-      ..._.mapValues(extrinsic.horizontalMessages, () => [] as HorizontalMessage[]),
-      ...params.horizontalMessages,
-    }
+    const hrmpMessages = _.mergeWith(extrinsic.horizontalMessages, params.horizontalMessages, (objValue, srcValue) =>
+      objValue.concat(srcValue),
+    )
 
     // inject horizontal messages
-    for (const id of hrmpIngressChannels) {
-      const messages = hrmpMessages[id]
+    for (const [id, messages] of Object.entries(hrmpMessages)) {
       const sender = Number(id)
 
       const channelId = meta.registry.createType<HrmpChannelId>('HrmpChannelId', {
