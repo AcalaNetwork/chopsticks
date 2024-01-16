@@ -131,26 +131,24 @@ export class SetValidationData implements CreateInherents {
     newEntries.push([paraHead(paraId), u8aToHex(headData.toU8a())])
 
     // inject downward messages
-    let dmqMqcHeadHash = decoded[dmqMqcHeadKey]
-    if (dmqMqcHeadHash) {
-      for (const { msg, sentAt } of params.downwardMessages) {
-        // calculate new hash
-        dmqMqcHeadHash = blake2AsHex(
-          u8aConcat(
-            meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
-            meta.registry.createType('BlockNumber', sentAt).toU8a(),
-            blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256),
-          ),
-          256,
-        )
+    let dmqMqcHeadHash = decoded[dmqMqcHeadKey] || '0x0000000000000000000000000000000000000000000000000000000000000000'
+    for (const { msg, sentAt } of params.downwardMessages) {
+      // calculate new hash
+      dmqMqcHeadHash = blake2AsHex(
+        u8aConcat(
+          meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
+          meta.registry.createType('BlockNumber', sentAt).toU8a(),
+          blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256),
+        ),
+        256,
+      )
 
-        downwardMessages.push({
-          msg,
-          sentAt,
-        })
-      }
-      newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
+      downwardMessages.push({
+        msg,
+        sentAt,
+      })
     }
+    newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
 
     const hrmpIngressChannels = meta.registry
       .createType('Vec<ParaId>', decoded[hrmpIngressChannelIndexKey])

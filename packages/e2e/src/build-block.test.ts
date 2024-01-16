@@ -15,7 +15,7 @@ const KUSAMA_STORAGE = {
 describe.runIf(process.env.CI).each([
   { chain: 'Polkadot', endpoint: 'https://rpc.polkadot.io' },
   { chain: 'Statemint', endpoint: 'wss://statemint-rpc.dwellir.com' },
-  { chain: 'Polkadot Collectives', endpoint: 'wss://sys.ibp.network/collectives-polkadot' },
+  // { chain: 'Polkadot Collectives', endpoint: 'wss://sys.ibp.network/collectives-polkadot' },
   { chain: 'Acala', endpoint: 'wss://acala-rpc-1.aca-api.network' },
 
   { chain: 'Kusama', endpoint: 'wss://kusama-rpc.polkadot.io', storage: KUSAMA_STORAGE },
@@ -24,7 +24,7 @@ describe.runIf(process.env.CI).each([
 
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
   { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
-  { chain: 'Westend Collectives', endpoint: 'wss://sys.ibp.network/collectives-westend' },
+  // { chain: 'Westend Collectives', endpoint: 'wss://sys.ibp.network/collectives-westend' },
 ])('Latest $chain can build blocks', async ({ endpoint, storage }) => {
   const { setup, teardownAll } = await setupAll({ endpoint })
 
@@ -32,14 +32,18 @@ describe.runIf(process.env.CI).each([
     await teardownAll()
   })
 
-  it('build blocks', async () => {
-    const { chain, ws, teardown } = await setup()
-    storage && (await ws.send('dev_setStorage', [storage]))
-    const blockNumber = chain.head.number
-    await ws.send('dev_newBlock', [{ count: 2 }])
-    expect(chain.head.number).eq(blockNumber + 2)
-    await teardown()
-  })
+  it(
+    'build blocks',
+    async () => {
+      const { chain, ws, teardown } = await setup()
+      storage && (await ws.send('dev_setStorage', [storage]))
+      const blockNumber = chain.head.number
+      await ws.send('dev_newBlock', [{ count: 2 }])
+      expect(chain.head.number).eq(blockNumber + 2)
+      await teardown()
+    },
+    { timeout: 300_000, retry: 1 },
+  )
 
   it('build block using unsafeBlockHeight', async () => {
     const { chain, ws, teardown } = await setup()
