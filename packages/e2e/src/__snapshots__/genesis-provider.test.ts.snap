@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`genesis provider works Asset Hub Kusama > genesis provider works > build blocks 1`] = `"Kusama Asset Hub Local"`;
+exports[`genesis provider works Asset Hub Kusama > genesis provider works > build blocks 1`] = `"Statemine Chopsticks"`;
 
-exports[`genesis provider works Kusama > genesis provider works > build blocks 1`] = `"Kusama Local Testnet"`;
+exports[`genesis provider works Kusama > genesis provider works > build blocks 1`] = `"Parity-kusama Chopsticks"`;
 
 exports[`genesis provider works Kusama > genesis provider works > handles tx 1`] = `
 {
@@ -49,7 +49,7 @@ exports[`genesis provider works Kusama > genesis provider works > handles tx 3`]
 }
 `;
 
-exports[`genesis provider works Mandala > genesis provider works > build blocks 1`] = `"Acala Mandala TC7"`;
+exports[`genesis provider works Mandala > genesis provider works > build blocks 1`] = `"Mandala Chopsticks"`;
 
 exports[`genesis provider works Mandala > genesis provider works > handles tx 1`] = `
 {

@@ -37,6 +37,7 @@ import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor/index.js
 export class Block {
   #chain: Blockchain
 
+  #blockData?: Promise<Block>
   #header?: Header | Promise<Header>
   #parentBlock?: WeakRef<Block> | Promise<Block | undefined>
   #extrinsics?: HexString[] | Promise<HexString[]>
@@ -70,7 +71,7 @@ export class Block {
     this.#parentBlock = parentBlock ? new WeakRef(parentBlock) : undefined
     this.#header = block?.header
     this.#extrinsics = block?.extrinsics
-    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db)
+    this.#baseStorage = block?.storage ?? new RemoteStorageLayer(chain.api, hash, chain.db, chain.lightClient)
     this.#storages = []
 
     this.#runtimeVersion = parentBlock?.runtimeVersion
@@ -98,23 +99,30 @@ export class Block {
     return this.#chain
   }
 
+  get blockData(): Promise<Block> {
+    if (!this.#blockData) {
+      this.#blockData = this.#chain.queryBlock(this.hash).then((block) => {
+        if (!block) throw new Error(`Block ${this.hash} not found`)
+        if (!block.#header) {
+          throw new Error('Header not found, queryBlock should return a block with header')
+        }
+        return block
+      })
+    }
+    return this.#blockData
+  }
+
   get header(): Header | Promise<Header> {
     if (!this.#header) {
-      this.#header = Promise.all([this.registry, this.#chain.api.getHeader(this.hash)]).then(([registry, header]) =>
-        registry.createType<Header>('Header', header),
-      )
+      // queryBlock will set header
+      this.#header = this.blockData.then((block) => block.#header!)
     }
     return this.#header
   }
 
   get extrinsics(): HexString[] | Promise<HexString[]> {
     if (!this.#extrinsics) {
-      this.#extrinsics = this.#chain.api.getBlock(this.hash).then((b) => {
-        if (!b) {
-          throw new Error(`Block ${this.hash} not found`)
-        }
-        return b.block.extrinsics
-      })
+      this.#extrinsics = this.blockData.then((b) => b.extrinsics)
     }
     return this.#extrinsics
   }

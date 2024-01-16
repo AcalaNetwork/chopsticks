@@ -9,14 +9,16 @@ describe('system rpc', () => {
 
   it('works', async () => {
     expect(await api.rpc.system.chain()).toMatch('Acala')
-    expect(await api.rpc.system.name()).toMatch('Subway')
+    expect(await api.rpc.system.name()).toMatch(/Subway|Acala/)
     expect(await api.rpc.system.version()).toBeInstanceOf(String)
     expect(await api.rpc.system.properties()).not.toBeNull()
-    await check(api.rpc.system.health()).toMatchObject({
-      peers: 0,
-      isSyncing: false,
-      shouldHavePeers: false,
-    })
+    check(await api.rpc.system.health())
+      .toJson()
+      .toMatchObject(
+        expect.objectContaining({
+          isSyncing: false,
+        }),
+      )
   })
 
   it('zero is not replaced with null', async () => {

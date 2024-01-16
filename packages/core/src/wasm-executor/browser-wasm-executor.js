@@ -26,6 +26,63 @@ const testing = async (callback, key) => {
   return pkg.testing(callback, key)
 }
 
-const wasmExecutor = { runTask, getRuntimeVersion, calculateStateRoot, createProof, decodeProof, testing }
+const startNetworkService = async (config, callback) => {
+  return pkg.start_network_service(config, callback)
+}
+
+const connectionStreamOpened = async (connectionId, streamId, outbound) => {
+  return pkg.connection_stream_opened(connectionId, streamId, outbound)
+}
+
+const connectionReset = async (connectionId, data) => {
+  return pkg.connection_reset(connectionId, data)
+}
+
+const streamReset = async (connectionId, streamId) => {
+  return pkg.stream_reset(connectionId, streamId)
+}
+
+const streamMessage = async (connectionId, streamId, data) => {
+  return pkg.stream_message(connectionId, streamId, data)
+}
+
+const streamWritableBytes = async (connectionId, streamId, bytes) => {
+  return pkg.stream_writable_bytes(connectionId, streamId, bytes)
+}
+
+const timerFinished = async (callback) => {
+  return pkg.timer_finished(callback)
+}
+
+const queryChain = async (chainId, requestId, request, retries, callback) => {
+  return pkg.query_chain(chainId, requestId, request, retries, callback)
+}
+
+const getPeers = async (chainId) => {
+  return pkg.peers_list(chainId)
+}
+
+const getLatestBlock = async (chainId) => {
+  return pkg.latest_block(chainId)
+}
+
+const wasmExecutor = {
+  runTask,
+  getRuntimeVersion,
+  calculateStateRoot,
+  createProof,
+  decodeProof,
+  testing,
+  startNetworkService,
+  queryChain,
+  getPeers,
+  getLatestBlock,
+  connectionStreamOpened,
+  connectionReset,
+  streamReset,
+  streamMessage,
+  streamWritableBytes,
+  timerFinished,
+}
 
 Comlink.expose(wasmExecutor)

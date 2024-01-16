@@ -19,6 +19,7 @@ import {
   SetTimestamp,
   SetValidationData,
 } from './blockchain/inherent/index.js'
+import { LightClient, LightClientConfig } from './wasm-executor/light-client.js'
 import { defaultLogger } from './logger.js'
 import { getSlotDuration, setStorage } from './index.js'
 
@@ -34,6 +35,7 @@ export type SetupOptions = {
   registeredTypes?: RegisteredTypes
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
+  p2p?: LightClientConfig
 }
 
 export const genesisSetup = async (chain: Blockchain, genesis: GenesisProvider) => {
@@ -88,6 +90,8 @@ export const setup = async (options: SetupOptions) => {
   const api = new Api(provider)
   await api.isReady
 
+  const lightClient = options.p2p && (await LightClient.create(options.p2p))
+
   let blockHash: string
   if (options.block == null) {
     blockHash = await api.getBlockHash().then((hash) => {
@@ -125,6 +129,7 @@ export const setup = async (options: SetupOptions) => {
   ])
 
   const chain = new Blockchain({
+    lightClient,
     api,
     buildBlockMode: options.buildBlockMode,
     inherentProvider: inherents,

@@ -107,6 +107,16 @@ function App() {
 			block: config.block,
 			mockSignatureHost: true,
 			db: new IdbDatabase('cache'),
+			// p2p: {
+			// 	genesisBlockHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c',
+			// 	bootnodes: [
+			// 		'/dns/acala-bootnode-4.aca-api.network/tcp/30334/ws/p2p/12D3KooWBLwm4oKY5fsbkdSdipHzYJJHSHhuoyb1eTrH31cidrnY',
+			// 		'/dns/acala-bootnode-5.aca-api.network/tcp/443/wss/p2p/12D3KooWN6ZZ2LFSJo2vDci3hqmmcvqMcKJAbREvuYCdvoBvV2D4',
+			// 		'/dns/acala-bootnode-6.aca-api.network/tcp/80/ws/p2p/12D3KooWEBniruZHpoVj8RUtAFPahaN8UaGP6UtQb5Bdp4MVYbLc',
+			// 		'/dns/acala-bootnode-6.aca-api.network/tcp/443/wss/p2p/12D3KooWEBniruZHpoVj8RUtAFPahaN8UaGP6UtQb5Bdp4MVYbLc',
+			// 		'/dns/acala-bootnode-7.aca-api.network/tcp/80/ws/p2p/12D3KooWMq7AtHFx3ZboMT92HQw8BvhZFzJh8UrPCZeMB3yFLe1V',
+			// 	],
+			// },
 		})
 		globalThis.chain = chain
 
