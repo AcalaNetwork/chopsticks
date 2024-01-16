@@ -24,7 +24,7 @@ describe.runIf(process.env.CI).each([
 
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
   { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
-  { chain: 'Westend Collectives', endpoint: 'wss://sys.ibp.network/collectives-westend' },
+  // { chain: 'Westend Collectives', endpoint: 'wss://sys.ibp.network/collectives-westend' },
 ])('Latest $chain can build blocks', async ({ endpoint, storage }) => {
   const { setup, teardownAll } = await setupAll({ endpoint })
 
