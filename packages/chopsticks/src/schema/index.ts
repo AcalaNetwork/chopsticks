@@ -14,7 +14,7 @@ export const configSchema = z.object({
   port: z.number({ description: 'Port to listen on' }).default(8000),
   endpoint: z.union([z.string(), z.array(z.string())], { description: 'Endpoint to connect to' }).optional(),
   block: z
-    .union([zHash, z.coerce.number(), z.null()], {
+    .union([z.string(), z.number(), z.null()], {
       description: 'Block hash or block number. Default to latest block',
     })
     .optional(),
