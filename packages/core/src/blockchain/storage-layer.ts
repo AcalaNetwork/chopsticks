@@ -137,10 +137,6 @@ export class StorageLayer implements StorageLayerProvider {
     this.#parent = parent
   }
 
-  get keys() {
-    return this.#keys
-  }
-
   #addKey(key: string) {
     const idx = _.sortedIndex(this.#keys, key)
     const key2 = this.#keys[idx]
