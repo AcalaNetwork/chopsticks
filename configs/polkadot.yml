@@ -1,5 +1,5 @@
 endpoint:
-  - wss://rpc.polkadot.io
+  - wss://rpc.ibp.network/polkadot
   - wss://polkadot-rpc.dwellir.com
 mock-signature-host: true
 block: ${env.POLKADOT_BLOCK_NUMBER}
