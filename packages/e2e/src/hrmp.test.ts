@@ -24,21 +24,31 @@ const acalaHRMP: Record<number, HorizontalMessage[]> = {
 
 describe('HRMP', () => {
   it('Statemine handles horizonal messages', async () => {
-    const statemine = await setupContext({ endpoint: 'wss://statemine-rpc-tn.dwellir.com' })
+    const statemine = await setupContext({
+      endpoint: 'wss://statemine-rpc-tn.dwellir.com',
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
+    })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
     await checkSystemEvents(statemine, 'xcmpQueue', 'Success').toMatchSnapshot()
     await statemine.teardown()
   })
 
   it('Acala handles horizonal messages', async () => {
-    const acala = await setupContext({ endpoint: 'wss://acala-rpc.aca-api.network' })
+    const acala = await setupContext({
+      endpoint: 'wss://acala-rpc.aca-api.network',
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
+    })
     await acala.chain.newBlock({ horizontalMessages: acalaHRMP })
     await checkSystemEvents(acala, 'xcmpQueue', 'Success').toMatchSnapshot()
     await acala.teardown()
   })
 
   it('Statemine handles horizonal messages block#5,800,000', async () => {
-    const statemine = await setupContext({ endpoint: 'wss://statemine-rpc-tn.dwellir.com', blockNumber: 5_800_000 })
+    const statemine = await setupContext({
+      endpoint: 'wss://statemine-rpc-tn.dwellir.com',
+      blockNumber: 5_800_000,
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
+    })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
     await checkSystemEvents(statemine, 'xcmpQueue', 'Success').toMatchSnapshot()
     await statemine.teardown()

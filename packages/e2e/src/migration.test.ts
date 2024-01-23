@@ -8,7 +8,7 @@ describe('Migration', async () => {
     wasmOverride: new URL('../blobs/shibuya-118.wasm', import.meta.url).pathname,
     blockNumber: 5335600,
     endpoint: 'wss://shibuya-rpc.dwellir.com',
-    db: process.env.DB_PATH,
+    db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     timeout: 400_000,
   })
 
