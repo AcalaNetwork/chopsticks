@@ -84,7 +84,10 @@ export function defer<T>() {
 const DEFAULT_CHILD_STORAGE = '0x3a6368696c645f73746f726167653a64656661756c743a'
 
 // length of the child storage key
-const CHILD_LENGTH = DEFAULT_CHILD_STORAGE.length + 64
+export const CHILD_PREFIX_LENGTH = DEFAULT_CHILD_STORAGE.length + 64
+
+// 0x + 32 module + 32 method
+export const PREFIX_LENGTH = 66
 
 // returns a key that is prefixed with the child storage key
 export const prefixedChildKey = (prefix: HexString, key: HexString) => prefix + hexStripPrefix(key)
@@ -95,9 +98,9 @@ export const isPrefixedChildKey = (key: HexString) => key.startsWith(DEFAULT_CHI
 // returns a key that is split into the child storage key and the rest
 export const splitChildKey = (key: HexString) => {
   if (!key.startsWith(DEFAULT_CHILD_STORAGE)) return []
-  if (key.length < CHILD_LENGTH) return []
-  const child = key.slice(0, CHILD_LENGTH)
-  const rest = key.slice(CHILD_LENGTH)
+  if (key.length < CHILD_PREFIX_LENGTH) return []
+  const child = key.slice(0, CHILD_PREFIX_LENGTH)
+  const rest = key.slice(CHILD_PREFIX_LENGTH)
   return [child, hexAddPrefix(rest)] as [HexString, HexString]
 }
 

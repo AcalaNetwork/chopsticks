@@ -2,9 +2,10 @@ import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
 import { Api } from '../api.js'
+import { CHILD_PREFIX_LENGTH, PREFIX_LENGTH, isPrefixedChildKey } from '../utils/index.js'
 import { Database } from '../database.js'
 import { defaultLogger } from '../logger.js'
-import KeyCache, { PREFIX_LENGTH } from '../utils/key-cache.js'
+import KeyCache from '../utils/key-cache.js'
 
 const logger = defaultLogger.child({ name: 'layer' })
 
@@ -40,7 +41,8 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   readonly #api: Api
   readonly #at: string
   readonly #db: Database | undefined
-  readonly #keyCache = new KeyCache()
+  readonly #keyCache = new KeyCache(PREFIX_LENGTH)
+  readonly #defaultChildKeyCache = new KeyCache(CHILD_PREFIX_LENGTH)
 
   constructor(api: Api, at: string, db: Database | undefined) {
     this.#api = api
@@ -69,15 +71,21 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     if (pageSize > BATCH_SIZE) throw new Error(`pageSize must be less or equal to ${BATCH_SIZE}`)
     logger.trace({ at: this.#at, prefix, pageSize, startKey }, 'RemoteStorageLayer getKeysPaged')
+
+    const isChild = isPrefixedChildKey(prefix as HexString)
+    const minPrefixLen = isChild ? CHILD_PREFIX_LENGTH : PREFIX_LENGTH
+
     // can't handle keyCache without prefix
-    if (prefix.length < PREFIX_LENGTH || startKey.length < PREFIX_LENGTH) {
+    if (prefix.length < minPrefixLen || startKey.length < minPrefixLen) {
       return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
     let batchComplete = false
     const keysPaged: string[] = []
     while (keysPaged.length < pageSize) {
-      const nextKey = await this.#keyCache.next(startKey as any)
+      const nextKey = isChild
+        ? await this.#defaultChildKeyCache.next(startKey as HexString)
+        : await this.#keyCache.next(startKey as HexString)
       if (nextKey) {
         keysPaged.push(nextKey)
         startKey = nextKey
@@ -94,12 +102,25 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 
       // feed the key cache
       if (batch.length > 0) {
-        this.#keyCache.feed([startKey, ...(batch as any)])
+        if (isChild) {
+          this.#defaultChildKeyCache.feed([startKey, ...batch] as HexString[])
+        } else {
+          this.#keyCache.feed([startKey, ...batch] as HexString[])
+        }
       }
 
       if (batch.length === 0) {
         // no more keys were found
         break
+      }
+
+      if (this.#db) {
+        // batch fetch storage values and save to db, they may be used later
+        this.#api.getStorageBatch(prefix as HexString, batch as HexString[], this.#at as HexString).then((storage) => {
+          for (const [key, value] of storage) {
+            this.#db!.saveStorage(this.#at as HexString, key as HexString, value)
+          }
+        })
       }
     }
     return keysPaged
@@ -209,32 +230,114 @@ export class StorageLayer implements StorageLayerProvider {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
-    if (!this.#deletedPrefix.some((dp) => startKey.startsWith(dp))) {
-      const remote = (await this.#parent?.getKeysPaged(prefix, pageSize, startKey)) ?? []
-      for (const key of remote) {
-        if (this.#store.get(key) === StorageValueKind.Deleted) {
-          continue
+    let parentFetchComplete = false
+    const parentFetchKeys = async (batchSize: number, startKey: string) => {
+      if (!this.#deletedPrefix.some((dp) => startKey.startsWith(dp))) {
+        const newKeys: string[] = []
+        while (newKeys.length < batchSize) {
+          const remote = (await this.#parent?.getKeysPaged(prefix, batchSize, startKey)) ?? []
+          if (remote.length) {
+            startKey = remote[remote.length - 1]
+          }
+          for (const key of remote) {
+            if (this.#store.get(key) === StorageValueKind.Deleted) {
+              continue
+            }
+            if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
+              continue
+            }
+            newKeys.push(key)
+          }
+          if (remote.length < batchSize) {
+            parentFetchComplete = true
+            break
+          }
         }
-        if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
-          continue
-        }
-        this.#addKey(key)
+        return newKeys
+      } else {
+        parentFetchComplete = true
+        return []
       }
     }
 
-    let idx = _.sortedIndex(this.#keys, startKey)
-    if (this.#keys[idx] === startKey) {
-      ++idx
-    }
     const res: string[] = []
-    while (res.length < pageSize) {
-      const key: string = this.#keys[idx]
-      if (!key || !key.startsWith(prefix)) {
-        break
+
+    const foundNextKey = (key: string) => {
+      // make sure keys are unique
+      if (!res.includes(key)) {
+        res.push(key)
       }
-      res.push(key)
-      ++idx
     }
+
+    const iterLocalKeys = (prefix: string, startKey: string, includeFirst: boolean, endKey?: string) => {
+      let idx = this.#keys.findIndex((x) => x.startsWith(startKey))
+      if (this.#keys[idx] !== startKey) {
+        idx = this.#keys.findIndex((x) => x.startsWith(prefix) && x > startKey)
+        const key = this.#keys[idx]
+        if (key) {
+          if (endKey && key >= endKey) {
+            return startKey
+          }
+          foundNextKey(key)
+          ++idx
+        }
+      }
+      if (idx !== -1) {
+        if (includeFirst) {
+          const key = this.#keys[idx]
+          if (key) {
+            foundNextKey(key)
+          }
+        }
+        while (res.length < pageSize) {
+          ++idx
+          const key: string = this.#keys[idx]
+          if (!key || !key.startsWith(prefix)) {
+            break
+          }
+          if (endKey && key >= endKey) {
+            break
+          }
+          foundNextKey(key)
+        }
+        return _.last(res) ?? startKey
+      }
+      return startKey
+    }
+
+    if (prefix !== startKey && this.#keys.find((x) => x === startKey)) {
+      startKey = iterLocalKeys(prefix, startKey, false)
+    }
+
+    // then iterate the parent keys
+    let keys = await parentFetchKeys(pageSize - res.length, startKey)
+    if (keys.length) {
+      let idx = 0
+      while (res.length < pageSize) {
+        const key = keys[idx]
+        if (!key || !key.startsWith(prefix)) {
+          if (parentFetchComplete) {
+            break
+          } else {
+            keys = await parentFetchKeys(pageSize - res.length, _.last(keys)!)
+            continue
+          }
+        }
+
+        const keyPosition = _.sortedIndex(this.#keys, key)
+        const localParentKey = this.#keys[keyPosition - 1]
+        if (localParentKey < key) {
+          startKey = iterLocalKeys(prefix, startKey, false, key)
+        }
+
+        foundNextKey(key)
+        ++idx
+      }
+    }
+    if (res.length < pageSize) {
+      iterLocalKeys(prefix, startKey, prefix === startKey)
+    }
+
     return res
   }
 

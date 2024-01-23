@@ -19,29 +19,64 @@ describe('Polkadot Crowdloan Refund', async () => {
     })
   }, 200_000)
 
-  it.runIf(process.env.CI)(
+  it.runIf(process.env.CI || process.env.RUN_ALL)(
     "should refund Acala's contributors",
     async () => {
       // trigger refund
       await expect(api.tx.crowdloan.refund(3336).signAndSend(alice)).resolves.toBeTruthy()
       await dev.newBlock()
 
-      // some address get refund
-      expect((await api.query.system.events()).toHuman()).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            event: expect.objectContaining({
-              method: 'Transfer',
-              section: 'balances',
-              data: expect.objectContaining({
-                from: '13UVJyLnbVp77Z2t6qZV4fNpRjDHppL6c87bHcZKG48tKJad',
-                to: '111DbHPUxncZcffEfy1BrtFZNDUzK7hHchLpmJYFEFG4hy1',
-                amount: '1,000,000,000,000',
+      {
+        // 1000 accounts get refunded and crowdloan is partially refunded
+        const events = await api.query.system.events()
+        expect(events.filter((event) => event.event.method === 'Transfer').length === 1000).toBeTruthy()
+        expect(events.toHuman()).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              event: expect.objectContaining({
+                method: 'Transfer',
+                section: 'balances',
+                data: expect.objectContaining({
+                  from: '13UVJyLnbVp77Z2t6qZV4fNpRjDHppL6c87bHcZKG48tKJad',
+                  to: '111DbHPUxncZcffEfy1BrtFZNDUzK7hHchLpmJYFEFG4hy1',
+                  amount: '1,000,000,000,000',
+                }),
               }),
             }),
-          }),
-        ]),
-      )
+            expect.objectContaining({
+              event: expect.objectContaining({
+                method: 'PartiallyRefunded',
+                section: 'crowdloan',
+                data: expect.objectContaining({
+                  paraId: '3,336',
+                }),
+              }),
+            }),
+          ]),
+        )
+      }
+
+      await expect(api.tx.crowdloan.refund(3336).signAndSend(alice)).resolves.toBeTruthy()
+      await dev.newBlock()
+
+      {
+        // 1000 accounts get refunded and crowdloan is partially refunded
+        const events = await api.query.system.events()
+        expect(events.filter((event) => event.event.method === 'Transfer').length === 1000).toBeTruthy()
+        expect(events.toHuman()).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              event: expect.objectContaining({
+                method: 'PartiallyRefunded',
+                section: 'crowdloan',
+                data: expect.objectContaining({
+                  paraId: '3,336',
+                }),
+              }),
+            }),
+          ]),
+        )
+      }
     },
     { timeout: 400_000 },
   )
@@ -54,8 +89,8 @@ describe('Polkadot Crowdloan Refund', async () => {
           section: 'balances',
           data: expect.objectContaining({
             from: '13UVJyLnbVp77Z2t6qZV4fNpRjDHppL6c87bHcZKG48tKJad',
-            to: '1E8EcginNpZRZezwa1A5eQT6crLQQj5R4T3pLKFbyJX3VU8',
-            amount: '500,000,000,000',
+            to: '1TkyFWT8PkGiFAD4pcnq8nB2RModtod1Hk4yLoVYbMtzagW',
+            amount: '50,000,000,000',
           }),
         }),
       }),
@@ -63,14 +98,14 @@ describe('Polkadot Crowdloan Refund', async () => {
 
     // trigger refund
     await expect(
-      api.tx.crowdloan.withdraw('1E8EcginNpZRZezwa1A5eQT6crLQQj5R4T3pLKFbyJX3VU8', 3336).signAndSend(alice),
+      api.tx.crowdloan.withdraw('1TkyFWT8PkGiFAD4pcnq8nB2RModtod1Hk4yLoVYbMtzagW', 3336).signAndSend(alice),
     ).resolves.toBeTruthy()
     await dev.newBlock()
     expect((await api.query.system.events()).toHuman()).toEqual(expectedEvent)
 
     // doing the same thing again should fail because the funds are already withdrawn
     await expect(
-      api.tx.crowdloan.withdraw('1E8EcginNpZRZezwa1A5eQT6crLQQj5R4T3pLKFbyJX3VU8', 3336).signAndSend(alice),
+      api.tx.crowdloan.withdraw('1TkyFWT8PkGiFAD4pcnq8nB2RModtod1Hk4yLoVYbMtzagW', 3336).signAndSend(alice),
     ).resolves.toBeTruthy()
     await dev.newBlock()
     expect((await api.query.system.events()).toHuman()).not.toEqual(expectedEvent)

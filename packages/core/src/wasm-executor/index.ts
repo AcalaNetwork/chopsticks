@@ -5,9 +5,8 @@ import { randomAsHex } from '@polkadot/util-crypto'
 import _ from 'lodash'
 
 import { Block } from '../blockchain/block.js'
-import { PREFIX_LENGTH } from '../utils/key-cache.js'
+import { PREFIX_LENGTH, stripChildPrefix } from '../utils/index.js'
 import { defaultLogger, truncate } from '../logger.js'
-import { stripChildPrefix } from '../utils/index.js'
 
 import type { JsCallback } from '@acala-network/chopsticks-executor'
 export { JsCallback }
