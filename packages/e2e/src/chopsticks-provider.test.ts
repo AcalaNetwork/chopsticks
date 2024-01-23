@@ -87,7 +87,7 @@ describe('chopsticks provider works', async () => {
         }
       })
     })
-    chain.txPool.mode = BuildBlockMode.Batch
+    await new Promise((r) => setTimeout(r, 100))
 
     await check(api.rpc.chain.getBlock()).toMatchSnapshot()
     await check(api.query.system.account(alice.address)).toMatchSnapshot()
