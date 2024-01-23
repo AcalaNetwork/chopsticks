@@ -3,9 +3,9 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"emitDeclarationOnly": true,
-		"declarationDir": "dist/esm"
+		"declarationDir": "dist/esm",
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["src/**/*.test.ts"],
-	"references": [{ "path": "../core/tsconfig.json" }]
+	"references": [{ "path": "../core/tsconfig.json" }],
 }

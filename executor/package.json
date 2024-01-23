@@ -16,12 +16,12 @@
 		"build:esm": "swc ./pkg -C module.type=es6 -d dist/esm --copy-files && cp pkg/chopsticks_executor.d.ts dist/esm/index.d.ts && echo '{\"type\": \"module\"}' > dist/esm/package.json"
 	},
 	"dependencies": {
-		"@polkadot/util": "^12.5.1",
-		"@polkadot/wasm-util": "^7.2.2"
+		"@polkadot/util": "^12.6.2",
+		"@polkadot/wasm-util": "^7.3.2"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.1.63",
-		"@swc/core": "^1.3.100",
+		"@swc/cli": "0.1.65",
+		"@swc/core": "^1.3.105",
 		"fflate": "^0.8.1"
 	},
 	"files": [

@@ -4,8 +4,8 @@ import { create } from 'jsondiffpatch'
 import _ from 'lodash'
 
 const diffPatcher = create({
-  array: { detectMove: false },
-  textDiff: { minLength: Number.MAX_VALUE }, // skip text diff
+  arrays: { detectMove: false },
+  textDiff: { minLength: Number.MAX_VALUE } as any, // skip text diff
 })
 
 export const decodeStorageDiff = async (block: Block, diff: [HexString, HexString | null][]) => {

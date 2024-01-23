@@ -1,5 +1,5 @@
 import { WebSocket } from 'ws'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 
 import networks from './networks.js'
 
@@ -7,10 +7,8 @@ describe('Batch request', async () => {
   const { chain, url, teardown } = await networks.acala()
   const wsClient = new WebSocket(url)
 
-  beforeAll(async () => {
-    await new Promise<void>((resolve) => {
-      wsClient.on('open', () => resolve())
-    })
+  await new Promise<void>((resolve) => {
+    wsClient.on('open', () => resolve())
   })
 
   afterAll(async () => {
