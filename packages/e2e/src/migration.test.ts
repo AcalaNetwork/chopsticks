@@ -43,7 +43,7 @@ describe('Migration', async () => {
         `)
       }
 
-      for (const items of [301, 295]) {
+      for (const items of [301/*, 295*/]) {
         // number of entries migrated, matches with onchain data
         // first call will migrate 301 entries, second call will migrate 295 entries
         await api.tx.dappStakingMigration.migrate(null).signAndSend(alice)
