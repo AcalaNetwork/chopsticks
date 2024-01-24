@@ -78,12 +78,12 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --html
 
 - Dry run a preimage:
  ```
-npx @acala-network/chopsticks@latest dry-run --endpoint=wss://rpc.polkadot.io --preimage=<preimage> --open
+npx @acala-network/chopsticks@latest dry-run --endpoint=wss://polkadot-rpc.dwellir.com --preimage=<preimage> --open
  ```
 
 - Dry run a preimage and execute an extrinsic after that:
 ```
-npx @acala-network/chopsticks@latest dry-run --endpoint=wss://rpc.polkadot.io --preimage=<preimage> --extrinsic=<extrinsic> --open
+npx @acala-network/chopsticks@latest dry-run --endpoint=wss://polkadot-rpc.dwellir.com --preimage=<preimage> --extrinsic=<extrinsic> --open
 ```
 
 - Dry run a preimage and execute a call after that, make sure `mock-signature-host: true` to fake caller's signature:
