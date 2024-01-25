@@ -124,7 +124,7 @@ export const createServer = async (handler: Handler, port?: number) => {
           result: resp ?? null,
         }
       } catch (e) {
-        logger.info('Error handling request: %s %o', e, (e as Error).stack)
+        logger.info('Error handling request: %o', (e as Error).stack)
         return {
           id: req.id,
           jsonrpc: '2.0',

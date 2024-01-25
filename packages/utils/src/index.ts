@@ -14,7 +14,7 @@ import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 
-const logger = defaultLogger.child({ module: 'utils' })
+const logger = defaultLogger.child({ name: 'utils' })
 
 export * from './signFake.js'
 

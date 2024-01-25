@@ -178,10 +178,10 @@ export const buildBlock = async (
   logger.info(
     {
       number: newBlockNumber,
-      extrinsicsCount: extrinsics.length,
+      extrinsics: extrinsics.map(truncate),
       umpCount: Object.keys(ump).length,
     },
-    `Try building block #${newBlockNumber.toLocaleString()}`,
+    `${await head.chain.api.getSystemChain()} building #${newBlockNumber.toLocaleString()}`,
   )
 
   let layer: StorageLayer | undefined
@@ -319,13 +319,13 @@ export const buildBlock = async (
 
   logger.info(
     {
-      number: newBlock.number,
+      number: finalBlock.number,
       hash: finalBlock.hash,
       extrinsics: truncate(includedExtrinsic),
-      pendingExtrinsicsCount: pendingExtrinsics.length,
+      pendingExtrinsics: pendingExtrinsics.map(truncate),
       ump: truncate(ump),
     },
-    'Block built',
+    `${await head.chain.api.getSystemChain()} new head #${finalBlock.number.toLocaleString()}`,
   )
 
   return [finalBlock, pendingExtrinsics]

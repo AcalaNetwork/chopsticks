@@ -1,13 +1,15 @@
 import { pino } from 'pino'
 
-export const pinoLogger = pino({
+export const defaultLogger = pino({
   level: (typeof process === 'object' && process.env.LOG_LEVEL) || 'info',
   transport: {
     target: 'pino-pretty',
+    options: {
+      ignore: 'pid,hostname',
+      hideObject: !!process.env.LOG_COMPACT,
+    },
   },
 })
-
-export const defaultLogger = pinoLogger.child({ app: 'chopsticks' })
 
 const innerTruncate =
   (level = 0) =>
