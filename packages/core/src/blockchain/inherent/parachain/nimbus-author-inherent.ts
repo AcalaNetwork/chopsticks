@@ -4,7 +4,7 @@ import { HexString } from '@polkadot/util/types'
 import { Block } from '../../block.js'
 import { BuildBlockParams } from '../../txpool.js'
 import { InherentProvider } from '../index.js'
-import { compactHex } from '@acala-network/chopsticks-core'
+import { compactHex } from '../../../utils/index.js'
 
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements InherentProvider {
