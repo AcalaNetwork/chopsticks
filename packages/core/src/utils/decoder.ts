@@ -12,7 +12,7 @@ import _ from 'lodash'
 import { decodeWellKnownKey } from './well-known-keys.js'
 import { defaultLogger } from '../logger.js'
 
-const logger = defaultLogger.child({ module: 'decoder' })
+const logger = defaultLogger.child({ name: 'decoder' })
 
 const _CACHE: LRUCache<Registry, LRUCache<HexString, StorageEntry>> = new LRUCache({ max: 20 /* max 20 registries */ })
 

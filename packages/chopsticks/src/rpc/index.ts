@@ -9,7 +9,7 @@ import {
 
 import { loadRpcPlugin, rpcPluginMethods } from '../plugins/index.js'
 
-const rpcLogger = defaultLogger.child({ module: 'rpc' })
+const rpcLogger = defaultLogger.child({ name: 'rpc' })
 
 const allHandlers: Handlers = {
   ...substrate,

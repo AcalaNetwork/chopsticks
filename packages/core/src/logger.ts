@@ -1,9 +1,16 @@
 import { pino } from 'pino'
 
+const level = (typeof process === 'object' && process.env.LOG_LEVEL) || 'info'
+const hideObject = (typeof process === 'object' && !!process.env.LOG_COMPACT) || false
+
 export const pinoLogger = pino({
-  level: (typeof process === 'object' && process.env.LOG_LEVEL) || 'info',
+  level,
   transport: {
     target: 'pino-pretty',
+    options: {
+      ignore: 'pid,hostname',
+      hideObject,
+    },
   },
 })
 
