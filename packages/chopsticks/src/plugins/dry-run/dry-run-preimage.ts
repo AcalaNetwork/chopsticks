@@ -1,11 +1,11 @@
 import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { hexToU8a } from '@polkadot/util'
+import { compactAddLength, hexToU8a } from '@polkadot/util'
 
+import { Block, newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
 import { DryRunSchemaType } from './index.js'
 import { defaultLogger } from '../../logger.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
-import { newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
 import { openHtml } from '../../utils/open-html.js'
 import { setupContext } from '../../context.js'
 
@@ -24,7 +24,7 @@ export const dryRunPreimage = async (argv: DryRunSchemaType) => {
 
   await setStorage(context.chain, {
     Preimage: {
-      PreimageFor: [[[[hash, data.byteLength]], extrinsic]],
+      PreimageFor: [[[[hash, data.byteLength]], compactAddLength(data)]],
       StatusFor: [
         [
           [hash],
@@ -60,10 +60,26 @@ export const dryRunPreimage = async (argv: DryRunSchemaType) => {
     },
   })
 
+  const newBlockHash: HexString = `0x${Math.round(Math.random() * 100000000)
+    .toString(16)
+    .padEnd(64, '0')}`
+  const newBlock = new Block(block.chain, block.number + 1, newBlockHash, block, {
+    header,
+    extrinsics: [],
+    storage: block.storage,
+  })
+
   const calls: [string, HexString[]][] = [['Core_initialize_block', [header.toHex()]]]
 
-  for (const inherent of await block.chain.getInherents()) {
-    calls.push(['BlockBuilder_apply_extrinsic', [inherent]])
+  for (const inherentProvider of block.chain.getInherents()) {
+    const extrinsics = await inherentProvider.createInherents(newBlock, {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    })
+    if (extrinsics.length === 0) continue
+    calls.push(['BlockBuilder_apply_extrinsic', extrinsics])
   }
 
   calls.push(['BlockBuilder_finalize_block', []])
