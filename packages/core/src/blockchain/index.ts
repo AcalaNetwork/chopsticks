@@ -30,7 +30,7 @@ export interface Options {
   /** Build block mode. Default to Batch. */
   buildBlockMode?: BuildBlockMode
   /** Inherent provider, for creating inherents. */
-  inherentProvider: InherentProvider
+  inherentProviders: InherentProvider[]
   /** Datasource for caching storage and blocks data. */
   db?: Database
   /** Used to create the initial head. */
@@ -59,7 +59,7 @@ export interface Options {
  * const chain = new Blockchain({
  *  api,
  *  buildBlockMode: BuildBlockMode.Manual,
- *  inherentProvider: inherents,
+ *  inherentProviders,
  *  header: {
  *    hash: blockHash,
  *    number: Number(header.number),
@@ -86,7 +86,7 @@ export class Blockchain {
   readonly registeredTypes: RegisteredTypes
 
   readonly #txpool: TxPool
-  readonly #inherentProvider: InherentProvider
+  readonly #inherentProviders: InherentProvider[]
 
   #head: Block
   readonly #blocksByNumber: Map<number, Block> = new Map()
@@ -126,7 +126,7 @@ export class Blockchain {
   constructor({
     api,
     buildBlockMode,
-    inherentProvider,
+    inherentProviders,
     db,
     header,
     mockSignatureHost = false,
@@ -146,8 +146,8 @@ export class Blockchain {
     this.#head = new Block(this, header.number, header.hash)
     this.#registerBlock(this.#head)
 
-    this.#txpool = new TxPool(this, inherentProvider, buildBlockMode)
-    this.#inherentProvider = inherentProvider
+    this.#txpool = new TxPool(this, inherentProviders, buildBlockMode)
+    this.#inherentProviders = inherentProviders
 
     this.headState = new HeadState(this.#head)
 
@@ -427,13 +427,13 @@ export class Blockchain {
       throw new Error(`Cannot find block ${at}`)
     }
     const registry = await head.registry
-    const inherents = await this.#inherentProvider.createInherents(head, {
+    const params = {
       transactions: [],
       downwardMessages: [],
       upwardMessages: [],
       horizontalMessages: {},
-    })
-    const { result, storageDiff } = await dryRunExtrinsic(head, inherents, extrinsic)
+    }
+    const { result, storageDiff } = await dryRunExtrinsic(head, this.#inherentProviders, extrinsic, params)
     const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
     return { outcome, storageDiff }
   }
@@ -451,13 +451,13 @@ export class Blockchain {
     if (!head) {
       throw new Error(`Cannot find block ${at}`)
     }
-    const inherents = await this.#inherentProvider.createInherents(head, {
+    const params = {
       transactions: [],
       downwardMessages: [],
       upwardMessages: [],
       horizontalMessages: hrmp,
-    })
-    return dryRunInherents(head, inherents)
+    }
+    return dryRunInherents(head, this.#inherentProviders, params)
   }
 
   /**
@@ -470,13 +470,13 @@ export class Blockchain {
     if (!head) {
       throw new Error(`Cannot find block ${at}`)
     }
-    const inherents = await this.#inherentProvider.createInherents(head, {
+    const params = {
       transactions: [],
       downwardMessages: dmp,
       upwardMessages: [],
       horizontalMessages: {},
-    })
-    return dryRunInherents(head, inherents)
+    }
+    return dryRunInherents(head, this.#inherentProviders, params)
   }
 
   /**
@@ -511,27 +511,20 @@ export class Blockchain {
     }
 
     head.pushStorageLayer().setAll(storageValues)
-    const inherents = await this.#inherentProvider.createInherents(head, {
+    const params = {
       transactions: [],
       downwardMessages: [],
       upwardMessages: [],
       horizontalMessages: {},
-    })
-    return dryRunInherents(head, inherents)
+    }
+    return dryRunInherents(head, this.#inherentProviders, params)
   }
 
   /**
    * Get inherents of head.
    */
-  async getInherents(): Promise<HexString[]> {
-    await this.api.isReady
-    const inherents = await this.#inherentProvider.createInherents(this.head, {
-      transactions: [],
-      downwardMessages: [],
-      upwardMessages: [],
-      horizontalMessages: {},
-    })
-    return inherents
+  getInherents(): InherentProvider[] {
+    return this.#inherentProviders
   }
 
   /**

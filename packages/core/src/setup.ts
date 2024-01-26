@@ -11,16 +11,9 @@ import { Blockchain } from './blockchain/index.js'
 import { BuildBlockMode } from './blockchain/txpool.js'
 import { Database } from './database.js'
 import { GenesisProvider } from './genesis-provider.js'
-import {
-  InherentProviders,
-  ParaInherentEnter,
-  SetBabeRandomness,
-  SetNimbusAuthorInherent,
-  SetTimestamp,
-  SetValidationData,
-} from './blockchain/inherent/index.js'
 import { defaultLogger } from './logger.js'
 import { getSlotDuration, setStorage } from './index.js'
+import { inherentProviders } from './blockchain/inherent/index.js'
 
 export type SetupOptions = {
   endpoint?: string | string[]
@@ -117,17 +110,10 @@ export const setup = async (options: SetupOptions) => {
     throw new Error(`Cannot find header for ${blockHash}`)
   }
 
-  const inherents = new InherentProviders(new SetTimestamp(), [
-    new SetValidationData(),
-    new ParaInherentEnter(),
-    new SetNimbusAuthorInherent(),
-    new SetBabeRandomness(),
-  ])
-
   const chain = new Blockchain({
     api,
     buildBlockMode: options.buildBlockMode,
-    inherentProvider: inherents,
+    inherentProviders,
     db: options.db,
     header: {
       hash: blockHash as HexString,

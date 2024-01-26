@@ -7,8 +7,10 @@ import {
   TransactionValidityError,
 } from '@polkadot/types/interfaces'
 import { Block } from './block.js'
+import { BuildBlockParams } from './txpool.js'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
+import { InherentProvider } from './inherent/index.js'
 import { StorageLayer, StorageValueKind } from './storage-layer.js'
 import { TaskCallResponse } from '../wasm-executor/index.js'
 import { compactAddLength, hexToU8a, stringToHex, u8aConcat } from '@polkadot/util'
@@ -106,7 +108,8 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
 const initNewBlock = async (
   head: Block,
   header: Header,
-  inherents: HexString[],
+  inherentProviders: InherentProvider[],
+  params: BuildBlockParams,
   storageLayer?: StorageLayer,
   callback?: BuildBlockCallbacks,
 ) => {
@@ -136,15 +139,20 @@ const initNewBlock = async (
     callback?.onPhaseApplied?.('initialize', resp)
   }
 
+  const inherents: HexString[] = []
   const layers: StorageLayer[] = []
   // apply inherents
-  for (const extrinsic of inherents) {
+  for (const inherentProvider of inherentProviders) {
     try {
-      const resp = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
+      const extrinsics = await inherentProvider.createInherents(newBlock, params)
+      if (extrinsics.length === 0) {
+        continue
+      }
+      const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsics)
       const layer = newBlock.pushStorageLayer()
       layer.setAll(resp.storageDiff)
       layers.push(layer)
-
+      inherents.push(...extrinsics)
       callback?.onPhaseApplied?.(layers.length - 1, resp)
     } catch (e) {
       logger.warn('Failed to apply inherents %o %s', e, e)
@@ -154,7 +162,8 @@ const initNewBlock = async (
 
   return {
     block: newBlock,
-    layers: layers,
+    layers,
+    inherents,
   }
 }
 
@@ -165,12 +174,11 @@ export type BuildBlockCallbacks = {
 
 export const buildBlock = async (
   head: Block,
-  inherents: HexString[],
-  extrinsics: HexString[],
-  ump: Record<number, HexString[]>,
+  inherentProviders: InherentProvider[],
+  params: BuildBlockParams,
   callbacks?: BuildBlockCallbacks,
-  unsafeBlockHeight?: number,
 ): Promise<[Block, HexString[]]> => {
+  const { transactions: extrinsics, upwardMessages: ump, unsafeBlockHeight } = params
   const registry = await head.registry
   const header = await newHeader(head, unsafeBlockHeight)
   const newBlockNumber = header.number.toNumber()
@@ -263,7 +271,7 @@ export const buildBlock = async (
     }
   }
 
-  const { block: newBlock } = await initNewBlock(head, header, inherents, layer)
+  const { block: newBlock, inherents } = await initNewBlock(head, header, inherentProviders, params, layer)
 
   const pendingExtrinsics: HexString[] = []
   const includedExtrinsic: HexString[] = []
@@ -333,12 +341,13 @@ export const buildBlock = async (
 
 export const dryRunExtrinsic = async (
   head: Block,
-  inherents: HexString[],
+  inherentProviders: InherentProvider[],
   extrinsic: HexString | { call: HexString; address: string },
+  params: BuildBlockParams,
 ): Promise<TaskCallResponse> => {
   const registry = await head.registry
   const header = await newHeader(head)
-  const { block: newBlock } = await initNewBlock(head, header, inherents)
+  const { block: newBlock } = await initNewBlock(head, header, inherentProviders, params)
 
   if (typeof extrinsic !== 'string') {
     if (!head.chain.mockSignatureHost) {
@@ -377,10 +386,11 @@ export const dryRunExtrinsic = async (
 
 export const dryRunInherents = async (
   head: Block,
-  inherents: HexString[],
+  inherentProviders: InherentProvider[],
+  params: BuildBlockParams,
 ): Promise<[HexString, HexString | null][]> => {
   const header = await newHeader(head)
-  const { layers } = await initNewBlock(head, header, inherents)
+  const { layers } = await initNewBlock(head, header, inherentProviders, params)
   const storage = {}
   for (const layer of layers) {
     await layer.mergeInto(storage)

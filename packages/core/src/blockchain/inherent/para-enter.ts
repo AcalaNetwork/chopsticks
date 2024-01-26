@@ -3,10 +3,13 @@ import { HexString } from '@polkadot/util/types'
 
 import { Block } from '../block.js'
 import { BuildBlockParams } from '../txpool.js'
-import { CreateInherents } from './index.js'
+import { InherentProvider } from './index.js'
 
-export class ParaInherentEnter implements CreateInherents {
-  async createInherents(parent: Block, _params: BuildBlockParams): Promise<HexString[]> {
+export class ParaInherentEnter implements InherentProvider {
+  async createInherents(newBlock: Block, _params: BuildBlockParams): Promise<HexString[]> {
+    const parent = await newBlock.parentBlock
+    if (!parent) throw new Error('parent block not found')
+
     const meta = await parent.meta
     if (!meta.tx.paraInherent?.enter) {
       return []
