@@ -14,9 +14,8 @@ import { InherentProvider } from './inherent/index.js'
 import { StorageLayer, StorageValueKind } from './storage-layer.js'
 import { TaskCallResponse } from '../wasm-executor/index.js'
 import { compactAddLength, hexToU8a, stringToHex, u8aConcat } from '@polkadot/util'
-import { compactHex } from '../utils/index.js'
+import { compactHex, getCurrentSlot } from '../utils/index.js'
 import { defaultLogger, truncate } from '../logger.js'
-import { getCurrentSlot } from '../utils/time-travel.js'
 
 const logger = defaultLogger.child({ name: 'block-builder' })
 

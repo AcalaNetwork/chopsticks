@@ -1,6 +1,8 @@
+import { BN, compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
 import { HexString } from '@polkadot/util/types'
+import { Slot } from '@polkadot/types/interfaces'
 import { StorageKey } from '@polkadot/types'
-import { compactStripLength, u8aToHex } from '@polkadot/util'
+import { getAuraSlotDuration } from '../wasm-executor/index.js'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 
 import { Blockchain } from '../blockchain/index.js'
@@ -109,4 +111,37 @@ export const stripChildPrefix = (key: HexString) => {
   const [child, storageKey] = splitChildKey(key)
   if (!child) return key
   return storageKey
+}
+
+// use raw key here because some chain did not expose those storage to metadata
+const POTENTIAL_SLOT_KEYS = [
+  '0x1cb6f36e027abb2091cfb5110ab5087f06155b3cd9a8c9e5e9a23fd5dc13a5ed', // babe.currentSlot
+  '0x57f8dc2f5ab09467896f47300f04243806155b3cd9a8c9e5e9a23fd5dc13a5ed', // aura.currentSlot
+  '0xab2a8d5eca218f218c6fda6b1d22bb926bc171ab77f6a731a6e80c34ee1eda19', // authorInherent.highestSlotSeen
+]
+
+export const getCurrentSlot = async (chain: Blockchain) => {
+  const meta = await chain.head.meta
+  for (const key of POTENTIAL_SLOT_KEYS) {
+    const slotRaw = await chain.head.get(key)
+    if (slotRaw) {
+      return meta.registry.createType<Slot>('Slot', hexToU8a(slotRaw)).toNumber()
+    }
+  }
+  throw new Error('Cannot find current slot')
+}
+
+export const getCurrentTimestamp = async (chain: Blockchain) => {
+  const meta = await chain.head.meta
+  const timestamp = await chain.head.read('u64', meta.query.timestamp.now)
+  return timestamp?.toBigInt() ?? 0n
+}
+
+export const getSlotDuration = async (chain: Blockchain) => {
+  const meta = await chain.head.meta
+  return meta.consts.babe
+    ? (meta.consts.babe.expectedBlockTime as any as BN).toNumber()
+    : meta.query.aura
+      ? getAuraSlotDuration(await chain.head.wasm)
+      : 12_000
 }
