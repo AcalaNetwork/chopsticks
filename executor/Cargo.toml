@@ -19,7 +19,7 @@ serde_json = { version = "1.0", default-features = false }
 hex = { version = "0.4.3", default-features = false }
 hex-literal = "0.4.1"
 wasm-bindgen = "0.2.87"
-serde-wasm-bindgen = "0.5"
+serde-wasm-bindgen = "0.6.3"
 wasm-bindgen-futures = "0.4"
 js-sys = "0.3"
 log = "0.4"

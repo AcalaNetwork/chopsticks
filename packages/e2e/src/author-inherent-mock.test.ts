@@ -19,4 +19,13 @@ describe.runIf(process.env.CI || process.env.RUN_ALL)('Nimbus author inherent mo
     await dev.newBlock({ count: 2 })
     await teardown()
   })
+
+  it('Moonbeam build blocks', async () => {
+    const { dev, teardown } = await setupContext({
+      endpoint: 'wss://wss.api.moonbeam.network',
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
+    })
+    await dev.newBlock({ count: 2 })
+    await teardown()
+  })
 })
