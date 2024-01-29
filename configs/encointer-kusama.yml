@@ -1,3 +1,8 @@
+# using chopsticks with encointer will not allow to perform actions involving encointer custom types which are
+# not supported by chopsticks: CommunityIdentifier, fixpoint balances
+# also, encointer uses custom rpc methods which are not available on chopsticks
+# still, basic chain functionality can be tested
+
 endpoint:
   - wss://kusama.api.encointer.org
 mock-signature-host: true
@@ -15,6 +20,6 @@ import-storage:
         - providers: 1
           data:
             free: 1000000000000000
-  Council:
+  Membership:
     Members:
       - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
