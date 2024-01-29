@@ -19,10 +19,7 @@ export const configSchema = z.object({
         z.string(),
         z
           .number()
-          .max(
-            Number.MAX_SAFE_INTEGER,
-            'Number is too big, please make it a string if you are uing a hexadecimal number',
-          ),
+          .max(Number.MAX_SAFE_INTEGER, 'Number is too big, please make it a string if you are uing a hex string'),
         z.null(),
       ],
       {
