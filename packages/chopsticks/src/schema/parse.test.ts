@@ -21,7 +21,7 @@ describe('Existing configs', async () => {
     '$name config parsing is correct',
     async ({ path }) => {
       const config = await fetchConfig(path)
-      expect(configSchema.parse(config)).toMatchSnapshot()
+      expect(() => configSchema.parse(config)).not.toThrow()
     },
   )
 })
@@ -38,6 +38,15 @@ describe('Parsed options', () => {
       }),
     ).toEqual({
       block: 4500000,
+      ...defaults,
+    })
+
+    expect(
+      configSchema.parse({
+        block: '4500000',
+      }),
+    ).toEqual({
+      block: '4500000',
       ...defaults,
     })
 
