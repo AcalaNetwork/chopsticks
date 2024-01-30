@@ -64,6 +64,6 @@ describe('Parsed options', () => {
         // eslint-disable-next-line @typescript-eslint/no-loss-of-precision
         block: 0xb10f03bbc183da4d26e27528d28f6a73ddaf182fb6400ca363b77d2411ea5b0c,
       }),
-    ).toThrowError(/you are uing a hexadecimal number/)
+    ).toThrowError(/you are uing a hex string/)
   })
 })
