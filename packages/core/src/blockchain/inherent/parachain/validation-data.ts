@@ -126,8 +126,25 @@ export class SetValidationData implements InherentProvider {
         newEntries.push([key, decoded[key]])
       }
     }
-    newEntries.push([hrmpIngressChannelIndexKey, decoded[hrmpIngressChannelIndexKey]])
-    newEntries.push([hrmpEgressChannelIndexKey, decoded[hrmpEgressChannelIndexKey]])
+
+    // inject missing hrmpIngressChannel and hrmpEgressChannel
+    const hrmpIngressChannels = meta.registry.createType('Vec<u32>', hexToU8a(decoded[hrmpIngressChannelIndexKey]))
+    const hrmpEgressChannels = meta.registry.createType('Vec<u32>', hexToU8a(decoded[hrmpEgressChannelIndexKey]))
+    for (const key in params.horizontalMessages) {
+      // order is important
+      const sender = meta.registry.createType('u32', key)
+      if (!hrmpIngressChannels.some((x) => x.eq(sender))) {
+        const idx = _.sortedIndexBy(hrmpIngressChannels, sender, (x) => x.toNumber())
+        hrmpIngressChannels.splice(idx, 0, sender)
+      }
+      if (!hrmpEgressChannels.some((x) => x.eq(sender))) {
+        const idx = _.sortedIndexBy(hrmpEgressChannels, sender, (x) => x.toNumber())
+        hrmpEgressChannels.splice(idx, 0, sender)
+      }
+    }
+
+    newEntries.push([hrmpIngressChannelIndexKey, hrmpIngressChannels.toHex()])
+    newEntries.push([hrmpEgressChannelIndexKey, hrmpEgressChannels.toHex()])
 
     // inject paraHead
     const headData = meta.registry.createType('HeadData', (await parent.header).toHex())
@@ -153,24 +170,11 @@ export class SetValidationData implements InherentProvider {
     }
     newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
 
-    const hrmpIngressChannels = meta.registry
-      .createType('Vec<ParaId>', decoded[hrmpIngressChannelIndexKey])
-      .toJSON() as number[]
-
-    const hrmpEgressChannels = meta.registry
-      .createType('Vec<ParaId>', decoded[hrmpEgressChannelIndexKey])
-      .toJSON() as number[]
-
-    const hrmpMessages = {
-      // reset values, we just need the keys
-      ..._.mapValues(extrinsic.horizontalMessages, () => [] as HorizontalMessage[]),
-      ...params.horizontalMessages,
-    }
-
     // inject horizontal messages
-    for (const id of hrmpIngressChannels) {
-      const messages = hrmpMessages[id]
-      const sender = Number(id)
+    for (const sender of hrmpIngressChannels) {
+      // search by number and string just in case key is not a number
+      const messages =
+        params.horizontalMessages[sender.toNumber()] || params.horizontalMessages[sender.toString()] || []
 
       const channelId = meta.registry.createType<HrmpChannelId>('HrmpChannelId', {
         sender,
@@ -178,11 +182,19 @@ export class SetValidationData implements InherentProvider {
       })
       const hrmpChannelKey = hrmpChannels(channelId)
       const abridgedHrmpRaw = decoded[hrmpChannelKey]
-      if (!abridgedHrmpRaw) throw new Error('Canoot find hrmp channels from validation data')
 
-      const abridgedHrmp = meta.registry
-        .createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw))
-        .toJSON()
+      const abridgedHrmp = abridgedHrmpRaw
+        ? meta.registry.createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw)).toJSON()
+        : {
+            maxCapacity: 1000,
+            maxTotalSize: 102400,
+            maxMessageSize: 102400,
+            msgCount: 0,
+            totalSize: 0,
+            mqcHead: 0x0000000000000000000000000000000000000000000000000000000000000000,
+            senderDeposit: 5000000000000,
+            recipientDeposit: 5000000000000,
+          }
       const paraMessages: HorizontalMessage[] = []
 
       for (const { data, sentAt: _unused } of messages) {
@@ -208,22 +220,31 @@ export class SetValidationData implements InherentProvider {
         })
       }
 
-      horizontalMessages[sender] = paraMessages
+      horizontalMessages[sender.toNumber()] = paraMessages
 
       newEntries.push([hrmpChannelKey, meta.registry.createType('AbridgedHrmpChannel', abridgedHrmp).toHex()])
     }
 
     // inject hrmpEgressChannels proof
-    for (const id of hrmpEgressChannels) {
-      // const messages = hrmpMessages[id]
-      const receiver = Number(id)
-
+    for (const receiver of hrmpEgressChannels) {
       const channelId = meta.registry.createType<HrmpChannelId>('HrmpChannelId', {
         sender: paraId.toNumber(),
         receiver,
       })
       const hrmpChannelKey = hrmpChannels(channelId)
-      newEntries.push([hrmpChannelKey, decoded[hrmpChannelKey]])
+      const abridgedHrmpRaw = decoded[hrmpChannelKey]
+
+      const abridgedHrmp = abridgedHrmpRaw
+        ? meta.registry.createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw)).toJSON()
+        : {
+            maxCapacity: 1000,
+            maxTotalSize: 102400,
+            maxMessageSize: 102400,
+            msgCount: 0,
+            totalSize: 0,
+            mqcHead: 0x0000000000000000000000000000000000000000000000000000000000000000,
+          }
+      newEntries.push([hrmpChannelKey, meta.registry.createType('AbridgedHrmpChannel', abridgedHrmp).toHex()])
     }
 
     const upgradeKey = upgradeGoAheadSignal(paraId)
