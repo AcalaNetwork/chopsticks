@@ -9,6 +9,10 @@ export default defineConfig({
 		include: ['packages/**/*.test.ts'],
 		bail: process.env.CI ? 1 : undefined /* use defaults */,
 		pool: 'forks',
+		coverage: {
+			include: ['packages/chopsticks/**/*.ts', 'packages/core/**/*.ts'],
+			reporter: ['text', 'json-summary', 'json', 'html'],
+		},
 	},
 	plugins: [swc.vite(), tsconfigPaths()],
 })

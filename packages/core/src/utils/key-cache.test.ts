@@ -21,7 +21,7 @@ const KEY_16 = '0x26aa394eea5630e07c48ae0c9558cef7b99d880ec681799c0cf30e8886371d
 
 describe('key cache', () => {
   it('should be able to fee keys', async () => {
-    const keyCache = new KeyCache()
+    const keyCache = new KeyCache(66)
     keyCache.feed([KEY_0, KEY_1, KEY_2, KEY_3, KEY_4])
     expect(await keyCache.next(KEY_1)).toBe(KEY_2)
     expect(await keyCache.next(KEY_3)).toBe(KEY_4)
@@ -33,7 +33,7 @@ describe('key cache', () => {
   })
 
   it("should be able to feed keys that don't intersect", async () => {
-    const keyCache = new KeyCache()
+    const keyCache = new KeyCache(66)
     keyCache.feed([KEY_3, KEY_4, KEY_5, KEY_6])
     keyCache.feed([KEY_7, KEY_8, KEY_9, KEY_10])
     expect(keyCache.ranges.length).toBe(2)

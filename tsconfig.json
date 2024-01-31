@@ -6,6 +6,6 @@
 		"transpileOnly": true,
 		"files": true,
 		"esm": true,
-		"swc": true
-	}
+		"swc": true,
+	},
 }

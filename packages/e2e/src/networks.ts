@@ -5,7 +5,7 @@ import { SetupOption, setupContext } from '@acala-network/chopsticks-testing'
 dotenvConfig
 
 const endpoints = {
-  polkadot: ['wss://rpc.polkadot.io', 'wss://polkadot-rpc.dwellir.com'],
+  polkadot: ['wss://rpc.ibp.network/polkadot', 'wss://polkadot-rpc.dwellir.com'],
   acala: ['wss://acala-rpc.aca-api.network', 'wss://acala-rpc.dwellir.com'],
 }
 
@@ -25,7 +25,7 @@ export default {
       wasmOverride: process.env.POLKADOT_WASM,
       blockNumber: toNumber(process.env.POLKADOT_BLOCK_NUMBER) || 14500000,
       endpoint: process.env.POLKADOT_ENDPOINT ?? endpoints.polkadot,
-      db: process.env.DB_PATH,
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
       ...options,
     }),
   acala: (options?: Partial<SetupOption>) =>
@@ -33,7 +33,7 @@ export default {
       wasmOverride: process.env.ACALA_WASM,
       blockNumber: toNumber(process.env.ACALA_BLOCK_NUMBER) || 3000000,
       endpoint: process.env.ACALA_ENDPOINT ?? endpoints.acala,
-      db: process.env.DB_PATH,
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
       ...options,
     }),
 }

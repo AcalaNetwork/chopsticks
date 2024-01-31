@@ -12,19 +12,12 @@ import {
   StorageValues,
   genesisSetup,
 } from '@acala-network/chopsticks-core'
-import {
-  InherentProviders,
-  ParaInherentEnter,
-  SetBabeRandomness,
-  SetNimbusAuthorInherent,
-  SetTimestamp,
-  SetValidationData,
-} from '@acala-network/chopsticks-core/blockchain/inherent/index.js'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { createServer } from '@acala-network/chopsticks/server.js'
 import { defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { genesisFromUrl } from '@acala-network/chopsticks/context.js'
 import { handler } from '@acala-network/chopsticks/rpc/index.js'
+import { inherentProviders } from '@acala-network/chopsticks-core/blockchain/inherent/index.js'
 import { withExpect } from '@acala-network/chopsticks-testing'
 
 export { testingPairs, setupContext } from '@acala-network/chopsticks-testing'
@@ -79,13 +72,6 @@ export const setupAll = async ({
 
   return {
     async setup() {
-      const inherents = new InherentProviders(new SetTimestamp(), [
-        new SetValidationData(),
-        new ParaInherentEnter(),
-        new SetNimbusAuthorInherent(),
-        new SetBabeRandomness(),
-      ])
-
       blockHash ??= await api.getBlockHash().then((hash) => hash ?? undefined)
       if (!blockHash) {
         throw new Error('Cannot find block hash')
@@ -94,7 +80,7 @@ export const setupAll = async ({
       const chain = new Blockchain({
         api,
         buildBlockMode: BuildBlockMode.Manual,
-        inherentProvider: inherents,
+        inherentProviders,
         header: {
           hash: blockHash,
           number: Number(header.number),

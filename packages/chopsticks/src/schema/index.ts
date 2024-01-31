@@ -14,9 +14,18 @@ export const configSchema = z.object({
   port: z.number({ description: 'Port to listen on' }).default(8000),
   endpoint: z.union([z.string(), z.array(z.string())], { description: 'Endpoint to connect to' }).optional(),
   block: z
-    .union([zHash, z.number(), z.null()], {
-      description: 'Block hash or block number. Default to latest block',
-    })
+    .union(
+      [
+        z.string(),
+        z
+          .number()
+          .max(Number.MAX_SAFE_INTEGER, 'Number is too big, please make it a string if you are uing a hex string'),
+        z.null(),
+      ],
+      {
+        description: 'Block hash or block number. Default to latest block',
+      },
+    )
     .optional(),
   'build-block-mode': z.nativeEnum(BuildBlockMode).default(BuildBlockMode.Batch),
   'import-storage': z.any({ description: 'Pre-defined JSON/YAML storage file path' }).optional(),

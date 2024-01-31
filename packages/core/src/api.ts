@@ -2,6 +2,7 @@ import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
+import _ from 'lodash'
 
 export type ChainProperties = {
   ss58Format?: number
@@ -147,6 +148,26 @@ export class Api {
       const params = [prefix, pageSize, startKey]
       if (hash) params.push(hash)
       return this.#provider.send<HexString[]>('state_getKeysPaged', params, !!hash)
+    }
+  }
+
+  async getStorageBatch(prefix: HexString, keys: HexString[], hash?: HexString) {
+    const [child] = splitChildKey(prefix)
+    if (child) {
+      // child storage key, use childstate_getStorageEntries
+      // strip child prefix from keys
+      const params: any[] = [child, keys.map((key) => stripChildPrefix(key))]
+      if (hash) params.push(hash)
+      return this.#provider
+        .send<HexString[]>('childstate_getStorageEntries', params, !!hash)
+        .then((values) => _.zip(keys, values) as [HexString, HexString | null][])
+    } else {
+      // main storage key, use state_getStorageAt
+      const params: any[] = [keys]
+      if (hash) params.push(hash)
+      return this.#provider
+        .send<HexString[]>('state_queryStorageAt', params, !!hash)
+        .then((result) => (result[0]?.['changes'] as [HexString, HexString | null][]) || [])
     }
   }
 

@@ -122,6 +122,7 @@ dist
 *.sqlite
 *.sqlite-journal
 *.wasm
+!packages/e2e/blobs/*.wasm
 *.db
 *.sqlite-shm
 *.sqlite-wal

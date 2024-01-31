@@ -49,17 +49,17 @@ export class TxPool {
   readonly #hrmp: Record<number, HorizontalMessage[]> = {}
 
   #mode: BuildBlockMode
-  readonly #inherentProvider: InherentProvider
+  readonly #inherentProviders: InherentProvider[]
   readonly #pendingBlocks: { params: BuildBlockParams; deferred: Deferred<void> }[] = []
 
   readonly event = new EventEmitter()
 
   #isBuilding = false
 
-  constructor(chain: Blockchain, inherentProvider: InherentProvider, mode: BuildBlockMode = BuildBlockMode.Batch) {
+  constructor(chain: Blockchain, inherentProviders: InherentProvider[], mode: BuildBlockMode = BuildBlockMode.Batch) {
     this.#chain = chain
     this.#mode = mode
-    this.#inherentProvider = inherentProvider
+    this.#inherentProviders = inherentProviders
   }
 
   get pendingExtrinsics(): HexString[] {
@@ -232,35 +232,26 @@ export class TxPool {
 
     logger.trace({ params }, 'build block')
 
-    const head = this.#chain.head
-    const inherents = await this.#inherentProvider.createInherents(head, params)
-    const [newBlock, pendingExtrinsics] = await buildBlock(
-      head,
-      inherents,
-      params.transactions,
-      params.upwardMessages,
-      {
-        onApplyExtrinsicError: (extrinsic, error) => {
-          this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
-        },
-        onPhaseApplied:
-          logger.level.toLowerCase() === 'trace'
-            ? (phase, resp) => {
-                switch (phase) {
-                  case 'initialize':
-                    logger.trace(truncate(resp.storageDiff), 'Initialize block')
-                    break
-                  case 'finalize':
-                    logger.trace(truncate(resp.storageDiff), 'Finalize block')
-                    break
-                  default:
-                    logger.trace(truncate(resp.storageDiff), `Apply extrinsic ${phase}`)
-                }
-              }
-            : undefined,
+    const [newBlock, pendingExtrinsics] = await buildBlock(this.#chain.head, this.#inherentProviders, params, {
+      onApplyExtrinsicError: (extrinsic, error) => {
+        this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
       },
-      params.unsafeBlockHeight,
-    )
+      onPhaseApplied:
+        logger.level.toLowerCase() === 'trace'
+          ? (phase, resp) => {
+              switch (phase) {
+                case 'initialize':
+                  logger.trace(truncate(resp.storageDiff), 'Initialize block')
+                  break
+                case 'finalize':
+                  logger.trace(truncate(resp.storageDiff), 'Finalize block')
+                  break
+                default:
+                  logger.trace(truncate(resp.storageDiff), `Apply extrinsic ${phase}`)
+              }
+            }
+          : undefined,
+    })
     for (const extrinsic of pendingExtrinsics) {
       this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })
     }

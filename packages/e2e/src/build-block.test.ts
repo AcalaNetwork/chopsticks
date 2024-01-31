@@ -12,16 +12,22 @@ const KUSAMA_STORAGE = {
   },
 }
 
-describe.runIf(process.env.CI).each([
-  { chain: 'Polkadot', endpoint: 'https://rpc.polkadot.io' },
+describe.runIf(process.env.CI || process.env.RUN_ALL).each([
+  { chain: 'Polkadot', endpoint: ['wss://rpc.ibp.network/polkadot', 'wss://polkadot-rpc.dwellir.com'] },
   { chain: 'Statemint', endpoint: 'wss://statemint-rpc.dwellir.com' },
   // { chain: 'Polkadot Collectives', endpoint: 'wss://sys.ibp.network/collectives-polkadot' },
-  { chain: 'Acala', endpoint: 'wss://acala-rpc-1.aca-api.network' },
+  { chain: 'Acala', endpoint: 'wss://acala-rpc.aca-api.network' },
 
-  { chain: 'Kusama', endpoint: 'wss://kusama-rpc.polkadot.io', storage: KUSAMA_STORAGE },
+  {
+    chain: 'Kusama',
+    endpoint: ['wss://kusama-rpc.dwellir.com', 'wss://rpc.ibp.network/kusama', 'wss://kusama-rpc.polkadot.io'],
+    storage: KUSAMA_STORAGE,
+  },
   { chain: 'Statemine', endpoint: 'wss://statemine-rpc-tn.dwellir.com' },
-  { chain: 'Karura', endpoint: 'wss://karura-rpc-3.aca-api.network' },
-
+  {
+    chain: 'Karura',
+    endpoint: 'wss://karura-rpc.aca-api.network',
+  },
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
   { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
   // { chain: 'Westend Collectives', endpoint: 'wss://sys.ibp.network/collectives-westend' },

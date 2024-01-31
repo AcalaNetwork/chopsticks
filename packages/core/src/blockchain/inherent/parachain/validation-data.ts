@@ -6,7 +6,7 @@ import _ from 'lodash'
 
 import { Block } from '../../block.js'
 import { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool.js'
-import { CreateInherents } from '../index.js'
+import { InherentProvider } from '../index.js'
 import {
   WELL_KNOWN_KEYS,
   dmqMqcHead,
@@ -86,8 +86,11 @@ const getValidationData = async (parent: Block) => {
     .args[0].toJSON() as any as ValidationData
 }
 
-export class SetValidationData implements CreateInherents {
-  async createInherents(parent: Block, params: BuildBlockParams): Promise<HexString[]> {
+export class SetValidationData implements InherentProvider {
+  async createInherents(newBlock: Block, params: BuildBlockParams): Promise<HexString[]> {
+    const parent = await newBlock.parentBlock
+    if (!parent) throw new Error('parent block not found')
+
     const meta = await parent.meta
     if (!meta.tx.parachainSystem?.setValidationData) {
       return []
