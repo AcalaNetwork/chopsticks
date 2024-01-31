@@ -5,7 +5,7 @@ import _ from 'lodash'
 
 const diffPatcher = create({
   arrays: { detectMove: false },
-  textDiff: { minLength: Number.MAX_VALUE } as any, // skip text diff
+  textDiff: { minLength: Number.MAX_VALUE }, // skip text diff
 })
 
 export const decodeStorageDiff = async (block: Block, diff: [HexString, HexString | null][]) => {
