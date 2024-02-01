@@ -14,10 +14,10 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -33,7 +33,7 @@ jobs:
           components: rustfmt
           target: wasm32-unknown-unknown
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18.x
           cache: 'yarn'
