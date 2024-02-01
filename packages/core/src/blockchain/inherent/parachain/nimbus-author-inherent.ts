@@ -1,9 +1,7 @@
-import { GenericExtrinsic } from '@polkadot/types'
-import { HexString,  } from '@polkadot/util/types'
-//import { u8aToHex } from '@polkadot/util'
-
 import { Block } from '../../block.js'
 import { BuildBlockParams } from '../../txpool.js'
+import { GenericExtrinsic } from '@polkadot/types'
+import { HexString } from '@polkadot/util/types'
 import { InherentProvider } from '../index.js'
 import { compactHex } from '../../../utils/index.js'
 import { hexToBigInt } from '@polkadot/util'
@@ -46,19 +44,25 @@ export class SetNimbusAuthorInherent implements InherentProvider {
       )
     }
     if (meta.query.authorityAssignment && meta.query.session) {
-      const session = hexToBigInt(await newBlock.chain.head.get(compactHex(meta.query.session.currentIndex())), { isLe: true});
+      const session = hexToBigInt(await newBlock.chain.head.get(compactHex(meta.query.session.currentIndex())), {
+        isLe: true,
+      })
       // We need to set both the assignemnt for current and next sessions
       layer.set(
         compactHex(meta.query.authorityAssignment.collatorContainerChain(session)),
-        meta.registry.createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
-          "orchestratorChain" : [alice],  
-        }).toHex(),
+        meta.registry
+          .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+            orchestratorChain: [alice],
+          })
+          .toHex(),
       )
       layer.set(
-        compactHex(meta.query.authorityAssignment.collatorContainerChain(session +1n)),
-        meta.registry.createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
-          "orchestratorChain" : [alice],  
-        }).toHex(),
+        compactHex(meta.query.authorityAssignment.collatorContainerChain(session + 1n)),
+        meta.registry
+          .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+            orchestratorChain: [alice],
+          })
+          .toHex(),
       )
       layer.set(
         compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
