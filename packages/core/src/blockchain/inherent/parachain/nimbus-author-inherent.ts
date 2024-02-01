@@ -4,7 +4,6 @@ import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import { InherentProvider } from '../index.js'
 import { compactHex } from '../../../utils/index.js'
-import { hexToBigInt } from '@polkadot/util'
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements InherentProvider {
   async createInherents(newBlock: Block, _params: BuildBlockParams): Promise<HexString[]> {
@@ -44,26 +43,28 @@ export class SetNimbusAuthorInherent implements InherentProvider {
       )
     }
     if (meta.query.authorityAssignment && meta.query.session) {
-      const session = hexToBigInt(await newBlock.chain.head.get(compactHex(meta.query.session.currentIndex())), {
-        isLe: true,
-      })
-      // We need to set both the assignemnt for current and next sessions
-      layer.set(
-        compactHex(meta.query.authorityAssignment.collatorContainerChain(session)),
-        meta.registry
-          .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
-            orchestratorChain: [alice],
-          })
-          .toHex(),
-      )
-      layer.set(
-        compactHex(meta.query.authorityAssignment.collatorContainerChain(session + 1n)),
-        meta.registry
-          .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
-            orchestratorChain: [alice],
-          })
-          .toHex(),
-      )
+      const session = await newBlock.chain.head.read('u32', meta.query.session.currentIndex)
+
+      if (session) {
+        // We need to set both the assignemnt for current and next sessions
+        layer.set(
+          compactHex(meta.query.authorityAssignment.collatorContainerChain(session)),
+          meta.registry
+            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+              orchestratorChain: [alice],
+            })
+            .toHex(),
+        )
+        layer.set(
+          compactHex(meta.query.authorityAssignment.collatorContainerChain(session.toBigInt() + 1n)),
+          meta.registry
+            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+              orchestratorChain: [alice],
+            })
+            .toHex(),
+        )
+      }
+
       layer.set(
         compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
         meta.registry.createType('bool', true).toHex(),
