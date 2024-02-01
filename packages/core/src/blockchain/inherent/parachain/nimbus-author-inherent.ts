@@ -1,11 +1,9 @@
-import { GenericExtrinsic } from '@polkadot/types'
-import { HexString } from '@polkadot/util/types'
-
 import { Block } from '../../block.js'
 import { BuildBlockParams } from '../../txpool.js'
+import { GenericExtrinsic } from '@polkadot/types'
+import { HexString } from '@polkadot/util/types'
 import { InherentProvider } from '../index.js'
 import { compactHex } from '../../../utils/index.js'
-
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements InherentProvider {
   async createInherents(newBlock: Block, _params: BuildBlockParams): Promise<HexString[]> {
@@ -44,7 +42,34 @@ export class SetNimbusAuthorInherent implements InherentProvider {
         meta.registry.createType(`Vec<${accountType}>`, [alice]).toHex(),
       )
     }
+    if (meta.query.authorityAssignment && meta.query.session) {
+      const session = await newBlock.chain.head.read('u32', meta.query.session.currentIndex)
 
+      if (session) {
+        // We need to set both the assignemnt for current and next sessions
+        layer.set(
+          compactHex(meta.query.authorityAssignment.collatorContainerChain(session)),
+          meta.registry
+            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+              orchestratorChain: [alice],
+            })
+            .toHex(),
+        )
+        layer.set(
+          compactHex(meta.query.authorityAssignment.collatorContainerChain(session.toBigInt() + 1n)),
+          meta.registry
+            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+              orchestratorChain: [alice],
+            })
+            .toHex(),
+        )
+      }
+
+      layer.set(
+        compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
+        meta.registry.createType('bool', true).toHex(),
+      )
+    }
     return [new GenericExtrinsic(meta.registry, meta.tx.authorInherent.kickOffAuthorshipValidation()).toHex()]
   }
 }
