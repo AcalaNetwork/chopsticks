@@ -21,7 +21,6 @@ const _: &'static str = r#"
 type HexString = `0x${string}`;
 export interface JsCallback {
 	getStorage: (key: HexString) => Promise<string | undefined>
-	getStateRoot: () => Promise<string>
 	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
 	offchainGetStorage: (key: HexString) => Promise<string | undefined>
 	offchainTimestamp: () => Promise<number>

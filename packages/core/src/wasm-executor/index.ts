@@ -139,10 +139,6 @@ export const taskHandler = (block: Block): JsCallback => {
     getStorage: async function (key: HexString) {
       return block.get(key)
     },
-    getStateRoot: async function () {
-      const header = await block.header
-      return header.stateRoot.toHex()
-    },
     getNextKey: async function (prefix: HexString, key: HexString) {
       const [nextKey] = await block.getKeysPaged({
         prefix: prefix.length === 2 /** 0x */ ? key.slice(0, PREFIX_LENGTH) : prefix,
@@ -177,9 +173,6 @@ export const taskHandler = (block: Block): JsCallback => {
 
 export const emptyTaskHandler = {
   getStorage: async function (_key: HexString) {
-    throw new Error('Method not implemented')
-  },
-  getStateRoot: async function () {
     throw new Error('Method not implemented')
   },
   getNextKey: async function (_prefix: HexString, _key: HexString) {
