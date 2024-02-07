@@ -21,7 +21,6 @@ const _: &'static str = r#"
 type HexString = `0x${string}`;
 export interface JsCallback {
 	getStorage: (key: HexString) => Promise<string | undefined>
-	getStateRoot: () => Promise<string>
 	getNextKey: (prefix: HexString, key: HexString) => Promise<string | undefined>
 	offchainGetStorage: (key: HexString) => Promise<string | undefined>
 	offchainTimestamp: () => Promise<number>
@@ -37,9 +36,6 @@ extern "C" {
 
     #[wasm_bindgen(catch, structural, method, js_name = "getStorage")]
     pub async fn get_storage(this: &JsCallback, key: JsValue) -> Result<JsValue, JsValue>;
-
-    #[wasm_bindgen(catch, structural, method, js_name = "getStateRoot")]
-    pub async fn get_state_root(this: &JsCallback) -> Result<JsValue, JsValue>;
 
     #[wasm_bindgen(catch, structural, method, js_name = "getNextKey")]
     pub async fn get_next_key(
