@@ -37,9 +37,6 @@ extern "C" {
     #[wasm_bindgen(catch, structural, method, js_name = "getStorage")]
     pub async fn get_storage(this: &JsCallback, key: JsValue) -> Result<JsValue, JsValue>;
 
-    #[wasm_bindgen(catch, structural, method, js_name = "getStateRoot")]
-    pub async fn get_state_root(this: &JsCallback) -> Result<JsValue, JsValue>;
-
     #[wasm_bindgen(catch, structural, method, js_name = "getNextKey")]
     pub async fn get_next_key(
         this: &JsCallback,
