@@ -1,3 +1,4 @@
+import { EventEmitter } from 'eventemitter3'
 import { HexString } from '@polkadot/util/types'
 import {
   ProviderInterface,
@@ -6,9 +7,10 @@ import {
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
 
-import { EventEmitter } from 'eventemitter3'
 import { Genesis, genesisSchema } from './schema/index.js'
 import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
+import { defaultLogger, isPrefixedChildKey } from './index.js'
+
 /**
  * Provider to start a chain from genesis
  */
@@ -120,10 +122,24 @@ export class GenesisProvider implements ProviderInterface {
     return {
       ...emptyTaskHandler,
       getStorage: async function (key: HexString) {
+        if (isPrefixedChildKey(key)) {
+          defaultLogger.warn({ key }, 'genesis child storage not supported')
+          return undefined
+        }
         return storage[key]
       },
-      getNextKey: async function (_prefix: HexString, _key: HexString) {
-        return undefined
+      getNextKey: async function (prefix: HexString, key: HexString) {
+        if (isPrefixedChildKey(key)) {
+          defaultLogger.warn({ prefix, key }, 'genesis child storage not supported')
+          return undefined
+        }
+        return Object.keys(storage).find((k) => {
+          if (!k.startsWith(prefix)) return false
+          if (key.length > prefix.length) {
+            return k > key
+          }
+          return true
+        })
       },
     }
   }
@@ -144,11 +160,24 @@ export class GenesisProvider implements ProviderInterface {
       case 'chain_getBlockHash':
         return this.blockHash
       case 'state_getKeysPaged':
-      case 'state_getKeysPagedAt':
-        return []
+      case 'state_getKeysPagedAt': {
+        if (params.length < 2) throw Error('invalid params')
+        const [prefix, size, start] = params as [HexString, number, HexString?]
+        let startKey = start || prefix
+        const keys: string[] = []
+        while (keys.length < size) {
+          const nextKey = await this._jsCallback.getNextKey(prefix, startKey)
+          if (!nextKey) break
+          keys.push(nextKey)
+          startKey = nextKey as HexString
+        }
+        return keys
+      }
       case 'state_getStorage':
-      case 'state_getStorageAt':
+      case 'state_getStorageAt': {
+        if (params.length < 1) throw Error('invalid params')
         return this.#genesis.genesis.raw.top[params[0] as HexString]
+      }
       default:
         throw Error(`${method} not implemented`)
     }
