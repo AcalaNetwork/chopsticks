@@ -4,29 +4,25 @@ import { Block, runTask, taskHandler } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { writeFileSync } from 'fs'
-import { z } from 'zod'
 
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { overrideWasm } from '../../utils/override.js'
 import { setupContext } from '../../context.js'
 
-const schema = configSchema.extend({
-  'eth-rpc': z.string({
-    description: 'Ethereum RPC URL',
-  }),
-})
+const ACALA_ETH_RPC = 'https://eth-rpc-acala.aca-api.network'
+const KARURA_ETH_RPC = 'https://eth-rpc-karura.aca-api.network'
 
 export const cli = (y: Argv) => {
   y.command(
     'trace-transaction <tx-hash>',
-    'Trace a transaction',
+    'EVM+ trace transaction. Only Acala and Karura are supported',
     (yargs) =>
-      yargs.options(getYargsOptions(schema.shape)).positional('tx-hash', {
+      yargs.options(getYargsOptions(configSchema.shape)).positional('tx-hash', {
         desc: 'Transaction hash',
         type: 'string',
       }),
     async (argv) => {
-      const config = schema.parse(argv)
+      const config = configSchema.parse(argv)
       const wasm = config['wasm-override']
       if (!wasm) {
         throw new Error('Wasm override built with feature `tracing` is required')
@@ -35,7 +31,16 @@ export const cli = (y: Argv) => {
       const context = await setupContext(config, false)
       const txHash = argv['tx-hash']
 
-      const response = await fetch(config['eth-rpc'], {
+      const specName = (await context.chain.head.runtimeVersion).specName.toString()
+      let ethRpc: string | undefined
+      if (specName.includes('acala')) {
+        ethRpc = ACALA_ETH_RPC
+      } else if (specName.includes('karura')) {
+        ethRpc = KARURA_ETH_RPC
+      } else {
+        throw new Error(`Unsupported chain. Only Acala and Karura are supported`)
+      }
+      const response = await fetch(ethRpc, {
         headers: [
           ['Content-Type', 'application/json'],
           ['Accept', 'application/json'],
@@ -142,7 +147,7 @@ export const cli = (y: Argv) => {
         encodedStorageLimit.gt(MAX_GAS_LIMIT_CC) ? MAX_GAS_LIMIT_CC : encodedStorageLimit,
       )
 
-      const res = await newBlock.call('EVMRuntimeRPCApi_trace_call', [
+      const res = await newBlock.call('EVMTraceApi_trace_call', [
         from,
         to || '0x0000000000000000000000000000000000000000',
         u8aToHex(meta.registry.createType('Vec<u8>', input).toU8a()),
