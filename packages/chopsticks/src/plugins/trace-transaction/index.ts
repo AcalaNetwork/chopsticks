@@ -144,7 +144,7 @@ export const cli = (y: Argv) => {
 
       const res = await newBlock.call('EVMRuntimeRPCApi_trace_call', [
         from,
-        to,
+        to || '0x0000000000000000000000000000000000000000',
         u8aToHex(meta.registry.createType('Vec<u8>', input).toU8a()),
         u8aToHex(meta.registry.createType('Balance', hexToU8a(value)).toU8a()),
         u8aToHex(meta.registry.createType('u64', gasLimit).toU8a()),
