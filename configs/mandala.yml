@@ -2,7 +2,7 @@ endpoint: wss://mandala-tc9-rpc.aca-staging.network
 mock-signature-host: true
 block: ${env.MANDALA_BLOCK_NUMBER}
 db: ./db.sqlite
-# wasm-override: acala-2101.wasm
+eth-rpc: https://eth-rpc-tc9.aca-staging.network
 
 import-storage:
   Sudo:
