@@ -2,7 +2,6 @@ endpoint: wss://karura-rpc.aca-api.network
 mock-signature-host: true
 block: ${env.KARURA_BLOCK_NUMBER}
 db: ./db.sqlite
-eth-rpc: https://eth-rpc-karura.aca-api.network
 
 import-storage:
   Sudo:
