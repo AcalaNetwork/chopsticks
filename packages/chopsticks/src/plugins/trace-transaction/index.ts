@@ -60,7 +60,6 @@ export const cli = (y: Argv) => {
         throw new Error(`Block not found ${blockHash}`)
       }
       const header = await block.header
-      const meta = await block.meta
       const parent = await context.chain.getBlock(header.parentHash.toHex())
       if (!parent) {
         throw new Error(`Block not found ${blockHash}`)
@@ -76,6 +75,7 @@ export const cli = (y: Argv) => {
         storage: parent.storage,
       })
 
+      const meta = await newBlock.meta
       meta.registry.register({
         Step: {
           op: 'String',
@@ -109,6 +109,48 @@ export const cli = (y: Argv) => {
         },
       })
 
+      const tx = meta.registry.createType('Extrinsic', hexToU8a(extrinsics[txIndex]))
+      console.dir({ extrinsic: tx.toHuman() }, { depth: null })
+
+      if (tx.method.section.toString() !== 'evm') {
+        throw new Error(`Unsupported extrinsic ${tx.method.toString()}`)
+      }
+
+      let gasLimit: BN
+      let storageLimit: BN
+      switch (tx.method.method.toString()) {
+        case 'call':
+        case 'create2':
+        case 'ethCall': {
+          gasLimit = tx.method.args[3] as any
+          storageLimit = tx.method.args[4] as any
+          break
+        }
+        case 'create': {
+          gasLimit = tx.method.args[2] as any
+          storageLimit = tx.method.args[3] as any
+          break
+        }
+        case 'ethCallV2': {
+          const GAS_MASK = new BN(100000)
+          const STORAGE_MASK = new BN(100)
+          const GAS_LIMIT_CHUNK = new BN(30000)
+          const MAX_GAS_LIMIT_CC = new BN(21) // log2(BLOCK_STORAGE_LIMIT)
+
+          const bbbcc = new BN(Number(gas)).mod(GAS_MASK)
+          const encodedGasLimit = bbbcc.div(STORAGE_MASK) // bbb
+          const encodedStorageLimit = bbbcc.mod(STORAGE_MASK) // cc
+
+          gasLimit = encodedGasLimit.mul(GAS_LIMIT_CHUNK)
+          storageLimit = new BN(2).pow(
+            encodedStorageLimit.gt(MAX_GAS_LIMIT_CC) ? MAX_GAS_LIMIT_CC : encodedStorageLimit,
+          )
+          break
+        }
+        default:
+          throw new Error(`Unsupported method ${tx.method.method.toString()}`)
+      }
+
       const run = async (fn: string, args: HexString[]) => {
         const result = await runTask(
           {
@@ -132,20 +174,6 @@ export const cli = (y: Argv) => {
       for (const extrinsic of extrinsics.slice(0, txIndex)) {
         await run('BlockBuilder_apply_extrinsic', [extrinsic])
       }
-
-      const GAS_MASK = new BN(100000)
-      const STORAGE_MASK = new BN(100)
-      const GAS_LIMIT_CHUNK = new BN(30000)
-      const MAX_GAS_LIMIT_CC = new BN(21) // log2(BLOCK_STORAGE_LIMIT)
-
-      const bbbcc = new BN(Number(gas)).mod(GAS_MASK)
-      const encodedGasLimit = bbbcc.div(STORAGE_MASK) // bbb
-      const encodedStorageLimit = bbbcc.mod(STORAGE_MASK) // cc
-
-      const gasLimit = encodedGasLimit.mul(GAS_LIMIT_CHUNK)
-      const storageLimit = new BN(2).pow(
-        encodedStorageLimit.gt(MAX_GAS_LIMIT_CC) ? MAX_GAS_LIMIT_CC : encodedStorageLimit,
-      )
 
       const res = await newBlock.call('EVMTraceApi_trace_call', [
         from,
