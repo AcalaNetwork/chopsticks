@@ -1,7 +1,6 @@
 import { Argv } from 'yargs'
 import { BN, hexToU8a, u8aToHex } from '@polkadot/util'
-import { Block, runTask, taskHandler } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
+import { Block } from '@acala-network/chopsticks-core'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { writeFileSync } from 'fs'
 
@@ -40,6 +39,7 @@ export const cli = (y: Argv) => {
       } else {
         throw new Error(`Unsupported chain. Only Acala and Karura are supported`)
       }
+      console.log('fetching evm transaction...')
       const response = await fetch(ethRpc, {
         headers: [
           ['Content-Type', 'application/json'],
@@ -53,7 +53,7 @@ export const cli = (y: Argv) => {
         throw new Error(data.error.message)
       }
       console.log({ transaction: data.result })
-      const { from, to, value, gas, input, blockHash } = data.result
+      const { from, to, value, input, blockHash } = data.result
 
       const block = await context.chain.getBlock(blockHash)
       if (!block) {
@@ -109,6 +109,7 @@ export const cli = (y: Argv) => {
         },
       })
 
+      console.log('decode extrinsic...')
       const tx = meta.registry.createType('Extrinsic', hexToU8a(extrinsics[txIndex]))
       console.dir({ extrinsic: tx.toHuman() }, { depth: null })
 
@@ -116,6 +117,7 @@ export const cli = (y: Argv) => {
         throw new Error(`Unsupported extrinsic ${tx.method.toString()}`)
       }
 
+      console.log('decode gas/storage limit...')
       let gasLimit: BN
       let storageLimit: BN
       switch (tx.method.method.toString()) {
@@ -137,7 +139,7 @@ export const cli = (y: Argv) => {
           const GAS_LIMIT_CHUNK = new BN(30000)
           const MAX_GAS_LIMIT_CC = new BN(21) // log2(BLOCK_STORAGE_LIMIT)
 
-          const bbbcc = new BN(Number(gas)).mod(GAS_MASK)
+          const bbbcc = new BN((tx.method.args[4] as any).toBigInt()).mod(GAS_MASK)
           const encodedGasLimit = bbbcc.div(STORAGE_MASK) // bbb
           const encodedStorageLimit = bbbcc.mod(STORAGE_MASK) // cc
 
@@ -150,31 +152,16 @@ export const cli = (y: Argv) => {
         default:
           throw new Error(`Unsupported method ${tx.method.method.toString()}`)
       }
-
-      const run = async (fn: string, args: HexString[]) => {
-        const result = await runTask(
-          {
-            wasm: await block.wasm,
-            calls: [[fn, args]],
-            mockSignatureHost: false,
-            allowUnresolvedImports: false,
-            runtimeLogLevel: 0,
-          },
-          taskHandler(newBlock),
-        )
-
-        if ('Error' in result) {
-          throw new Error(result.Error)
-        }
-
-        newBlock.pushStorageLayer().setAll(result.Call.storageDiff)
-      }
-
-      await run('Core_initialize_block', [header.toHex()])
+      console.log({ gasLimit: gasLimit.toString(), storageLimit: storageLimit.toString() })
+      console.log('building block...')
+      const { storageDiff } = await newBlock.call('Core_initialize_block', [header.toHex()])
+      newBlock.pushStorageLayer().setAll(storageDiff)
       for (const extrinsic of extrinsics.slice(0, txIndex)) {
-        await run('BlockBuilder_apply_extrinsic', [extrinsic])
+        const { storageDiff } = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
+        newBlock.pushStorageLayer().setAll(storageDiff)
       }
 
+      console.log('running evm trace...')
       const res = await newBlock.call('EVMTraceApi_trace_call', [
         from,
         to || '0x0000000000000000000000000000000000000000',
