@@ -1,6 +1,6 @@
 import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { compactAddLength, hexToU8a } from '@polkadot/util'
+import { compactAddLength, hexToU8a, u8aToHex } from '@polkadot/util'
 
 import { Block, newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
 import { DryRunSchemaType } from './index.js'
@@ -24,7 +24,7 @@ export const dryRunPreimage = async (argv: DryRunSchemaType) => {
 
   await setStorage(context.chain, {
     Preimage: {
-      PreimageFor: [[[[hash, data.byteLength]], compactAddLength(data)]],
+      PreimageFor: [[[[hash, data.byteLength]], u8aToHex(compactAddLength(data))]],
       StatusFor: [
         [
           [hash],
