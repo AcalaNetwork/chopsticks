@@ -1,7 +1,7 @@
 import { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
+import { BN, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from '../../block.js'
@@ -113,14 +113,17 @@ export class SetValidationData implements InherentProvider {
       extrinsic.relayChainState.trieNodes,
     )
 
+    const slotIncrease = (meta.consts.timestamp.minimumPeriod as any as BN)
+      .divn(3000) // relaychain min period
+      .toNumber()
+
     for (const key of Object.values(WELL_KNOWN_KEYS)) {
       if (key === WELL_KNOWN_KEYS.CURRENT_SLOT) {
         // increment current slot
-        const currentSlot = decoded[key]
+        const relayCurrentSlot = decoded[key]
           ? meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
-          : // releay chain slot is 2x parachain slot
-            (await getCurrentSlot(parent.chain)) * 2
-        const newSlot = meta.registry.createType<Slot>('Slot', currentSlot + 2)
+          : (await getCurrentSlot(parent.chain)) * slotIncrease
+        const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + slotIncrease)
         newEntries.push([key, u8aToHex(newSlot.toU8a())])
       } else {
         newEntries.push([key, decoded[key]])
@@ -267,7 +270,7 @@ export class SetValidationData implements InherentProvider {
       validationData: {
         ...extrinsic.validationData,
         relayParentStorageRoot: trieRootHash,
-        relayParentNumber: extrinsic.validationData.relayParentNumber + 2,
+        relayParentNumber: extrinsic.validationData.relayParentNumber + slotIncrease,
       },
       relayChainState: {
         trieNodes: nodes,
