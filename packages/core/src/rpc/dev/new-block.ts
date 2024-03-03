@@ -1,8 +1,8 @@
-import { Context, ResponseError } from '@acala-network/chopsticks-core'
+import { Context, ResponseError, zHex } from '../shared.js'
+import { HexString } from '@polkadot/util/types'
 import { z } from 'zod'
 
 import { defaultLogger } from '../../logger.js'
-import { zHex } from '../../schema/index.js'
 
 const schema = z.object({
   count: z.number().optional(),
@@ -105,13 +105,13 @@ export interface NewBlockParams {
  * await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight: 100000001 }])
  * ```
  */
-export const rpc = async (context: Context, [params]: [NewBlockParams]) => {
+export const dev_newBlock = async (context: Context, [params]: [NewBlockParams]) => {
   const { count, to, hrmp, ump, dmp, transactions, unsafeBlockHeight } = schema.parse(params || {})
   const now = context.chain.head.number
   const diff = to ? to - now : count
   const finalCount = diff !== undefined ? Math.max(diff, 1) : 1
 
-  let finalHash: string | undefined
+  let finalHash: HexString | undefined
   if (unsafeBlockHeight !== undefined && unsafeBlockHeight <= now) {
     throw new ResponseError(1, 'unsafeBlockHeight must be greater than current block height')
   }
@@ -132,5 +132,5 @@ export const rpc = async (context: Context, [params]: [NewBlockParams]) => {
     finalHash = block.hash
   }
 
-  return finalHash
+  return finalHash!
 }

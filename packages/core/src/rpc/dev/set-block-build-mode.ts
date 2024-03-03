@@ -1,4 +1,5 @@
-import { BuildBlockMode, Context, ResponseError } from '@acala-network/chopsticks-core'
+import { BuildBlockMode } from '../../blockchain/txpool.js'
+import { Context, ResponseError } from '../shared.js'
 import { defaultLogger } from '../../logger.js'
 
 /**
@@ -19,7 +20,7 @@ import { defaultLogger } from '../../logger.js'
  * await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])
  * ```
  */
-export const rpc = async (context: Context, [mode]: [BuildBlockMode]) => {
+export const dev_setBlockBuildMode = async (context: Context, [mode]: [BuildBlockMode]) => {
   defaultLogger.debug({ mode: BuildBlockMode[mode] }, 'dev_setBlockBuildMode')
 
   if (BuildBlockMode[mode] === undefined) {

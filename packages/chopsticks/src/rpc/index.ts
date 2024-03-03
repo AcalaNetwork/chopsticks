@@ -3,8 +3,8 @@ import {
   Handlers,
   ResponseError,
   SubscriptionManager,
+  allHandlers as coreHandlers,
   defaultLogger,
-  substrate,
 } from '@acala-network/chopsticks-core'
 
 import { loadRpcPlugin, rpcPluginMethods } from '../plugins/index.js'
@@ -12,11 +12,11 @@ import { loadRpcPlugin, rpcPluginMethods } from '../plugins/index.js'
 const rpcLogger = defaultLogger.child({ name: 'rpc' })
 
 const allHandlers: Handlers = {
-  ...substrate,
+  ...coreHandlers,
   rpc_methods: async () =>
     Promise.resolve({
       version: 1,
-      methods: [...Object.keys(allHandlers), ...rpcPluginMethods],
+      methods: [...Object.keys(allHandlers), ...rpcPluginMethods].sort(),
     }),
 }
 
