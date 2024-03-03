@@ -1,4 +1,5 @@
-import { Context, ResponseError, timeTravel } from '@acala-network/chopsticks-core'
+import { Context, ResponseError } from '../shared.js'
+import { timeTravel } from '../../utils/time-travel.js'
 
 /**
  * Travel to a specific time.
@@ -15,7 +16,7 @@ import { Context, ResponseError, timeTravel } from '@acala-network/chopsticks-co
  * await ws.send('dev_timeTravel', ['Jan 1, 2023'])
  * ```
  */
-export const rpc = async (context: Context, [date]: [string | number]) => {
+export const dev_timeTravel = async (context: Context, [date]: [string | number]) => {
   const timestamp = typeof date === 'string' ? Date.parse(date) : date
   if (Number.isNaN(timestamp)) throw new ResponseError(1, 'Invalid date')
   await timeTravel(context.chain, timestamp)

@@ -1,7 +1,13 @@
+import { HexString } from '@polkadot/util/types'
+import { z } from 'zod'
+
 import { Blockchain } from '../blockchain/index.js'
 import { defaultLogger } from '../logger.js'
 
 export const logger = defaultLogger.child({ name: 'rpc' })
+
+export const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
+export const zHash = z.string().length(66).and(zHex)
 
 export class ResponseError extends Error {
   code: number
