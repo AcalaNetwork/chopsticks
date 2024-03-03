@@ -3,7 +3,7 @@ import { Context, ResponseError } from '../shared.js'
 import { defaultLogger } from '../../logger.js'
 
 /**
- * Set a build block mode. See [BuildBlockMode](../core/enums/BuildBlockMode).
+ * Set block build mode.
  *
  * 1 - Batch, 2 - Instant, 3 - Manual
  *
