@@ -18,5 +18,5 @@ export type {
   Handler,
 } from '@acala-network/chopsticks-core'
 export * from '@acala-network/chopsticks-core/rpc/substrate/index.js'
-export * from '@acala-network/chopsticks-core/rpc/dev/index.js'
+export * as DevRPC from '@acala-network/chopsticks-core/rpc/dev/index.js'
 export * from './plugins/types.js'
