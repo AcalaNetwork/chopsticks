@@ -1,12 +1,19 @@
-import { Header } from '@polkadot/types/interfaces'
+import { Header as CodecHeader } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
 
 import { Handler, ResponseError } from '../shared.js'
+import type { Header } from '../../index.js'
 
-const processHeader = (header: Header) => {
-  const res = header.toJSON() as any
-  res.number = '0x' + res.number.toString(16) // number is hex format
-  return res
+const processHeader = ({ parentHash, number, stateRoot, extrinsicsRoot, digest }: CodecHeader) => {
+  return {
+    parentHash: parentHash.toHex(),
+    number: number.toHex(),
+    stateRoot: stateRoot.toHex(),
+    extrinsicsRoot: extrinsicsRoot.toHex(),
+    digest: {
+      logs: digest.logs.map((log) => log.toHex()),
+    },
+  }
 }
 
 /**
