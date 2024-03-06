@@ -1,32 +1,10 @@
 import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
-import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
 import _ from 'lodash'
 
-export type ChainProperties = {
-  ss58Format?: number
-  tokenDecimals?: number[]
-  tokenSymbol?: string[]
-}
-
-type Header = {
-  parentHash: HexString
-  number: HexString
-  stateRoot: HexString
-  extrinsicsRoot: HexString
-  digest: {
-    logs: HexString[]
-  }
-}
-
-type SignedBlock = {
-  block: {
-    header: Header
-    extrinsics: HexString[]
-  }
-  justifications?: HexString[]
-}
+import { ChainProperties, Header, SignedBlock } from './index.js'
+import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
 
 /**
  * API class. Calls provider to get on-chain data.
