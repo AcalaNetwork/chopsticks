@@ -43,6 +43,24 @@ describe('chain rpc', () => {
     await check(api.rpc.chain.getBlock()).toMatchSnapshot()
   })
 
+  it('header format correct', async () => {
+    const header = await api.rpc('chain_getHeader', '0x1d2927c6b4aca4c42cb1f88ed7fa46dc53118bb00370475aaf514ac88933e3cc')
+    expect(header).toMatchInlineSnapshot(`
+      {
+        "digest": {
+          "logs": [
+            "0x0661757261202b21250800000000",
+            "0x05617572610101ba12b8f0cf97e0e0fcd885b889ae7e90b86277592690436b67eced4e0ef3e02ca094867287e94208a9d8a9e62402de9b4717247a6332bd55728420dbad0e8d8f",
+          ],
+        },
+        "extrinsicsRoot": "0xe9033b0b86efaaa452fce2e3013806e480fa33195cfdd75d8263e5dc6acffffd",
+        "number": "0x000003e8",
+        "parentHash": "0x113384df3a413ca774ff5aebbef8045b9356493d9aeef5e59b036bd4bd3f21ba",
+        "stateRoot": "0x33cb61d08934b1de5be3453801450f36082cb1a060cd760b427efc65e96be63b",
+      }
+    `)
+  })
+
   it('subscribeNewHeads', async () => {
     const { callback, next } = mockCallback()
     const unsub = await api.rpc.chain.subscribeNewHeads(callback)
