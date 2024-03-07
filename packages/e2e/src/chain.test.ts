@@ -44,7 +44,10 @@ describe('chain rpc', () => {
   })
 
   it('header format correct', async () => {
-    const header = await api.rpc('chain_getHeader', '0x1d2927c6b4aca4c42cb1f88ed7fa46dc53118bb00370475aaf514ac88933e3cc')
+    const header = await api.rpc(
+      'chain_getHeader',
+      '0x1d2927c6b4aca4c42cb1f88ed7fa46dc53118bb00370475aaf514ac88933e3cc',
+    )
     expect(header).toMatchInlineSnapshot(`
       {
         "digest": {
