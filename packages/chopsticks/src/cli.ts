@@ -64,12 +64,18 @@ const commands = yargs(hideBin(process.argv))
         parachains.push(chain)
       }
 
-      if (parachains.length > 1) {
-        await connectParachains(parachains)
-      }
+      let relaychain: Blockchain | undefined;
 
       if (argv.relaychain) {
-        const { chain: relaychain } = await setupWithServer(await fetchConfig(argv.relaychain))
+        const { chain: rc } = await setupWithServer(await fetchConfig(argv.relaychain))
+        relaychain = rc
+      }
+
+      if (parachains.length > 1) {
+        await connectParachains(parachains, relaychain)
+      }
+
+      if (relaychain) {
         for (const parachain of parachains) {
           await connectVertical(relaychain, parachain)
         }

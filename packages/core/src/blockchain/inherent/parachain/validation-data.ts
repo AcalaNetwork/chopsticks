@@ -17,7 +17,7 @@ import {
   upgradeGoAheadSignal,
 } from '../../../utils/proof.js'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
-import { compactHex, getCurrentSlot, getParaId } from '../../../utils/index.js'
+import { compactHex, getCurrentSlot, getCurrentTimestamp, getParaId, getSlotDuration } from '../../../utils/index.js'
 import { createProof, decodeProof } from '../../../wasm-executor/index.js'
 
 const MOCK_VALIDATION_DATA = {
@@ -105,17 +105,18 @@ export class SetValidationData implements InherentProvider {
     const paraId = await getParaId(parent.chain)
 
     const dmqMqcHeadKey = dmqMqcHead(paraId)
-    const hrmpIngressChannelIndexKey = hrmpIngressChannelIndex(paraId)
-    const hrmpEgressChannelIndexKey = hrmpEgressChannelIndex(paraId)
 
     const decoded = await decodeProof(
       extrinsic.validationData.relayParentStorageRoot,
       extrinsic.relayChainState.trieNodes,
     )
 
-    const slotIncrease = (meta.consts.timestamp.minimumPeriod as any as BN)
+    const minPeriod = meta.consts.timestamp.minimumPeriod as any as BN
+    let slotIncrease = minPeriod
       .divn(3000) // relaychain min period
       .toNumber()
+
+    slotIncrease = slotIncrease === 0 ? 1 : slotIncrease;
 
     for (const key of Object.values(WELL_KNOWN_KEYS)) {
       if (key === WELL_KNOWN_KEYS.CURRENT_SLOT) {
@@ -123,31 +124,50 @@ export class SetValidationData implements InherentProvider {
         const relayCurrentSlot = decoded[key]
           ? meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
           : (await getCurrentSlot(parent.chain)) * slotIncrease
-        const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + slotIncrease)
-        newEntries.push([key, u8aToHex(newSlot.toU8a())])
+
+        let newSlot: number;
+
+        // Genesis with async backing
+        if (parent.number === 0 && Number(minPeriod) < 6000) {
+          const slotDuration = await getSlotDuration(parent.chain)
+          const currentTimestamp = await getCurrentTimestamp(parent.chain)
+          newSlot = Math.ceil(Number(currentTimestamp)/slotDuration)
+        } else{
+          newSlot = relayCurrentSlot + slotIncrease
+        }
+        const slot = meta.registry.createType<Slot>('Slot', newSlot)
+        newEntries.push([key, u8aToHex(slot.toU8a())])
       } else {
         newEntries.push([key, decoded[key]])
       }
     }
 
     // inject missing hrmpIngressChannel and hrmpEgressChannel
+    const hrmpIngressChannelIndexKey = hrmpIngressChannelIndex(paraId)
+    const hrmpEgressChannelIndexKey = hrmpEgressChannelIndex(paraId)
     const hrmpIngressChannels = meta.registry.createType('Vec<u32>', hexToU8a(decoded[hrmpIngressChannelIndexKey]))
     const hrmpEgressChannels = meta.registry.createType('Vec<u32>', hexToU8a(decoded[hrmpEgressChannelIndexKey]))
-    for (const key in params.horizontalMessages) {
-      // order is important
-      const sender = meta.registry.createType('u32', key)
-      if (!hrmpIngressChannels.some((x) => x.eq(sender))) {
-        const idx = _.sortedIndexBy(hrmpIngressChannels, sender, (x) => x.toNumber())
-        hrmpIngressChannels.splice(idx, 0, sender)
-      }
-      if (!hrmpEgressChannels.some((x) => x.eq(sender))) {
-        const idx = _.sortedIndexBy(hrmpEgressChannels, sender, (x) => x.toNumber())
-        hrmpEgressChannels.splice(idx, 0, sender)
-      }
-    }
 
-    newEntries.push([hrmpIngressChannelIndexKey, hrmpIngressChannels.toHex()])
+    params.hrmpChannels[Number(paraId)]?.egress.forEach((receiver) => {
+      const receiverId = meta.registry.createType('u32',  Number(receiver))
+      // order is important
+      if (!hrmpEgressChannels.some((x) => x.eq(receiverId))) {
+        const idx = _.sortedIndexBy(hrmpEgressChannels, receiverId, (x) => x.toNumber())
+        hrmpEgressChannels.splice(idx, 0, receiverId)
+      }
+    })
+
+    params.hrmpChannels[Number(paraId)]?.ingress.forEach((sender) => {
+      const senderId = meta.registry.createType('u32',  Number(sender))
+      // order is important
+      if (!hrmpIngressChannels.some((x) => x.eq(senderId))) {
+        const idx = _.sortedIndexBy(hrmpIngressChannels, senderId, (x) => x.toNumber())
+        hrmpIngressChannels.splice(idx, 0, senderId)
+      }
+    })
+
     newEntries.push([hrmpEgressChannelIndexKey, hrmpEgressChannels.toHex()])
+    newEntries.push([hrmpIngressChannelIndexKey, hrmpIngressChannels.toHex()])
 
     // inject paraHead
     const headData = meta.registry.createType('HeadData', (await parent.header).toHex())

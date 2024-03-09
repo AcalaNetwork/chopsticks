@@ -15,7 +15,7 @@ export const connectVertical = async (relaychain: Blockchain, parachain: Blockch
   )
 }
 
-export const connectParachains = async (parachains: Blockchain[]) => {
+export const connectParachains = async (parachains: Blockchain[], relaychain: Blockchain | undefined) => {
   const list: Record<number, Blockchain> = {}
 
   for (const chain of parachains) {
@@ -23,7 +23,7 @@ export const connectParachains = async (parachains: Blockchain[]) => {
     list[paraId.toNumber()] = chain
   }
 
-  await connectHorizontal(list)
+  await connectHorizontal(list, relaychain)
 
   xcmLogger.info(`Connected parachains [${Object.keys(list)}]`)
 }
