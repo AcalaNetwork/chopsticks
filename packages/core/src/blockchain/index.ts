@@ -11,7 +11,7 @@ import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
 import { Api } from '../api.js'
 import { Block } from './block.js'
-import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool.js'
+import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, HrmpChannels, TxPool } from './txpool.js'
 import { Database } from '../database.js'
 import { HeadState } from './head-state.js'
 import { InherentProvider } from './inherent/index.js'
@@ -391,6 +391,12 @@ export class Blockchain {
     logger.debug({ id, hrmp }, 'submitHorizontalMessages')
   }
 
+  openHrmpChannels(id: number, channels: HrmpChannels) {
+    this.#txpool.openHrmpChannels(id, channels)
+
+    logger.debug({ id, channels }, 'openHrmpChannels')
+  }
+
   /**
    * Build a new block with optional params. Use this when you don't have all the {@link BuildBlockParams}
    */
@@ -432,6 +438,7 @@ export class Blockchain {
       downwardMessages: [],
       upwardMessages: [],
       horizontalMessages: {},
+      hrmpChannels: {},
     }
     const { result, storageDiff } = await dryRunExtrinsic(head, this.#inherentProviders, extrinsic, params)
     const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
@@ -456,6 +463,7 @@ export class Blockchain {
       downwardMessages: [],
       upwardMessages: [],
       horizontalMessages: hrmp,
+      hrmpChannels: {},
     }
     return dryRunInherents(head, this.#inherentProviders, params)
   }
@@ -475,6 +483,7 @@ export class Blockchain {
       downwardMessages: dmp,
       upwardMessages: [],
       horizontalMessages: {},
+      hrmpChannels: {},
     }
     return dryRunInherents(head, this.#inherentProviders, params)
   }
@@ -516,6 +525,7 @@ export class Blockchain {
       downwardMessages: [],
       upwardMessages: [],
       horizontalMessages: {},
+      hrmpChannels: {},
     }
     return dryRunInherents(head, this.#inherentProviders, params)
   }

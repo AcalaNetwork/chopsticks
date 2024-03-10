@@ -7,9 +7,11 @@ import { setStorage } from '../utils/set-storage.js'
 import { xcmLogger } from './index.js'
 
 export const connectDownward = async (relaychain: Blockchain, parachain: Blockchain) => {
-  const meta = await relaychain.head.meta
+  const relayMeta = await relaychain.head.meta
   const paraId = await getParaId(parachain)
-  const downwardMessageQueuesKey = compactHex(meta.query.dmp.downwardMessageQueues(paraId))
+  const downwardMessageQueuesKey = compactHex(relayMeta.query.dmp.downwardMessageQueues(paraId))
+
+  const paraMeta = await parachain.head.meta
 
   await relaychain.headState.subscribeStorage([downwardMessageQueuesKey], async (head, pairs) => {
     const value = pairs[0][1]
@@ -29,5 +31,11 @@ export const connectDownward = async (relaychain: Blockchain, parachain: Blockch
 
     xcmLogger.debug({ downwardMessages }, 'downward_message')
     parachain.submitDownwardMessages(downwardMessages)
+
+    // We need to produce an extra block to process the message from the queue
+    // in case `MessageQueue` is used for dmp.
+    if (paraMeta.tx.messageQueue) {
+      await parachain.newBlock()
+    }
   })
 }

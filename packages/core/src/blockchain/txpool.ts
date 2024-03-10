@@ -32,10 +32,16 @@ export interface HorizontalMessage {
   data: HexString
 }
 
+export interface HrmpChannels {
+  egress: number[]
+  ingress: number[]
+}
+
 export interface BuildBlockParams {
   downwardMessages: DownwardMessage[]
   upwardMessages: Record<number, HexString[]>
   horizontalMessages: Record<number, HorizontalMessage[]>
+  hrmpChannels: Record<number, HrmpChannels>
   transactions: HexString[]
   unsafeBlockHeight?: number
 }
@@ -47,6 +53,7 @@ export class TxPool {
   readonly #ump: Record<number, HexString[]> = {}
   readonly #dmp: DownwardMessage[] = []
   readonly #hrmp: Record<number, HorizontalMessage[]> = {}
+  readonly #hrmpChannels: Record<number, HrmpChannels> = {}
 
   #mode: BuildBlockMode
   readonly #inherentProviders: InherentProvider[]
@@ -145,6 +152,14 @@ export class TxPool {
     this.#maybeBuildBlock()
   }
 
+  openHrmpChannels(id: number, channels: HrmpChannels) {
+    logger.debug({ id, channels }, 'open hrmp channels')
+
+    this.#hrmpChannels[id] = channels
+
+    this.#maybeBuildBlock()
+  }
+
   #maybeBuildBlock() {
     switch (this.#mode) {
       case BuildBlockMode.Batch:
@@ -175,6 +190,7 @@ export class TxPool {
     const upwardMessages = params?.upwardMessages || { ...this.#ump }
     const downwardMessages = params?.downwardMessages || this.#dmp.splice(0)
     const horizontalMessages = params?.horizontalMessages || { ...this.#hrmp }
+    const hrmpChannels = params?.hrmpChannels || { ...this.#hrmpChannels }
     const unsafeBlockHeight = params?.unsafeBlockHeight
     if (!params?.upwardMessages) {
       for (const id of Object.keys(this.#ump)) {
@@ -187,12 +203,19 @@ export class TxPool {
       }
     }
 
+    if (!params?.hrmpChannels) {
+      for (const id of Object.keys(this.#hrmpChannels)) {
+        delete this.#hrmpChannels[id]
+      }
+    }
+
     try {
       await this.buildBlockWithParams({
         transactions,
         upwardMessages,
         downwardMessages,
         horizontalMessages,
+        hrmpChannels,
         unsafeBlockHeight,
       })
     } catch (err) {
