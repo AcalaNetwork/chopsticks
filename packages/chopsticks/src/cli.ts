@@ -64,7 +64,7 @@ const commands = yargs(hideBin(process.argv))
         parachains.push(chain)
       }
 
-      let relaychain: Blockchain | undefined;
+      let relaychain: Blockchain | undefined
 
       if (argv.relaychain) {
         const { chain: rc } = await setupWithServer(await fetchConfig(argv.relaychain))

@@ -46,17 +46,15 @@ export const connectHorizontal = async (parachains: Record<number, Blockchain>, 
 
         for (const [key, value] of pairs) {
           if (key === hrmpEgressChannelsIndex) {
-            hrmpEgressChannels = meta.registry.createType('Vec<u32>', hexToU8a(value))
-            .toJSON() as number[]
+            hrmpEgressChannels = meta.registry.createType('Vec<u32>', hexToU8a(value)).toJSON() as number[]
           } else if (key === hrmpIngressChannelsIndex) {
-            hrmpIngressChannels = meta.registry.createType('Vec<u32>', hexToU8a(value))
-            .toJSON() as number[]
+            hrmpIngressChannels = meta.registry.createType('Vec<u32>', hexToU8a(value)).toJSON() as number[]
           } else {
             return
           }
         }
 
-        xcmLogger.info({ paraId: Number(id) , egress: hrmpEgressChannels, ingress: hrmpIngressChannels }, 'hrmpChannels')
+        xcmLogger.info({ paraId: Number(id), egress: hrmpEgressChannels, ingress: hrmpIngressChannels }, 'hrmpChannels')
         chain.openHrmpChannels(Number(id), { egress: hrmpEgressChannels, ingress: hrmpIngressChannels })
       })
     }

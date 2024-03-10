@@ -116,7 +116,7 @@ export class SetValidationData implements InherentProvider {
       .divn(3000) // relaychain min period
       .toNumber()
 
-    slotIncrease = slotIncrease === 0 ? 1 : slotIncrease;
+    slotIncrease = slotIncrease === 0 ? 1 : slotIncrease
 
     for (const key of Object.values(WELL_KNOWN_KEYS)) {
       if (key === WELL_KNOWN_KEYS.CURRENT_SLOT) {
@@ -125,14 +125,14 @@ export class SetValidationData implements InherentProvider {
           ? meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
           : (await getCurrentSlot(parent.chain)) * slotIncrease
 
-        let newSlot: number;
+        let newSlot: number
 
         // Genesis with async backing
         if (parent.number === 0 && Number(minPeriod) < 6000) {
           const slotDuration = await getSlotDuration(parent.chain)
           const currentTimestamp = await getCurrentTimestamp(parent.chain)
-          newSlot = Math.ceil(Number(currentTimestamp)/slotDuration)
-        } else{
+          newSlot = Math.ceil(Number(currentTimestamp) / slotDuration)
+        } else {
           newSlot = relayCurrentSlot + slotIncrease
         }
         const slot = meta.registry.createType<Slot>('Slot', newSlot)
@@ -149,7 +149,7 @@ export class SetValidationData implements InherentProvider {
     const hrmpEgressChannels = meta.registry.createType('Vec<u32>', hexToU8a(decoded[hrmpEgressChannelIndexKey]))
 
     params.hrmpChannels[Number(paraId)]?.egress.forEach((receiver) => {
-      const receiverId = meta.registry.createType('u32',  Number(receiver))
+      const receiverId = meta.registry.createType('u32', Number(receiver))
       // order is important
       if (!hrmpEgressChannels.some((x) => x.eq(receiverId))) {
         const idx = _.sortedIndexBy(hrmpEgressChannels, receiverId, (x) => x.toNumber())
@@ -158,7 +158,7 @@ export class SetValidationData implements InherentProvider {
     })
 
     params.hrmpChannels[Number(paraId)]?.ingress.forEach((sender) => {
-      const senderId = meta.registry.createType('u32',  Number(sender))
+      const senderId = meta.registry.createType('u32', Number(sender))
       // order is important
       if (!hrmpIngressChannels.some((x) => x.eq(senderId))) {
         const idx = _.sortedIndexBy(hrmpIngressChannels, senderId, (x) => x.toNumber())
