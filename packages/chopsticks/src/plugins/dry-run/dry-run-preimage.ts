@@ -77,6 +77,7 @@ export const dryRunPreimage = async (argv: DryRunSchemaType) => {
       downwardMessages: [],
       upwardMessages: [],
       horizontalMessages: {},
+      hrmpChannels: {},
     })
     if (extrinsics.length === 0) continue
     calls.push(['BlockBuilder_apply_extrinsic', extrinsics])
