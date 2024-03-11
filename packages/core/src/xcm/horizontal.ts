@@ -34,7 +34,7 @@ export const connectHorizontal = async (parachains: Record<number, Blockchain>) 
     const hrmpHeads = await chain.head.read('BTreeMap<u32, H256>', meta.query.parachainSystem.lastHrmpMqcHeads)
     if (hrmpHeads && !process.env.DISABLE_AUTO_HRMP) {
       const existingChannels = Array.from(hrmpHeads.keys()).map((x) => x.toNumber())
-      for (const paraId in parachains) {
+      for (const paraId of Object.keys(parachains).filter((x) => x !== id)) {
         if (!existingChannels.includes(Number(paraId))) {
           chain.submitHorizontalMessages(Number(paraId), [])
         }
