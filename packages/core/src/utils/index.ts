@@ -144,5 +144,7 @@ export const getSlotDuration = async (chain: Blockchain) => {
     ? (meta.consts.babe.expectedBlockTime as any as BN).toNumber()
     : meta.query.aura
       ? getAuraSlotDuration(await chain.head.wasm)
-      : 12_000
+      : meta.consts.asyncBacking
+        ? (meta.consts.asyncBacking.expectedBlockTime as any as BN).toNumber()
+        : 12_000
 }
