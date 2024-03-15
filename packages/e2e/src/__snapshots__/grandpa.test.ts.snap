@@ -3,9 +3,19 @@
 exports[`grandpa rpc > subscribeJustifications 1`] = `
 [
   [
-    "0x7777777777777777777777777777777777777777777777777777777777777777",
+    "0x207fb2dd9f6a360874932cf13e933755a9361efcd136797b9d2473d176d53e2f",
   ],
 ]
 `;
 
 exports[`grandpa rpc > subscribeJustifications 2`] = `"0x7ba5ba52f5b88fa5bcab5c1a0f7e158d845d93e1c70e9a5b42a7c3a9af681ee7"`;
+
+exports[`grandpa rpc > subscribeJustifications 3`] = `
+[
+  [
+    "0x3d7f9a024bd27ddf671b0cce203e9bbfad73b5985e659e24829bff03a4108a06",
+  ],
+]
+`;
+
+exports[`grandpa rpc > subscribeJustifications 4`] = `"0xaf0b8a9bb7abb768f0cac30c0bd31750eb4b8541c6012f65938e16415c3a024f"`;
