@@ -57,6 +57,24 @@ export const state_getKeysPaged: Handler<[string, number, string, HexString], st
 }
 
 /**
+ * Mock get proof of the runtime storage value.
+ *
+ * @param context
+ * @param params - [`keys`, `blockhash`]
+ *
+ * @return mock proof
+ */
+export const state_getReadProof: Handler<
+  [HexString[], HexString],
+  { at: HexString; proof: HexString[] } | null
+> = async (_context, [keys, hash]) => {
+  return {
+    at: hash,
+    proof: keys.map(() => ('0x' + '7'.repeat(64)) as HexString),
+  }
+}
+
+/**
  * @param context
  * @param params - [`keys`, `blockhash`]
  *
@@ -110,7 +128,7 @@ export const state_call: Handler<[HexString, HexString, HexString], HexString> =
  */
 export const state_subscribeRuntimeVersion: Handler<[], string> = async (context, _params, { subscribe }) => {
   let update = (_block: Block) => {}
-  const id = await context.chain.headState.subscrubeRuntimeVersion((block) => update(block))
+  const id = await context.chain.headState.subscribeRuntimeVersion((block) => update(block))
   const callback = subscribe('state_runtimeVersion', id)
   update = async (block) => callback(await block.runtimeVersion)
   setTimeout(() => {

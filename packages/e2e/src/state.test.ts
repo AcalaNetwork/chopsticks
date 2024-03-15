@@ -10,6 +10,7 @@ describe('state rpc', () => {
     await checkHex(api.rpc.state.getMetadata(env.acala.blockHash)).toMatchSnapshot()
     const genesisHash = await api.rpc.chain.getBlockHash(0)
     expect(await api.rpc.state.getMetadata(genesisHash)).to.not.be.eq(await api.rpc.state.getMetadata())
+    expect(await api.rpc.state.getReadProof(['0x123', '0x123'], env.acala.blockHash)).toMatchSnapshot()
   })
 
   it.todo('subscribeRuntimeVersion')

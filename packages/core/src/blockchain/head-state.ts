@@ -45,7 +45,7 @@ export class HeadState {
     delete this.#storageListeners[id]
   }
 
-  async subscrubeRuntimeVersion(cb: (block: Block) => void) {
+  async subscribeRuntimeVersion(cb: (block: Block) => void) {
     const id = randomId()
     const codeKey = stringToHex(':code')
     this.#storageListeners[id] = [[codeKey], cb]
