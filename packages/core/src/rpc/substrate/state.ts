@@ -58,12 +58,13 @@ export const state_getKeysPaged: Handler<[string, number, string, HexString], st
 }
 
 /**
- * Mock get proof of the runtime storage value.
+ * Get proof of the runtime storage value.
+ * NOTE: The retuned proof trie_root_hash does not match the block trie_root_hash.
  *
  * @param context
  * @param params - [`keys`, `blockhash`]
  *
- * @return mock proof
+ * @return storage proof
  */
 export const state_getReadProof: Handler<
   [HexString[], HexString],
