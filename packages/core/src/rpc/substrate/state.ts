@@ -1,8 +1,9 @@
-import { Block } from '../../blockchain/block.js'
 import { HexString } from '@polkadot/util/types'
+import _ from 'lodash'
 
+import { Block } from '../../blockchain/block.js'
 import { Handler, ResponseError } from '../shared.js'
-import { RuntimeVersion } from '../../wasm-executor/index.js'
+import { RuntimeVersion, createProof } from '../../wasm-executor/index.js'
 import { defaultLogger } from '../../logger.js'
 import { isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '../../utils/index.js'
 
@@ -67,10 +68,18 @@ export const state_getKeysPaged: Handler<[string, number, string, HexString], st
 export const state_getReadProof: Handler<
   [HexString[], HexString],
   { at: HexString; proof: HexString[] } | null
-> = async (_context, [keys, hash]) => {
+> = async (context, [keys, hash]) => {
+  const block = await context.chain.getBlock(hash)
+  if (!block) {
+    return null
+  }
+  const entries = await Promise.all(
+    _.sortedUniq(keys).map(async (key) => [key, await block.get(key)] as [HexString, HexString | null]),
+  )
+  const { nodes: proof } = await createProof([], entries)
   return {
-    at: hash,
-    proof: keys.map(() => ('0x' + '7'.repeat(64)) as HexString),
+    at: block.hash,
+    proof,
   }
 }
 
