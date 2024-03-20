@@ -80,7 +80,16 @@ export const createServer = async (handler: Handler, port: number) => {
       res.write(JSON.stringify(response))
       res.end()
     } catch (err: any) {
-      res.write(err.message)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          error: {
+            message: err.message,
+          },
+        }),
+      )
       res.end()
     }
   })

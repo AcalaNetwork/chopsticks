@@ -34,5 +34,41 @@ describe('http.server', () => {
       }
     `)
     }
+
+    {
+      const res = await fetch(`http://localhost:${port}`, {
+        method: 'POST',
+        body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'system_invalid', params: [] }),
+      })
+      expect(await res.json()).toMatchInlineSnapshot(
+        `
+        {
+          "error": {
+            "message": "Method not found: system_invalid",
+          },
+          "id": 1,
+          "jsonrpc": "2.0",
+        }
+      `,
+      )
+    }
+
+    {
+      const res = await fetch(`http://localhost:${port}`, {
+        method: 'POST',
+        body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'chain_subscribeNewHeads', params: [] }),
+      })
+      expect(await res.json()).toMatchInlineSnapshot(
+        `
+        {
+          "error": {
+            "message": "Subscription is not supported",
+          },
+          "id": 1,
+          "jsonrpc": "2.0",
+        }
+      `,
+      )
+    }
   })
 })
