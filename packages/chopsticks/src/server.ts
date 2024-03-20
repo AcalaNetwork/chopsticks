@@ -44,18 +44,18 @@ const readBody = (request: http.IncomingMessage) =>
       })
   })
 
-  const respond = (res: http.ServerResponse, data?: any) => {
-    res.writeHead(200, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST',
-      'Access-Control-Allow-Headers': '*',
-      'Content-Type': 'application/json'
-    })
-    if (data) {
-      res.write(data)
-    }
-    res.end()
+const respond = (res: http.ServerResponse, data?: any) => {
+  res.writeHead(200, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST',
+    'Access-Control-Allow-Headers': '*',
+    'Content-Type': 'application/json',
+  })
+  if (data) {
+    res.write(data)
   }
+  res.end()
+}
 
 const subscriptionManager = {
   subscribe: () => {
@@ -91,10 +91,12 @@ export const createServer = async (handler: Handler, port: number) => {
 
       let response: any
       if (Array.isArray(parsed.data)) {
-        response = await Promise.all(parsed.data.map((req) => {
-          const result = handler(req, subscriptionManager)
-          return { id: req.id, jsonrpc: '2.0', result }
-        }))
+        response = await Promise.all(
+          parsed.data.map((req) => {
+            const result = handler(req, subscriptionManager)
+            return { id: req.id, jsonrpc: '2.0', result }
+          }),
+        )
       } else {
         const result = await handler(parsed.data, subscriptionManager)
         response = { id: parsed.data.id, jsonrpc: '2.0', result }
@@ -102,13 +104,16 @@ export const createServer = async (handler: Handler, port: number) => {
 
       respond(res, JSON.stringify(response))
     } catch (err: any) {
-      respond(res, JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        error: {
-          message: err.message,
-        },
-      }))
+      respond(
+        res,
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          error: {
+            message: err.message,
+          },
+        }),
+      )
     }
   })
 
