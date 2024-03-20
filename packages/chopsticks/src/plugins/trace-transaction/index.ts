@@ -3,6 +3,7 @@ import { BN, hexToU8a, u8aToHex } from '@polkadot/util'
 import { Block } from '@acala-network/chopsticks-core'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { writeFileSync } from 'fs'
+import { z } from 'zod'
 
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { overrideWasm } from '../../utils/override.js'
@@ -11,17 +12,21 @@ import { setupContext } from '../../context.js'
 const ACALA_ETH_RPC = 'https://eth-rpc-acala.aca-api.network'
 const KARURA_ETH_RPC = 'https://eth-rpc-karura.aca-api.network'
 
+const schema = configSchema.extend({
+  vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
+})
+
 export const cli = (y: Argv) => {
   y.command(
     'trace-transaction <tx-hash>',
     'EVM+ trace transaction. Only Acala and Karura are supported',
     (yargs) =>
-      yargs.options(getYargsOptions(configSchema.shape)).positional('tx-hash', {
+      yargs.options(getYargsOptions(schema.shape)).positional('tx-hash', {
         desc: 'Transaction hash',
         type: 'string',
       }),
     async (argv) => {
-      const config = configSchema.parse(argv)
+      const config = schema.parse(argv)
       const wasm = config['wasm-override']
       if (!wasm) {
         throw new Error('Wasm override built with feature `tracing` is required')
@@ -162,7 +167,8 @@ export const cli = (y: Argv) => {
       }
 
       console.log('running evm trace...')
-      const res = await newBlock.call('EVMTraceApi_trace_call', [
+      const call = config.vm ? 'EVMTraceApi_trace_vm' : 'EVMTraceApi_trace_call'
+      const res = await newBlock.call(call, [
         from,
         to || '0x0000000000000000000000000000000000000000',
         u8aToHex(meta.registry.createType('Vec<u8>', input).toU8a()),
@@ -172,7 +178,9 @@ export const cli = (y: Argv) => {
         '0x00', // empty access list
       ])
 
-      const logs = meta.registry.createType<any>('Result<Vec<CallTrace>, DispatchError>', res.result).asOk.toJSON()
+      const logs = meta.registry
+        .createType<any>(`Result<Vec<${config.vm ? 'Step' : 'CallTrace'}>, DispatchError>`, res.result)
+        .asOk.toJSON()
 
       const filepath = `${process.cwd()}/trace-${txHash}.json`
       writeFileSync(filepath, JSON.stringify(logs, null, 2))
