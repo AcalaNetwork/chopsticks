@@ -74,22 +74,24 @@ describe('http.server', () => {
 
     {
       const body = JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'chain_getBlockHash', params: [] })
-      request({
-        method: 'GET',
-        host: 'localhost',
-        port: port,
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': body.length.toString()
+      request(
+        {
+          method: 'GET',
+          host: 'localhost',
+          port: port,
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': body.length.toString(),
+          },
         },
-      }, (res) => {
-        let data = ''
-        res.on('data', (chunk) => {
-          data += chunk
-        })
-        res.on('end', () => {
-          expect(JSON.parse(data)).toMatchInlineSnapshot(
-            `
+        (res) => {
+          let data = ''
+          res.on('data', (chunk) => {
+            data += chunk
+          })
+          res.on('end', () => {
+            expect(JSON.parse(data)).toMatchInlineSnapshot(
+              `
             {
               "error": {
                 "message": "Only POST method is supported",
@@ -98,9 +100,10 @@ describe('http.server', () => {
               "jsonrpc": "2.0",
             }
           `,
-          )
-        })
-      }).end(body)
+            )
+          })
+        },
+      ).end(body)
     }
   })
 })
