@@ -44,6 +44,18 @@ const readBody = (request: http.IncomingMessage) =>
       })
   })
 
+  const respond = (res: http.ServerResponse, data?: any) => {
+    res.writeHead(200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST',
+      'Content-Type': 'application/json'
+    })
+    if (data) {
+      res.write(data)
+    }
+    res.end()
+  }
+
 const subscriptionManager = {
   subscribe: () => {
     throw new Error('Subscription is not supported')
@@ -58,6 +70,10 @@ export const createServer = async (handler: Handler, port: number) => {
   let listenPort: number | undefined
 
   const server = http.createServer(async (req, res) => {
+    if (req.method === 'OPTIONS') {
+      return respond(res)
+    }
+
     try {
       if (req.method !== 'POST') {
         throw new Error('Only POST method is supported')
@@ -79,21 +95,15 @@ export const createServer = async (handler: Handler, port: number) => {
         response = await handler(parsed.data, subscriptionManager)
       }
 
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.write(JSON.stringify(response))
-      res.end()
+      respond(res, JSON.stringify(response))
     } catch (err: any) {
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.write(
-        JSON.stringify({
-          jsonrpc: '2.0',
-          id: 1,
-          error: {
-            message: err.message,
-          },
-        }),
-      )
-      res.end()
+      respond(res, JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        error: {
+          message: err.message,
+        },
+      }))
     }
   })
 
