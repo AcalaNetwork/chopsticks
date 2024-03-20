@@ -18,7 +18,13 @@ describe('http.server', () => {
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'chain_getBlockHash', params: [] }),
       })
       expect(await res.json()).toMatchInlineSnapshot(
-        `"0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7"`,
+        `
+        {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": "0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7",
+        }
+      `,
       )
     }
 
@@ -28,12 +34,16 @@ describe('http.server', () => {
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'system_health', params: [] }),
       })
       expect(await res.json()).toMatchInlineSnapshot(`
-      {
-        "isSyncing": false,
-        "peers": 0,
-        "shouldHavePeers": false,
-      }
-    `)
+        {
+          "id": 1,
+          "jsonrpc": "2.0",
+          "result": {
+            "isSyncing": false,
+            "peers": 0,
+            "shouldHavePeers": false,
+          },
+        }
+      `)
     }
 
     {

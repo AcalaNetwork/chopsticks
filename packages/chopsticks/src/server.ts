@@ -91,9 +91,13 @@ export const createServer = async (handler: Handler, port: number) => {
 
       let response: any
       if (Array.isArray(parsed.data)) {
-        response = await Promise.all(parsed.data.map((req) => handler(req, subscriptionManager)))
+        response = await Promise.all(parsed.data.map((req) => {
+          const result = handler(req, subscriptionManager)
+          return { id: req.id, jsonrpc: '2.0', result }
+        }))
       } else {
-        response = await handler(parsed.data, subscriptionManager)
+        const result = await handler(parsed.data, subscriptionManager)
+        response = { id: parsed.data.id, jsonrpc: '2.0', result }
       }
 
       respond(res, JSON.stringify(response))
