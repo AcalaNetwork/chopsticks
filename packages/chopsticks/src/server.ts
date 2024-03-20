@@ -59,6 +59,9 @@ export const createServer = async (handler: Handler, port: number) => {
 
   const server = http.createServer(async (req, res) => {
     try {
+      if (req.method !== 'POST') {
+        throw new Error('Only POST method is supported')
+      }
       const body = await readBody(req)
       const parsed = await requestSchema.safeParseAsync(parseRequest(body))
 

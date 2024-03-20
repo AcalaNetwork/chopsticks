@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { request } from 'http'
 
 import { env, setupApi, ws } from './helper.js'
 
@@ -69,6 +70,37 @@ describe('http.server', () => {
         }
       `,
       )
+    }
+
+    {
+      const body = JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'chain_getBlockHash', params: [] })
+      request({
+        method: 'GET',
+        host: 'localhost',
+        port: port,
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': body.length.toString()
+        },
+      }, (res) => {
+        let data = ''
+        res.on('data', (chunk) => {
+          data += chunk
+        })
+        res.on('end', () => {
+          expect(JSON.parse(data)).toMatchInlineSnapshot(
+            `
+            {
+              "error": {
+                "message": "Only POST method is supported",
+              },
+              "id": 1,
+              "jsonrpc": "2.0",
+            }
+          `,
+          )
+        })
+      }).end(body)
     }
   })
 })
