@@ -57,18 +57,18 @@ const respond = (res: http.ServerResponse, data?: any) => {
   res.end()
 }
 
-const subscriptionManager = {
-  subscribe: () => {
-    throw new Error('Subscription is not supported')
-  },
-  unsubscribe: () => {
-    throw new Error('Subscription is not supported')
-  },
-}
-
 export const createServer = async (handler: Handler, port: number) => {
   let wss: WebSocketServer | undefined
   let listenPort: number | undefined
+
+  const emptySubscriptionManager = {
+    subscribe: () => {
+      throw new Error('Subscription is not supported')
+    },
+    unsubscribe: () => {
+      throw new Error('Subscription is not supported')
+    },
+  }
 
   const server = http.createServer(async (req, res) => {
     if (req.method === 'OPTIONS') {
@@ -93,12 +93,12 @@ export const createServer = async (handler: Handler, port: number) => {
       if (Array.isArray(parsed.data)) {
         response = await Promise.all(
           parsed.data.map((req) => {
-            const result = handler(req, subscriptionManager)
+            const result = handler(req, emptySubscriptionManager)
             return { id: req.id, jsonrpc: '2.0', result }
           }),
         )
       } else {
-        const result = await handler(parsed.data, subscriptionManager)
+        const result = await handler(parsed.data, emptySubscriptionManager)
         response = { id: parsed.data.id, jsonrpc: '2.0', result }
       }
 
@@ -256,16 +256,10 @@ export const createServer = async (handler: Handler, port: number) => {
 
   return {
     port: listenPort,
-    close: () =>
-      new Promise<void>((resolve, reject) => {
-        wss?.clients.forEach((socket) => socket.close())
-        wss?.close((err) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve()
-          }
-        })
-      }),
+    close: async () => {
+      server.close()
+      server.closeAllConnections()
+      server.unref()
+    },
   }
 }
