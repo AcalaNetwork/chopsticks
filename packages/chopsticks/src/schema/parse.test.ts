@@ -30,6 +30,7 @@ describe('Parsed options', () => {
   const defaults = {
     port: 8000,
     'build-block-mode': 'Batch',
+    'process-queued-messages': true,
   }
   it('parsed multi type options should work', () => {
     expect(

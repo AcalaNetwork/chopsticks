@@ -47,6 +47,8 @@ export interface Options {
   offchainWorker?: boolean
   /** Max memory block count */
   maxMemoryBlockCount?: number
+  /** Whether to process queued messages */
+  processQueuedMessages?: boolean
 }
 
 /**
@@ -98,6 +100,7 @@ export class Blockchain {
 
   readonly offchainWorker: OffchainWorker | undefined
   readonly #maxMemoryBlockCount: number
+  readonly processQueuedMessages: boolean = true
 
   // first arg is used as cache key
   readonly #registryBuilder = _.memoize(
@@ -135,6 +138,7 @@ export class Blockchain {
     registeredTypes = {},
     offchainWorker = false,
     maxMemoryBlockCount = 500,
+    processQueuedMessages = true,
   }: Options) {
     this.api = api
     this.db = db
@@ -156,6 +160,7 @@ export class Blockchain {
     }
 
     this.#maxMemoryBlockCount = maxMemoryBlockCount
+    this.processQueuedMessages = processQueuedMessages
   }
 
   #registerBlock(block: Block) {

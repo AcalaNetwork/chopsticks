@@ -39,7 +39,7 @@ describe('HRMP', () => {
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     })
     await acala.chain.newBlock({ horizontalMessages: acalaHRMP })
-    await checkSystemEvents(acala, 'xcmpQueue', 'Success').toMatchSnapshot()
+    await checkSystemEvents(acala, 'messageQueue', 'Processed').toMatchSnapshot()
     await acala.teardown()
   })
 

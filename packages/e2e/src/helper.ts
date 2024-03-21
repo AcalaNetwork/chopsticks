@@ -30,6 +30,7 @@ export type SetupOption = {
   genesis?: string
   registeredTypes?: RegisteredTypes
   runtimeLogLevel?: number
+  processQueuedMessages?: boolean
 }
 
 export const env = {
@@ -52,6 +53,7 @@ export const setupAll = async ({
   genesis,
   registeredTypes = {},
   runtimeLogLevel,
+  processQueuedMessages,
 }: SetupOption) => {
   let provider: ProviderInterface
   if (genesis) {
@@ -90,6 +92,7 @@ export const setupAll = async ({
         registeredTypes,
         runtimeLogLevel,
         db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
+        processQueuedMessages,
       })
 
       if (genesis) {
