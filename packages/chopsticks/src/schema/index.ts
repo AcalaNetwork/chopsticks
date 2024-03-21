@@ -63,8 +63,7 @@ export const configSchema = z.object({
     .boolean({
       description: 'Process queued messages when building block. Default to true. Set to false to disable it.',
     })
-    .optional()
-    .default(true),
+    .optional(),
 })
 
 export type Config = z.infer<typeof configSchema>
