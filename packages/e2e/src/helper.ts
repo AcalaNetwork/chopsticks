@@ -96,7 +96,7 @@ export const setupAll = async ({
         await genesisSetup(chain, provider as GenesisProvider)
       }
 
-      const { port, close } = await createServer(handler({ chain }))
+      const { port, close } = await createServer(handler({ chain }), 0)
 
       const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
