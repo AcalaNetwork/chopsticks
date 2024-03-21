@@ -1,6 +1,7 @@
+import { compactAddLength, u8aToHex } from '@polkadot/util'
+
 import { Block } from '../../blockchain/block.js'
 import { Handler } from '../shared.js'
-import { compactHex } from '../../utils/index.js'
 
 export const grandpa_subscribeJustifications: Handler<void, string> = async (context, _params, { subscribe }) => {
   let update = (_block: Block) => {}
@@ -10,10 +11,8 @@ export const grandpa_subscribeJustifications: Handler<void, string> = async (con
 
   update = async (block: Block) => {
     const meta = await block.meta
-    const validatorSetId = await block.read('u64', meta.query.beefy.validatorSetId)
-    if (!validatorSetId) {
-      throw new Error('Cannot find validator set id')
-    }
+    const validatorSetIdRaw = await block.get('0x08c41974a97dbf15cfbec28365bea2da8f05bccc2f70ec66a32999c5761156be')
+    const validatorSetId = meta.registry.createType('u64', validatorSetIdRaw || 0)
     const beefyProof = meta.registry.createType('BeefyVersionedFinalityProof', {
       V1: {
         commitment: {
@@ -24,8 +23,8 @@ export const grandpa_subscribeJustifications: Handler<void, string> = async (con
         signatures: [], // TODO: do we need to fill this?
       },
     })
-    const justification = meta.registry.createType('Justification', ['BEEF', compactHex(beefyProof.toU8a())]).toHex()
-    callback(justification)
+    const justification = meta.registry.createType('Justification', ['BEEF', compactAddLength(beefyProof.toU8a())])
+    callback(u8aToHex(justification.toU8a()))
   }
 
   setTimeout(() => update(context.chain.head), 50)

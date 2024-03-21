@@ -3,7 +3,7 @@
 exports[`grandpa rpc > subscribeJustifications 1`] = `
 [
   [
-    "0x207fb2dd9f6a360874932cf13e933755a9361efcd136797b9d2473d176d53e2f",
+    "0x424545463c0100dcd2dc00000000000000000000",
   ],
 ]
 `;
@@ -13,7 +13,7 @@ exports[`grandpa rpc > subscribeJustifications 2`] = `"0x7ba5ba52f5b88fa5bcab5c1
 exports[`grandpa rpc > subscribeJustifications 3`] = `
 [
   [
-    "0x3d7f9a024bd27ddf671b0cce203e9bbfad73b5985e659e24829bff03a4108a06",
+    "0x424545463c0100ddd2dc00000000000000000000",
   ],
 ]
 `;
