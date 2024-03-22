@@ -121,16 +121,16 @@ export const createServer = async (handler: Handler, port: number) => {
     const preferPort = port ? port + i : undefined
     wsLogger.debug('Try starting on port %d', preferPort)
     const success = await new Promise<boolean>((resolve) => {
-      server.listen(preferPort, () => {
-        wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 * 100 })
-        listenPort = (server.address() as AddressInfo).port
-        resolve(true)
-      })
-      server.on('error', (e: any) => {
+      server.once('error', (e: any) => {
         if (e.code === 'EADDRINUSE') {
           server.close()
           resolve(false)
         }
+      })
+      server.listen(preferPort, () => {
+        wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 * 100 })
+        listenPort = (server.address() as AddressInfo).port
+        resolve(true)
       })
     })
     if (success) {
