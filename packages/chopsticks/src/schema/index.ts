@@ -59,6 +59,12 @@ export const configSchema = z.object({
         'Resume from the specified block hash or block number in db. If true, it will resume from the latest block in db. Note this will override the block option',
     })
     .optional(),
+  'process-queued-messages': z
+    .boolean({
+      description:
+        'Produce extra block when queued messages are detected. Default to true. Set to false to disable it.',
+    })
+    .optional(),
 })
 
 export type Config = z.infer<typeof configSchema>

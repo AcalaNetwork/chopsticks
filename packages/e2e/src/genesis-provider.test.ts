@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it } from 'vitest'
 
 import { BuildBlockMode } from '@acala-network/chopsticks'
 import { check, testingPairs } from './helper.js'
@@ -12,11 +12,13 @@ describe.each([
   ['Kusama', new URL('../blobs/kusama.json', import.meta.url).pathname],
   ['Asset Hub Kusama', new URL('../blobs/asset-hub-kusama.json', import.meta.url).pathname],
 ])(`genesis provider works %s`, async (name, genesis) => {
-  const { chain, dev, api } = await setupContextWithConfig({
-    port: 1234,
+  const { chain, dev, api, teardown } = await setupContextWithConfig({
+    port: 0,
     genesis,
     'build-block-mode': BuildBlockMode.Manual,
   })
+
+  afterAll(teardown)
 
   describe('genesis provider works', () => {
     it.runIf(name === 'Kusama')('get next key', async () => {
