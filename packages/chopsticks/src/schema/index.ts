@@ -61,7 +61,8 @@ export const configSchema = z.object({
     .optional(),
   'process-queued-messages': z
     .boolean({
-      description: 'Process queued messages when building block. Default to true. Set to false to disable it.',
+      description:
+        'Produce extra block when queued messages are detected. Default to true. Set to false to disable it.',
     })
     .optional(),
 })

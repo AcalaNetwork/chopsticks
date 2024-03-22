@@ -210,6 +210,7 @@ export class TxPool {
         if (!rawValue) continue
         const message = meta.registry.createType('PalletMessageQueueBookState', hexToU8a(rawValue)).toJSON() as any
         if (message.size > 0) {
+          logger.info('Queued messages detected, building a new block')
           // build a new block to process the queued messages
           await this.#chain.newBlock()
           return

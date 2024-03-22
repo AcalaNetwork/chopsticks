@@ -77,7 +77,7 @@ it('get yargs options from zod schema', () => {
       "process-queued-messages": {
         "choices": undefined,
         "demandOption": false,
-        "description": "Process queued messages when building block. Default to true. Set to false to disable it.",
+        "description": "Produce extra block when queued messages are detected. Default to true. Set to false to disable it.",
         "type": "boolean",
       },
       "registered-types": {
