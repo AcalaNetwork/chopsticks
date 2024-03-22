@@ -23,7 +23,7 @@ __metadata:
     "@polkadot/types-known": "npm:^10.11.2"
     "@polkadot/util": "npm:^12.6.2"
     "@polkadot/util-crypto": "npm:^12.6.2"
-    "@swc/cli": "npm:0.3.10"
+    "@swc/cli": "npm:0.1.65"
     "@swc/core": "npm:^1.4.8"
     "@types/lodash": "npm:^4.17.0"
     comlink: "npm:^4.4.1"
@@ -45,7 +45,7 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks-core": "workspace:*"
     "@polkadot/util": "npm:^12.6.2"
-    "@swc/cli": "npm:0.3.10"
+    "@swc/cli": "npm:0.1.65"
     "@swc/core": "npm:^1.4.8"
     idb: "npm:^8.0.0"
     sqlite3: "npm:^5.1.7"
@@ -72,7 +72,7 @@ __metadata:
   dependencies:
     "@polkadot/util": "npm:^12.6.2"
     "@polkadot/wasm-util": "npm:^7.3.2"
-    "@swc/cli": "npm:0.3.10"
+    "@swc/cli": "npm:0.1.65"
     "@swc/core": "npm:^1.4.8"
     fflate: "npm:^0.8.2"
   languageName: unknown
@@ -85,7 +85,7 @@ __metadata:
     "@acala-network/chopsticks-utils": "workspace:*"
     "@polkadot/api": "npm:^10.11.2"
     "@polkadot/types": "npm:^10.11.2"
-    "@swc/cli": "npm:0.3.10"
+    "@swc/cli": "npm:0.1.65"
     "@swc/core": "npm:^1.4.8"
     "@types/chai": "npm:^4.3.11"
     typescript: "npm:^5.3.3"
@@ -99,7 +99,7 @@ __metadata:
     "@acala-network/chopsticks": "workspace:*"
     "@polkadot/api": "npm:^10.11.2"
     "@polkadot/types": "npm:^10.11.2"
-    "@swc/cli": "npm:0.3.10"
+    "@swc/cli": "npm:0.1.65"
     "@swc/core": "npm:^1.4.8"
     typescript: "npm:^5.3.3"
   languageName: unknown
@@ -116,7 +116,7 @@ __metadata:
     "@polkadot/types": "npm:^10.11.2"
     "@polkadot/util": "npm:^12.6.2"
     "@polkadot/util-crypto": "npm:^12.6.2"
-    "@swc/cli": "npm:0.3.10"
+    "@swc/cli": "npm:0.1.65"
     "@swc/core": "npm:^1.4.8"
     "@types/global-agent": "npm:^2.1.3"
     "@types/js-yaml": "npm:^4.0.9"
@@ -2038,16 +2038,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/cli@npm:0.3.10":
-  version: 0.3.10
-  resolution: "@swc/cli@npm:0.3.10"
+"@swc/cli@npm:0.1.65":
+  version: 0.1.65
+  resolution: "@swc/cli@npm:0.1.65"
   dependencies:
     "@mole-inc/bin-wrapper": "npm:^8.0.1"
-    "@swc/counter": "npm:^0.1.3"
-    commander: "npm:^8.3.0"
+    commander: "npm:^7.1.0"
     fast-glob: "npm:^3.2.5"
     minimatch: "npm:^9.0.3"
-    piscina: "npm:^4.3.0"
     semver: "npm:^7.3.8"
     slash: "npm:3.0.0"
     source-map: "npm:^0.7.3"
@@ -2061,7 +2059,7 @@ __metadata:
     spack: bin/spack.js
     swc: bin/swc.js
     swcx: bin/swcx.js
-  checksum: 10c0/d7339ed054838630c40a9deb8d0a97a59a1d1d969b40a456847fbd74a60478860dcf4fb7d20ca2dbc7d87f95b6ab230e2cbe889f32ae8c39ce13aa56e4cb6a98
+  checksum: 10c0/c5f9844a1fdcad0ac902dc1d62b913b2096aec6e18569166eea62b9e4e65e1aaebbe2d6925837921d08adabca982bb374a617f1528b256457de6d2de56acb18e
   languageName: node
   linkType: hard
 
@@ -2181,7 +2179,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/counter@npm:^0.1.2, @swc/counter@npm:^0.1.3":
+"@swc/counter@npm:^0.1.2":
   version: 0.1.3
   resolution: "@swc/counter@npm:0.1.3"
   checksum: 10c0/8424f60f6bf8694cfd2a9bca45845bce29f26105cda8cf19cdb9fd3e78dc6338699e4db77a89ae449260bafa1cc6bec307e81e7fb96dbf7dcfce0eea55151356
@@ -3954,10 +3952,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^8.3.0":
-  version: 8.3.0
-  resolution: "commander@npm:8.3.0"
-  checksum: 10c0/8b043bb8322ea1c39664a1598a95e0495bfe4ca2fad0d84a92d7d1d8d213e2a155b441d2470c8e08de7c4a28cf2bc6e169211c49e1b21d9f7edc6ae4d9356060
+"commander@npm:^7.1.0":
+  version: 7.2.0
+  resolution: "commander@npm:7.2.0"
+  checksum: 10c0/8d690ff13b0356df7e0ebbe6c59b4712f754f4b724d4f473d3cc5b3fdcf978e3a5dc3078717858a2ceb50b0f84d0660a7f22a96cdc50fb877d0c9bb31593d23a
   languageName: node
   linkType: hard
 
@@ -6901,17 +6899,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nice-napi@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "nice-napi@npm:1.0.2"
-  dependencies:
-    node-addon-api: "npm:^3.0.0"
-    node-gyp: "npm:latest"
-    node-gyp-build: "npm:^4.2.2"
-  conditions: "!os=win32"
-  languageName: node
-  linkType: hard
-
 "nock@npm:^13.4.0":
   version: 13.5.0
   resolution: "nock@npm:13.5.0"
@@ -6929,15 +6916,6 @@ __metadata:
   dependencies:
     semver: "npm:^7.3.5"
   checksum: 10c0/9ebbb21e6951aa51e831549ed62b68dc56bcc10f6b21ffd04195a16a6abf5ddfc48b6ae5e3334720fe4459cafde5ec8103025902efff5599d0539f8656fc694e
-  languageName: node
-  linkType: hard
-
-"node-addon-api@npm:^3.0.0":
-  version: 3.2.1
-  resolution: "node-addon-api@npm:3.2.1"
-  dependencies:
-    node-gyp: "npm:latest"
-  checksum: 10c0/41f21c9d12318875a2c429befd06070ce367065a3ef02952cfd4ea17ef69fa14012732f510b82b226e99c254da8d671847ea018cad785f839a5366e02dd56302
   languageName: node
   linkType: hard
 
@@ -6965,17 +6943,6 @@ __metadata:
     fetch-blob: "npm:^3.1.4"
     formdata-polyfill: "npm:^4.0.10"
   checksum: 10c0/f3d5e56190562221398c9f5750198b34cf6113aa304e34ee97c94fd300ec578b25b2c2906edba922050fce983338fde0d5d34fcb0fc3336ade5bd0e429ad7538
-  languageName: node
-  linkType: hard
-
-"node-gyp-build@npm:^4.2.2":
-  version: 4.8.0
-  resolution: "node-gyp-build@npm:4.8.0"
-  bin:
-    node-gyp-build: bin.js
-    node-gyp-build-optional: optional.js
-    node-gyp-build-test: build-test.js
-  checksum: 10c0/85324be16f81f0235cbbc42e3eceaeb1b5ab94c8d8f5236755e1435b4908338c65a4e75f66ee343cbcb44ddf9b52a428755bec16dcd983295be4458d95c8e1ad
   languageName: node
   linkType: hard
 
@@ -7528,18 +7495,6 @@ __metadata:
   bin:
     pino: bin.js
   checksum: 10c0/53e6e9db91e451163e93294b0a7c5c8135742d58909dfc4a6fa1afc155b2b0dc44448ec3d057e08351951f9a3ea67e6ea8e72e952b64a1d889f4d5376cbd1a5d
-  languageName: node
-  linkType: hard
-
-"piscina@npm:^4.3.0":
-  version: 4.4.0
-  resolution: "piscina@npm:4.4.0"
-  dependencies:
-    nice-napi: "npm:^1.0.2"
-  dependenciesMeta:
-    nice-napi:
-      optional: true
-  checksum: 10c0/df6c2a2b673b0633a625f8dfc32f4519155e74ee24e31be9e69d2937e76d6cec8640278b4a50195652a943cccf8c634ed406f08598933c57e959d242b5fe5d1d
   languageName: node
   linkType: hard
 
