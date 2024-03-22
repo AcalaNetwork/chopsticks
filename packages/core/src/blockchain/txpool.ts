@@ -198,8 +198,9 @@ export class TxPool {
       })
 
       // with the latest message queue, messages are processed in the upcoming block
-      if (!this.#chain.processQueuedMessages || !params?.horizontalMessages) return
-      if (!(params?.horizontalMessages || params?.downwardMessages)) return
+      if (!this.#chain.processQueuedMessages) return
+      // if block was built without horizontal or downward messages then skip
+      if (_.isEmpty(horizontalMessages) && _.isEmpty(downwardMessages)) return
 
       // messageQueue.bookStateFor
       const prefix = '0xb8753e9383841da95f7b8871e5de326954e062a2cf8df68178ee2e5dbdf00bff'
