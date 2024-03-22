@@ -1,4 +1,4 @@
-import { compactAddLength, u8aToHex } from '@polkadot/util'
+import { u8aToHex } from '@polkadot/util'
 
 import { Block } from '../../blockchain/block.js'
 import { Handler } from '../shared.js'
@@ -11,19 +11,15 @@ export const grandpa_subscribeJustifications: Handler<void, string> = async (con
 
   update = async (block: Block) => {
     const meta = await block.meta
-    const validatorSetIdRaw = await block.get('0x08c41974a97dbf15cfbec28365bea2da8f05bccc2f70ec66a32999c5761156be')
-    const validatorSetId = meta.registry.createType('u64', validatorSetIdRaw || 0)
-    const beefyProof = meta.registry.createType('BeefyVersionedFinalityProof', {
-      V1: {
-        commitment: {
-          payload: [], // TODO: do we need to fill this?
-          blockNumber: block.number,
-          validatorSetId,
-        },
-        signatures: [], // TODO: do we need to fill this?
+    const justification = meta.registry.createType('GrandpaJustification', {
+      round: 1,
+      commit: {
+        targetHash: block.hash,
+        targetNumber: block.number,
+        precommits: [],
       },
+      votesAncestries: [],
     })
-    const justification = meta.registry.createType('Justification', ['BEEF', compactAddLength(beefyProof.toU8a())])
     callback(u8aToHex(justification.toU8a()))
   }
 
