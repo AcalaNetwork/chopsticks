@@ -6,8 +6,8 @@
 	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
 	"features": {
 		"ghcr.io/devcontainers/features/rust:1": {},
-		"ghcr.io/lee-orr/rusty-dev-containers/wasm32-unknown-unknown:0": {},
-	},
+		"ghcr.io/lee-orr/rusty-dev-containers/wasm32-unknown-unknown:0": {}
+	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
