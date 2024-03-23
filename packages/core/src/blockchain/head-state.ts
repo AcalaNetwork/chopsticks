@@ -1,5 +1,3 @@
-import { stringToHex } from '@polkadot/util'
-
 import { Block } from './block.js'
 import { defaultLogger } from '../logger.js'
 
@@ -42,18 +40,6 @@ export class HeadState {
   }
 
   unsubscribeStorage(id: string) {
-    delete this.#storageListeners[id]
-  }
-
-  async subscrubeRuntimeVersion(cb: (block: Block) => void) {
-    const id = randomId()
-    const codeKey = stringToHex(':code')
-    this.#storageListeners[id] = [[codeKey], cb]
-    this.#oldValues[codeKey] = await this.#head.get(codeKey).then((val) => val || null)
-    return id
-  }
-
-  unsubscribeRuntimeVersion(id: string) {
     delete this.#storageListeners[id]
   }
 

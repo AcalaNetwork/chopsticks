@@ -18,7 +18,7 @@
 		"build-wasm": "yarn workspace @acala-network/chopsticks-executor run build",
 		"build:web-test": "yarn build && yarn workspace web-test run build",
 		"check": "cd executor && cargo check --locked",
-		"test": "vitest run",
+		"test": "LOG_LEVEL=warn vitest run",
 		"test:watch": "vitest",
 		"coverage": "vitest run --coverage",
 		"coverage:ui": "vitest test --ui --coverage.enabled=true",

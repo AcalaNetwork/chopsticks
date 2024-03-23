@@ -66,16 +66,17 @@ describe('chain rpc', () => {
 
   it('subscribeNewHeads', async () => {
     const { callback, next } = mockCallback()
+    let tick = next()
     const unsub = await api.rpc.chain.subscribeNewHeads(callback)
+    await tick
 
-    await next()
     expect(callback.mock.calls).toMatchSnapshot()
 
     callback.mockClear()
 
+    tick = next()
     expect(await dev.newBlock()).toMatchSnapshot()
-
-    await next()
+    await tick
 
     expect(callback.mock.calls).toMatchSnapshot()
 

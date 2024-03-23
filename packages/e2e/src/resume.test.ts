@@ -52,6 +52,8 @@ describe('resume', async () => {
     const loadedHead = await newAcala.chain.getBlockAt(newHeadNumber)
 
     expect(loadedHead?.hash).toEqual(savedHeadHash)
+    // fixes api runtime disconnect warning
+    await new Promise((r) => setTimeout(r, 50))
     await newAcala.teardown()
   })
 
@@ -63,6 +65,8 @@ describe('resume', async () => {
     const newHeadNumber = newAcala.chain.head.number
 
     expect(newHeadNumber).toEqual(3000001)
+    // fixes api runtime disconnect warning
+    await new Promise((r) => setTimeout(r, 50))
     await newAcala.teardown()
   })
 
@@ -75,6 +79,8 @@ describe('resume', async () => {
     const loadedHead = await newAcala.chain.getBlockAt(newHeadNumber)
 
     expect(loadedHead?.hash).toEqual(savedHeadHash)
+    // fixes api runtime disconnect warning
+    await new Promise((r) => setTimeout(r, 50))
     await newAcala.teardown()
   })
 
@@ -95,6 +101,9 @@ describe('resume', async () => {
 
       expect(loadedAcalaHead.hash).toEqual(savedAcalaHash)
       expect(loadedPolkadotHead.hash).toEqual(savedPolkadotHash)
+
+      // fixes api runtime disconnect warning
+      await new Promise((r) => setTimeout(r, 50))
 
       await acala.teardown()
       await polkadot.teardown()
