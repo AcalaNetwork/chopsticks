@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`grandpa rpc > subscribeJustifications 1`] = `
+[
+  [
+    "0x0100000000000000b012d04c56b65cfa1f47cb1f884d920f95d0097b1ed42f5da18d5e2a436c2f3edcd2dc000000",
+  ],
+]
+`;
+
+exports[`grandpa rpc > subscribeJustifications 2`] = `"0x7ba5ba52f5b88fa5bcab5c1a0f7e158d845d93e1c70e9a5b42a7c3a9af681ee7"`;
+
+exports[`grandpa rpc > subscribeJustifications 3`] = `
+[
+  [
+    "0x01000000000000007ba5ba52f5b88fa5bcab5c1a0f7e158d845d93e1c70e9a5b42a7c3a9af681ee7ddd2dc000000",
+  ],
+]
+`;
+
+exports[`grandpa rpc > subscribeJustifications 4`] = `"0xaf0b8a9bb7abb768f0cac30c0bd31750eb4b8541c6012f65938e16415c3a024f"`;

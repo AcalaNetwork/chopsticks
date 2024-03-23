@@ -1,8 +1,9 @@
-import { Block } from '../../blockchain/block.js'
 import { HexString } from '@polkadot/util/types'
+import _ from 'lodash'
 
+import { Block } from '../../blockchain/block.js'
 import { Handler, ResponseError } from '../shared.js'
-import { RuntimeVersion } from '../../wasm-executor/index.js'
+import { RuntimeVersion, createProof } from '../../wasm-executor/index.js'
 import { defaultLogger } from '../../logger.js'
 import { isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '../../utils/index.js'
 
@@ -54,6 +55,33 @@ export const state_getKeysPaged: Handler<[string, number, string, HexString], st
 ) => {
   const block = await context.chain.getBlock(hash)
   return block?.getKeysPaged({ prefix, pageSize, startKey })
+}
+
+/**
+ * Get proof of the runtime storage value.
+ * NOTE: The retuned proof trie_root_hash does not match the block trie_root_hash.
+ *
+ * @param context
+ * @param params - [`keys`, `blockhash`]
+ *
+ * @return storage proof
+ */
+export const state_getReadProof: Handler<
+  [HexString[], HexString],
+  { at: HexString; proof: HexString[] } | null
+> = async (context, [keys, hash]) => {
+  const block = await context.chain.getBlock(hash)
+  if (!block) {
+    return null
+  }
+  const entries = await Promise.all(
+    _.sortedUniq(keys).map(async (key) => [key, await block.get(key)] as [HexString, HexString | null]),
+  )
+  const { nodes: proof } = await createProof([], entries)
+  return {
+    at: block.hash,
+    proof,
+  }
 }
 
 /**
@@ -110,7 +138,7 @@ export const state_call: Handler<[HexString, HexString, HexString], HexString> =
  */
 export const state_subscribeRuntimeVersion: Handler<[], string> = async (context, _params, { subscribe }) => {
   let update = (_block: Block) => {}
-  const id = await context.chain.headState.subscrubeRuntimeVersion((block) => update(block))
+  const id = await context.chain.headState.subscribeRuntimeVersion((block) => update(block))
   const callback = subscribe('state_runtimeVersion', id)
   update = async (block) => callback(await block.runtimeVersion)
   setTimeout(() => {

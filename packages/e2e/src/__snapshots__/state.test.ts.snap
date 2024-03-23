@@ -1,5 +1,14 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`state rpc > getReadProof 1`] = `
+{
+  "at": "0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7",
+  "proof": [
+    "0xa0f0c365c3cf59d671eb72da0e7a4113c41002505f0e7b9012096b41c4eb3aaf947f6ea429080000685f0f1f0515f462cdcf84e0f1d6045dfcbb20c6ad70bd88010000",
+  ],
+}
+`;
+
 exports[`state rpc > getXXX 1`] = `
 {
   "apis": [
