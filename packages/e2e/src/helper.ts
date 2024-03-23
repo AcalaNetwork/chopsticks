@@ -169,10 +169,8 @@ export const dev = {
 export const mockCallback = () => {
   let next = defer()
   const callback = vi.fn((...args) => {
-    delay(100).then(() => {
-      next.resolve(args)
-      next = defer()
-    })
+    next.resolve(args)
+    next = defer()
   })
 
   return {
