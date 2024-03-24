@@ -27,6 +27,7 @@ export type SetupOptions = {
   registeredTypes?: RegisteredTypes
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
+  processQueuedMessages?: boolean
 }
 
 export const genesisSetup = async (chain: Blockchain, genesis: GenesisProvider) => {
@@ -131,6 +132,7 @@ export const setup = async (options: SetupOptions) => {
     registeredTypes: opts.registeredTypes || {},
     offchainWorker: opts.offchainWorker,
     maxMemoryBlockCount: opts.maxMemoryBlockCount,
+    processQueuedMessages: opts.processQueuedMessages,
   })
 
   if (opts.genesis) {

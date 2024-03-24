@@ -65,18 +65,18 @@ describe('storage', () => {
 
   it('subscription', async () => {
     const { callback, next } = mockCallback()
+    let tick = next()
     const unsub = await api.query.timestamp.now(callback)
-
-    await next()
+    await tick
 
     expect(callback.mock.calls).toMatchSnapshot()
     callback.mockClear()
 
+    tick = next()
     expect(await dev.newBlock()).toMatchInlineSnapshot(
       '"0xa08ebd83c5b4d941bf9c6853c0af2bc6620a1878a5d2ce302d09f40feea8ef98"',
     )
-
-    await next()
+    await tick
 
     expect(callback.mock.calls).toMatchSnapshot()
     callback.mockClear()

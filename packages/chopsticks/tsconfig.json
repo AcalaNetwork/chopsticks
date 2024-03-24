@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"emitDeclarationOnly": true,
-		"declarationDir": "dist/esm",
+		"declarationDir": "dist/esm"
 	},
 	"include": ["src/**/*"],
 	"exclude": ["src/**/*.test.ts"],
@@ -13,6 +13,6 @@
 		"swc": true,
 		"transpileOnly": true,
 		"files": true,
-		"experimentalSpecifierResolution": "node",
-	},
+		"experimentalSpecifierResolution": "node"
+	}
 }

@@ -27,10 +27,10 @@ describe('author rpc', async () => {
   it('works', async () => {
     {
       const { callback, next } = mockCallback()
+      const tick = next()
       await api.tx.balances.transfer(bob.address, 100).signAndSend(alice, callback)
       await dev.newBlock()
-
-      await next()
+      await tick
 
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
@@ -42,10 +42,10 @@ describe('author rpc', async () => {
 
     {
       const { callback, next } = mockCallback()
+      const tick = next()
       await api.tx.balances.transfer(bob.address, 200).signAndSend(alice, callback)
       await dev.newBlock()
-
-      await next()
+      await tick
 
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
@@ -57,10 +57,10 @@ describe('author rpc', async () => {
 
     {
       const { callback, next } = mockCallback()
+      const tick = next()
       await api.tx.balances.transfer(bob.address, 300).signAndSend(alice, callback)
       await dev.newBlock()
-
-      await next()
+      await tick
 
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()

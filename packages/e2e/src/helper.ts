@@ -30,6 +30,7 @@ export type SetupOption = {
   genesis?: string
   registeredTypes?: RegisteredTypes
   runtimeLogLevel?: number
+  processQueuedMessages?: boolean
 }
 
 export const env = {
@@ -52,6 +53,7 @@ export const setupAll = async ({
   genesis,
   registeredTypes = {},
   runtimeLogLevel,
+  processQueuedMessages,
 }: SetupOption) => {
   let provider: ProviderInterface
   if (genesis) {
@@ -90,13 +92,14 @@ export const setupAll = async ({
         registeredTypes,
         runtimeLogLevel,
         db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
+        processQueuedMessages,
       })
 
       if (genesis) {
         await genesisSetup(chain, provider as GenesisProvider)
       }
 
-      const { port, close } = await createServer(handler({ chain }))
+      const { port, close } = await createServer(handler({ chain }), 0)
 
       const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
@@ -166,10 +169,8 @@ export const dev = {
 export const mockCallback = () => {
   let next = defer()
   const callback = vi.fn((...args) => {
-    delay(100).then(() => {
-      next.resolve(args)
-      next = defer()
-    })
+    next.resolve(args)
+    next = defer()
   })
 
   return {

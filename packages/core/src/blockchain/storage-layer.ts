@@ -263,8 +263,8 @@ export class StorageLayer implements StorageLayerProvider {
     const res: string[] = []
 
     const foundNextKey = (key: string) => {
-      // make sure keys are unique
-      if (!res.includes(key)) {
+      // make sure keys are unique and start with the prefix
+      if (!res.includes(key) && key.startsWith(prefix)) {
         res.push(key)
       }
     }
@@ -285,7 +285,7 @@ export class StorageLayer implements StorageLayerProvider {
       if (idx !== -1) {
         if (includeFirst) {
           const key = this.#keys[idx]
-          if (key) {
+          if (key && key.startsWith(prefix)) {
             foundNextKey(key)
           }
         }

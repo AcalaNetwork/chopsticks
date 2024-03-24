@@ -74,6 +74,12 @@ it('get yargs options from zod schema', () => {
         "description": "Port to listen on",
         "type": "number",
       },
+      "process-queued-messages": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": "Produce extra block when queued messages are detected. Default to true. Set to false to disable it.",
+        "type": "boolean",
+      },
       "registered-types": {
         "choices": undefined,
         "demandOption": false,

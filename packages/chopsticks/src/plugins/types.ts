@@ -1,12 +1,5 @@
-export { rpc as newBlock } from './new-block/index.js'
 export { rpc as dryRun } from './dry-run/index.js'
-export { rpc as setBlockBuildMode } from './set-block-build-mode/index.js'
-export { rpc as setHead } from './set-head/index.js'
-export { rpc as setRuntimeLogLevel } from './set-runtime-log-level/index.js'
-export { rpc as setStorage } from './set-storage/index.js'
-export { rpc as timeTravel } from './time-travel/index.js'
 export { rpc as runBlock } from './run-block/index.js'
 
-export type { NewBlockParams } from './new-block/index.js'
 export type { DryRunParams } from './dry-run/index.js'
 export type { RunBlockParams } from './run-block/index.js'

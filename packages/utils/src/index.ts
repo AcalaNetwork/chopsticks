@@ -30,6 +30,7 @@ export type SetupOption = {
   resume?: boolean | HexString | number
   runtimeLogLevel?: number
   allowUnresolvedImports?: boolean
+  processQueuedMessages?: boolean
 }
 
 export type SetupConfig = Config & {
@@ -48,6 +49,7 @@ export const createConfig = ({
   resume,
   runtimeLogLevel,
   allowUnresolvedImports,
+  processQueuedMessages,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -64,6 +66,7 @@ export const createConfig = ({
     timeout,
     resume: resume ?? false,
     'allow-unresolved-imports': allowUnresolvedImports,
+    'process-queued-messages': processQueuedMessages,
   }
   return config
 }

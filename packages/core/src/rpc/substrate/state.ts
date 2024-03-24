@@ -1,6 +1,7 @@
-import { Block } from '../../blockchain/block.js'
 import { HexString } from '@polkadot/util/types'
+import { stringToHex } from '@polkadot/util'
 
+import { Block } from '../../blockchain/block.js'
 import { Handler, ResponseError } from '../shared.js'
 import { RuntimeVersion } from '../../wasm-executor/index.js'
 import { defaultLogger } from '../../logger.js'
@@ -110,12 +111,15 @@ export const state_call: Handler<[HexString, HexString, HexString], HexString> =
  */
 export const state_subscribeRuntimeVersion: Handler<[], string> = async (context, _params, { subscribe }) => {
   let update = (_block: Block) => {}
-  const id = await context.chain.headState.subscrubeRuntimeVersion((block) => update(block))
-  const callback = subscribe('state_runtimeVersion', id)
+
+  const id = await context.chain.headState.subscribeStorage([stringToHex(':code')], (block) => update(block))
+  const callback = subscribe('state_runtimeVersion', id, () => context.chain.headState.unsubscribeStorage(id))
+
   update = async (block) => callback(await block.runtimeVersion)
-  setTimeout(() => {
-    context.chain.head.runtimeVersion.then(callback)
-  }, 50)
+  ;(async () => {
+    update(context.chain.head)
+  })()
+
   return id
 }
 

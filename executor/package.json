@@ -1,7 +1,7 @@
 {
 	"name": "@acala-network/chopsticks-executor",
 	"description": "Chopsticks executor",
-	"version": "0.9.9-1",
+	"version": "0.9.11",
 	"license": "Apache-2.0",
 	"type": "module",
 	"repository": {
@@ -21,8 +21,8 @@
 	},
 	"devDependencies": {
 		"@swc/cli": "0.1.65",
-		"@swc/core": "^1.3.105",
-		"fflate": "^0.8.1"
+		"@swc/core": "^1.4.8",
+		"fflate": "^0.8.2"
 	},
 	"files": [
 		"dist/esm/**",

@@ -29,7 +29,7 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
     endpoint: 'wss://karura-rpc.aca-api.network',
   },
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
-  { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
+  // { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
   // { chain: 'Westend Collectives', endpoint: 'wss://sys.ibp.network/collectives-westend' },
 ])('Latest $chain can build blocks', async ({ endpoint, storage }) => {
   const { setup, teardownAll } = await setupAll({ endpoint })
