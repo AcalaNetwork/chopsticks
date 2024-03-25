@@ -57,6 +57,27 @@ const respond = (res: http.ServerResponse, data?: any) => {
   res.end()
 }
 
+const portInUse = async (port: number) => {
+  const server = http.createServer()
+  const inUse = await new Promise<boolean>((resolve) => {
+    server.once('error', (e: any) => {
+      if (e.code === 'EADDRINUSE') {
+        resolve(true)
+      } else {
+        resolve(false)
+      }
+    })
+    server.once('listening', () => {
+      server.close()
+      resolve(false)
+    })
+    server.listen(port)
+  })
+  server.removeAllListeners()
+  server.unref()
+  return inUse
+}
+
 export const createServer = async (handler: Handler, port: number) => {
   let wss: WebSocketServer | undefined
   let listenPort: number | undefined
@@ -118,24 +139,25 @@ export const createServer = async (handler: Handler, port: number) => {
   })
 
   for (let i = 0; i < 10; i++) {
+    if (port && (await portInUse(port + i))) {
+      continue
+    }
     const preferPort = port ? port + i : undefined
     wsLogger.debug('Try starting on port %d', preferPort)
-    const success = await new Promise<boolean>((resolve) => {
-      server.once('error', (e: any) => {
-        if (e.code === 'EADDRINUSE') {
-          server.close()
-          resolve(false)
-        }
-      })
+    await new Promise<void>((resolve, reject) => {
+      const onError = (e: Error) => {
+        server.close()
+        reject(e)
+      }
+      server.once('error', onError)
       server.listen(preferPort, () => {
         wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 * 100 })
         listenPort = (server.address() as AddressInfo).port
-        resolve(true)
+        server.removeListener('error', onError)
+        resolve()
       })
     })
-    if (success) {
-      break
-    }
+    break
   }
 
   if (!wss || !listenPort) {
