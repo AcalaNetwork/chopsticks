@@ -1,6 +1,6 @@
 import { Argv } from 'yargs'
 import { BN, hexToU8a, u8aToHex } from '@polkadot/util'
-import { Block } from '@acala-network/chopsticks-core'
+import { Block, pinoLogger } from '@acala-network/chopsticks-core'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { writeFileSync } from 'fs'
 import { z } from 'zod'
@@ -14,6 +14,7 @@ const KARURA_ETH_RPC = 'https://eth-rpc-karura.aca-api.network'
 
 const schema = configSchema.extend({
   vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
+  output: z.string({ description: 'Output file' }),
 })
 
 export const cli = (y: Argv) => {
@@ -44,7 +45,10 @@ export const cli = (y: Argv) => {
       } else {
         throw new Error(`Unsupported chain. Only Acala and Karura are supported`)
       }
-      console.log('fetching evm transaction...')
+
+      pinoLogger.info(`Using ${specName} chain`)
+      pinoLogger.info(`Fetching evm transaction...`)
+
       const response = await fetch(ethRpc, {
         headers: [
           ['Content-Type', 'application/json'],
@@ -57,7 +61,7 @@ export const cli = (y: Argv) => {
       if (data.error) {
         throw new Error(data.error.message)
       }
-      console.log({ transaction: data.result })
+      pinoLogger.trace({ transaction: data.result }, 'Transaction fetched')
       const { from, to, value, input, blockHash } = data.result
 
       const block = await context.chain.getBlock(blockHash)
@@ -85,8 +89,15 @@ export const cli = (y: Argv) => {
         Step: {
           op: 'String',
           pc: 'Compact<u64>',
+          depth: 'Compact<u32>',
+          gas: 'Compact<u64>',
           stack: 'Vec<H256>',
-          memory: 'Vec<u8>',
+          memory: 'Option<Bytes>',
+        },
+        TraceVM: {
+          gas: 'Compact<u64>',
+          returnValue: 'H256',
+          structLogs: 'Vec<Step>',
         },
         CallType: {
           _enum: {
@@ -114,15 +125,13 @@ export const cli = (y: Argv) => {
         },
       })
 
-      console.log('decode extrinsic...')
       const tx = meta.registry.createType('Extrinsic', hexToU8a(extrinsics[txIndex]))
-      console.dir({ extrinsic: tx.toHuman() }, { depth: null })
+      pinoLogger.trace({ extrinsic: tx.toHuman() }, 'Decode extrinsic...')
 
       if (tx.method.section.toString() !== 'evm') {
         throw new Error(`Unsupported extrinsic ${tx.method.toString()}`)
       }
 
-      console.log('decode gas/storage limit...')
       let gasLimit: BN
       let storageLimit: BN
       switch (tx.method.method.toString()) {
@@ -157,8 +166,13 @@ export const cli = (y: Argv) => {
         default:
           throw new Error(`Unsupported method ${tx.method.method.toString()}`)
       }
-      console.log({ gasLimit: gasLimit.toString(), storageLimit: storageLimit.toString() })
-      console.log('building block...')
+
+      pinoLogger.trace(
+        { gasLimit: gasLimit.toString(), storageLimit: storageLimit.toString() },
+        'Gas and storage limit',
+      )
+      pinoLogger.info('Preparing block...')
+
       const { storageDiff } = await newBlock.call('Core_initialize_block', [header.toHex()])
       newBlock.pushStorageLayer().setAll(storageDiff)
       for (const extrinsic of extrinsics.slice(0, txIndex)) {
@@ -166,7 +180,7 @@ export const cli = (y: Argv) => {
         newBlock.pushStorageLayer().setAll(storageDiff)
       }
 
-      console.log('running evm trace...')
+      pinoLogger.info('Running evm trace...')
       const call = config.vm ? 'EVMTraceApi_trace_vm' : 'EVMTraceApi_trace_call'
       const res = await newBlock.call(call, [
         from,
@@ -178,13 +192,12 @@ export const cli = (y: Argv) => {
         '0x00', // empty access list
       ])
 
-      const logs = meta.registry
-        .createType<any>(`Result<Vec<${config.vm ? 'Step' : 'CallTrace'}>, DispatchError>`, res.result)
+      const result = meta.registry
+        .createType<any>(`Result<${config.vm ? 'TraceVM' : 'Vec<CallTrace>'}, DispatchError>`, res.result)
         .asOk.toJSON()
 
-      const filepath = `${process.cwd()}/trace-${txHash}.json`
-      writeFileSync(filepath, JSON.stringify(logs, null, 2))
-      console.log(`Trace file ${filepath}`)
+      writeFileSync(argv.output, JSON.stringify(result, null, 2))
+      pinoLogger.info(`Complete ${argv.output}`)
       process.exit(0)
     },
   )
