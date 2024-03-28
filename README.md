@@ -27,6 +27,10 @@ npx @acala-network/chopsticks@latest -c acala
 
 Documentation and tutorials are available at [wiki](https://github.com/AcalaNetwork/chopsticks/wiki).
 
+## EVM+ tracing
+
+Documentation for EVM+ tracing is available at [EVM+ tracing](packages/chopsticks/src/plugins/trace-transaction/README.md).
+
 ## Web testing
 
 Run Chopsticks in browser? Now you can turn a mainnet into a devnet and play with it directly in your browser!

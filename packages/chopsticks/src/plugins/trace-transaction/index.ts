@@ -1,18 +1,150 @@
 import { Argv } from 'yargs'
 import { BN, hexToU8a, u8aToHex } from '@polkadot/util'
-import { Block, pinoLogger } from '@acala-network/chopsticks-core'
+import { Block, RuntimeVersion, pinoLogger } from '@acala-network/chopsticks-core'
+import { Registry } from '@polkadot/types/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { writeFileSync } from 'fs'
 import { z } from 'zod'
+import _ from 'lodash'
 
+import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import { HexString } from '@polkadot/util/types'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { overrideWasm } from '../../utils/override.js'
 import { setupContext } from '../../context.js'
 
-const ACALA_ETH_RPC = 'https://eth-rpc-acala.aca-api.network'
-const KARURA_ETH_RPC = 'https://eth-rpc-karura.aca-api.network'
+const registerTypes = (registry: Registry) => {
+  registry.register({
+    Step: {
+      op: 'String',
+      pc: 'Compact<u64>',
+      depth: 'Compact<u32>',
+      gas: 'Compact<u64>',
+      stack: 'Vec<H256>',
+      memory: 'Option<Bytes>',
+    },
+    TraceVM: {
+      gas: 'Compact<u64>',
+      returnValue: 'H256',
+      structLogs: 'Vec<Step>',
+    },
+    CallType: {
+      _enum: {
+        CALL: null,
+        CALLCODE: null,
+        STATICCALL: null,
+        DELEGATECALL: null,
+        CREATE: null,
+        SUICIDE: null,
+      },
+    },
+    CallTrace: {
+      type: 'CallType',
+      from: 'H160',
+      to: 'H160',
+      input: 'Bytes',
+      value: 'U256',
+      gas: 'Compact<u64>',
+      gasUsed: 'Compact<u64>',
+      output: 'Option<Bytes>',
+      error: 'Option<String>',
+      revertReason: 'Option<String>',
+      depth: 'Compact<u32>',
+      calls: 'Vec<CallTrace>',
+    },
+  })
+}
 
-const GIHTUB_RELEASES_API = 'https://api.github.com/repos/AcalaNetwork/Acala/releases'
+const fetchRuntime = async (runtimeVersion: RuntimeVersion) => {
+  const GIHTUB_RELEASES_API = 'https://api.github.com/repos/AcalaNetwork/Acala/releases'
+
+  const assetName = `${runtimeVersion.specName}_runtime_tracing_${runtimeVersion.specVersion}.compact.compressed.wasm`
+  pinoLogger.info({ assetName }, 'Search for runtime with tracing feature from Github releases ...')
+  const releases = await fetch(GIHTUB_RELEASES_API).then((res) => res.json())
+  for (const release of releases) {
+    if (release.assets) {
+      for (const asset of release.assets) {
+        if (asset.name === assetName) {
+          pinoLogger.info({ url: asset.browser_download_url }, 'Downloading ...')
+          const runtime = await fetch(asset.browser_download_url).then((x) => x.arrayBuffer())
+          return Buffer.from(runtime)
+        }
+      }
+    }
+  }
+}
+
+const fetchTransaction = async (runtimeVersion: RuntimeVersion, txHash: string) => {
+  const ACALA_ETH_RPC = 'https://eth-rpc-acala.aca-api.network'
+  const KARURA_ETH_RPC = 'https://eth-rpc-karura.aca-api.network'
+
+  let ethRpc: string | undefined
+  if (runtimeVersion.specName.includes('acala')) {
+    ethRpc = ACALA_ETH_RPC
+  } else if (runtimeVersion.specName.includes('karura')) {
+    ethRpc = KARURA_ETH_RPC
+  } else {
+    throw new Error(`Unsupported chain. Only Acala and Karura are supported`)
+  }
+
+  pinoLogger.info(`Fetching EVM transaction ...`)
+
+  const response = await fetch(ethRpc, {
+    headers: [
+      ['Content-Type', 'application/json'],
+      ['Accept', 'application/json'],
+    ],
+    method: 'POST',
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_getTransactionByHash', params: [txHash] }),
+  })
+  const data = await response.json()
+  if (data.error) {
+    throw new Error(data.error.message)
+  }
+  return data.result
+}
+
+const decodeExtrinsic = (meta: DecoratedMeta, tx: HexString): [BN, BN] => {
+  const extrinsic = meta.registry.createType('Extrinsic', hexToU8a(tx))
+  pinoLogger.trace({ extrinsic: extrinsic.toHuman() }, 'Extrinsic decoded')
+
+  if (extrinsic.method.section.toString() !== 'evm') {
+    throw new Error(`Unsupported extrinsic ${extrinsic.method.toString()}`)
+  }
+
+  switch (extrinsic.method.method.toString()) {
+    case 'call':
+    case 'create2':
+    case 'ethCall': {
+      const gasLimit = extrinsic.method.args[3] as any
+      const storageLimit = extrinsic.method.args[4] as any
+      return [gasLimit, storageLimit]
+    }
+    case 'create': {
+      const gasLimit = extrinsic.method.args[2] as any
+      const storageLimit = extrinsic.method.args[3] as any
+      return [gasLimit, storageLimit]
+    }
+    case 'ethCallV2': {
+      const GAS_MASK = new BN(100000)
+      const STORAGE_MASK = new BN(100)
+      const GAS_LIMIT_CHUNK = new BN(30000)
+      const MAX_GAS_LIMIT_CC = new BN(21) // log2(BLOCK_STORAGE_LIMIT)
+
+      const bbbcc = new BN((extrinsic.method.args[4] as any).toBigInt()).mod(GAS_MASK)
+      const encodedGasLimit = bbbcc.div(STORAGE_MASK) // bbb
+      const encodedStorageLimit = bbbcc.mod(STORAGE_MASK) // cc
+
+      const gasLimit = encodedGasLimit.mul(GAS_LIMIT_CHUNK)
+      const storageLimit = new BN(2).pow(
+        encodedStorageLimit.gt(MAX_GAS_LIMIT_CC) ? MAX_GAS_LIMIT_CC : encodedStorageLimit,
+      )
+      return [gasLimit, storageLimit]
+    }
+    default:
+      throw new Error(`Unsupported method ${extrinsic.method.method.toString()}`)
+  }
+}
 
 const schema = configSchema.extend({
   vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
@@ -27,6 +159,7 @@ export const cli = (y: Argv) => {
       yargs.options(getYargsOptions(schema.shape)).positional('tx-hash', {
         desc: 'Transaction hash',
         type: 'string',
+        required: true,
       }),
     async (argv) => {
       const config = schema.parse(argv)
@@ -35,34 +168,13 @@ export const cli = (y: Argv) => {
 
       const context = await setupContext(config, false)
       const txHash = argv['tx-hash']
-      const runtimeVersion = await context.chain.head.runtimeVersion
-      const specName = runtimeVersion.specName.toString()
-
-      let ethRpc: string | undefined
-      if (specName.includes('acala')) {
-        ethRpc = ACALA_ETH_RPC
-      } else if (specName.includes('karura')) {
-        ethRpc = KARURA_ETH_RPC
-      } else {
-        throw new Error(`Unsupported chain. Only Acala and Karura are supported`)
+      if (!txHash) {
+        throw new Error('tx-hash is required')
       }
 
-      pinoLogger.info(`Fetching evm transaction...`)
-
-      const response = await fetch(ethRpc, {
-        headers: [
-          ['Content-Type', 'application/json'],
-          ['Accept', 'application/json'],
-        ],
-        method: 'POST',
-        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_getTransactionByHash', params: [txHash] }),
-      })
-      const data = await response.json()
-      if (data.error) {
-        throw new Error(data.error.message)
-      }
-      pinoLogger.trace({ transaction: data.result }, 'Transaction fetched')
-      const { from, to, value, input, blockHash } = data.result
+      const transaction = await fetchTransaction(await context.chain.head.runtimeVersion, txHash)
+      pinoLogger.trace({ transaction }, 'Transaction fetched')
+      const { from, to, value, input, blockHash } = transaction
 
       const block = await context.chain.getBlock(blockHash)
       if (!block) {
@@ -79,40 +191,23 @@ export const cli = (y: Argv) => {
       if (typeof wasm === 'string') {
         await overrideWasm(context.chain, wasm)
       } else {
-        const runtimeVersion = await context.chain.head.runtimeVersion
-        const specVersion = runtimeVersion.specVersion.toString()
-
         // Fetch runtime wasm with tracing feature from Github releases
         if (!wasm) {
-          const assetName = `${specName}_runtime_tracing_${specVersion}.compact.compressed.wasm`
-          pinoLogger.info({ assetName }, `Searching runtime with tracing feature from Github releases...`)
-          const releases = await fetch(GIHTUB_RELEASES_API).then((res) => res.json())
-          for (const release of releases) {
-            if (release.assets) {
-              for (const asset of release.assets) {
-                if (asset.name === assetName) {
-                  pinoLogger.info({ url: asset.browser_download_url }, `Found runtime with tracing feature from github releases. Downloading...`)
-                  const response = await fetch(asset.browser_download_url).then((res) => res.arrayBuffer())
-                  wasm = Buffer.from(response)
-                  break
-                }
-              }
-            }
-          }
+          wasm = await fetchRuntime(await context.chain.head.runtimeVersion)
           if (!wasm) {
-            throw new Error('Could not find runtime with tracing feature from Github releasesw. Make sure to manually override runtime wasm built with `tracing` feature enabled.')
+            throw new Error(
+              'Could not find runtime with tracing feature from Github releasesw. Make sure to manually override runtime wasm built with `tracing` feature enabled.',
+            )
           }
         }
 
         context.chain.head.setWasm(`0x${wasm.toString('hex')}`)
       }
 
-      {
-        const runtimeVersion = await context.chain.head.runtimeVersion
-        const specName = runtimeVersion.specName.toString()
-        const specVersion = runtimeVersion.specVersion.toString()
-        pinoLogger.info(`Chain ${specName} specVersion: ${specVersion}`)
-      }
+      const runtimeVersion = await context.chain.head.runtimeVersion
+      pinoLogger.info(
+        `Running EVM trace on ${_.capitalize(runtimeVersion.specName)} with specVersion: ${runtimeVersion.specVersion}`,
+      )
 
       const extrinsics = await block.extrinsics
       const txIndex = extrinsics.findIndex((tx) => blake2AsHex(tx) === txHash)
@@ -124,93 +219,15 @@ export const cli = (y: Argv) => {
       })
 
       const meta = await newBlock.meta
-      meta.registry.register({
-        Step: {
-          op: 'String',
-          pc: 'Compact<u64>',
-          depth: 'Compact<u32>',
-          gas: 'Compact<u64>',
-          stack: 'Vec<H256>',
-          memory: 'Option<Bytes>',
-        },
-        TraceVM: {
-          gas: 'Compact<u64>',
-          returnValue: 'H256',
-          structLogs: 'Vec<Step>',
-        },
-        CallType: {
-          _enum: {
-            CALL: null,
-            CALLCODE: null,
-            STATICCALL: null,
-            DELEGATECALL: null,
-            CREATE: null,
-            SUICIDE: null,
-          },
-        },
-        CallTrace: {
-          type: 'CallType',
-          from: 'H160',
-          to: 'H160',
-          input: 'Bytes',
-          value: 'U256',
-          gas: 'Compact<u64>',
-          gasUsed: 'Compact<u64>',
-          output: 'Option<Bytes>',
-          error: 'Option<String>',
-          revertReason: 'Option<String>',
-          depth: 'Compact<u32>',
-          calls: 'Vec<CallTrace>',
-        },
-      })
+      registerTypes(meta.registry)
 
-      const tx = meta.registry.createType('Extrinsic', hexToU8a(extrinsics[txIndex]))
-      pinoLogger.trace({ extrinsic: tx.toHuman() }, 'Decode extrinsic...')
-
-      if (tx.method.section.toString() !== 'evm') {
-        throw new Error(`Unsupported extrinsic ${tx.method.toString()}`)
-      }
-
-      let gasLimit: BN
-      let storageLimit: BN
-      switch (tx.method.method.toString()) {
-        case 'call':
-        case 'create2':
-        case 'ethCall': {
-          gasLimit = tx.method.args[3] as any
-          storageLimit = tx.method.args[4] as any
-          break
-        }
-        case 'create': {
-          gasLimit = tx.method.args[2] as any
-          storageLimit = tx.method.args[3] as any
-          break
-        }
-        case 'ethCallV2': {
-          const GAS_MASK = new BN(100000)
-          const STORAGE_MASK = new BN(100)
-          const GAS_LIMIT_CHUNK = new BN(30000)
-          const MAX_GAS_LIMIT_CC = new BN(21) // log2(BLOCK_STORAGE_LIMIT)
-
-          const bbbcc = new BN((tx.method.args[4] as any).toBigInt()).mod(GAS_MASK)
-          const encodedGasLimit = bbbcc.div(STORAGE_MASK) // bbb
-          const encodedStorageLimit = bbbcc.mod(STORAGE_MASK) // cc
-
-          gasLimit = encodedGasLimit.mul(GAS_LIMIT_CHUNK)
-          storageLimit = new BN(2).pow(
-            encodedStorageLimit.gt(MAX_GAS_LIMIT_CC) ? MAX_GAS_LIMIT_CC : encodedStorageLimit,
-          )
-          break
-        }
-        default:
-          throw new Error(`Unsupported method ${tx.method.method.toString()}`)
-      }
+      const [gasLimit, storageLimit] = decodeExtrinsic(meta, extrinsics[txIndex])
 
       pinoLogger.trace(
         { gasLimit: gasLimit.toString(), storageLimit: storageLimit.toString() },
         'Gas and storage limit',
       )
-      pinoLogger.info('Preparing block...')
+      pinoLogger.info(`Preparing block ${context.chain.head.number + 1} ...`)
 
       const { storageDiff } = await newBlock.call('Core_initialize_block', [header.toHex()])
       newBlock.pushStorageLayer().setAll(storageDiff)
@@ -219,7 +236,7 @@ export const cli = (y: Argv) => {
         newBlock.pushStorageLayer().setAll(storageDiff)
       }
 
-      pinoLogger.info('Running evm trace...')
+      pinoLogger.info('Running EVM trace ...')
       const call = config.vm ? 'EVMTraceApi_trace_vm' : 'EVMTraceApi_trace_call'
       const res = await newBlock.call(call, [
         from,
@@ -231,12 +248,12 @@ export const cli = (y: Argv) => {
         '0x00', // empty access list
       ])
 
-      const result = meta.registry
+      const traceLogs = meta.registry
         .createType<any>(`Result<${config.vm ? 'TraceVM' : 'Vec<CallTrace>'}, DispatchError>`, res.result)
         .asOk.toJSON()
 
-      writeFileSync(argv.output, JSON.stringify(result, null, 2))
-      pinoLogger.info(`Complete ${argv.output}`)
+      writeFileSync(argv.output, JSON.stringify(traceLogs, null, 2))
+      pinoLogger.info(`Trace logs: ${argv.output}`)
       process.exit(0)
     },
   )
