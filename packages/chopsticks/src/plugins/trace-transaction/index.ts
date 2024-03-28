@@ -12,6 +12,8 @@ import { setupContext } from '../../context.js'
 const ACALA_ETH_RPC = 'https://eth-rpc-acala.aca-api.network'
 const KARURA_ETH_RPC = 'https://eth-rpc-karura.aca-api.network'
 
+const GIHTUB_RELEASES_API = 'https://api.github.com/repos/AcalaNetwork/Acala/releases'
+
 const schema = configSchema.extend({
   vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
   output: z.string({ description: 'Output file' }),
@@ -28,15 +30,14 @@ export const cli = (y: Argv) => {
       }),
     async (argv) => {
       const config = schema.parse(argv)
-      const wasm = config['wasm-override']
-      if (!wasm) {
-        throw new Error('Wasm override built with feature `tracing` is required')
-      }
+      let wasm: string | Buffer | undefined = config['wasm-override']
       delete config['wasm-override']
+
       const context = await setupContext(config, false)
       const txHash = argv['tx-hash']
+      const runtimeVersion = await context.chain.head.runtimeVersion
+      const specName = runtimeVersion.specName.toString()
 
-      const specName = (await context.chain.head.runtimeVersion).specName.toString()
       let ethRpc: string | undefined
       if (specName.includes('acala')) {
         ethRpc = ACALA_ETH_RPC
@@ -46,7 +47,6 @@ export const cli = (y: Argv) => {
         throw new Error(`Unsupported chain. Only Acala and Karura are supported`)
       }
 
-      pinoLogger.info(`Using ${specName} chain`)
       pinoLogger.info(`Fetching evm transaction...`)
 
       const response = await fetch(ethRpc, {
@@ -74,7 +74,46 @@ export const cli = (y: Argv) => {
         throw new Error(`Block not found ${blockHash}`)
       }
       await context.chain.setHead(parent)
-      await overrideWasm(context.chain, wasm)
+
+      // override wasm with tracing feature
+      if (typeof wasm === 'string') {
+        await overrideWasm(context.chain, wasm)
+      } else {
+        const runtimeVersion = await context.chain.head.runtimeVersion
+        const specVersion = runtimeVersion.specVersion.toString()
+
+        // Fetch runtime wasm with tracing feature from Github releases
+        if (!wasm) {
+          const assetName = `${specName}_runtime_tracing_${specVersion}.compact.compressed.wasm`
+          pinoLogger.info({ assetName }, `Searching runtime with tracing feature from Github releases...`)
+          const releases = await fetch(GIHTUB_RELEASES_API).then((res) => res.json())
+          for (const release of releases) {
+            if (release.assets) {
+              for (const asset of release.assets) {
+                if (asset.name === assetName) {
+                  pinoLogger.info({ url: asset.browser_download_url }, `Found runtime with tracing feature from github releases. Downloading...`)
+                  const response = await fetch(asset.browser_download_url).then((res) => res.arrayBuffer())
+                  wasm = Buffer.from(response)
+                  break
+                }
+              }
+            }
+          }
+          if (!wasm) {
+            throw new Error('Could not find runtime with tracing feature from Github releasesw. Make sure to manually override runtime wasm built with `tracing` feature enabled.')
+          }
+        }
+
+        context.chain.head.setWasm(`0x${wasm.toString('hex')}`)
+      }
+
+      {
+        const runtimeVersion = await context.chain.head.runtimeVersion
+        const specName = runtimeVersion.specName.toString()
+        const specVersion = runtimeVersion.specVersion.toString()
+        pinoLogger.info(`Chain ${specName} specVersion: ${specVersion}`)
+      }
+
       const extrinsics = await block.extrinsics
       const txIndex = extrinsics.findIndex((tx) => blake2AsHex(tx) === txHash)
 
