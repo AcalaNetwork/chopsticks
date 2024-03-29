@@ -21,7 +21,7 @@ const registerTypes = (registry: Registry) => {
       depth: 'Compact<u32>',
       gas: 'Compact<u64>',
       stack: 'Vec<Bytes>',
-      memory: 'Option<Bytes>',
+      memory: 'Option<Vec<Bytes>>',
     },
     TraceVM: {
       gas: 'Compact<u64>',
