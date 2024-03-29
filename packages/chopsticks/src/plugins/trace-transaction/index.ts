@@ -16,16 +16,16 @@ import { setupContext } from '../../context.js'
 const registerTypes = (registry: Registry) => {
   registry.register({
     Step: {
-      op: 'String',
-      pc: 'Compact<u64>',
+      op: 'u8',
+      pc: 'Compact<u32>',
       depth: 'Compact<u32>',
       gas: 'Compact<u64>',
-      stack: 'Vec<H256>',
+      stack: 'Vec<Bytes>',
       memory: 'Option<Bytes>',
     },
     TraceVM: {
       gas: 'Compact<u64>',
-      returnValue: 'H256',
+      returnValue: 'Bytes',
       structLogs: 'Vec<Step>',
     },
     CallType: {
