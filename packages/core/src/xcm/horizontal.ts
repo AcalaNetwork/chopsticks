@@ -5,7 +5,7 @@ import { Blockchain } from '../blockchain/index.js'
 import { compactHex } from '../utils/index.js'
 import { xcmLogger } from './index.js'
 
-export const connectHorizontal = async (parachains: Record<number, Blockchain>, disableAutoHrmp: boolean) => {
+export const connectHorizontal = async (parachains: Record<number, Blockchain>, disableAutoHrmp = false) => {
   for (const [id, chain] of Object.entries(parachains)) {
     const meta = await chain.head.meta
 
