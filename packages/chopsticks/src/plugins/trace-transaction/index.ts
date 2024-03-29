@@ -1,17 +1,48 @@
 import { Argv } from 'yargs'
 import { BN, hexToU8a, u8aToHex } from '@polkadot/util'
 import { Block, RuntimeVersion, pinoLogger } from '@acala-network/chopsticks-core'
+import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import { HexString } from '@polkadot/util/types'
 import { Registry } from '@polkadot/types/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { writeFileSync } from 'fs'
 import { z } from 'zod'
 import _ from 'lodash'
 
-import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
-import { HexString } from '@polkadot/util/types'
+import { TABLE } from './table.js'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { overrideWasm } from '../../utils/override.js'
 import { setupContext } from '../../context.js'
+
+type CallTrace = {
+  type: 'CALL' | 'CALLCODE' | 'STATICCALL' | 'DELEGATECALL' | 'CREATE' | 'SUICIDE'
+  from: HexString
+  to: HexString
+  input: HexString
+  value: HexString
+  gas: number
+  gasUsed: number
+  output: HexString | null
+  error: string | null
+  revertReason: string | null
+  depth: number
+  calls: CallTrace[]
+}
+
+type Step = {
+  op: number
+  pc: number
+  depth: number
+  gas: number
+  stack: HexString[]
+  memory: HexString[] | null
+}
+
+type TraceVM = {
+  gas: number
+  returnValue: string
+  structLogs: Step[]
+}
 
 const registerTypes = (registry: Registry) => {
   registry.register({
@@ -238,7 +269,7 @@ export const cli = (y: Argv) => {
 
       pinoLogger.info('Running EVM trace ...')
       const call = config.vm ? 'EVMTraceApi_trace_vm' : 'EVMTraceApi_trace_call'
-      const res = await newBlock.call(call, [
+      const taskResponse = await newBlock.call(call, [
         from,
         to || '0x0000000000000000000000000000000000000000',
         u8aToHex(meta.registry.createType('Vec<u8>', input).toU8a()),
@@ -248,11 +279,45 @@ export const cli = (y: Argv) => {
         '0x00', // empty access list
       ])
 
-      const traceLogs = meta.registry
-        .createType<any>(`Result<${config.vm ? 'TraceVM' : 'Vec<CallTrace>'}, DispatchError>`, res.result)
-        .asOk.toJSON()
+      let output: string | undefined
+      if (config.vm) {
+        const { gas, returnValue, structLogs } = meta.registry
+          .createType('Result<TraceVM, DispatchError>', taskResponse.result)
+          .asOk.toJSON() as TraceVM
 
-      writeFileSync(argv.output, JSON.stringify(traceLogs, null, 2))
+        const traceLog = {
+          gas,
+          returnValue: returnValue == '0x' ? null : returnValue,
+          structLogs: structLogs.map((step) => ({
+            ...step,
+            op: TABLE[`0x${step.op.toString(16).padStart(2, '0')}`] || `0x${step.op.toString(16).padStart(2, '0')}`,
+            // remove 0x prefix and make sure each item is 64 bytes
+            stack: step.stack.map((item) => item.slice(2).padStart(64, '0')),
+            // transform memory to 64 bytes chunks
+            memory: step.memory
+              ? step.memory.map((chunk, idx) => {
+                  // remove 0x prefix
+                  const slice = chunk.slice(2)
+                  // make sure each chunk is 64 bytes
+                  if (slice.length < 64 && idx + 1 < step.memory!.length) {
+                    return slice.padStart(64, '0')
+                  }
+                  return slice
+                })
+              : null,
+          })),
+        }
+
+        output = JSON.stringify(traceLog, null, 2)
+      } else {
+        const trace = meta.registry
+          .createType('Result<Vec<CallTrace>, DispatchError>', taskResponse.result)
+          .asOk.toJSON() as CallTrace[]
+
+        output = JSON.stringify(trace, null, 2)
+      }
+
+      writeFileSync(argv.output, output)
       pinoLogger.info(`Trace logs: ${argv.output}`)
       process.exit(0)
     },
