@@ -1,4 +1,4 @@
-import { Handlers } from '@acala-network/chopsticks-core'
+import { Handlers, environment } from '@acala-network/chopsticks-core'
 import { lstatSync, readdirSync } from 'fs'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
@@ -20,7 +20,7 @@ export const rpcPluginMethods = plugins
   .map((name) => `dev_${_.camelCase(name)}`)
 
 export const loadRpcPlugin = async (method: string) => {
-  if (process.env.DISABLE_PLUGINS) {
+  if (environment.DISABLE_PLUGINS) {
     return undefined
   }
   if (rpcPluginHandlers[method]) return rpcPluginHandlers[method]

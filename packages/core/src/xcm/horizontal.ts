@@ -5,7 +5,7 @@ import { Blockchain } from '../blockchain/index.js'
 import { compactHex } from '../utils/index.js'
 import { xcmLogger } from './index.js'
 
-export const connectHorizontal = async (parachains: Record<number, Blockchain>) => {
+export const connectHorizontal = async (parachains: Record<number, Blockchain>, disableAutoHrmp: boolean) => {
   for (const [id, chain] of Object.entries(parachains)) {
     const meta = await chain.head.meta
 
@@ -32,7 +32,7 @@ export const connectHorizontal = async (parachains: Record<number, Blockchain>) 
     })
 
     const hrmpHeads = await chain.head.read('BTreeMap<u32, H256>', meta.query.parachainSystem.lastHrmpMqcHeads)
-    if (hrmpHeads && !process.env.DISABLE_AUTO_HRMP) {
+    if (hrmpHeads && !disableAutoHrmp) {
       const existingChannels = Array.from(hrmpHeads.keys()).map((x) => x.toNumber())
       for (const paraId of Object.keys(parachains).filter((x) => x !== id)) {
         if (!existingChannels.includes(Number(paraId))) {
