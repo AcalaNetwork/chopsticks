@@ -18,6 +18,21 @@ describe.runIf(process.env.CI || process.env.RUN_ALL)('trace-call', () => {
     expect(JSON.stringify(calls, null, 2)).toMatchSnapshot()
   })
 
+  it('Substrate+EVM', async () => {
+    const chain = await setup({
+      endpoint: 'wss://acala-rpc.aca-api.network',
+    })
+
+    // DEX add_liquidity ACA & ERC20
+    const { tracingBlock, extrinsic } = await prepareBlock(
+      chain,
+      5874872,
+      '0x1de18686a06d708c31716e18cc7bf8564f4ecaea296d72bce5f2d091eb34658b',
+    )
+    const calls = await traceCalls(tracingBlock, extrinsic)
+    expect(JSON.stringify(calls, null, 2)).toMatchSnapshot()
+  })
+
   it('Karura', async () => {
     const chain = await setup({
       endpoint: 'wss://karura-rpc.aca-api.network',
