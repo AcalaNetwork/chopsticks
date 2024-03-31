@@ -68,9 +68,13 @@ export const fetchEVMTransaction = async (runtimeVersion: RuntimeVersion, txHash
  * @returns An array of VM steps.
  * @throws Error if the trace outcome is invalid.
  */
-export const traceVM = async (block: Block, extrinsic: HexString) => {
-  const PAGE_SIZE = 50_000
-
+export const traceVM = async (
+  block: Block,
+  extrinsic: HexString,
+  pageSize = 50_000,
+  disableStack = false,
+  enableMemory = true,
+) => {
   const meta = await block.meta
   registerTypes(meta.registry)
 
@@ -84,9 +88,9 @@ export const traceVM = async (block: Block, extrinsic: HexString) => {
       .createType('TracerConfig', {
         OpcodeTracer: {
           page,
-          pageSize: PAGE_SIZE,
-          disableStack: false,
-          enableMemory: true,
+          pageSize,
+          disableStack,
+          enableMemory,
         },
       })
       .toHex()
@@ -120,7 +124,7 @@ export const traceVM = async (block: Block, extrinsic: HexString) => {
 
     page += 1
 
-    traceNextPage = outcome.steps.length == PAGE_SIZE
+    traceNextPage = outcome.steps.length == pageSize
   }
   return steps
 }

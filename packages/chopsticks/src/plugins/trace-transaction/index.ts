@@ -10,6 +10,9 @@ import { setupContext } from '../../context.js'
 
 const schema = configSchema.extend({
   vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
+  'enable-memory': z.boolean({ description: 'Enable memory trace' }).optional(),
+  'disable-stack': z.boolean({ description: 'Disable stack trace' }).optional(),
+  'page-size': z.number({ description: 'Default 50000. Reduce this if you get memory limit error.' }).optional(),
   output: z.string({ description: 'Output file' }),
 })
 
@@ -42,7 +45,13 @@ export const cli = (y: Argv) => {
 
       if (config.vm) {
         pinoLogger.info('Running EVM opcode trace ...')
-        const steps = await traceVM(tracingBlock, extrinsic)
+        const steps = await traceVM(
+          tracingBlock,
+          extrinsic,
+          config['page-size'],
+          config['disable-stack'],
+          config['enable-memory'],
+        )
         writeFileSync(argv.output, JSON.stringify(steps, null, 2))
       } else {
         pinoLogger.info('Running EVM call trace ...')
