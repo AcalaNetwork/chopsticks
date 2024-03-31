@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { prepareBlock, traceCalls } from '../utils.js'
 import { setup } from '../../../index.js'
 
-describe('trace-call', () => {
+describe.runIf(process.env.CI || process.env.RUN_ALL)('trace-call', () => {
   it('Acala', async () => {
     const chain = await setup({
       endpoint: 'wss://acala-rpc.aca-api.network',
