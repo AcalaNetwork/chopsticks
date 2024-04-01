@@ -15,8 +15,8 @@ const processArgv: MiddlewareFunction<{ config?: string; port?: number }> = asyn
   if (argv.config) {
     Object.assign(argv, _.defaults(argv, await fetchConfig(argv.config)))
   }
-  if (environment().PORT) {
-    argv.port = Number(environment().PORT)
+  if (environment.PORT) {
+    argv.port = Number(environment.PORT)
   }
 }
 
@@ -65,7 +65,7 @@ const commands = yargs(hideBin(process.argv))
       }
 
       if (parachains.length > 1) {
-        await connectParachains(parachains, environment().DISABLE_AUTO_HRMP)
+        await connectParachains(parachains, environment.DISABLE_AUTO_HRMP)
       }
 
       if (argv.relaychain) {
@@ -89,7 +89,7 @@ const commands = yargs(hideBin(process.argv))
   .usage('Usage: $0 <command> [options]')
   .example('$0', '-c acala')
 
-if (!environment().DISABLE_PLUGINS) {
+if (!environment.DISABLE_PLUGINS) {
   pluginExtendCli(
     commands.config(
       'config',

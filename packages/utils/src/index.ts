@@ -144,7 +144,7 @@ export const setupNetworks = async (networkOptions: Partial<Record<string, Confi
 
   const parachainList = Object.values(parachains).map((i) => i.chain)
   if (parachainList.length > 0) {
-    await connectParachains(parachainList, environment().DISABLE_AUTO_HRMP)
+    await connectParachains(parachainList, environment.DISABLE_AUTO_HRMP)
   }
 
   if (wasmOverriden) {

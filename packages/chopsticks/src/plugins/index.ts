@@ -20,7 +20,7 @@ export const rpcPluginMethods = plugins
   .map((name) => `dev_${_.camelCase(name)}`)
 
 export const loadRpcPlugin = async (method: string) => {
-  if (environment().DISABLE_PLUGINS) {
+  if (environment.DISABLE_PLUGINS) {
     return undefined
   }
   if (rpcPluginHandlers[method]) return rpcPluginHandlers[method]

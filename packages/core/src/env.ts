@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-const environmentSchema = z.object({
+export const environmentSchema = z.object({
   /**
    * Disable auto HRMP on setup. Default is `false`.
    */
@@ -45,4 +45,4 @@ const environmentSchema = z.object({
 /**
  * Environment variables available for users
  */
-export const environment = () => environmentSchema.parse(typeof process === 'object' ? process.env : {})
+export const environment = environmentSchema.parse(typeof process === 'object' ? process.env : {})

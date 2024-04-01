@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { environment } from '@acala-network/chopsticks'
+import { environment, environmentSchema } from '@acala-network/chopsticks-core'
 
 describe('environment', () => {
   it('defaults are correct', async () => {
-    expect(environment()).toMatchObject({
+    expect(environment).toMatchObject({
       DISABLE_AUTO_HRMP: false,
       DISABLE_PLUGINS: false,
       VERBOSE_LOG: false,
@@ -22,7 +22,7 @@ describe('environment', () => {
       VERBOSE_LOG: 'false',
       LOG_COMPACT: 'true',
     }
-    expect(environment()).toMatchObject({
+    expect(environmentSchema.parse(process.env)).toMatchObject({
       DISABLE_AUTO_HRMP: true,
       PORT: '8001',
       DISABLE_PLUGINS: false,
