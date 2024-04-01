@@ -35,9 +35,7 @@ An example is available at [acalanetwork.github.io/chopsticks](https://acalanetw
 
 ## Environment Variables
 
-- `PORT`: Set port for Chopsticks to listen on, default is `8000`
-- `LOG_LEVEL`: Set log level, default is `info`. Available options: `trace`, `debug`, `info`, `warn`, `error`
-- `VERBOSE_LOG`: If set, do not truncating log messages
+For chopsticks CLI, you can find the full list of available environment variables [here](https://acalanetwork.github.io/chopsticks/docs/core/README.html#environment).
 
 ## Install
 
@@ -151,7 +149,3 @@ Chopsticks is designed to be extensible. You can write your own plugin to extend
 There are 2 types of plugins: `cli` and `rpc`. `cli` plugins are used to extend Chopsticks' CLI, while `rpc` plugins are used to extend Chopsticks' RPC.
 
 To create a new plugin, you could check out the [run-block plugin](packages/chopsticks/src/plugins/run-block/) as an example.
-
-## Environment Variables
-
-For chopsticks CLI, you can find the list of available environment variables [here](https://acalanetwork.github.io/chopsticks/docs/core/README.html#environment).
