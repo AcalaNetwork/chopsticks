@@ -20,7 +20,9 @@ export const environmentSchema = z.object({
     .default('false')
     .transform((v) => v === 'true'),
   HTTP_PROXY: z.string().optional(),
+  http_proxy: z.string().optional(),
   HTTPS_PROXY: z.string().optional(),
+  https_proxy: z.string().optional(),
   /**
    * Chopsticks log level, "fatal" | "error" | "warn" | "info" | "debug" | "trace".
    * Default is "info".

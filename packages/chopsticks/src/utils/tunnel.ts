@@ -7,9 +7,9 @@ const npmConfig = npmConf().config
 
 global.GLOBAL_AGENT.HTTP_PROXY =
   environment.HTTP_PROXY ||
-  process.env.http_proxy ||
+  environment.http_proxy ||
   environment.HTTPS_PROXY ||
-  process.env.https_proxy ||
+  environment.https_proxy ||
   npmConfig.get('proxy') ||
   npmConfig.get('https-proxy') ||
   global.GLOBAL_AGENT.HTTP_PROXY
