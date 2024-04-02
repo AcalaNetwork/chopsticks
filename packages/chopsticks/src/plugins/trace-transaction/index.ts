@@ -7,6 +7,7 @@ import _ from 'lodash'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { fetchEVMTransaction, prepareBlock, traceCalls, traceVM } from './utils.js'
 import { setupContext } from '../../context.js'
+import { setupServer } from './server.js'
 
 const schema = configSchema.extend({
   vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
@@ -14,6 +15,7 @@ const schema = configSchema.extend({
   'disable-stack': z.boolean({ description: 'Disable stack trace' }).optional(),
   'page-size': z.number({ description: 'Default 50000. Reduce this if you get memory limit error.' }).optional(),
   output: z.string({ description: 'Output file' }),
+  serve: z.boolean({ description: 'Serve trace log' }).optional(),
 })
 
 export const cli = (y: Argv) => {
@@ -52,15 +54,27 @@ export const cli = (y: Argv) => {
           config['disable-stack'],
           config['enable-memory'],
         )
-        writeFileSync(argv.output, JSON.stringify(steps, null, 2))
+
+        const trace = {
+          gas: 0, // TODO: get gas from receipt
+          returnValue: null, // TODO: get return value from receipt
+          structLogs: steps,
+        }
+
+        if (config.serve) {
+          await setupServer(context, trace)
+        } else {
+          writeFileSync(argv.output, JSON.stringify(steps, null, 2))
+          pinoLogger.info(`Trace logs: ${argv.output}`)
+          process.exit(0)
+        }
       } else {
         pinoLogger.info('Running EVM call trace ...')
         const calls = await traceCalls(tracingBlock, extrinsic)
         writeFileSync(argv.output, JSON.stringify(calls, null, 2))
+        pinoLogger.info(`Trace logs: ${argv.output}`)
+        process.exit(0)
       }
-
-      pinoLogger.info(`Trace logs: ${argv.output}`)
-      process.exit(0)
     },
   )
 }
