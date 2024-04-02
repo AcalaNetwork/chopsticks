@@ -10,3 +10,14 @@ npx @acala-network/chopsticks trace-transaction <tx-hash> --chain acala --output
 ```
 
 VM trace can be enabled by add `--vm` flag to the command
+
+## Use Ethereum Remix to visualize the trace
+
+Run command:
+
+```bash
+yarn start trace-transaction <tx-hash> --config acala --vm --serve
+```
+
+Open remix.ethereum.org and connect to the local server.
+Open debugger and trace transaction hash.

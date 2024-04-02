@@ -14,7 +14,7 @@ const schema = configSchema.extend({
   'enable-memory': z.boolean({ description: 'Enable memory trace' }).optional(),
   'disable-stack': z.boolean({ description: 'Disable stack trace' }).optional(),
   'page-size': z.number({ description: 'Default 50000. Reduce this if you get memory limit error.' }).optional(),
-  output: z.string({ description: 'Output file' }),
+  output: z.string({ description: 'Output file' }).default('trace.json'),
   serve: z.boolean({ description: 'Serve trace log' }).optional(),
 })
 
@@ -64,15 +64,15 @@ export const cli = (y: Argv) => {
         if (config.serve) {
           await setupServer(context, trace)
         } else {
-          writeFileSync(argv.output, JSON.stringify(steps, null, 2))
-          pinoLogger.info(`Trace logs: ${argv.output}`)
+          writeFileSync(config.output, JSON.stringify(steps, null, 2))
+          pinoLogger.info(`Trace logs: ${config.output}`)
           process.exit(0)
         }
       } else {
         pinoLogger.info('Running EVM call trace ...')
         const calls = await traceCalls(tracingBlock, extrinsic)
-        writeFileSync(argv.output, JSON.stringify(calls, null, 2))
-        pinoLogger.info(`Trace logs: ${argv.output}`)
+        writeFileSync(config.output, JSON.stringify(calls, null, 2))
+        pinoLogger.info(`Trace logs: ${config.output}`)
         process.exit(0)
       }
     },
