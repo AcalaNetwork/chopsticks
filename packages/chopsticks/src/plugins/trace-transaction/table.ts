@@ -145,3 +145,7 @@ export const TABLE = {
   '0xff': 'SUICIDE',
   '0x46': 'CHAINID',
 }
+
+export const opName = (op: number) => {
+  return TABLE[`0x${op.toString(16).padStart(2, '0')}`] || `0x${op.toString(16).padStart(2, '0')}`
+}

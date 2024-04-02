@@ -39,9 +39,7 @@ An example is available at [acalanetwork.github.io/chopsticks](https://acalanetw
 
 ## Environment Variables
 
-- `PORT`: Set port for Chopsticks to listen on, default is `8000`
-- `LOG_LEVEL`: Set log level, default is `info`. Available options: `trace`, `debug`, `info`, `warn`, `error`
-- `VERBOSE_LOG`: If set, do not truncating log messages
+For chopsticks CLI, you can find the full list of available environment variables [here](https://acalanetwork.github.io/chopsticks/docs/core/README.html#environment).
 
 ## Install
 

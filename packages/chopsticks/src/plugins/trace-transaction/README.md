@@ -1,6 +1,6 @@
 # EVM+ trace transaction plugin
 
-This plugin allows you to trace the execution of a transaction on the Acala & Karura EVM+. The plugin will take a transaction hash as input and will look up the mainnet for transaction details and perform a trace call for the transaction. You can do either call trace or VM trace. However, if the transaction is very resource-intensive, it may not be able to perform a VM trace due to the wasm memory limit.
+This plugin allows you to trace the execution of a transaction on the Acala & Karura EVM+. The plugin will take a transaction hash as input and will look up the mainnet for transaction details and perform a trace call for the transaction. You can do either call trace or VM trace
 
 Example usage:
 To trace transaction calls, you can use the following command:

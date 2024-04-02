@@ -1,15 +1,14 @@
 import { pino } from 'pino'
 
-const level = (typeof process === 'object' && process.env.LOG_LEVEL) || 'info'
-const hideObject = (typeof process === 'object' && !!process.env.LOG_COMPACT) || false
+import { environment } from './env.js'
 
 export const pinoLogger = pino({
-  level,
+  level: environment.LOG_LEVEL,
   transport: {
     target: 'pino-pretty',
     options: {
       ignore: 'pid,hostname',
-      hideObject,
+      hideObject: environment.LOG_COMPACT,
     },
   },
 })
@@ -19,7 +18,7 @@ export const defaultLogger = pinoLogger.child({ app: 'chopsticks' })
 const innerTruncate =
   (level = 0) =>
   (val: any) => {
-    const verboseLog = typeof process === 'object' ? !!process.env.VERBOSE_LOG : false
+    const verboseLog = environment.VERBOSE_LOG
     const levelLimit = verboseLog ? 10 : 5
     if (val == null) {
       return val
