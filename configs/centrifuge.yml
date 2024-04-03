@@ -2,20 +2,34 @@ endpoint: wss://centrifuge-parachain.api.onfinality.io/public-ws/
 mock-signature-host: true
 block: ${env.CENTRIFUGE_BLOCK_NUMBER}
 db: ./db.sqlite
-# wasm-override: centrifuge-1023.wasm
+runtime-log-level: 5
+# wasm-override: cfg-1028.wasm
 
 import-storage:
-  # Sudo:
-  #   Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+
   System:
+    # Fund addresses with native currency
     Account:
       -
         -
-          - "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+          - "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" # Alice
+        - providers: 1
+          data:
+            free: "1000000000000000000000000"
+      -
+        -
+          - "4eZq6YogeXHKvjLhHjNKoTzv6MLESn7MkBEQSvctxAnAT82t" # Bob
+        - providers: 1
+          data:
+            free: "1000000000000000000000000"
+      -
+        -
+          - "4eZq6YogeXHKvjLhHjNKoTzv6MLESn7MkBEQSvctxAnAT82t" # Charlie
         - providers: 1
           data:
             free: "1000000000000000000000000"
   Council:
+    # Set Alice as single council member
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
   Elections:
     Members:
@@ -23,6 +37,7 @@ import-storage:
         stake: "10000000000000000000000"
         deposit: "10000000000000000000000"
   OrmlTokens:
+    # Fund addresses with foreign currencies
     Accounts:
       -
         -
@@ -34,17 +49,86 @@ import-storage:
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - ForeignAsset: 4
         - free: "1000000000000000000000"
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 100001
+        - free: "1000000000000000000000"
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 100002
+        - free: "1000000000000000000000"
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 100003
+        - free: "1000000000000000000000"
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 100004
+        - free: "1000000000000000000000"
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 100005
+        - free: "1000000000000000000000"
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - ForeignAsset: 100006
+        - free: "1000000000000000000000"
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - LocalAsset: 1
+        - free: "10000000000000"
   Proxy:
+    # Example to set proxy
     Proxies:
       -
         -
-          - 4dTeMxuPJCK7zQGhFcgCivSJqBs9Wo2SuMSQeYCCuVJ9xrE2
+          - 4gJcbk2V9JLmYkMPDeeYZ2Kmtf6J6GqYfdNw4qdzzSzBppDW # The address which sets a proxy
+        -
+          -
+            - delegate: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" # The proxy account address
+            - proxyType: "Any"
+            - delay: 0
+          - "350000000000000000"
+      -
+        -
+          - 4eEqmbQMbFfNUg6bQnqi9zgUvQvSpNbUgstEM64Xq9FW58Xv
         -
           -
             - delegate: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
             - proxyType: "Any"
             - delay: 0
           - "350000000000000000"
-
+  Permissions:
+    # Example to set permissions
+    Permission:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - Pool: 4139607887
+        -
+          poolAdmin:
+            bits: 59
+          currencyAdmin:
+            bits: 0
+          permissionedAssetHolder:
+            info: null
+          trancheInvestor:
+            info: []
+  OraclePriceCollection:
+    # Example to set oracle feeder
+    CollectionInfo:
+      -
+        -
+          - 4139607887
+        - feeders:
+          - system:
+              signed:
 
 
