@@ -217,3 +217,5 @@ export const childstate_getKeysPaged: Handler<
     ?.getKeysPaged({ prefix: prefixedChildKey(child, prefix), pageSize, startKey: prefixedChildKey(child, startKey) })
     .then((keys: any[]) => keys.map(stripChildPrefix))
 }
+
+export const state_getStorageAt = state_getStorage
