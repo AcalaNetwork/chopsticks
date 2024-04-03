@@ -23,6 +23,9 @@ describe('chain rpc', () => {
     expect(await api.rpc('chain_getBlockHash', [0, undefined, null])).toEqual(
       expect.arrayContaining([hash0, hashHead, hashHead]),
     )
+    expect(await api.rpc('chain_getBlockHash', '0x03e8')).toEqual(hash1000)
+    expect(await api.rpc('chain_getBlockHash', ['0x03e8'])).toEqual(expect.arrayContaining([hash1000]))
+    expect(await api.rpc('chain_getBlockHash', ['0x03e8', null])).toEqual(expect.arrayContaining([hash1000, hashHead]))
 
     await check(api.rpc.chain.getHeader()).toMatchSnapshot()
     await check(api.rpc.chain.getHeader(hashHead)).toMatchSnapshot()

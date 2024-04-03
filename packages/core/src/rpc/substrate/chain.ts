@@ -1,5 +1,6 @@
 import { Header as CodecHeader } from '@polkadot/types/interfaces'
 import { HexString } from '@polkadot/util/types'
+import { hexToNumber, isHex } from '@polkadot/util'
 
 import { Handler, ResponseError } from '../shared.js'
 import type { Header } from '../../index.js'
@@ -22,14 +23,14 @@ const processHeader = ({ parentHash, number, stateRoot, extrinsicsRoot, digest }
  *
  * @return Block hash | hash[] | null
  */
-export const chain_getBlockHash: Handler<[number | number[] | null], HexString | (HexString | null)[] | null> = async (
-  context,
-  [blockNumber],
-) => {
+export const chain_getBlockHash: Handler<
+  [number | HexString | number[] | HexString[] | null],
+  HexString | (HexString | null)[] | null
+> = async (context, [blockNumber]) => {
   const numbers = Array.isArray(blockNumber) ? blockNumber : [blockNumber]
-  const hashes = await Promise.all(numbers.map((n) => context.chain.getBlockAt(n))).then((blocks) =>
-    blocks.map((b) => b?.hash || null),
-  )
+  const hashes = await Promise.all(
+    numbers.map((n) => (isHex(n) ? hexToNumber(n) : n)).map((n) => context.chain.getBlockAt(n)),
+  ).then((blocks) => blocks.map((b) => b?.hash || null))
   return Array.isArray(blockNumber) ? hashes : hashes[0]
 }
 
