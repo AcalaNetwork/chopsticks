@@ -6,7 +6,7 @@ Example usage:
 To trace transaction calls, you can use the following command:
 
 ```bash
-npx @acala-network/chopsticks trace-transaction <tx-hash> --chain acala --output trace.json
+npx @acala-network/chopsticks trace-transaction <tx-hash> --config acala --output trace.json
 ```
 
 VM trace can be enabled by add `--vm` flag to the command
