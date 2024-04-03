@@ -29,7 +29,7 @@ export const chain_getBlockHash: Handler<
 > = async (context, [blockNumber]) => {
   const numbers = Array.isArray(blockNumber) ? blockNumber : [blockNumber]
   const hashes = await Promise.all(
-    numbers.map((n) => (isHex(n) ? hexToNumber(n) : n)).map((n) => context.chain.getBlockAt(n)),
+    numbers.map((n) => (isHex(n, undefined, true) ? hexToNumber(n) : n)).map((n) => context.chain.getBlockAt(n)),
   ).then((blocks) => blocks.map((b) => b?.hash || null))
   return Array.isArray(blockNumber) ? hashes : hashes[0]
 }
