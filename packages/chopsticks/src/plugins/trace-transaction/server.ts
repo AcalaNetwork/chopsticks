@@ -61,7 +61,14 @@ export const setupServer = async (context: Context, trace: any) => {
         }
       }
       // everything else if forwarded to eth rpc endpoint
-      default: {
+      case 'net_version':
+      case 'eth_chainId':
+      case 'eth_getCode':
+      case 'eth_accounts':
+      case 'eth_getBlockByNumber':
+      case 'eth_getBlockByHash':
+      case 'eth_getTransactionByHash':
+      case 'eth_getTransactionReceipt': {
         return async (_context: Context, params: any[], _subscriptionManager: SubscriptionManager) => {
           return fetch(endpoint, {
             headers: [
@@ -80,6 +87,9 @@ export const setupServer = async (context: Context, trace: any) => {
               return result
             })
         }
+      }
+      default: {
+        throw new Error('not implemented')
       }
     }
   }
