@@ -285,7 +285,7 @@ export class StorageLayer implements StorageLayerProvider {
       if (idx !== -1) {
         if (includeFirst) {
           const key = this.#keys[idx]
-          if (key && key.startsWith(prefix)) {
+          if (key && key.startsWith(prefix) && key > startKey) {
             foundNextKey(key)
           }
         }

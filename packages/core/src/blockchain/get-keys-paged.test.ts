@@ -277,4 +277,31 @@ describe('getKeysPaged', () => {
       '0x94533e05c34400caee0d8976774f0dd064443ba500633e46053c7a0a68b8ef3392a72b59fc8b67b7020000e8d2a526a4a22d1e0300000000',
     ])
   })
+
+  it('firstKey is checked properly', async () => {
+    const layer2 = new StorageLayer(storageLayer)
+    layer2.setAll([
+      ['0x1111111111111111111111111111111111111111111111111111111111111111_00', '0x00'],
+      ['0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2', '0x00'],
+    ])
+
+    expect(
+      await layer2.getKeysPaged(
+        '0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2',
+        1,
+        '0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2',
+      ),
+    ).toEqual([])
+
+    const layer3 = new StorageLayer(layer2)
+    layer3.setAll([['0x1111111111111111111111111111111111111111111111111111111111111111_01', '0x01']])
+
+    expect(
+      await layer3.getKeysPaged(
+        '0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2',
+        1,
+        '0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2',
+      ),
+    ).toEqual([])
+  })
 })
