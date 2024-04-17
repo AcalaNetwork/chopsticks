@@ -13,8 +13,32 @@ export type CallTrace = {
   error: string | null
   revertReason: string | null
   depth: number
+  logs: LogTrace[]
   calls: CallTrace[]
 }
+
+export type LogTrace =
+  | {
+      log: {
+        address: HexString
+        topics: HexString[]
+        data: HexString
+      }
+    }
+  | {
+      sLoad: {
+        address: HexString
+        index: HexString
+        value: HexString
+      }
+    }
+  | {
+      sStore: {
+        address: HexString
+        index: HexString
+        value: HexString
+      }
+    }
 
 export type Step = {
   op: number
@@ -53,6 +77,28 @@ export const registerTypes = (registry: Registry) => {
         SUICIDE: null,
       },
     },
+    Log: {
+      address: 'H160',
+      topics: 'Vec<H256>',
+      data: 'Bytes',
+    },
+    SLoad: {
+      address: 'H160',
+      index: 'H256',
+      value: 'H256',
+    },
+    SStore: {
+      address: 'H160',
+      index: 'H256',
+      value: 'H256',
+    },
+    LogTrace: {
+      _enum: {
+        Log: 'Log',
+        SLoad: 'SLoad',
+        SStore: 'SStore',
+      },
+    },
     CallTrace: {
       type: 'CallType',
       from: 'H160',
@@ -65,6 +111,7 @@ export const registerTypes = (registry: Registry) => {
       error: 'Option<String>',
       revertReason: 'Option<String>',
       depth: 'Compact<u32>',
+      logs: 'Vec<LogTrace>',
       calls: 'Vec<CallTrace>',
     },
     TraceOutcome: {

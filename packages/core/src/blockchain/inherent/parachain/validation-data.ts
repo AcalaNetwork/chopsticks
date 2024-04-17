@@ -113,9 +113,12 @@ export class SetValidationData implements InherentProvider {
       extrinsic.relayChainState.trieNodes,
     )
 
-    const slotIncrease = (meta.consts.timestamp.minimumPeriod as any as BN)
-      .divn(3000) // relaychain min period
-      .toNumber()
+    const slotIncrease = Math.max(
+      1,
+      (meta.consts.timestamp.minimumPeriod as any as BN)
+        .divn(3000) // relaychain min period
+        .toNumber(),
+    )
 
     for (const key of Object.values(WELL_KNOWN_KEYS)) {
       if (key === WELL_KNOWN_KEYS.CURRENT_SLOT) {
