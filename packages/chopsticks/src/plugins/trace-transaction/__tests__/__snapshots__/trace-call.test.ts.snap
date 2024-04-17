@@ -14,6 +14,22 @@ exports[`trace-call > Acala 1`] = `
     "error": null,
     "revertReason": null,
     "depth": 0,
+    "logs": [
+      {
+        "sLoad": {
+          "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+          "index": "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103",
+          "value": "0x0000000000000000000000003f86533602cae17d10173269ecb6efce1d68d5ec"
+        }
+      },
+      {
+        "sLoad": {
+          "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+          "index": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+          "value": "0x000000000000000000000000fa68ce20228ae14ac338aedb95f0f55b4e8b2bbe"
+        }
+      }
+    ],
     "calls": [
       {
         "type": "DELEGATECALL",
@@ -27,6 +43,333 @@ exports[`trace-call > Acala 1`] = `
         "error": null,
         "revertReason": null,
         "depth": 1,
+        "logs": [
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000065",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0xef10c6f4f492a0c5b673ab118c3c391c1d8d123d8c83c311e30cd441186f3fd9",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0xc18a6a5376a6c920795e69886bba2cc65b369bf5b52d1be5df5a83762576545c",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x895df3f120ef0027f3d97ffecd8bdc24d6c0525b1b47fb0130c870aabb9ec270",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000000"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600dff",
+              "value": "0x0000000000000000000000000000000000000000000000000000004e991321e8"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e00",
+              "value": "0x000000000000000000000000000000000000000000000000000000006621bfa4"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e01",
+              "value": "0x000000000000000000000000000000000000000000000027445d4fea68be22b2"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e02",
+              "value": "0x0000000000000000000000000000000000000000000000000000000066080922"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x18ea924a307d8c2826d960b81412f2a6543a75ca2d379ff3a056ee960e83da3b",
+              "value": "0x000000000000000000000000000000000000000000000000003e32c591d06d1d"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600dff",
+              "value": "0x0000000000000000000000000000000000000000000000000000004e991321e8"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e00",
+              "value": "0x000000000000000000000000000000000000000000000000000000006621bfa4"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e01",
+              "value": "0x000000000000000000000000000000000000000000000027445d4fea68be22b2"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e02",
+              "value": "0x0000000000000000000000000000000000000000000000000000000066080922"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e01",
+              "value": "0x00000000000000000000000000000000000000000000002744658857e147515c"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600dff",
+              "value": "0x0000000000000000000000000000000000000000000000000000004e991321e8"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e00",
+              "value": "0x000000000000000000000000000000000000000000000000000000006621bfa4"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e01",
+              "value": "0x00000000000000000000000000000000000000000000002744658857e147515c"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e02",
+              "value": "0x0000000000000000000000000000000000000000000000000000000066080922"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e02",
+              "value": "0x000000000000000000000000000000000000000000000000000000006608099a"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x633698350ded0bd2f89f1b48f6331b5d78c71c2f918a5d4f01ea913776c4b2b4",
+              "value": "0x00000000000000000000000000000000000000000000000000000b72f2c8b39d"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x789e83fae3655895b1595f6f0f97cbcb6e01713ed98bd90b645f80ebd6293161",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0xbd29e0f8be36d34c5ea6d4cd38be8f21c197fd86b71f9a022976ccf1131fa7be",
+              "value": "0x000000000000000000000000000000000000000000000027445d4fea68be22b2"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600dff",
+              "value": "0x0000000000000000000000000000000000000000000000000000004e991321e8"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e00",
+              "value": "0x000000000000000000000000000000000000000000000000000000006621bfa4"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e01",
+              "value": "0x00000000000000000000000000000000000000000000002744658857e147515c"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e02",
+              "value": "0x000000000000000000000000000000000000000000000000000000006608099a"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x18ea924a307d8c2826d960b81412f2a6543a75ca2d379ff3a056ee960e83da3b",
+              "value": "0x000000000000000000000000000000000000000000000000003e32c591d06d1d"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600dff",
+              "value": "0x0000000000000000000000000000000000000000000000000000004e991321e8"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e00",
+              "value": "0x000000000000000000000000000000000000000000000000000000006621bfa4"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e01",
+              "value": "0x00000000000000000000000000000000000000000000002744658857e147515c"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e02",
+              "value": "0x000000000000000000000000000000000000000000000000000000006608099a"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x789e83fae3655895b1595f6f0f97cbcb6e01713ed98bd90b645f80ebd6293161",
+              "value": "0x00000000000000000000000000000000000000000000000000000006c820fc54"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x64bc0cbe3677bbad42aeaa08b1efaf463bfedadbb52ed17a6e2dc3a78d600e01",
+              "value": "0x00000000000000000000000000000000000000000000002744658857e147515c"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0xbd29e0f8be36d34c5ea6d4cd38be8f21c197fd86b71f9a022976ccf1131fa7be",
+              "value": "0x00000000000000000000000000000000000000000000002744658857e147515c"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x00000000000000000000000000000000000000000000000000000000000000a1",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x00000000000000000000000000000000000000000000000000000000000000a1",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000002"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0xfd16fc8d5a980cfe9c4de8806ae90ed1cbb06071ef932dd581a595eff814ae38",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000002"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x633698350ded0bd2f89f1b48f6331b5d78c71c2f918a5d4f01ea913776c4b2b4",
+              "value": "0x00000000000000000000000000000000000000000000000000000b72f2c8b39d"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x18ea924a307d8c2826d960b81412f2a6543a75ca2d379ff3a056ee960e83da3b",
+              "value": "0x000000000000000000000000000000000000000000000000003e32c591d06d1d"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x18ea924a307d8c2826d960b81412f2a6543a75ca2d379ff3a056ee960e83da3b",
+              "value": "0x000000000000000000000000000000000000000000000000003e3248508e5c5f"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x633698350ded0bd2f89f1b48f6331b5d78c71c2f918a5d4f01ea913776c4b2b4",
+              "value": "0x00000000000000000000000000000000000000000000000000000b72f2c8b39d"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x633698350ded0bd2f89f1b48f6331b5d78c71c2f918a5d4f01ea913776c4b2b4",
+              "value": "0x00000000000000000000000000000000000000000000000000000af5b186a2df"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x0c5dd94f3331332b470eb02f43536aadc551ccedb46e04aa3fea94db96cbf9d0",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000003"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x0c5dd94f3331332b470eb02f43536aadc551ccedb46e04aa3fea94db96cbf9d1",
+              "value": "0x000000000000000000000000000000000000000000000000672fe8c4b7bff32b"
+            }
+          },
+          {
+            "log": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "topics": [
+                "0xf960dbf9e5d0682f7a298ed974e33a28b4464914b7a2bfac12ae419a9afeb280",
+                "0x00000000000000000000000069f7f2e5a66f36f1ccab6eeafedbdf78ce0cfd06"
+              ],
+              "data": "0x00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000007d414210be"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x7fe92ec600f15cd25253b421bc151c51b0276b7d",
+              "index": "0x00000000000000000000000000000000000000000000000000000000000000a1",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000001"
+            }
+          }
+        ],
         "calls": [
           {
             "type": "CALL",
@@ -40,6 +383,19 @@ exports[`trace-call > Acala 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [
+              {
+                "log": {
+                  "address": "0x0000000000000000000100000000000000000003",
+                  "topics": [
+                    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                    "0x0000000000000000000000007fe92ec600f15cd25253b421bc151c51b0276b7d",
+                    "0x00000000000000000000000069f7f2e5a66f36f1ccab6eeafedbdf78ce0cfd06"
+                  ],
+                  "data": "0x000000000000000000000000000000000000000000000000000003a352944002"
+                }
+              }
+            ],
             "calls": [
               {
                 "type": "CALL",
@@ -53,6 +409,7 @@ exports[`trace-call > Acala 1`] = `
                 "error": null,
                 "revertReason": null,
                 "depth": 3,
+                "logs": [],
                 "calls": []
               }
             ]
@@ -78,6 +435,7 @@ exports[`trace-call > Karura 1`] = `
     "error": null,
     "revertReason": null,
     "depth": 0,
+    "logs": [],
     "calls": [
       {
         "type": "CREATE",
@@ -91,6 +449,67 @@ exports[`trace-call > Karura 1`] = `
         "error": null,
         "revertReason": null,
         "depth": 1,
+        "logs": [
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "value": "0x0000000000000000000000002aefc65b6e1660d2ba2796f8698120a2acb95634"
+            }
+          },
+          {
+            "log": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "topics": [
+                "0x59490ddc6330cd50a9703c0b77827ff51b21e7a8592eb50d5252a4d20188cfd3",
+                "0x000000000000000000000000bc39747ca0cc6da0905fecdd50a557fc5289178c"
+              ],
+              "data": "0x"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000001",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000001",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000082"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000083"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000003",
+              "value": "0x0827afb9d8f574620c4b49da80554613907fcae8d25bb943272514d6a2114144"
+            }
+          }
+        ],
         "calls": []
       },
       {
@@ -105,6 +524,53 @@ exports[`trace-call > Karura 1`] = `
         "error": null,
         "revertReason": null,
         "depth": 1,
+        "logs": [
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "value": "0x0000000000000000000000002aefc65b6e1660d2ba2796f8698120a2acb95634"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000001",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000082"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000083"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000003",
+              "value": "0x0827afb9d8f574620c4b49da80554613907fcae8d25bb943272514d6a2114144"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "index": "0x0000000000000000000000000000000000000000000000000000000000000002",
+              "value": "0x0000000000000000000000000000000000000000000100000000000000000083"
+            }
+          },
+          {
+            "log": {
+              "address": "0xbc39747ca0cc6da0905fecdd50a557fc5289178c",
+              "topics": [
+                "0x4d71224652a46a6b2a06bc43b09b55d157972d227c848693032b32aa7d5aefe8",
+                "0x000000000000000000000000bc39747ca0cc6da0905fecdd50a557fc5289178c"
+              ],
+              "data": "0x"
+            }
+          }
+        ],
         "calls": [
           {
             "type": "STATICCALL",
@@ -118,6 +584,15 @@ exports[`trace-call > Karura 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [
+              {
+                "sLoad": {
+                  "address": "0x2aefc65b6e1660d2ba2796f8698120a2acb95634",
+                  "index": "0xff9d3c62f2a1294a57e8225f5ccfd05bf3f4a606ea7822cfc6803df4dff360e2",
+                  "value": "0x000000000000000000000000000000000000000000000000000000003b9aca00"
+                }
+              }
+            ],
             "calls": []
           },
           {
@@ -132,6 +607,19 @@ exports[`trace-call > Karura 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [
+              {
+                "log": {
+                  "address": "0x0000000000000000000100000000000000000082",
+                  "topics": [
+                    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                    "0x000000000000000000000000bc39747ca0cc6da0905fecdd50a557fc5289178c",
+                    "0x0000000000000000000000001d2ee3565f835759f67df69e4f5c78af6e2f1bde"
+                  ],
+                  "data": "0x000000000000000000000000000000000000000000000000000000003b9aca00"
+                }
+              }
+            ],
             "calls": [
               {
                 "type": "CALL",
@@ -145,6 +633,7 @@ exports[`trace-call > Karura 1`] = `
                 "error": null,
                 "revertReason": null,
                 "depth": 3,
+                "logs": [],
                 "calls": []
               }
             ]
@@ -161,6 +650,7 @@ exports[`trace-call > Karura 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [],
             "calls": [
               {
                 "type": "STATICCALL",
@@ -174,6 +664,7 @@ exports[`trace-call > Karura 1`] = `
                 "error": null,
                 "revertReason": null,
                 "depth": 3,
+                "logs": [],
                 "calls": []
               }
             ]
@@ -190,6 +681,18 @@ exports[`trace-call > Karura 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [
+              {
+                "log": {
+                  "address": "0x0000000000000000000000000000000000000805",
+                  "topics": [
+                    "0x30385c845b448a36257a6a1716e6ad2e1bc2cbe333cde1e69fe849ad6511adfe",
+                    "0x000000000000000000000000bc39747ca0cc6da0905fecdd50a557fc5289178c"
+                  ],
+                  "data": "0x000000000000000000000000000000000000000000000000000005e927feda9b"
+                }
+              }
+            ],
             "calls": [
               {
                 "type": "CALL",
@@ -203,6 +706,7 @@ exports[`trace-call > Karura 1`] = `
                 "error": null,
                 "revertReason": null,
                 "depth": 3,
+                "logs": [],
                 "calls": []
               }
             ]
@@ -219,6 +723,7 @@ exports[`trace-call > Karura 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [],
             "calls": [
               {
                 "type": "STATICCALL",
@@ -232,6 +737,7 @@ exports[`trace-call > Karura 1`] = `
                 "error": null,
                 "revertReason": null,
                 "depth": 3,
+                "logs": [],
                 "calls": []
               }
             ]
@@ -248,6 +754,7 @@ exports[`trace-call > Karura 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [],
             "calls": [
               {
                 "type": "CALL",
@@ -261,6 +768,19 @@ exports[`trace-call > Karura 1`] = `
                 "error": null,
                 "revertReason": null,
                 "depth": 3,
+                "logs": [
+                  {
+                    "log": {
+                      "address": "0x0000000000000000000100000000000000000083",
+                      "topics": [
+                        "0x1d17b5770b13229fb9a0fbb368edadb0cd26837679bf04920d26031ad8fd6bdc",
+                        "0x000000000000000000000000bc39747ca0cc6da0905fecdd50a557fc5289178c",
+                        "0x0827afb9d8f574620c4b49da80554613907fcae8d25bb943272514d6a2114144"
+                      ],
+                      "data": "0x00000000000000000000000000000000000000000000000000002601d769faa7"
+                    }
+                  }
+                ],
                 "calls": [
                   {
                     "type": "CALL",
@@ -274,6 +794,7 @@ exports[`trace-call > Karura 1`] = `
                     "error": null,
                     "revertReason": null,
                     "depth": 4,
+                    "logs": [],
                     "calls": []
                   }
                 ]
@@ -292,6 +813,7 @@ exports[`trace-call > Karura 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [],
             "calls": []
           }
         ]
@@ -315,6 +837,15 @@ exports[`trace-call > Substrate+EVM 1`] = `
     "error": null,
     "revertReason": null,
     "depth": 0,
+    "logs": [
+      {
+        "sLoad": {
+          "address": "0x07df96d1341a7d16ba1ad431e2c847d978bc2bce",
+          "index": "0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50",
+          "value": "0x000000000000000000000000ae9d7fe007b3327aa64a32824aaac52c42a6e624"
+        }
+      }
+    ],
     "calls": [
       {
         "type": "STATICCALL",
@@ -328,6 +859,15 @@ exports[`trace-call > Substrate+EVM 1`] = `
         "error": null,
         "revertReason": null,
         "depth": 1,
+        "logs": [
+          {
+            "sLoad": {
+              "address": "0xae9d7fe007b3327aa64a32824aaac52c42a6e624",
+              "index": "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc",
+              "value": "0x000000000000000000000000294a3918bd93dbb02127cf900e3f919623b12430"
+            }
+          }
+        ],
         "calls": [
           {
             "type": "DELEGATECALL",
@@ -341,6 +881,15 @@ exports[`trace-call > Substrate+EVM 1`] = `
             "error": null,
             "revertReason": null,
             "depth": 2,
+            "logs": [
+              {
+                "sLoad": {
+                  "address": "0xae9d7fe007b3327aa64a32824aaac52c42a6e624",
+                  "index": "0x0000000000000000000000000000000000000000000000000000000000000001",
+                  "value": "0x0000000000000000000000006c780b35bcb862912e20384a9373426004e4cb92"
+                }
+              }
+            ],
             "calls": []
           }
         ]
@@ -357,6 +906,47 @@ exports[`trace-call > Substrate+EVM 1`] = `
         "error": null,
         "revertReason": null,
         "depth": 1,
+        "logs": [
+          {
+            "sLoad": {
+              "address": "0x07df96d1341a7d16ba1ad431e2c847d978bc2bce",
+              "index": "0x324a2967a4f4286b9cbb610c275fd7118a3f7c0c0be992d5b0df0cc6670d8d6b",
+              "value": "0x0000000000000000000000000000000000000000000000000000000012ff7252"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x07df96d1341a7d16ba1ad431e2c847d978bc2bce",
+              "index": "0x324a2967a4f4286b9cbb610c275fd7118a3f7c0c0be992d5b0df0cc6670d8d6b",
+              "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+            }
+          },
+          {
+            "sLoad": {
+              "address": "0x07df96d1341a7d16ba1ad431e2c847d978bc2bce",
+              "index": "0xc36b34f879c039e3076aee8325c45830a62ae25188f0e8571d0d9a7c297d2574",
+              "value": "0x0000000000000000000000000000000000000000000000000000001dfbbbfe0d"
+            }
+          },
+          {
+            "sStore": {
+              "address": "0x07df96d1341a7d16ba1ad431e2c847d978bc2bce",
+              "index": "0xc36b34f879c039e3076aee8325c45830a62ae25188f0e8571d0d9a7c297d2574",
+              "value": "0x0000000000000000000000000000000000000000000000000000001e0ebb705f"
+            }
+          },
+          {
+            "log": {
+              "address": "0x07df96d1341a7d16ba1ad431e2c847d978bc2bce",
+              "topics": [
+                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+                "0x00000000000000000000000087c048b68dd762c17224e1e3b7af67da728270ac",
+                "0x000000000000000000000000905c015e38c24ed973fd6075541a124c621fa743"
+              ],
+              "data": "0x0000000000000000000000000000000000000000000000000000000012ff7252"
+            }
+          }
+        ],
         "calls": []
       }
     ]
