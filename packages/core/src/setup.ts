@@ -85,8 +85,6 @@ export const processOptions = async (options: SetupOptions) => {
   const api = new Api(provider)
   await api.isReady
 
-  const lightClient = options.p2p && (await LightClient.create(options.p2p))
-
   let blockHash: string
   if (options.block == null) {
     blockHash = await api.getBlockHash().then((hash) => {
@@ -121,6 +119,8 @@ export const setup = async (options: SetupOptions) => {
   if (!header) {
     throw new Error(`Cannot find header for ${blockHash}`)
   }
+
+  const lightClient = options.p2p && (await LightClient.create(options.p2p))
 
   const chain = new Blockchain({
     lightClient,

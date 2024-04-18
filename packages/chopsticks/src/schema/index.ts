@@ -69,7 +69,8 @@ export const configSchema = z.object({
     .object({
       genesisBlockHash: zHash,
       bootnodes: z.array(z.string()),
-    }).optional()
+    })
+    .optional(),
 })
 
 export type Config = z.infer<typeof configSchema>
