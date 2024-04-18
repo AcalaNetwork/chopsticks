@@ -1,6 +1,5 @@
 endpoint: wss://wss.moonriver.moonbeam.network
 mock-signature-host: true
-allow-unresolved-imports: true
 block: ${env.MOONRIVER_BLOCK_NUMBER}
 db: ./db.sqlite
 

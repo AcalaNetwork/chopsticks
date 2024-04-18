@@ -36,7 +36,8 @@ export const cli = (y: Argv) => {
     'Replay a block',
     (yargs) => yargs.options(getYargsOptions(schema.shape)),
     async (argv) => {
-      const context = await setupContext(schema.parse(argv), true)
+      const parsedArgv = schema.parse(argv)
+      const context = await setupContext(parsedArgv, true)
 
       const header = await context.chain.head.header
       const block = context.chain.head
@@ -58,7 +59,7 @@ export const cli = (y: Argv) => {
           calls,
           mockSignatureHost: false,
           allowUnresolvedImports: false,
-          runtimeLogLevel: (argv.runtimeLogLevel as number) || 0,
+          runtimeLogLevel: parsedArgv['runtime-log-level'] || 0,
         },
         taskHandler(parent),
       )

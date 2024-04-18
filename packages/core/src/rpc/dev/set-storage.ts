@@ -1,6 +1,7 @@
-import { Context, ResponseError, StorageValues, setStorage } from '@acala-network/chopsticks-core'
+import { Context, ResponseError } from '../shared.js'
 import { HexString } from '@polkadot/util/types'
 
+import { StorageValues, setStorage } from '../../utils/set-storage.js'
 import { defaultLogger } from '../../logger.js'
 
 /**
@@ -29,7 +30,7 @@ import { defaultLogger } from '../../logger.js'
  * ```
  */
 
-export const rpc = async (context: Context, params: [StorageValues, HexString?]) => {
+export const dev_setStorage = async (context: Context, params: [StorageValues, HexString?]) => {
   const [values, blockHash] = params
   const hash = await setStorage(context.chain, values, blockHash).catch((error) => {
     throw new ResponseError(1, error.toString())

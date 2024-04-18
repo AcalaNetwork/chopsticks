@@ -7,6 +7,33 @@
  *
  * @packageDocumentation
  */
+
+import { HexString } from '@polkadot/util/types'
+
+export type ChainProperties = {
+  ss58Format?: number
+  tokenDecimals?: number[]
+  tokenSymbol?: string[]
+}
+
+export type Header = {
+  parentHash: HexString
+  number: HexString
+  stateRoot: HexString
+  extrinsicsRoot: HexString
+  digest: {
+    logs: HexString[]
+  }
+}
+
+export type SignedBlock = {
+  block: {
+    header: Header
+    extrinsics: HexString[]
+  }
+  justifications?: HexString[]
+}
+
 export * from './api.js'
 export * from './blockchain/index.js'
 export * from './blockchain/block.js'
@@ -14,6 +41,7 @@ export * from './blockchain/block-builder.js'
 export * from './blockchain/txpool.js'
 export * from './blockchain/storage-layer.js'
 export * from './blockchain/head-state.js'
+export * from './env.js'
 export * from './utils/index.js'
 export * from './wasm-executor/index.js'
 export * from './schema/index.js'

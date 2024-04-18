@@ -24,7 +24,7 @@ exports[`genesis provider works Kusama > genesis provider works > handles tx 2`]
   "consumers": 0,
   "data": {
     "flags": "0x80000000000000000000000000000000",
-    "free": 876999432127266,
+    "free": 876999432128101,
     "frozen": 0,
     "reserved": 0,
   },
@@ -71,7 +71,7 @@ exports[`genesis provider works Mandala > genesis provider works > handles tx 2`
   "consumers": 0,
   "data": {
     "feeFrozen": 0,
-    "free": 876982732391839,
+    "free": 876982732395758,
     "miscFrozen": 0,
     "reserved": 0,
   },

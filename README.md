@@ -27,6 +27,10 @@ npx @acala-network/chopsticks@latest -c acala
 
 Documentation and tutorials are available at [wiki](https://github.com/AcalaNetwork/chopsticks/wiki).
 
+## EVM+ tracing
+
+Documentation for EVM+ tracing is available at [EVM+ tracing](packages/chopsticks/src/plugins/trace-transaction/README.md).
+
 ## Web testing
 
 Run Chopsticks in browser? Now you can turn a mainnet into a devnet and play with it directly in your browser!
@@ -35,9 +39,7 @@ An example is available at [acalanetwork.github.io/chopsticks](https://acalanetw
 
 ## Environment Variables
 
-- `PORT`: Set port for Chopsticks to listen on, default is `8000`
-- `LOG_LEVEL`: Set log level, default is `info`. Available options: `trace`, `debug`, `info`, `warn`, `error`
-- `VERBOSE_LOG`: If set, do not truncating log messages
+For chopsticks CLI, you can find the full list of available environment variables [here](https://acalanetwork.github.io/chopsticks/docs/core/README.html#environment).
 
 ## Install
 
@@ -78,12 +80,12 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --html
 
 - Dry run a preimage:
  ```
-npx @acala-network/chopsticks@latest dry-run --endpoint=wss://rpc.polkadot.io --preimage=<preimage> --open
+npx @acala-network/chopsticks@latest dry-run --endpoint=wss://polkadot-rpc.dwellir.com --preimage=<preimage> --open
  ```
 
 - Dry run a preimage and execute an extrinsic after that:
 ```
-npx @acala-network/chopsticks@latest dry-run --endpoint=wss://rpc.polkadot.io --preimage=<preimage> --extrinsic=<extrinsic> --open
+npx @acala-network/chopsticks@latest dry-run --endpoint=wss://polkadot-rpc.dwellir.com --preimage=<preimage> --extrinsic=<extrinsic> --open
 ```
 
 - Dry run a preimage and execute a call after that, make sure `mock-signature-host: true` to fake caller's signature:

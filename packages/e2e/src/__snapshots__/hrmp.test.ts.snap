@@ -4,15 +4,18 @@ exports[`HRMP > Acala handles horizonal messages > system events 1`] = `
 [
   {
     "data": {
-      "messageHash": "(hash)",
-      "messageId": "(hash)",
-      "weight": {
+      "id": "(hash)",
+      "origin": {
+        "Sibling": "(rounded 2000)",
+      },
+      "success": true,
+      "weightUsed": {
         "proofSize": 0,
         "refTime": 800000000,
       },
     },
-    "method": "Success",
-    "section": "xcmpQueue",
+    "method": "Processed",
+    "section": "messageQueue",
   },
 ]
 `;
@@ -24,8 +27,8 @@ exports[`HRMP > Statemine handles horizonal messages > system events 1`] = `
       "messageHash": "(hash)",
       "messageId": "(hash)",
       "weight": {
-        "proofSize": "(rounded 3600)",
-        "refTime": "(rounded 310000000)",
+        "proofSize": "(rounded 7200)",
+        "refTime": "(rounded 300000000)",
       },
     },
     "method": "Success",

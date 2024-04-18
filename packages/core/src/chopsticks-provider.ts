@@ -7,17 +7,13 @@ import {
 } from '@polkadot/rpc-provider/types'
 
 import { Blockchain } from './blockchain/index.js'
-import { Context, Handlers, allHandlers } from './rpc/index.js'
 import { Database } from './database.js'
+import { Handlers, allHandlers } from './rpc/index.js'
 import { defaultLogger } from './logger.js'
 import { setup } from './setup.js'
 
 const providerHandlers: Handlers = {
   ...allHandlers,
-  dev_newBlock: async (context: Context, _params: any, _subscriptionManager: any) => {
-    const block = await context.chain.newBlock()
-    return block.hash
-  },
 }
 
 const logger = defaultLogger.child({ name: '[Chopsticks provider]' })

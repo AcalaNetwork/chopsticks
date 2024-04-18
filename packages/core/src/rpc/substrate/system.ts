@@ -3,7 +3,7 @@ import { Index } from '@polkadot/types/interfaces'
 import { hexToU8a } from '@polkadot/util'
 import _ from 'lodash'
 
-import { ChainProperties } from '../../api.js'
+import { ChainProperties } from '../../index.js'
 import { Handler } from '../shared.js'
 
 export const system_localPeerId = async () => '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'

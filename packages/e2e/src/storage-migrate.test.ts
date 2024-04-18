@@ -26,7 +26,7 @@ setupApi({
   },
 })
 
-describe.runIf(process.env.CI)('storage-migrate', async () => {
+describe.runIf(process.env.CI || process.env.RUN_ALL)('storage-migrate', async () => {
   it(
     'no empty keys',
     async () => {

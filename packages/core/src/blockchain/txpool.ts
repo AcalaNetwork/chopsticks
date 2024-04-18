@@ -1,6 +1,7 @@
 import { EventEmitter } from 'eventemitter3'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
+import { hexToU8a } from '@polkadot/util/hex/toU8a'
 import _ from 'lodash'
 
 import { Blockchain } from './index.js'
@@ -49,17 +50,17 @@ export class TxPool {
   readonly #hrmp: Record<number, HorizontalMessage[]> = {}
 
   #mode: BuildBlockMode
-  readonly #inherentProvider: InherentProvider
+  readonly #inherentProviders: InherentProvider[]
   readonly #pendingBlocks: { params: BuildBlockParams; deferred: Deferred<void> }[] = []
 
   readonly event = new EventEmitter()
 
   #isBuilding = false
 
-  constructor(chain: Blockchain, inherentProvider: InherentProvider, mode: BuildBlockMode = BuildBlockMode.Batch) {
+  constructor(chain: Blockchain, inherentProviders: InherentProvider[], mode: BuildBlockMode = BuildBlockMode.Batch) {
     this.#chain = chain
     this.#mode = mode
-    this.#inherentProvider = inherentProvider
+    this.#inherentProviders = inherentProviders
   }
 
   get pendingExtrinsics(): HexString[] {
@@ -195,6 +196,27 @@ export class TxPool {
         horizontalMessages,
         unsafeBlockHeight,
       })
+
+      // with the latest message queue, messages are processed in the upcoming block
+      if (!this.#chain.processQueuedMessages) return
+      // if block was built without horizontal or downward messages then skip
+      if (_.isEmpty(horizontalMessages) && _.isEmpty(downwardMessages)) return
+
+      // messageQueue.bookStateFor
+      const prefix = '0xb8753e9383841da95f7b8871e5de326954e062a2cf8df68178ee2e5dbdf00bff'
+      const meta = await this.#chain.head.meta
+      const keys = await this.#chain.head.getKeysPaged({ prefix, pageSize: 1000 })
+      for (const key of keys) {
+        const rawValue = await this.#chain.head.get(key)
+        if (!rawValue) continue
+        const message = meta.registry.createType('PalletMessageQueueBookState', hexToU8a(rawValue)).toJSON() as any
+        if (message.size > 0) {
+          logger.info('Queued messages detected, building a new block')
+          // build a new block to process the queued messages
+          await this.#chain.newBlock()
+          return
+        }
+      }
     } catch (err) {
       logger.error({ err }, 'build block failed')
     }
@@ -232,35 +254,26 @@ export class TxPool {
 
     logger.trace({ params }, 'build block')
 
-    const head = this.#chain.head
-    const inherents = await this.#inherentProvider.createInherents(head, params)
-    const [newBlock, pendingExtrinsics] = await buildBlock(
-      head,
-      inherents,
-      params.transactions,
-      params.upwardMessages,
-      {
-        onApplyExtrinsicError: (extrinsic, error) => {
-          this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
-        },
-        onPhaseApplied:
-          logger.level.toLowerCase() === 'trace'
-            ? (phase, resp) => {
-                switch (phase) {
-                  case 'initialize':
-                    logger.trace(truncate(resp.storageDiff), 'Initialize block')
-                    break
-                  case 'finalize':
-                    logger.trace(truncate(resp.storageDiff), 'Finalize block')
-                    break
-                  default:
-                    logger.trace(truncate(resp.storageDiff), `Apply extrinsic ${phase}`)
-                }
-              }
-            : undefined,
+    const [newBlock, pendingExtrinsics] = await buildBlock(this.#chain.head, this.#inherentProviders, params, {
+      onApplyExtrinsicError: (extrinsic, error) => {
+        this.event.emit(APPLY_EXTRINSIC_ERROR, [extrinsic, error])
       },
-      params.unsafeBlockHeight,
-    )
+      onPhaseApplied:
+        logger.level.toLowerCase() === 'trace'
+          ? (phase, resp) => {
+              switch (phase) {
+                case 'initialize':
+                  logger.trace(truncate(resp.storageDiff), 'Initialize block')
+                  break
+                case 'finalize':
+                  logger.trace(truncate(resp.storageDiff), 'Finalize block')
+                  break
+                default:
+                  logger.trace(truncate(resp.storageDiff), `Apply extrinsic ${phase}`)
+              }
+            }
+          : undefined,
+    })
     for (const extrinsic of pendingExtrinsics) {
       this.#pool.push({ extrinsic, signer: await this.#getSigner(extrinsic) })
     }

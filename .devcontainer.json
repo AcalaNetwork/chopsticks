@@ -1,3 +1,0 @@
-{
-	"postCreateCommand": "git submodule update --init"
-}

@@ -1,4 +1,4 @@
-import { Context, ResponseError } from '@acala-network/chopsticks-core'
+import { Context, ResponseError } from '../shared.js'
 import { defaultLogger } from '../../logger.js'
 
 /**
@@ -16,7 +16,7 @@ import { defaultLogger } from '../../logger.js'
  * await ws.send('dev_setRuntimeLogLevel', [1])
  * ```
  */
-export const rpc = async (context: Context, [runtimeLogLevel]: [number]) => {
+export const dev_setRuntimeLogLevel = async (context: Context, [runtimeLogLevel]: [number]) => {
   defaultLogger.debug({ runtimeLogLevel }, 'dev_setRuntimeLogLevel')
 
   if (typeof runtimeLogLevel !== 'number') {

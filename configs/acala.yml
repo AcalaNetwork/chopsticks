@@ -4,8 +4,6 @@ endpoint:
 mock-signature-host: true
 block: ${env.ACALA_BLOCK_NUMBER}
 db: ./db.sqlite
-runtime-log-level: 5
-# wasm-override: acala_runtime.wasm
 
 p2p:
   genesisBlockHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c'

@@ -1,7 +1,6 @@
-import { Block, Context, ResponseError } from '@acala-network/chopsticks-core'
+import { Block } from '../../blockchain/block.js'
+import { Context, ResponseError, zHash } from '../shared.js'
 import { z } from 'zod'
-
-import { zHash } from '../../schema/index.js'
 
 const schema = zHash.or(z.number())
 type Params = z.infer<typeof schema>
@@ -21,7 +20,7 @@ type Params = z.infer<typeof schema>
  * await ws.send('dev_setHead', [1000000])
  * ```
  */
-export const rpc = async (context: Context, [params]: [Params]) => {
+export const dev_setHead = async (context: Context, [params]: [Params]) => {
   const hashOrNumber = schema.parse(params)
   let block: Block | undefined
   if (typeof hashOrNumber === 'number') {

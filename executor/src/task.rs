@@ -186,10 +186,8 @@ pub async fn run_task(
                     }
                 }
 
-                RuntimeCall::ClosestDescendantMerkleValue(req) => {
-                    let value = js.get_state_root().await?;
-                    let value = from_value::<HexString>(value).map(|x| x.0)?;
-                    req.inject_merkle_value(Some(value.as_ref()))
+                RuntimeCall::ClosestDescendantMerkleValue(_req) => {
+                    unreachable!()
                 }
 
                 RuntimeCall::NextKey(req) => {

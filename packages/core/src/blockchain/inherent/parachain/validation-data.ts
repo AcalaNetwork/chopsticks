@@ -1,12 +1,12 @@
 import { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
+import { BN, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
-import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 
 import { Block } from '../../block.js'
 import { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool.js'
-import { CreateInherents } from '../index.js'
+import { InherentProvider } from '../index.js'
 import {
   WELL_KNOWN_KEYS,
   dmqMqcHead,
@@ -86,8 +86,11 @@ const getValidationData = async (parent: Block) => {
     .args[0].toJSON() as any as ValidationData
 }
 
-export class SetValidationData implements CreateInherents {
-  async createInherents(parent: Block, params: BuildBlockParams): Promise<HexString[]> {
+export class SetValidationData implements InherentProvider {
+  async createInherents(newBlock: Block, params: BuildBlockParams): Promise<HexString[]> {
+    const parent = await newBlock.parentBlock
+    if (!parent) throw new Error('parent block not found')
+
     const meta = await parent.meta
     if (!meta.tx.parachainSystem?.setValidationData) {
       return []
@@ -110,66 +113,74 @@ export class SetValidationData implements CreateInherents {
       extrinsic.relayChainState.trieNodes,
     )
 
+    const slotIncrease = Math.max(
+      1,
+      (meta.consts.timestamp.minimumPeriod as any as BN)
+        .divn(3000) // relaychain min period
+        .toNumber(),
+    )
+
     for (const key of Object.values(WELL_KNOWN_KEYS)) {
       if (key === WELL_KNOWN_KEYS.CURRENT_SLOT) {
         // increment current slot
-        const currentSlot = decoded[key]
+        const relayCurrentSlot = decoded[key]
           ? meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
-          : // releay chain slot is 2x parachain slot
-            (await getCurrentSlot(parent.chain)) * 2
-        const newSlot = meta.registry.createType<Slot>('Slot', currentSlot + 2)
+          : (await getCurrentSlot(parent.chain)) * slotIncrease
+        const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + slotIncrease)
         newEntries.push([key, u8aToHex(newSlot.toU8a())])
       } else {
         newEntries.push([key, decoded[key]])
       }
     }
-    newEntries.push([hrmpIngressChannelIndexKey, decoded[hrmpIngressChannelIndexKey]])
-    newEntries.push([hrmpEgressChannelIndexKey, decoded[hrmpEgressChannelIndexKey]])
+
+    // inject missing hrmpIngressChannel and hrmpEgressChannel
+    const hrmpIngressChannels = meta.registry.createType('Vec<u32>', hexToU8a(decoded[hrmpIngressChannelIndexKey]))
+    const hrmpEgressChannels = meta.registry.createType('Vec<u32>', hexToU8a(decoded[hrmpEgressChannelIndexKey]))
+    for (const key in params.horizontalMessages) {
+      // order is important
+      const sender = meta.registry.createType('u32', key)
+      if (!hrmpIngressChannels.some((x) => x.eq(sender))) {
+        const idx = _.sortedIndexBy(hrmpIngressChannels, sender, (x) => x.toNumber())
+        hrmpIngressChannels.splice(idx, 0, sender)
+      }
+      if (!hrmpEgressChannels.some((x) => x.eq(sender))) {
+        const idx = _.sortedIndexBy(hrmpEgressChannels, sender, (x) => x.toNumber())
+        hrmpEgressChannels.splice(idx, 0, sender)
+      }
+    }
+
+    newEntries.push([hrmpIngressChannelIndexKey, hrmpIngressChannels.toHex()])
+    newEntries.push([hrmpEgressChannelIndexKey, hrmpEgressChannels.toHex()])
 
     // inject paraHead
     const headData = meta.registry.createType('HeadData', (await parent.header).toHex())
     newEntries.push([paraHead(paraId), u8aToHex(headData.toU8a())])
 
     // inject downward messages
-    let dmqMqcHeadHash = decoded[dmqMqcHeadKey]
-    if (dmqMqcHeadHash) {
-      for (const { msg, sentAt } of params.downwardMessages) {
-        // calculate new hash
-        dmqMqcHeadHash = blake2AsHex(
-          u8aConcat(
-            meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
-            meta.registry.createType('BlockNumber', sentAt).toU8a(),
-            blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256),
-          ),
-          256,
-        )
+    let dmqMqcHeadHash = decoded[dmqMqcHeadKey] || '0x0000000000000000000000000000000000000000000000000000000000000000'
+    for (const { msg, sentAt } of params.downwardMessages) {
+      // calculate new hash
+      dmqMqcHeadHash = blake2AsHex(
+        u8aConcat(
+          meta.registry.createType('Hash', dmqMqcHeadHash).toU8a(),
+          meta.registry.createType('BlockNumber', sentAt).toU8a(),
+          blake2AsU8a(meta.registry.createType('Bytes', msg).toU8a(), 256),
+        ),
+        256,
+      )
 
-        downwardMessages.push({
-          msg,
-          sentAt,
-        })
-      }
-      newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
+      downwardMessages.push({
+        msg,
+        sentAt,
+      })
     }
-
-    const hrmpIngressChannels = meta.registry
-      .createType('Vec<ParaId>', decoded[hrmpIngressChannelIndexKey])
-      .toJSON() as number[]
-
-    const hrmpEgressChannels = meta.registry
-      .createType('Vec<ParaId>', decoded[hrmpEgressChannelIndexKey])
-      .toJSON() as number[]
-
-    const hrmpMessages = {
-      // reset values, we just need the keys
-      ..._.mapValues(extrinsic.horizontalMessages, () => [] as HorizontalMessage[]),
-      ...params.horizontalMessages,
-    }
+    newEntries.push([dmqMqcHeadKey, dmqMqcHeadHash])
 
     // inject horizontal messages
-    for (const id of hrmpIngressChannels) {
-      const messages = hrmpMessages[id]
-      const sender = Number(id)
+    for (const sender of hrmpIngressChannels) {
+      // search by number and string just in case key is not a number
+      const messages =
+        params.horizontalMessages[sender.toNumber()] || params.horizontalMessages[sender.toString()] || []
 
       const channelId = meta.registry.createType<HrmpChannelId>('HrmpChannelId', {
         sender,
@@ -177,11 +188,19 @@ export class SetValidationData implements CreateInherents {
       })
       const hrmpChannelKey = hrmpChannels(channelId)
       const abridgedHrmpRaw = decoded[hrmpChannelKey]
-      if (!abridgedHrmpRaw) throw new Error('Canoot find hrmp channels from validation data')
 
-      const abridgedHrmp = meta.registry
-        .createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw))
-        .toJSON()
+      const abridgedHrmp = abridgedHrmpRaw
+        ? meta.registry.createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw)).toJSON()
+        : {
+            maxCapacity: 1000,
+            maxTotalSize: 102400,
+            maxMessageSize: 102400,
+            msgCount: 0,
+            totalSize: 0,
+            mqcHead: 0x0000000000000000000000000000000000000000000000000000000000000000,
+            senderDeposit: 5000000000000,
+            recipientDeposit: 5000000000000,
+          }
       const paraMessages: HorizontalMessage[] = []
 
       for (const { data, sentAt: _unused } of messages) {
@@ -207,22 +226,31 @@ export class SetValidationData implements CreateInherents {
         })
       }
 
-      horizontalMessages[sender] = paraMessages
+      horizontalMessages[sender.toNumber()] = paraMessages
 
       newEntries.push([hrmpChannelKey, meta.registry.createType('AbridgedHrmpChannel', abridgedHrmp).toHex()])
     }
 
     // inject hrmpEgressChannels proof
-    for (const id of hrmpEgressChannels) {
-      // const messages = hrmpMessages[id]
-      const receiver = Number(id)
-
+    for (const receiver of hrmpEgressChannels) {
       const channelId = meta.registry.createType<HrmpChannelId>('HrmpChannelId', {
         sender: paraId.toNumber(),
         receiver,
       })
       const hrmpChannelKey = hrmpChannels(channelId)
-      newEntries.push([hrmpChannelKey, decoded[hrmpChannelKey]])
+      const abridgedHrmpRaw = decoded[hrmpChannelKey]
+
+      const abridgedHrmp = abridgedHrmpRaw
+        ? meta.registry.createType<AbridgedHrmpChannel>('AbridgedHrmpChannel', hexToU8a(abridgedHrmpRaw)).toJSON()
+        : {
+            maxCapacity: 1000,
+            maxTotalSize: 102400,
+            maxMessageSize: 102400,
+            msgCount: 0,
+            totalSize: 0,
+            mqcHead: 0x0000000000000000000000000000000000000000000000000000000000000000,
+          }
+      newEntries.push([hrmpChannelKey, meta.registry.createType('AbridgedHrmpChannel', abridgedHrmp).toHex()])
     }
 
     const upgradeKey = upgradeGoAheadSignal(paraId)
@@ -245,7 +273,7 @@ export class SetValidationData implements CreateInherents {
       validationData: {
         ...extrinsic.validationData,
         relayParentStorageRoot: trieRootHash,
-        relayParentNumber: extrinsic.validationData.relayParentNumber + 2,
+        relayParentNumber: extrinsic.validationData.relayParentNumber + slotIncrease,
       },
       relayChainState: {
         trieNodes: nodes,

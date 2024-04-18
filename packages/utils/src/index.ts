@@ -5,6 +5,7 @@ import {
   connectParachains,
   connectVertical,
   defaultLogger,
+  environment,
   fetchConfig,
   setupWithServer,
 } from '@acala-network/chopsticks'
@@ -14,7 +15,7 @@ import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 
-const logger = defaultLogger.child({ module: 'utils' })
+const logger = defaultLogger.child({ name: 'utils' })
 
 export * from './signFake.js'
 
@@ -30,6 +31,7 @@ export type SetupOption = {
   resume?: boolean | HexString | number
   runtimeLogLevel?: number
   allowUnresolvedImports?: boolean
+  processQueuedMessages?: boolean
 }
 
 export type SetupConfig = Config & {
@@ -48,6 +50,7 @@ export const createConfig = ({
   resume,
   runtimeLogLevel,
   allowUnresolvedImports,
+  processQueuedMessages,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -64,6 +67,7 @@ export const createConfig = ({
     timeout,
     resume: resume ?? false,
     'allow-unresolved-imports': allowUnresolvedImports,
+    'process-queued-messages': processQueuedMessages,
   }
   return config
 }
@@ -140,7 +144,7 @@ export const setupNetworks = async (networkOptions: Partial<Record<string, Confi
 
   const parachainList = Object.values(parachains).map((i) => i.chain)
   if (parachainList.length > 0) {
-    await connectParachains(parachainList)
+    await connectParachains(parachainList, environment.DISABLE_AUTO_HRMP)
   }
 
   if (wasmOverriden) {

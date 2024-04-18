@@ -5,9 +5,8 @@ import { randomAsHex } from '@polkadot/util-crypto'
 import _ from 'lodash'
 
 import { Block } from '../blockchain/block.js'
-import { PREFIX_LENGTH } from '../utils/key-cache.js'
+import { PREFIX_LENGTH, stripChildPrefix } from '../utils/index.js'
 import { defaultLogger, truncate } from '../logger.js'
-import { stripChildPrefix } from '../utils/index.js'
 
 import { LightClientConfig } from './light-client.js'
 import type { JsLightClientCallback, JsRuntimeCallback, Request } from '@acala-network/chopsticks-executor'
@@ -164,10 +163,6 @@ export const taskHandler = (block: Block): JsRuntimeCallback => {
     getStorage: async function (key: HexString) {
       return block.get(key)
     },
-    getStateRoot: async function () {
-      const header = await block.header
-      return header.stateRoot.toHex()
-    },
     getNextKey: async function (prefix: HexString, key: HexString) {
       const [nextKey] = await block.getKeysPaged({
         prefix: prefix.length === 2 /** 0x */ ? key.slice(0, PREFIX_LENGTH) : prefix,
@@ -202,9 +197,6 @@ export const taskHandler = (block: Block): JsRuntimeCallback => {
 
 export const emptyTaskHandler = {
   getStorage: async function (_key: HexString) {
-    throw new Error('Method not implemented')
-  },
-  getStateRoot: async function () {
     throw new Error('Method not implemented')
   },
   getNextKey: async function (_prefix: HexString, _key: HexString) {

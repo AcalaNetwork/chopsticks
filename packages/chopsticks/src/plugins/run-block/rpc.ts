@@ -101,7 +101,7 @@ export interface RunBlockResponse {
     /**
      * Parsed events in this block.
      */
-    events?: { phase: Phase; section: string; method: string; args: any[] }[]
+    events?: { phase: Phase; section: string; method: string; args: any[]; argObj: Record<string, any> }[]
     /**
      * Parsed extrinsics in this block.
      */
@@ -109,6 +109,7 @@ export interface RunBlockResponse {
       section: string
       method: string
       args: any[]
+      argObj: Record<string, any>
       success: boolean
       signer: string | null
     }[]
@@ -237,12 +238,26 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     const registry = await newBlock.registry
     const timestamp = await newBlock.read('u64', meta.query.timestamp.now)
     const events = await newBlock.read('Vec<EventRecord>', meta.query.system.events)
-    const parsedEvents = events?.map((event) => ({
-      phase: event.phase.isApplyExtrinsic ? event.phase.asApplyExtrinsic.toNumber() : (event.phase.toString() as Phase),
-      section: event.event.section,
-      method: event.event.method,
-      args: event.event.data.map((arg) => arg.toJSON()),
-    }))
+    const parsedEvents = events?.map((event) => {
+      let argObj: any = undefined
+      const len = event.event.data.names?.length ?? 0
+      if (len > 0) {
+        argObj = {}
+        for (let i = 0; i < len; i++) {
+          argObj[event.event.data.names![i]] = event.event.data[i].toJSON()
+        }
+      }
+
+      return {
+        phase: event.phase.isApplyExtrinsic
+          ? event.phase.asApplyExtrinsic.toNumber()
+          : (event.phase.toString() as Phase),
+        section: event.event.section,
+        method: event.event.method,
+        args: event.event.data.map((arg) => arg.toJSON()),
+        argObj,
+      }
+    })
     const extrinsics = block.extrinsics.map((extrinsic, idx) => {
       const parsed = registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)
       const resultEvent = events?.find(
@@ -259,6 +274,9 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
         section: parsed.method.section,
         method: parsed.method.method,
         args: parsed.method.args.map((arg) => arg.toJSON()),
+        argObj: (parsed.method as any)?.argsEntries
+          ? Object.fromEntries((parsed.method as any).argsEntries.map(([key, value]) => [key, value.toJSON()]))
+          : {},
         success: resultEvent?.event.method === 'ExtrinsicSuccess',
         signer,
       }

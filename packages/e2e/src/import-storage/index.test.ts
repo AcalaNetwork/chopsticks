@@ -41,6 +41,8 @@ describe('import-storage', () => {
     await expect(overrideStorage(chain, path.join(__dirname, 'storage.error.storage.yml'))).rejects.toThrowError(
       'Cannot find storage MMembers in pallet TechnicalCommittee',
     )
+    // fixes api runtime disconnect warning
+    await new Promise((r) => setTimeout(r, 50))
   })
 
   it('wasm override works', async () => {

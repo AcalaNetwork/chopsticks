@@ -11,17 +11,11 @@ import { Blockchain } from './blockchain/index.js'
 import { BuildBlockMode } from './blockchain/txpool.js'
 import { Database } from './database.js'
 import { GenesisProvider } from './genesis-provider.js'
-import {
-  InherentProviders,
-  ParaInherentEnter,
-  SetBabeRandomness,
-  SetNimbusAuthorInherent,
-  SetTimestamp,
-  SetValidationData,
-} from './blockchain/inherent/index.js'
 import { LightClient, LightClientConfig } from './wasm-executor/light-client.js'
+
 import { defaultLogger } from './logger.js'
 import { getSlotDuration, setStorage } from './index.js'
+import { inherentProviders } from './blockchain/inherent/index.js'
 
 export type SetupOptions = {
   endpoint?: string | string[]
@@ -35,6 +29,7 @@ export type SetupOptions = {
   registeredTypes?: RegisteredTypes
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
+  processQueuedMessages?: boolean
   p2p?: LightClientConfig
 }
 
@@ -72,9 +67,11 @@ export const genesisSetup = async (chain: Blockchain, genesis: GenesisProvider) 
     const digest = meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensusEngine, newSlot] })
     genesis.genesisHeaderLogs = [digest.toHex()]
   }
+
+  await chain.newBlock()
 }
 
-export const setup = async (options: SetupOptions) => {
+export const processOptions = async (options: SetupOptions) => {
   defaultLogger.debug(options, 'Setup options')
 
   let provider: ProviderInterface
@@ -114,38 +111,38 @@ export const setup = async (options: SetupOptions) => {
 
   defaultLogger.debug({ ...options, blockHash }, 'Args')
 
+  return { ...options, blockHash, api }
+}
+
+export const setup = async (options: SetupOptions) => {
+  const { api, blockHash, ...opts } = await processOptions(options)
+
   const header = await api.getHeader(blockHash)
   if (!header) {
     throw new Error(`Cannot find header for ${blockHash}`)
   }
 
-  const inherents = new InherentProviders(new SetTimestamp(), [
-    new SetValidationData(),
-    new ParaInherentEnter(),
-    new SetNimbusAuthorInherent(),
-    new SetBabeRandomness(),
-  ])
-
   const chain = new Blockchain({
     lightClient,
     api,
-    buildBlockMode: options.buildBlockMode,
-    inherentProvider: inherents,
-    db: options.db,
+    buildBlockMode: opts.buildBlockMode,
+    inherentProviders,
+    db: opts.db,
     header: {
       hash: blockHash as HexString,
       number: Number(header.number),
     },
-    mockSignatureHost: options.mockSignatureHost,
-    allowUnresolvedImports: options.allowUnresolvedImports,
-    runtimeLogLevel: options.runtimeLogLevel,
-    registeredTypes: options.registeredTypes || {},
-    offchainWorker: options.offchainWorker,
-    maxMemoryBlockCount: options.maxMemoryBlockCount,
+    mockSignatureHost: opts.mockSignatureHost,
+    allowUnresolvedImports: opts.allowUnresolvedImports,
+    runtimeLogLevel: opts.runtimeLogLevel,
+    registeredTypes: opts.registeredTypes || {},
+    offchainWorker: opts.offchainWorker,
+    maxMemoryBlockCount: opts.maxMemoryBlockCount,
+    processQueuedMessages: opts.processQueuedMessages,
   })
 
-  if (options.genesis) {
-    await genesisSetup(chain, options.genesis)
+  if (opts.genesis) {
+    await genesisSetup(chain, opts.genesis)
   }
 
   return chain

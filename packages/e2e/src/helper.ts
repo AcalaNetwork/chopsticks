@@ -12,20 +12,13 @@ import {
   StorageValues,
   genesisSetup,
 } from '@acala-network/chopsticks-core'
-import {
-  InherentProviders,
-  ParaInherentEnter,
-  SetBabeRandomness,
-  SetNimbusAuthorInherent,
-  SetTimestamp,
-  SetValidationData,
-} from '@acala-network/chopsticks-core/blockchain/inherent/index.js'
 import { LightClient, LightClientConfig } from '@acala-network/chopsticks-core/wasm-executor/light-client.js'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { createServer } from '@acala-network/chopsticks/server.js'
 import { defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { genesisFromUrl } from '@acala-network/chopsticks/context.js'
 import { handler } from '@acala-network/chopsticks/rpc/index.js'
+import { inherentProviders } from '@acala-network/chopsticks-core/blockchain/inherent/index.js'
 import { withExpect } from '@acala-network/chopsticks-testing'
 
 export { testingPairs, setupContext } from '@acala-network/chopsticks-testing'
@@ -39,6 +32,7 @@ export type SetupOption = {
   genesis?: string
   registeredTypes?: RegisteredTypes
   runtimeLogLevel?: number
+  processQueuedMessages?: boolean
 }
 
 export const env = {
@@ -72,6 +66,7 @@ export const setupAll = async ({
   genesis,
   registeredTypes = {},
   runtimeLogLevel,
+  processQueuedMessages,
 }: SetupOption) => {
   let provider: ProviderInterface
   if (genesis) {
@@ -92,13 +87,6 @@ export const setupAll = async ({
 
   return {
     async setup() {
-      const inherents = new InherentProviders(new SetTimestamp(), [
-        new SetValidationData(),
-        new ParaInherentEnter(),
-        new SetNimbusAuthorInherent(),
-        new SetBabeRandomness(),
-      ])
-
       blockHash ??= await api.getBlockHash().then((hash) => hash ?? undefined)
       if (!blockHash) {
         throw new Error('Cannot find block hash')
@@ -110,7 +98,7 @@ export const setupAll = async ({
         lightClient,
         api,
         buildBlockMode: BuildBlockMode.Manual,
-        inherentProvider: inherents,
+        inherentProviders,
         header: {
           hash: blockHash,
           number: Number(header.number),
@@ -120,13 +108,14 @@ export const setupAll = async ({
         registeredTypes,
         runtimeLogLevel,
         db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
+        processQueuedMessages,
       })
 
       if (genesis) {
         await genesisSetup(chain, provider as GenesisProvider)
       }
 
-      const { port, close } = await createServer(handler({ chain }))
+      const { port, close } = await createServer(handler({ chain }), 0)
 
       const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
@@ -196,10 +185,8 @@ export const dev = {
 export const mockCallback = () => {
   let next = defer()
   const callback = vi.fn((...args) => {
-    delay(100).then(() => {
-      next.resolve(args)
-      next = defer()
-    })
+    next.resolve(args)
+    next = defer()
   })
 
   return {
