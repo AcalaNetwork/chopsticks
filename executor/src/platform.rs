@@ -143,33 +143,23 @@ impl smoldot_light::platform::PlatformRef for JsPlatform {
 
         let encoded_address: String = match address {
             smoldot_light::platform::Address::WebSocketIp {
-                ip: smoldot_light::platform::IpAddr::V4(ip),
+                ip: core::net::IpAddr::V4(ip),
                 port,
-            } => format!(
-                "ws://{}:{}",
-                no_std_net::Ipv4Addr::from(ip).to_string(),
-                port.to_string()
-            )
-            .into(),
+            } => format!("ws://{ip}:{port}").into(),
             smoldot_light::platform::Address::WebSocketIp {
-                ip: smoldot_light::platform::IpAddr::V6(ip),
+                ip: core::net::IpAddr::V6(ip),
                 port,
-            } => format!(
-                "ws://[{}]:{}",
-                no_std_net::Ipv6Addr::from(ip).to_string(),
-                port.to_string()
-            )
-            .into(),
+            } => format!("ws://[{ip}]:{port}").into(),
             smoldot_light::platform::Address::WebSocketDns {
                 hostname,
                 port,
                 secure: false,
-            } => format!("ws://{}:{}", hostname, port.to_string()).into(),
+            } => format!("ws://{hostname}:{port}").into(),
             smoldot_light::platform::Address::WebSocketDns {
                 hostname,
                 port,
                 secure: true,
-            } => format!("wss://{}:{}", hostname, port.to_string()).into(),
+            } => format!("wss://{hostname}:{port}").into(),
             _ => panic!("unsupported address type"),
         };
 
@@ -231,30 +221,20 @@ impl smoldot_light::platform::PlatformRef for JsPlatform {
 
         let encoded_address: String = match address {
             smoldot_light::platform::MultiStreamAddress::WebRtc {
-                ip: smoldot_light::platform::IpAddr::V4(ip),
+                ip: core::net::IpAddr::V4(ip),
                 port,
                 remote_certificate_sha256,
             } => {
-                cert.copy_from_slice(&remote_certificate_sha256);
-                format!(
-                    "webrtc://{}:{}",
-                    no_std_net::Ipv4Addr::from(ip).to_string(),
-                    port.to_string()
-                )
-                .into()
+                cert.copy_from_slice(remote_certificate_sha256);
+                format!("webrtc://{ip}:{port}").into()
             }
             smoldot_light::platform::MultiStreamAddress::WebRtc {
-                ip: smoldot_light::platform::IpAddr::V6(ip),
+                ip: core::net::IpAddr::V6(ip),
                 port,
                 remote_certificate_sha256,
             } => {
-                cert.copy_from_slice(&remote_certificate_sha256);
-                format!(
-                    "webrtc://[{}]:{}",
-                    no_std_net::Ipv6Addr::from(ip).to_string(),
-                    port.to_string()
-                )
-                .into()
+                cert.copy_from_slice(remote_certificate_sha256);
+                format!("webrtc://[{ip}]:{port}").into()
             }
         };
 
@@ -517,6 +497,16 @@ impl smoldot_light::platform::PlatformRef for JsPlatform {
                 }
             }
         })
+    }
+
+    fn log<'a>(
+        &self,
+        log_level: smoldot_light::platform::LogLevel,
+        log_target: &'a str,
+        message: &'a str,
+        key_values: impl Iterator<Item = (&'a str, &'a dyn core::fmt::Display)>,
+    ) {
+        // TODO:
     }
 }
 

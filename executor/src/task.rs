@@ -128,7 +128,7 @@ pub async fn run_task(
     let vm_proto = HostVmPrototype::new(Config {
         module: &task.wasm,
         heap_pages: HeapPages::from(2048),
-        exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+        exec_hint: smoldot::executor::vm::ExecHint::ValidateAndExecuteOnce,
         allow_unresolved_imports: task.allow_unresolved_imports,
     })
     .unwrap();
@@ -401,7 +401,7 @@ pub async fn runtime_version(wasm: HexString) -> RuntimeVersion {
     let vm_proto = HostVmPrototype::new(Config {
         module: &wasm,
         heap_pages: HeapPages::from(2048),
-        exec_hint: smoldot::executor::vm::ExecHint::Oneshot,
+        exec_hint: smoldot::executor::vm::ExecHint::ValidateAndExecuteOnce,
         allow_unresolved_imports: true,
     })
     .unwrap();
