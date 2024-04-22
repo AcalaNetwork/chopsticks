@@ -24,15 +24,18 @@ exports[`HRMP > Statemine handles horizonal messages > system events 1`] = `
 [
   {
     "data": {
-      "messageHash": "(hash)",
-      "messageId": "(hash)",
-      "weight": {
+      "id": "(hash)",
+      "origin": {
+        "Sibling": 2000,
+      },
+      "success": true,
+      "weightUsed": {
         "proofSize": "(rounded 7200)",
-        "refTime": "(rounded 300000000)",
+        "refTime": "(rounded 320000000)",
       },
     },
-    "method": "Success",
-    "section": "xcmpQueue",
+    "method": "Processed",
+    "section": "messageQueue",
   },
 ]
 `;
