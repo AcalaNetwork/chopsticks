@@ -5,6 +5,8 @@ import { stringToU8a } from '@polkadot/util'
 
 globalThis.WebSocket = typeof globalThis.WebSocket !== 'undefined' ? globalThis.WebSocket : (WebSocket as any)
 
+import { ApiT } from '../api.js'
+
 import { Deferred, defer } from '../utils/index.js'
 import {
   connectionReset,
@@ -83,16 +85,15 @@ export class LightClient {
   #requestId = 1
   // blacklist of addresses that we have failed to connect to
   #blacklist: string[] = []
-  #connections: Record<number, Connection> = {}
+  #connections: Map<number, Connection> = new Map()
   #queryResponse: Map<number, Deferred<Response>> = new Map()
 
   #chainId = defer<number>()
 
-  get isReady() {
-    return this.#chainId.promise.then(() => {})
-  }
-
-  constructor(config: LightClientConfig) {
+  constructor(
+    config: LightClientConfig,
+    readonly fallback: ApiT,
+  ) {
     startNetworkService(config, this)
       .then((chainId) => {
         this.#chainId.resolve(chainId)
@@ -103,57 +104,53 @@ export class LightClient {
       })
   }
 
-  static async create(config: LightClientConfig) {
-    const client = new LightClient(config)
-    await client.isReady
-    return client
+  get isReady() {
+    return this.#chainId.promise.then(() => {})
   }
 
-  connect(connectionId: number, address: string, _cert: Uint8Array) {
-    const blacklist = this.#blacklist
-    const connections = this.#connections
-    if (blacklist.includes(address)) {
-      connectionReset(connectionId, new Uint8Array(0))
+  connect(connId: number, address: string, _cert: Uint8Array) {
+    if (this.#blacklist.includes(address)) {
+      connectionReset(connId, new Uint8Array(0))
       return
     }
 
     const connection = new Connection(address)
-    connections[connectionId] = connection
+    this.#connections.set(connId, connection)
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this
 
     connection.onError = function (ws, error) {
       if (ws.readyState === 1 || ws.readyState === 0) return
 
       if (!error['code'] || ['EHOSTUNREACH', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error['code'])) {
-        blacklist.push(address)
+        self.#blacklist.push(address)
         logger.debug(`${error['message'] || ''} [blacklisted]`)
       }
 
-      const connection = connections[connectionId]
-      if (connection && !connection.destroyed) {
+      if (!connection.destroyed) {
         connection.destroyed = true
-        delete connections[connectionId]
-        connectionReset(connectionId, stringToU8a(error['message'] || ''))
+        self.#connections.delete(connId)
+        connectionReset(connId, stringToU8a(error['message'] || ''))
       }
     }
 
     connection.onMessage = function (ws, data) {
-      const connection = connections[connectionId]
-      if (!connection || connection.destroyed) return
+      if (connection.destroyed) return
       if (ws.readyState != 1) return
-      streamMessage(connectionId, 0, data)
+      streamMessage(connId, 0, data)
     }
 
     connection.onClose = function (_ws, event) {
-      const connection = connections[connectionId]
-      if (connection && !connection.destroyed) {
+      if (!connection.destroyed) {
         connection.destroyed = true
-        delete connections[connectionId]
-        connectionReset(connectionId, stringToU8a(event.reason))
+        self.#connections.delete(connId)
+        connectionReset(connId, stringToU8a(event.reason))
       }
     }
 
     connection.onOpen = function () {
-      streamWritableBytes(connectionId, 0, 1024 * 1024)
+      streamWritableBytes(connId, 0, 1024 * 1024)
     }
   }
 
@@ -163,7 +160,7 @@ export class LightClient {
   }
 
   streamSend(connectionId: number, data: Uint8Array) {
-    const connection = this.#connections[connectionId]
+    const connection = this.#connections.get(connectionId)
     if (!connection) {
       this.resetConnection(connectionId)
     } else {
@@ -173,10 +170,10 @@ export class LightClient {
 
   resetConnection(connectionId: number) {
     try {
-      const connection = this.#connections[connectionId]
+      const connection = this.#connections.get(connectionId)
       if (connection && !connection.destroyed) {
         connection.destroy()
-        delete this.#connections[connectionId]
+        this.#connections.delete(connectionId)
       }
     } catch (_e) {
       _e
@@ -230,11 +227,11 @@ export class LightClient {
       this,
     )
     const response = await deferred.promise
-    if ('Error' in response) {
-      throw new Error(response.Error)
+    if ('error' in response) {
+      throw new Error(response.error)
     }
-    if ('Storage' in response) {
-      return response.Storage
+    if ('storage' in response) {
+      return response.storage
     }
     throw new Error('Invalid response')
   }
@@ -259,16 +256,18 @@ export class LightClient {
       this,
     )
     const response = await deferred.promise
-    if ('Error' in response) {
-      throw new Error(response.Error)
+    if ('error' in response) {
+      throw new Error(response.error)
     }
-    if ('Block' in response) {
-      return response.Block
+    if ('block' in response) {
+      return response.block
     }
     throw new Error('Invalid response')
   }
 
+  // TODO: webrtc
   connectionStreamOpen(_connectionId: number) {}
+  // TODO: webrtc
   connectionStreamReset(_connectionId: number, _streamId: number) {}
 
   async getPeers() {

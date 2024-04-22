@@ -1,4 +1,5 @@
 import { Api } from '../api.js'
+import { HexString } from '@polkadot/util/types'
 import { RemoteStorageLayer, StorageLayer, StorageValueKind } from './storage-layer.js'
 import { describe, expect, it, vi } from 'vitest'
 import _ from 'lodash'
@@ -24,7 +25,7 @@ describe('getKeysPaged', () => {
   Api.prototype['getKeysPaged'] = vi.fn(async (prefix, pageSize, startKey) => {
     const withPrefix = allKeys.filter((k) => k.startsWith(prefix) && k > startKey)
     const result = withPrefix.slice(0, pageSize)
-    return result
+    return result as HexString[]
   })
   const mockApi = new Api(undefined!)
 

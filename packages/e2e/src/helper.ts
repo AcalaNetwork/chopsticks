@@ -6,13 +6,14 @@ import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
 import {
+  ApiT,
   Blockchain,
   BuildBlockMode,
   GenesisProvider,
   StorageValues,
   genesisSetup,
 } from '@acala-network/chopsticks-core'
-import { LightClient, LightClientConfig } from '@acala-network/chopsticks-core/wasm-executor/light-client.js'
+import { LightClientConfig, P2P } from '@acala-network/chopsticks-core/p2p.js'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { createServer } from '@acala-network/chopsticks/server.js'
 import { defer } from '@acala-network/chopsticks-core/utils/index.js'
@@ -76,9 +77,14 @@ export const setupAll = async ({
   } else {
     provider = new WsProvider(endpoint, 3_000)
   }
-  const api = new Api(provider)
 
-  await api.isReady
+  let api: ApiT
+  if (p2p) {
+    api = await P2P.create(p2p, new Api(provider))
+  } else {
+    api = new Api(provider)
+    await api.isReady
+  }
 
   const header = await api.getHeader(blockHash)
   if (!header) {
@@ -92,10 +98,7 @@ export const setupAll = async ({
         throw new Error('Cannot find block hash')
       }
 
-      const lightClient = p2p && (await LightClient.create(p2p))
-
       const chain = new Blockchain({
-        lightClient,
         api,
         buildBlockMode: BuildBlockMode.Manual,
         inherentProviders,

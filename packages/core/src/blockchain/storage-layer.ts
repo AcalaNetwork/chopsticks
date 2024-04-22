@@ -1,10 +1,9 @@
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
-import { Api } from '../api.js'
+import { ApiT } from '../api.js'
 import { CHILD_PREFIX_LENGTH, PREFIX_LENGTH, isPrefixedChildKey } from '../utils/index.js'
 import { Database } from '../database.js'
-import { LightClient } from '../wasm-executor/light-client.js'
 import { defaultLogger } from '../logger.js'
 import KeyCache from '../utils/key-cache.js'
 
@@ -39,18 +38,16 @@ export interface StorageLayerProvider {
 }
 
 export class RemoteStorageLayer implements StorageLayerProvider {
-  readonly #api: Api
+  readonly #api: ApiT
   readonly #at: string
   readonly #db: Database | undefined
-  readonly #lightClient: LightClient | undefined
   readonly #keyCache = new KeyCache(PREFIX_LENGTH)
   readonly #defaultChildKeyCache = new KeyCache(CHILD_PREFIX_LENGTH)
 
-  constructor(api: Api, at: string, db: Database | undefined, lightClient: LightClient | undefined) {
+  constructor(api: ApiT, at: string, db: Database | undefined) {
     this.#api = api
     this.#at = at
     this.#db = db
-    this.#lightClient = lightClient
   }
 
   async get(key: string, _cache: boolean): Promise<StorageValue> {
@@ -61,22 +58,6 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
-
-    if (this.#lightClient) {
-      try {
-        const entries = await this.#lightClient.queryStorage([key as HexString], this.#at as HexString)
-        let maybeValue: HexString | undefined = undefined
-        for (const [k, v] of entries) {
-          this.#db?.saveStorage(this.#at as HexString, k, v)
-          if (k === key) {
-            maybeValue = v
-          }
-        }
-        return maybeValue ?? undefined
-      } catch (error) {
-        logger.debug({ at: this.#at, key, error }, 'LightClient queryStorage failed')
-      }
-    }
 
     const data = await this.#api.getStorage(key, this.#at)
     this.#db?.saveStorage(this.#at as HexString, key as HexString, data)

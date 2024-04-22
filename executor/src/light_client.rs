@@ -52,11 +52,11 @@ export type Request =
 
 export type Response =
     {
-        Storage: [HexString, HexString][]
+        storage: [HexString, HexString][]
     }
     |
     {
-        Block: {
+        block: {
             hash: HexString
             header: HexString
             body: HexString[]
@@ -64,7 +64,7 @@ export type Response =
     }
     |
     {
-        Error: string
+        error: string
     }
 "#;
 
@@ -173,6 +173,7 @@ enum Request {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 enum Response {
     Storage(Vec<(HexString, HexString)>),
     Block(Block),

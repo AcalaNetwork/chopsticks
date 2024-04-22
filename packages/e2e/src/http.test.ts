@@ -33,17 +33,15 @@ describe('http.server', () => {
         method: 'POST',
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'system_health', params: [] }),
       })
-      expect(await res.json()).toMatchInlineSnapshot(`
-        {
-          "id": 1,
-          "jsonrpc": "2.0",
-          "result": {
-            "isSyncing": false,
-            "peers": 0,
-            "shouldHavePeers": false,
-          },
-        }
-      `)
+      expect(await res.json()).toMatchObject(
+        expect.objectContaining({
+          id: 1,
+          jsonrpc: '2.0',
+          result: expect.objectContaining({
+            isSyncing: false,
+          }),
+        }),
+      )
     }
 
     {

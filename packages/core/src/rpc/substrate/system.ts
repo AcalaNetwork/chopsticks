@@ -5,6 +5,7 @@ import _ from 'lodash'
 
 import { ChainProperties } from '../../index.js'
 import { Handler } from '../shared.js'
+import { LightClient } from '../../wasm-executor/light-client.js'
 
 export const system_localPeerId = async () => '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
 export const system_nodeRoles = async () => ['Full']
@@ -21,7 +22,7 @@ export const system_properties: Handler<void, ChainProperties> = async (context)
   return properties.toJSON() as ChainProperties
 }
 export const system_name: Handler<void, string> = async (context) => {
-  return context.chain.head.runtimeVersion.then((runtime) => `${_.capitalize(runtime.implName)} Chopsticks`)
+  return context.chain.head.runtimeVersion.then((runtime) => _.capitalize(runtime.implName))
 }
 export const system_version: Handler<void, string> = async (_context) => {
   return 'chopsticks-v1'
@@ -30,16 +31,26 @@ export const system_chainType: Handler<void, string> = async (_context) => {
   return 'Development'
 }
 export const system_health: Handler<void, any> = async (context) => {
-  const peers = (await context.chain.lightClient?.getPeers()) ?? []
+  if (context.chain.api instanceof LightClient) {
+    const peers = await context.chain.api.getPeers()
+    return {
+      peers: peers.length,
+      isSyncing: false,
+      shouldHavePeers: true,
+    }
+  }
   return {
-    peers: peers.length,
+    peers: 0,
     isSyncing: false,
-    shouldHavePeers: !!context.chain.lightClient,
+    shouldHavePeers: false,
   }
 }
 
 export const system_peers: Handler<void, any[]> = async (context) => {
-  return context.chain.lightClient?.getPeers() ?? []
+  if (context.chain.api instanceof LightClient) {
+    return context.chain.api.getPeers()
+  }
+  return []
 }
 
 /**

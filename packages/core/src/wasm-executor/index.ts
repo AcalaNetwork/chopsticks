@@ -69,7 +69,7 @@ export interface WasmExecutor {
   testing: (callback: JsRuntimeCallback, key: any) => Promise<any>
   startNetworkService: (config: LightClientConfig, callback: JsLightClientCallback) => Promise<number>
   getPeers: (chainId: number) => Promise<[string, string, number, string][]>
-  getLatestBlock: (chainId: number) => Promise<[number, string]>
+  getLatestBlock: (chainId: number) => Promise<[number, HexString]>
   streamMessage: (connectionId: number, streamId: number, data: Uint8Array) => Promise<void>
   streamWritableBytes: (connectionId: number, streamId: number, numBytes: number) => Promise<void>
   connectionStreamOpened: (connectionId: number, streamId: number, outbound: number) => Promise<void>

@@ -4,18 +4,17 @@ import { Metadata, TypeRegistry } from '@polkadot/types'
 import { RegisteredTypes } from '@polkadot/types/types'
 import { blake2AsHex, xxhashAsHex } from '@polkadot/util-crypto'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
-import { hexToU8a, objectSpread, u8aConcat, u8aToHex } from '@polkadot/util'
+import { objectSpread, u8aConcat, u8aToHex } from '@polkadot/util'
 import _ from 'lodash'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
-import { Api } from '../api.js'
+import { ApiT } from '../api.js'
 import { Block } from './block.js'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool.js'
 import { Database } from '../database.js'
 import { HeadState } from './head-state.js'
 import { InherentProvider } from './inherent/index.js'
-import { LightClient } from '../wasm-executor/light-client.js'
 import { OffchainWorker } from '../offchain.js'
 import { RuntimeVersion } from '../wasm-executor/index.js'
 import { StorageValue } from './storage-layer.js'
@@ -26,10 +25,8 @@ import { dryRunExtrinsic, dryRunInherents } from './block-builder.js'
 const logger = defaultLogger.child({ name: 'blockchain' })
 
 export interface Options {
-  /** Light client instance. */
-  lightClient?: LightClient
   /** API instance, for getting on-chain data. */
-  api: Api
+  api: ApiT
   /** Build block mode. Default to Batch. */
   buildBlockMode?: BuildBlockMode
   /** Inherent provider, for creating inherents. */
@@ -79,7 +76,7 @@ export interface Options {
  */
 export class Blockchain {
   /** API instance, for getting on-chain data. */
-  readonly api: Api
+  readonly api: ApiT
   /** Datasource for caching storage and blocks data. */
   readonly db: Database | undefined
   /** Enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */
@@ -104,8 +101,6 @@ export class Blockchain {
   readonly offchainWorker: OffchainWorker | undefined
   readonly #maxMemoryBlockCount: number
   readonly processQueuedMessages: boolean = true
-
-  readonly lightClient: LightClient | undefined
 
   // first arg is used as cache key
   readonly #registryBuilder = _.memoize(
@@ -132,7 +127,6 @@ export class Blockchain {
    * @param options - Options for instantiating the blockchain
    */
   constructor({
-    lightClient,
     api,
     buildBlockMode,
     inherentProviders,
@@ -146,7 +140,6 @@ export class Blockchain {
     maxMemoryBlockCount = 500,
     processQueuedMessages = true,
   }: Options) {
-    this.lightClient = lightClient
     this.api = api
     this.db = db
     this.mockSignatureHost = mockSignatureHost
@@ -238,7 +231,7 @@ export class Blockchain {
         const storageDiff = blockData.storageDiff ?? undefined
         const registry = await this.head.registry
         const block = new Block(this, number, hash, parentBlock, {
-          header: registry.createType<Header>('Header', hexToU8a(header)),
+          header: registry.createType<Header>('Header', header),
           extrinsics,
           storage: parentBlock?.storage,
           storageDiff,
@@ -265,21 +258,6 @@ export class Blockchain {
       if (blockFromDB) {
         return blockFromDB
       }
-      if (this.lightClient) {
-        try {
-          const data = await this.lightClient.queryBlock(number)
-          const registry = await this.head.registry
-          const header = registry.createType<Header>('Header', hexToU8a(data.header))
-          const block = new Block(this, number, data.hash, undefined, {
-            header,
-            extrinsics: data.body,
-          })
-          this.#registerBlock(block)
-          return block
-        } catch (error) {
-          logger.warn({ error }, `LightClient queryBlock ${number} failed`)
-        }
-      }
       const hash = await this.api.getBlockHash(number)
       if (!hash) {
         return undefined
@@ -288,36 +266,6 @@ export class Blockchain {
       this.#registerBlock(block)
     }
     return this.#blocksByNumber.get(number)
-  }
-
-  /**
-   * Query remote node for block by hash.
-   */
-  async queryBlock(hash: HexString) {
-    const registry = await this.head.registry
-    if (this.lightClient) {
-      try {
-        const data = await this.lightClient.queryBlock(hash)
-        const header = registry.createType<Header>('Header', hexToU8a(data.header))
-        const block = new Block(this, header.number.toNumber(), hash, undefined, {
-          header,
-          extrinsics: data.body,
-        })
-        return block
-      } catch (error) {
-        logger.warn({ error }, `LightClient queryBlock ${hash} failed`)
-      }
-    }
-
-    const blockData = await this.api.getBlock(hash)
-    if (!blockData) {
-      throw new Error(`Block ${hash} not found`)
-    }
-    const block = new Block(this, Number(blockData.block.header.number), hash, undefined, {
-      header: registry.createType<Header>('Header', blockData.block.header),
-      extrinsics: blockData.block.extrinsics,
-    })
-    return block
   }
 
   /**
@@ -337,7 +285,11 @@ export class Blockchain {
           try {
             const blockFromDB = await this.loadBlockFromDB(hash)
             if (!blockFromDB) {
-              const block = await this.queryBlock(hash)
+              const header = await this.api.getHeader(hash)
+              if (!header) {
+                throw new Error(`Block ${hash} not found`)
+              }
+              const block = new Block(this, Number(header.number), hash)
               this.#registerBlock(block)
             }
           } catch (e) {

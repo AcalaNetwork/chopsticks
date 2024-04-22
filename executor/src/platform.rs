@@ -108,6 +108,16 @@ impl smoldot_light::platform::PlatformRef for JsPlatform {
         wasm_bindgen_futures::spawn_local(task);
     }
 
+    fn log<'a>(
+        &self,
+        log_level: smoldot_light::platform::LogLevel,
+        log_target: &'a str,
+        message: &'a str,
+        key_values: impl Iterator<Item = (&'a str, &'a dyn core::fmt::Display)>,
+    ) {
+        // TODO:
+    }
+
     fn client_name(&self) -> Cow<str> {
         env!("CARGO_PKG_NAME").into()
     }
@@ -141,25 +151,25 @@ impl smoldot_light::platform::PlatformRef for JsPlatform {
         let connection_id = lock.next_connection_id;
         lock.next_connection_id += 1;
 
-        let encoded_address: String = match address {
+        let encoded_address = match address {
             smoldot_light::platform::Address::WebSocketIp {
                 ip: core::net::IpAddr::V4(ip),
                 port,
-            } => format!("ws://{ip}:{port}").into(),
+            } => format!("ws://{ip}:{port}"),
             smoldot_light::platform::Address::WebSocketIp {
                 ip: core::net::IpAddr::V6(ip),
                 port,
-            } => format!("ws://[{ip}]:{port}").into(),
+            } => format!("ws://[{ip}]:{port}"),
             smoldot_light::platform::Address::WebSocketDns {
                 hostname,
                 port,
                 secure: false,
-            } => format!("ws://{hostname}:{port}").into(),
+            } => format!("ws://{hostname}:{port}"),
             smoldot_light::platform::Address::WebSocketDns {
                 hostname,
                 port,
                 secure: true,
-            } => format!("wss://{hostname}:{port}").into(),
+            } => format!("wss://{hostname}:{port}"),
             _ => panic!("unsupported address type"),
         };
 
@@ -497,16 +507,6 @@ impl smoldot_light::platform::PlatformRef for JsPlatform {
                 }
             }
         })
-    }
-
-    fn log<'a>(
-        &self,
-        log_level: smoldot_light::platform::LogLevel,
-        log_target: &'a str,
-        message: &'a str,
-        key_values: impl Iterator<Item = (&'a str, &'a dyn core::fmt::Display)>,
-    ) {
-        // TODO:
     }
 }
 
