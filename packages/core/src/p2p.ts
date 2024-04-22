@@ -21,8 +21,11 @@ export class P2P extends LightClient implements ApiT {
     return client
   }
 
-  constructor(config: LightClientConfig, fallback: ApiT) {
-    super(config, fallback)
+  constructor(
+    config: LightClientConfig,
+    readonly fallback: ApiT,
+  ) {
+    super(config)
   }
 
   get signedExtensions(): ExtDef {

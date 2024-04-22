@@ -163,15 +163,12 @@ describe('wasm', () => {
   })
 
   it('LightClient works', async () => {
-    const lightClient = new LightClient(
-      {
-        genesisBlockHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c',
-        bootnodes: [
-          '/dns/acala-bootnode-4.aca-api.network/tcp/30334/ws/p2p/12D3KooWBLwm4oKY5fsbkdSdipHzYJJHSHhuoyb1eTrH31cidrnY',
-        ],
-      },
-      null as any, // wont use api fallback
-    )
+    const lightClient = new LightClient({
+      genesisBlockHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c',
+      bootnodes: [
+        '/dns/acala-bootnode-4.aca-api.network/tcp/30334/ws/p2p/12D3KooWBLwm4oKY5fsbkdSdipHzYJJHSHhuoyb1eTrH31cidrnY',
+      ],
+    })
     await lightClient.isReady
 
     const block = await lightClient.queryBlock('0x15177d4bdc975077b85261c09503bf40932aae9d3a7a2e948870afe3432976be')

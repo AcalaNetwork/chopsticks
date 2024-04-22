@@ -5,8 +5,6 @@ import { stringToU8a } from '@polkadot/util'
 
 globalThis.WebSocket = typeof globalThis.WebSocket !== 'undefined' ? globalThis.WebSocket : (WebSocket as any)
 
-import { ApiT } from '../api.js'
-
 import { Deferred, defer } from '../utils/index.js'
 import {
   connectionReset,
@@ -90,10 +88,7 @@ export class LightClient {
 
   #chainId = defer<number>()
 
-  constructor(
-    config: LightClientConfig,
-    readonly fallback: ApiT,
-  ) {
+  constructor(config: LightClientConfig) {
     startNetworkService(config, this)
       .then((chainId) => {
         this.#chainId.resolve(chainId)
