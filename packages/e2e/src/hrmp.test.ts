@@ -29,7 +29,7 @@ describe('HRMP', () => {
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
-    await checkSystemEvents(statemine, 'xcmpQueue', 'Success').toMatchSnapshot()
+    await checkSystemEvents(statemine, 'messageQueue').toMatchSnapshot()
     await statemine.teardown()
   })
 
@@ -39,7 +39,7 @@ describe('HRMP', () => {
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     })
     await acala.chain.newBlock({ horizontalMessages: acalaHRMP })
-    await checkSystemEvents(acala, 'messageQueue', 'Processed').toMatchSnapshot()
+    await checkSystemEvents(acala, 'messageQueue').toMatchSnapshot()
     await acala.teardown()
   })
 
