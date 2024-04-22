@@ -30,28 +30,20 @@ const startNetworkService = async (config, callback) => {
   return pkg.start_network_service(config, callback)
 }
 
-const connectionStreamOpened = async (connectionId, streamId, outbound) => {
-  return pkg.connection_stream_opened(connectionId, streamId, outbound)
+const connectionReset = async (connectionId) => {
+  return pkg.connection_reset(connectionId)
 }
 
-const connectionReset = async (connectionId, data) => {
-  return pkg.connection_reset(connectionId, data)
+const messageRecieved = async (connectionId, data) => {
+  return pkg.message_received(connectionId, data)
 }
 
-const streamReset = async (connectionId, streamId) => {
-  return pkg.stream_reset(connectionId, streamId)
+const connectionWritableBytes = async (connectionId, bytes) => {
+  return pkg.connection_writable_bytes(connectionId, bytes)
 }
 
-const streamMessage = async (connectionId, streamId, data) => {
-  return pkg.stream_message(connectionId, streamId, data)
-}
-
-const streamWritableBytes = async (connectionId, streamId, bytes) => {
-  return pkg.stream_writable_bytes(connectionId, streamId, bytes)
-}
-
-const timerFinished = async (callback) => {
-  return pkg.timer_finished(callback)
+const wakeUp = async (callback) => {
+  return pkg.wake_up(callback)
 }
 
 const queryChain = async (chainId, requestId, request, retries, callback) => {
@@ -77,12 +69,10 @@ const wasmExecutor = {
   queryChain,
   getPeers,
   getLatestBlock,
-  connectionStreamOpened,
   connectionReset,
-  streamReset,
-  streamMessage,
-  streamWritableBytes,
-  timerFinished,
+  messageRecieved,
+  connectionWritableBytes,
+  wakeUp,
 }
 
 Comlink.expose(wasmExecutor)

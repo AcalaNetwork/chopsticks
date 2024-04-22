@@ -261,10 +261,7 @@ fn create_proof_works() {
     let (hash, nodes) = create_proof(get_nodes(), updates).unwrap();
     let decoded =
         decode_proof(hash, nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>()).unwrap();
-    assert!(decoded
-        .iter()
-        .find(|(key, _)| key == &dmq_mqc_head)
-        .is_none());
+    assert!(!decoded.iter().any(|(key, _)| key == &dmq_mqc_head));
 
     // current_slot is not changed
     let (_, value) = decoded

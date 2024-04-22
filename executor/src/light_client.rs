@@ -27,9 +27,7 @@ export interface JsLightClientCallback {
     startTimer: (delay: number) => void
     connect: (connectionId: number, address: string, cert: Uint8Array) => void
     resetConnection: (connectionId: number) => void
-    connectionStreamOpen: (connectionId: number) => void
-    connectionStreamReset: (connectionId: number, streamId: number) => void
-    streamSend: (connectionId: number, data: Uint8Array) => void
+    messageSend: (connectionId: number, data: Uint8Array) => void
     queryResponse: (requestId: number, response: Response) => void
 }
 
@@ -84,14 +82,8 @@ extern "C" {
     #[wasm_bindgen(structural, method, js_name = "connect")]
     pub fn connect(this: &JsLightClientCallback, conn_id: u32, address: String, cert: Vec<u8>);
 
-    #[wasm_bindgen(structural, method, js_name = "connectionStreamOpen")]
-    pub fn connection_stream_open(this: &JsLightClientCallback, conn_id: u32);
-
-    #[wasm_bindgen(structural, method, js_name = "connectionStreamReset")]
-    pub fn connection_stream_reset(this: &JsLightClientCallback, conn_id: u32, stream_id: u32);
-
-    #[wasm_bindgen(structural, method, js_name = "streamSend")]
-    pub fn stream_send(this: &JsLightClientCallback, conn_id: u32, data: Vec<u8>);
+    #[wasm_bindgen(structural, method, js_name = "messageSend")]
+    pub fn message_send(this: &JsLightClientCallback, conn_id: u32, data: Vec<u8>);
 
     #[wasm_bindgen(structural, method, js_name = "resetConnection")]
     pub fn reset_connection(this: &JsLightClientCallback, conn_id: u32);
@@ -406,7 +398,7 @@ pub fn query_chain(
                                         .body
                                         .unwrap_or_default()
                                         .into_iter()
-                                        .map(|x| HexString(x))
+                                        .map(HexString)
                                         .collect(),
                                 })
                                 .collect::<Vec<_>>();
@@ -445,33 +437,23 @@ pub fn query_chain(
 }
 
 #[wasm_bindgen]
-pub fn stream_message(connection_id: u32, stream_id: u32, data: Vec<u8>) {
-    crate::platform::stream_message(connection_id, stream_id, data);
+pub fn message_received(connection_id: u32, data: Vec<u8>) {
+    crate::platform::message_received(connection_id, data);
 }
 
 #[wasm_bindgen]
-pub fn stream_writable_bytes(connection_id: u32, stream_id: u32, num_bytes: u32) {
-    crate::platform::stream_writable_bytes(connection_id, stream_id, num_bytes);
+pub fn connection_writable_bytes(connection_id: u32, num_bytes: u32) {
+    crate::platform::connection_writable_bytes(connection_id, num_bytes);
 }
 
 #[wasm_bindgen]
-pub fn connection_reset(connection_id: u32, data: Vec<u8>) {
-    crate::platform::connection_reset(connection_id, data);
+pub fn connection_reset(connection_id: u32) {
+    crate::platform::connection_reset(connection_id);
 }
 
 #[wasm_bindgen]
-pub fn stream_reset(connection_id: u32, stream_id: u32, data: Vec<u8>) {
-    crate::platform::stream_reset(connection_id, stream_id, data);
-}
-
-#[wasm_bindgen]
-pub fn timer_finished(callback: JsLightClientCallback) {
-    crate::timers::timer_finished(Arc::new(callback));
-}
-
-#[wasm_bindgen]
-pub fn connection_stream_opened(connection_id: u32, stream_id: u32, outbound: u32) {
-    crate::platform::connection_stream_opened(connection_id, stream_id, outbound);
+pub fn wake_up(callback: JsLightClientCallback) {
+    crate::timers::wake_up(Arc::new(callback));
 }
 
 #[wasm_bindgen]
@@ -484,7 +466,7 @@ pub fn peers_list(chain_id: usize) -> Result<JsValue, JsValue> {
         .map(|(peer_id, role, best_number, best_hash)| {
             (
                 peer_id.to_string(),
-                format!("{:?}", role),
+                format!("{role:?}"),
                 best_number,
                 best_hash,
             )

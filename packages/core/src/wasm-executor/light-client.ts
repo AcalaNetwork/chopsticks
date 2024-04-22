@@ -1,20 +1,19 @@
 import { HexString } from '@polkadot/util/types'
-import { Response } from '@acala-network/chopsticks-executor'
+import { JsLightClientCallback, Response } from '@acala-network/chopsticks-executor'
 import { WebSocket } from 'ws'
-import { stringToU8a } from '@polkadot/util'
 
 globalThis.WebSocket = typeof globalThis.WebSocket !== 'undefined' ? globalThis.WebSocket : (WebSocket as any)
 
 import { Deferred, defer } from '../utils/index.js'
 import {
   connectionReset,
+  connectionWritableBytes,
   getLatestBlock,
   getPeers,
+  messageRecieved,
   queryChain,
   startNetworkService,
-  streamMessage,
-  streamWritableBytes,
-  timerFinished,
+  wakeUp,
 } from './index.js'
 import { defaultLogger } from '../logger.js'
 
@@ -79,7 +78,7 @@ export type LightClientConfig = {
   bootnodes: string[]
 }
 
-export class LightClient {
+export class LightClient implements JsLightClientCallback {
   #requestId = 1
   // blacklist of addresses that we have failed to connect to
   #blacklist: string[] = []
@@ -105,7 +104,7 @@ export class LightClient {
 
   connect(connId: number, address: string, _cert: Uint8Array) {
     if (this.#blacklist.includes(address)) {
-      connectionReset(connId, new Uint8Array(0))
+      connectionReset(connId)
       return
     }
 
@@ -126,26 +125,26 @@ export class LightClient {
       if (!connection.destroyed) {
         connection.destroyed = true
         self.#connections.delete(connId)
-        connectionReset(connId, stringToU8a(error['message'] || ''))
+        connectionReset(connId)
       }
     }
 
     connection.onMessage = function (ws, data) {
       if (connection.destroyed) return
       if (ws.readyState != 1) return
-      streamMessage(connId, 0, data)
+      messageRecieved(connId, data)
     }
 
-    connection.onClose = function (_ws, event) {
+    connection.onClose = function () {
       if (!connection.destroyed) {
         connection.destroyed = true
         self.#connections.delete(connId)
-        connectionReset(connId, stringToU8a(event.reason))
+        connectionReset(connId)
       }
     }
 
     connection.onOpen = function () {
-      streamWritableBytes(connId, 0, 1024 * 1024)
+      connectionWritableBytes(connId, 1024 * 1024)
     }
   }
 
@@ -154,7 +153,7 @@ export class LightClient {
     this.#queryResponse.delete(requestId)
   }
 
-  streamSend(connectionId: number, data: Uint8Array) {
+  messageSend(connectionId: number, data: Uint8Array) {
     const connection = this.#connections.get(connectionId)
     if (!connection) {
       this.resetConnection(connectionId)
@@ -188,7 +187,7 @@ export class LightClient {
     if (ms == 0 && typeof setImmediate === 'function') {
       setImmediate(() => {
         try {
-          timerFinished(this)
+          wakeUp(this)
         } catch (_e) {
           _e
         }
@@ -196,7 +195,7 @@ export class LightClient {
     } else {
       setTimeout(() => {
         try {
-          timerFinished(this)
+          wakeUp(this)
         } catch (_e) {
           _e
         }
@@ -259,11 +258,6 @@ export class LightClient {
     }
     throw new Error('Invalid response')
   }
-
-  // TODO: webrtc
-  connectionStreamOpen(_connectionId: number) {}
-  // TODO: webrtc
-  connectionStreamReset(_connectionId: number, _streamId: number) {}
 
   async getPeers() {
     const chainId = await this.#chainId.promise
