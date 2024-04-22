@@ -65,6 +65,12 @@ export const configSchema = z.object({
         'Produce extra block when queued messages are detected. Default to true. Set to false to disable it.',
     })
     .optional(),
+  p2p: z
+    .object({
+      genesisBlockHash: zHash,
+      bootnodes: z.array(z.string()),
+    })
+    .optional(),
 })
 
 export type Config = z.infer<typeof configSchema>

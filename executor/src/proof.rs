@@ -16,22 +16,32 @@ pub fn decode_proof(
     let config = Config::<Vec<u8>> {
         proof: encode_proofs(nodes),
     };
+    let entries = inner_decode_proof(config, Some(&trie_root_hash.0))?;
+    Ok(entries)
+}
+
+pub fn inner_decode_proof(
+    config: Config<Vec<u8>>,
+    trie_root_hash: Option<&[u8; 32]>,
+) -> Result<Vec<(HexString, HexString)>, String> {
     let decoded = decode_and_verify_proof(config).map_err(|e| e.to_string())?;
 
     let entries = decoded
         .iter_ordered()
-        .filter(|(key, entry)| {
-            if !key.trie_root_hash.eq(&trie_root_hash.0) {
-                return false;
+        .filter(|(entry_key, proof_entry)| {
+            if let Some(trie_root_hash) = trie_root_hash {
+                if !entry_key.trie_root_hash.eq(trie_root_hash) {
+                    return false;
+                }
             }
             matches!(
-                entry.trie_node_info.storage_value,
+                proof_entry.trie_node_info.storage_value,
                 StorageValue::Known { .. }
             )
         })
-        .map(|(key, entry)| {
-            let key = HexString(nibbles_to_bytes_suffix_extend(key.key).collect::<Vec<_>>());
-            match entry.trie_node_info.storage_value {
+        .map(|(entry_key, proof_entry)| {
+            let key = HexString(nibbles_to_bytes_suffix_extend(entry_key.key).collect::<Vec<_>>());
+            match proof_entry.trie_node_info.storage_value {
                 StorageValue::Known { value, .. } => (key, HexString(value.to_vec())),
                 _ => unreachable!(),
             }
@@ -251,10 +261,7 @@ fn create_proof_works() {
     let (hash, nodes) = create_proof(get_nodes(), updates).unwrap();
     let decoded =
         decode_proof(hash, nodes.iter().map(|x| x.0.clone()).collect::<Vec<_>>()).unwrap();
-    assert!(decoded
-        .iter()
-        .find(|(key, _)| key == &dmq_mqc_head)
-        .is_none());
+    assert!(!decoded.iter().any(|(key, _)| key == &dmq_mqc_head));
 
     // current_slot is not changed
     let (_, value) = decoded

@@ -29,6 +29,53 @@ const testing = async (callback, key) => {
   return pkg.testing(callback, key)
 }
 
-const wasmExecutor = { runTask, getRuntimeVersion, calculateStateRoot, createProof, decodeProof, testing }
+const startNetworkService = async (config, callback) => {
+  return pkg.start_network_service(config, callback)
+}
+
+const connectionReset = async (connectionId) => {
+  return pkg.connection_reset(connectionId)
+}
+
+const messageRecieved = async (connectionId, data) => {
+  return pkg.message_received(connectionId, data)
+}
+
+const connectionWritableBytes = async (connectionId, bytes) => {
+  return pkg.connection_writable_bytes(connectionId, bytes)
+}
+
+const wakeUp = async (callback) => {
+  return pkg.wake_up(callback)
+}
+
+const queryChain = async (chainId, requestId, request, retries, callback) => {
+  return pkg.query_chain(chainId, requestId, request, retries, callback)
+}
+
+const getPeers = async (chainId) => {
+  return pkg.peers_list(chainId)
+}
+
+const getLatestBlock = async (chainId) => {
+  return pkg.latest_block(chainId)
+}
+
+const wasmExecutor = {
+  runTask,
+  getRuntimeVersion,
+  calculateStateRoot,
+  createProof,
+  decodeProof,
+  testing,
+  startNetworkService,
+  queryChain,
+  getPeers,
+  getLatestBlock,
+  connectionReset,
+  messageRecieved,
+  connectionWritableBytes,
+  wakeUp,
+}
 
 Comlink.expose(wasmExecutor, nodeEndpoint(parentPort))

@@ -8,8 +8,9 @@ import { Block } from '../blockchain/block.js'
 import { PREFIX_LENGTH, stripChildPrefix } from '../utils/index.js'
 import { defaultLogger, truncate } from '../logger.js'
 
-import type { JsCallback } from '@acala-network/chopsticks-executor'
-export { JsCallback }
+import { LightClientConfig } from './light-client.js'
+import type { JsLightClientCallback, JsRuntimeCallback, Request } from '@acala-network/chopsticks-executor'
+export { JsRuntimeCallback }
 
 export type RuntimeVersion = {
   specName: string
@@ -43,6 +44,13 @@ export type TaskResponse =
       Error: string
     }
 
+export type Peer = {
+  peerId: string
+  roles: string
+  bestNumber: number
+  bestHash: string
+}
+
 export interface WasmExecutor {
   getRuntimeVersion: (code: HexString) => Promise<RuntimeVersion>
   calculateStateRoot: (entries: [HexString, HexString][], trie_version: number) => Promise<HexString>
@@ -56,9 +64,23 @@ export interface WasmExecutor {
       allowUnresolvedImports: boolean
       runtimeLogLevel: number
     },
-    callback?: JsCallback,
+    callback?: JsRuntimeCallback,
   ) => Promise<TaskResponse>
-  testing: (callback: JsCallback, key: any) => Promise<any>
+  testing: (callback: JsRuntimeCallback, key: any) => Promise<any>
+  startNetworkService: (config: LightClientConfig, callback: JsLightClientCallback) => Promise<number>
+  getPeers: (chainId: number) => Promise<[string, string, number, string][]>
+  getLatestBlock: (chainId: number) => Promise<[number, HexString]>
+  messageRecieved: (connectionId: number, data: Uint8Array) => Promise<void>
+  connectionWritableBytes: (connectionId: number, numBytes: number) => Promise<void>
+  connectionReset: (connectionId: number) => Promise<void>
+  wakeUp: (callback: JsLightClientCallback) => Promise<void>
+  queryChain: (
+    chainId: number,
+    requestId: number,
+    request: Request,
+    retries: number,
+    callback: JsLightClientCallback,
+  ) => Promise<void>
 }
 
 const logger = defaultLogger.child({ name: 'executor' })
@@ -121,7 +143,7 @@ export const runTask = async (
     allowUnresolvedImports: boolean
     runtimeLogLevel: number
   },
-  callback: JsCallback = emptyTaskHandler,
+  callback: JsRuntimeCallback = emptyTaskHandler,
 ) => {
   const worker = await getWorker()
   logger.trace(truncate(task), 'taskRun')
@@ -134,7 +156,7 @@ export const runTask = async (
   return response
 }
 
-export const taskHandler = (block: Block): JsCallback => {
+export const taskHandler = (block: Block): JsRuntimeCallback => {
   return {
     getStorage: async function (key: HexString) {
       return block.get(key)
@@ -204,6 +226,65 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString): Promise<nu
   if ('Error' in result) throw new Error(result.Error)
   return u8aToBn(hexToU8a(result.Call.result).subarray(0, 8 /* u64: 8 bytes */)).toNumber()
 })
+
+export const startNetworkService = async (config: LightClientConfig, callback: JsLightClientCallback) => {
+  const worker = await getWorker()
+  return worker.remote.startNetworkService(config, Comlink.proxy(callback))
+}
+
+export const queryChain = async (
+  chainId: number,
+  requestId: number,
+  request: Request,
+  retries: number,
+  callback: JsLightClientCallback,
+) => {
+  const worker = await getWorker()
+  return worker.remote.queryChain(chainId, requestId, request, retries, callback)
+}
+
+export const getPeers = async (chainId: number) => {
+  const worker = await getWorker()
+  return worker.remote
+    .getPeers(chainId)
+    .then((peers) => {
+      return peers.map(
+        ([peerId, roles, bestNumber, bestHash]) =>
+          ({
+            peerId,
+            roles,
+            bestNumber,
+            bestHash,
+          }) satisfies Peer,
+      )
+    })
+    .catch(() => [])
+}
+
+export const messageRecieved = async (connectionId: number, data: Uint8Array) => {
+  const worker = await getWorker()
+  return worker.remote.messageRecieved(connectionId, data)
+}
+
+export const connectionWritableBytes = async (connectionId: number, numBytes: number) => {
+  const worker = await getWorker()
+  return worker.remote.connectionWritableBytes(connectionId, numBytes)
+}
+
+export const connectionReset = async (connectionId: number) => {
+  const worker = await getWorker()
+  return worker.remote.connectionReset(connectionId)
+}
+
+export const wakeUp = async (callback: JsLightClientCallback) => {
+  const worker = await getWorker()
+  return worker.remote.wakeUp(Comlink.proxy(callback))
+}
+
+export const getLatestBlock = async (chainId: number) => {
+  const worker = await getWorker()
+  return worker.remote.getLatestBlock(chainId)
+}
 
 export const destroyWorker = async () => {
   if (!__executor_worker) return

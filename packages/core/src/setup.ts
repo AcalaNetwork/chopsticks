@@ -6,11 +6,12 @@ import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
 import { compactAddLength } from '@polkadot/util'
 
-import { Api } from './api.js'
+import { Api, ApiT } from './api.js'
 import { Blockchain } from './blockchain/index.js'
 import { BuildBlockMode } from './blockchain/txpool.js'
 import { Database } from './database.js'
 import { GenesisProvider } from './genesis-provider.js'
+import { LightClientConfig, P2P } from './p2p.js'
 import { defaultLogger } from './logger.js'
 import { getSlotDuration, setStorage } from './index.js'
 import { inherentProviders } from './blockchain/inherent/index.js'
@@ -28,6 +29,7 @@ export type SetupOptions = {
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
   processQueuedMessages?: boolean
+  p2p?: LightClientConfig
 }
 
 export const genesisSetup = async (chain: Blockchain, genesis: GenesisProvider) => {
@@ -79,8 +81,14 @@ export const processOptions = async (options: SetupOptions) => {
   } else {
     provider = new WsProvider(options.endpoint, 3_000)
   }
-  const api = new Api(provider)
-  await api.isReady
+
+  let api: ApiT
+  if (options.p2p) {
+    api = await P2P.create(options.p2p, new Api(provider))
+  } else {
+    api = new Api(provider)
+    await api.isReady
+  }
 
   let blockHash: string
   if (options.block == null) {

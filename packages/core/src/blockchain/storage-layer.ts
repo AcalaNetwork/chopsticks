@@ -1,7 +1,7 @@
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
-import { Api } from '../api.js'
+import { ApiT } from '../api.js'
 import { CHILD_PREFIX_LENGTH, PREFIX_LENGTH, isPrefixedChildKey } from '../utils/index.js'
 import { Database } from '../database.js'
 import { defaultLogger } from '../logger.js'
@@ -38,13 +38,13 @@ export interface StorageLayerProvider {
 }
 
 export class RemoteStorageLayer implements StorageLayerProvider {
-  readonly #api: Api
+  readonly #api: ApiT
   readonly #at: string
   readonly #db: Database | undefined
   readonly #keyCache = new KeyCache(PREFIX_LENGTH)
   readonly #defaultChildKeyCache = new KeyCache(CHILD_PREFIX_LENGTH)
 
-  constructor(api: Api, at: string, db: Database | undefined) {
+  constructor(api: ApiT, at: string, db: Database | undefined) {
     this.#api = api
     this.#at = at
     this.#db = db
@@ -58,6 +58,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
     }
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
+
     const data = await this.#api.getStorage(key, this.#at)
     this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
     return data ?? undefined

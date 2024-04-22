@@ -1,3 +1,3 @@
 [submodule "vendor/smoldot"]
 	path = vendor/smoldot
-	url = https://github.com/ermalkaleci/smoldot.git
+	url = https://github.com/smol-dot/smoldot.git

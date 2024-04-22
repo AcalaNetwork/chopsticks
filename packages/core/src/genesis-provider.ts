@@ -8,7 +8,7 @@ import {
 } from '@polkadot/rpc-provider/types'
 
 import { Genesis, genesisSchema } from './schema/index.js'
-import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
+import { JsRuntimeCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
 import { defaultLogger, isPrefixedChildKey } from './index.js'
 
 /**
@@ -117,7 +117,7 @@ export class GenesisProvider implements ProviderInterface {
     }
   }
 
-  get _jsCallback(): JsCallback {
+  get _jsCallback(): JsRuntimeCallback {
     const storage = this.#genesis.genesis.raw.top
     return {
       ...emptyTaskHandler,

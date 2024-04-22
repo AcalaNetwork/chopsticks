@@ -68,6 +68,12 @@ it('get yargs options from zod schema', () => {
         "description": "Enable offchain worker",
         "type": "boolean",
       },
+      "p2p": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": undefined,
+        "type": undefined,
+      },
       "port": {
         "choices": undefined,
         "demandOption": false,

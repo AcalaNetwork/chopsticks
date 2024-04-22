@@ -6,6 +6,25 @@ import _ from 'lodash'
 import { ChainProperties, Header, SignedBlock } from './index.js'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
 
+export interface ApiT {
+  isReady: Promise<void>
+  chain: Promise<string>
+  chainProperties: Promise<ChainProperties>
+  signedExtensions: ExtDef
+  disconnect(): Promise<void>
+  getSystemName(): Promise<string>
+  getSystemProperties(): Promise<ChainProperties>
+  getSystemChain(): Promise<string>
+  getBlockHash(blockNumber?: number): Promise<HexString | null>
+  getHeader(hash?: string): Promise<Header | null>
+  getBlock(hash?: string): Promise<SignedBlock | null>
+  getStorage(key: string, hash?: string): Promise<HexString | null>
+  getStorageBatch(prefix: HexString, keys: HexString[], hash?: HexString): Promise<[HexString, HexString | null][]>
+  getKeysPaged(prefix: string, pageSize: number, startKey: string, hash?: string): Promise<HexString[]>
+  subscribeRemoteNewHeads(cb: ProviderInterfaceCallback): Promise<string | number>
+  subscribeRemoteFinalizedHeads(cb: ProviderInterfaceCallback): Promise<string | number>
+}
+
 /**
  * API class. Calls provider to get on-chain data.
  * Either `endpoint` or `genesis` porvider must be provided.
@@ -18,7 +37,7 @@ import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index
  * await api.isReady
  * ```
  */
-export class Api {
+export class Api implements ApiT {
   #provider: ProviderInterface
   #ready: Promise<void> | undefined
   #chain: Promise<string> | undefined
@@ -51,7 +70,7 @@ export class Api {
       }
     }
 
-    return this.#ready
+    return this.#ready!
   }
 
   get chain(): Promise<string> {
@@ -120,7 +139,7 @@ export class Api {
       if (hash) params.push(hash as HexString)
       return this.#provider
         .send<HexString[]>('childstate_getKeysPaged', params, !!hash)
-        .then((keys) => keys.map((key) => prefixedChildKey(child, key)))
+        .then((keys) => keys.map((key) => prefixedChildKey(child, key) as HexString))
     } else {
       // main storage key, use state_getKeysPaged
       const params = [prefix, pageSize, startKey]

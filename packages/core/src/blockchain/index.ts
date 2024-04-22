@@ -9,7 +9,7 @@ import _ from 'lodash'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
 
-import { Api } from '../api.js'
+import { ApiT } from '../api.js'
 import { Block } from './block.js'
 import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool.js'
 import { Database } from '../database.js'
@@ -26,7 +26,7 @@ const logger = defaultLogger.child({ name: 'blockchain' })
 
 export interface Options {
   /** API instance, for getting on-chain data. */
-  api: Api
+  api: ApiT
   /** Build block mode. Default to Batch. */
   buildBlockMode?: BuildBlockMode
   /** Inherent provider, for creating inherents. */
@@ -76,7 +76,7 @@ export interface Options {
  */
 export class Blockchain {
   /** API instance, for getting on-chain data. */
-  readonly api: Api
+  readonly api: ApiT
   /** Datasource for caching storage and blocks data. */
   readonly db: Database | undefined
   /** Enable mock signature. Any signature starts with 0xdeadbeef and filled by 0xcd is considered valid */

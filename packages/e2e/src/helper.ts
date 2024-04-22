@@ -6,12 +6,14 @@ import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
 import {
+  ApiT,
   Blockchain,
   BuildBlockMode,
   GenesisProvider,
   StorageValues,
   genesisSetup,
 } from '@acala-network/chopsticks-core'
+import { LightClientConfig, P2P } from '@acala-network/chopsticks-core/p2p.js'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { createServer } from '@acala-network/chopsticks/server.js'
 import { defer } from '@acala-network/chopsticks-core/utils/index.js'
@@ -23,6 +25,7 @@ import { withExpect } from '@acala-network/chopsticks-testing'
 export { testingPairs, setupContext } from '@acala-network/chopsticks-testing'
 
 export type SetupOption = {
+  p2p?: LightClientConfig
   endpoint?: string | string[]
   blockHash?: HexString
   mockSignatureHost?: boolean
@@ -38,6 +41,16 @@ export const env = {
     endpoint: 'wss://acala-rpc.aca-api.network',
     // 3,800,000
     blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
+    p2p: {
+      genesisBlockHash: '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c',
+      bootnodes: [
+        '/dns/acala-bootnode-4.aca-api.network/tcp/30334/ws/p2p/12D3KooWBLwm4oKY5fsbkdSdipHzYJJHSHhuoyb1eTrH31cidrnY',
+        '/dns/acala-bootnode-5.aca-api.network/tcp/443/wss/p2p/12D3KooWN6ZZ2LFSJo2vDci3hqmmcvqMcKJAbREvuYCdvoBvV2D4',
+        '/dns/acala-bootnode-6.aca-api.network/tcp/80/ws/p2p/12D3KooWEBniruZHpoVj8RUtAFPahaN8UaGP6UtQb5Bdp4MVYbLc',
+        '/dns/acala-bootnode-6.aca-api.network/tcp/443/wss/p2p/12D3KooWEBniruZHpoVj8RUtAFPahaN8UaGP6UtQb5Bdp4MVYbLc',
+        '/dns/acala-bootnode-7.aca-api.network/tcp/80/ws/p2p/12D3KooWMq7AtHFx3ZboMT92HQw8BvhZFzJh8UrPCZeMB3yFLe1V',
+      ],
+    },
   },
   rococo: {
     endpoint: 'wss://rococo-rpc.polkadot.io',
@@ -46,6 +59,7 @@ export const env = {
 }
 
 export const setupAll = async ({
+  p2p,
   endpoint,
   blockHash,
   mockSignatureHost,
@@ -63,9 +77,14 @@ export const setupAll = async ({
   } else {
     provider = new WsProvider(endpoint, 3_000)
   }
-  const api = new Api(provider)
 
-  await api.isReady
+  let api: ApiT
+  if (p2p) {
+    api = await P2P.create(p2p, new Api(provider))
+  } else {
+    api = new Api(provider)
+    await api.isReady
+  }
 
   const header = await api.getHeader(blockHash)
   if (!header) {
