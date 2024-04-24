@@ -5,13 +5,7 @@ import { RegisteredTypes } from '@polkadot/types/types'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
 
 import { Api } from '@acala-network/chopsticks'
-import {
-  Blockchain,
-  BuildBlockMode,
-  GenesisProvider,
-  StorageValues,
-  genesisSetup,
-} from '@acala-network/chopsticks-core'
+import { Blockchain, BuildBlockMode, StorageValues } from '@acala-network/chopsticks-core'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { createServer } from '@acala-network/chopsticks/server.js'
 import { defer } from '@acala-network/chopsticks-core/utils/index.js'
@@ -96,7 +90,8 @@ export const setupAll = async ({
       })
 
       if (genesis) {
-        await genesisSetup(chain, provider as GenesisProvider)
+        // build 1st block
+        await chain.newBlock()
       }
 
       const { port, close } = await createServer(handler({ chain }), 0)

@@ -2,6 +2,8 @@ import {
   AccountInfo,
   ApplyExtrinsicResult,
   Call,
+  ConsensusEngineId,
+  DigestItem,
   Header,
   RawBabePreDigest,
   TransactionValidityError,
@@ -19,14 +21,42 @@ import { defaultLogger, truncate } from '../logger.js'
 
 const logger = defaultLogger.child({ name: 'block-builder' })
 
-const getConsensus = (header: Header) => {
-  if (header.digest.logs.length === 0) return
-  const preRuntime = header.digest.logs[0].asPreRuntime
-  const [consensusEngine, slot] = preRuntime
-  return { consensusEngine, slot, rest: header.digest.logs.slice(1) }
+export const genesisDigestLogs = async (head: Block) => {
+  const meta = await head.meta
+  const currentSlot = await getCurrentSlot(head)
+  if (meta.consts.babe) {
+    const newSlot = meta.registry.createType('Slot', currentSlot + 1)
+    const consensusEngine = meta.registry.createType('ConsensusEngineId', 'BABE')
+    const preDigest = meta.registry.createType('RawBabePreDigest', {
+      SecondaryVRF: {
+        authorityIndex: 514,
+        slotNumber: newSlot,
+        vrfOutput: '0x44cadd14aaefbda13ac8d85e1a6d58be082e7e2f56a4f95a3c612c784aaa4063',
+        vrfProof:
+          '0xf5517bf67d93ce633cde2fde7fbcf8ddca80017aaf8cd48436514687c662f60eda0ffa2c4781906416f4e71a196c9783c60c1b83d54c3a29365d03706714570b',
+      },
+    })
+    const digest = meta.registry.createType<DigestItem>('DigestItem', {
+      PreRuntime: [consensusEngine, compactAddLength(preDigest.toU8a())],
+    })
+    return [digest]
+  } else {
+    const newSlot = meta.registry.createType('Slot', currentSlot + 1)
+    const consensusEngine = meta.registry.createType<ConsensusEngineId>('ConsensusEngineId', 'aura')
+    const digest = meta.registry.createType<DigestItem>('DigestItem', {
+      PreRuntime: [consensusEngine, compactAddLength(newSlot.toU8a())],
+    })
+    return [digest]
+  }
 }
 
-const getNewSlot = (digest: RawBabePreDigest, slotNumber: number) => {
+const getConsensus = (header: Header) => {
+  if (header.digest.logs.length === 0) return
+  const [consensusEngine, preDigest] = header.digest.logs[0].asPreRuntime
+  return { consensusEngine, preDigest, rest: header.digest.logs.slice(1) }
+}
+
+const babePreDigestSetSlot = (digest: RawBabePreDigest, slotNumber: number) => {
   if (digest.isPrimary) {
     return {
       primary: {
@@ -58,21 +88,29 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
   const meta = await head.meta
   const parentHeader = await head.header
 
-  let newLogs = parentHeader.digest.logs as any
+  let newLogs = !head.number ? await genesisDigestLogs(head) : parentHeader.digest.logs.toArray()
   const consensus = getConsensus(parentHeader)
   if (consensus?.consensusEngine.isAura) {
-    const slot = await getCurrentSlot(head.chain)
+    const slot = await getCurrentSlot(head)
     const newSlot = compactAddLength(meta.registry.createType('Slot', slot + 1).toU8a())
-    newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
+    newLogs = [
+      meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensus.consensusEngine, newSlot] }),
+      ...consensus.rest,
+    ]
   } else if (consensus?.consensusEngine.isBabe) {
-    const slot = await getCurrentSlot(head.chain)
-    const digest = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.slot)
-    const newSlot = compactAddLength(meta.registry.createType('RawBabePreDigest', getNewSlot(digest, slot + 1)).toU8a())
-    newLogs = [{ PreRuntime: [consensus.consensusEngine, newSlot] }, ...consensus.rest]
+    const slot = await getCurrentSlot(head)
+    const digest = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.preDigest)
+    const newSlot = compactAddLength(
+      meta.registry.createType('RawBabePreDigest', babePreDigestSetSlot(digest, slot + 1)).toU8a(),
+    )
+    newLogs = [
+      meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensus.consensusEngine, newSlot] }),
+      ...consensus.rest,
+    ]
   } else if (consensus?.consensusEngine?.toString() == 'nmbs') {
     const nmbsKey = stringToHex('nmbs')
     newLogs = [
-      {
+      meta.registry.createType<DigestItem>('DigestItem', {
         // Using previous block author
         PreRuntime: [
           consensus.consensusEngine,
@@ -80,7 +118,7 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
             .find((log) => log.isPreRuntime && log.asPreRuntime[0].toHex() == nmbsKey)
             ?.asPreRuntime[1].toHex(),
         ],
-      },
+      }),
       ...consensus.rest,
     ]
 

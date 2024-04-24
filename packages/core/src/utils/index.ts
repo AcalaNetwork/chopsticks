@@ -5,6 +5,7 @@ import { StorageKey } from '@polkadot/types'
 import { getAuraSlotDuration } from '../wasm-executor/index.js'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 
+import { Block } from '../blockchain/block.js'
 import { Blockchain } from '../blockchain/index.js'
 
 export * from './set-storage.js'
@@ -121,29 +122,31 @@ const POTENTIAL_SLOT_KEYS = [
   '0xab2a8d5eca218f218c6fda6b1d22bb926bc171ab77f6a731a6e80c34ee1eda19', // authorInherent.highestSlotSeen
 ]
 
-export const getCurrentSlot = async (chain: Blockchain) => {
-  const meta = await chain.head.meta
+export const getCurrentSlot = async (head: Block) => {
+  const meta = await head.meta
   for (const key of POTENTIAL_SLOT_KEYS) {
-    const slotRaw = await chain.head.get(key)
+    const slotRaw = await head.get(key)
     if (slotRaw) {
       return meta.registry.createType<Slot>('Slot', hexToU8a(slotRaw)).toNumber()
     }
   }
-  throw new Error('Cannot find current slot')
+  const timestamp = await getCurrentTimestamp(head)
+  const slotDuration = await getSlotDuration(head)
+  return Math.floor(Number(timestamp / BigInt(slotDuration)))
 }
 
-export const getCurrentTimestamp = async (chain: Blockchain) => {
-  const meta = await chain.head.meta
-  const timestamp = await chain.head.read('u64', meta.query.timestamp.now)
-  return timestamp?.toBigInt() ?? 0n
+export const getCurrentTimestamp = async (head: Block) => {
+  const meta = await head.meta
+  const timestamp = await head.read('u64', meta.query.timestamp.now)
+  return timestamp?.toBigInt() ?? BigInt(Date.now())
 }
 
-export const getSlotDuration = async (chain: Blockchain) => {
-  const meta = await chain.head.meta
+export const getSlotDuration = async (head: Block) => {
+  const meta = await head.meta
   return meta.consts.babe
     ? (meta.consts.babe.expectedBlockTime as any as BN).toNumber()
     : meta.query.aura
-      ? getAuraSlotDuration(await chain.head.wasm)
+      ? getAuraSlotDuration(await head.wasm)
       : meta.consts.asyncBacking
         ? (meta.consts.asyncBacking.expectedBlockTime as any as BN).toNumber()
         : 12_000
