@@ -12,11 +12,11 @@ describe.each(['polkadot', 'acala'])('Can time-travel on %s', async (name) => {
 
     await timeTravel(chain, timestamp)
 
-    expect(await getCurrentTimestamp(chain)).eq(BigInt(timestamp))
+    expect(await getCurrentTimestamp(chain.head)).eq(BigInt(timestamp))
 
     // can build block successfully
     await ws.send('dev_newBlock', [])
 
-    expect(await getCurrentTimestamp(chain)).eq(BigInt(timestamp + (await getSlotDuration(chain))))
+    expect(await getCurrentTimestamp(chain.head)).eq(BigInt(timestamp + (await getSlotDuration(chain.head))))
   })
 })

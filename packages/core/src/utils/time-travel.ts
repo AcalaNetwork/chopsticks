@@ -8,7 +8,7 @@ import { setStorage } from './set-storage.js'
 export const timeTravel = async (chain: Blockchain, timestamp: number) => {
   const meta = await chain.head.meta
 
-  const slotDuration = await getSlotDuration(chain)
+  const slotDuration = await getSlotDuration(chain.head)
   const newSlot = Math.floor(timestamp / slotDuration)
 
   // new timestamp

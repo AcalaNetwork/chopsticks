@@ -125,7 +125,7 @@ export class SetValidationData implements InherentProvider {
         // increment current slot
         const relayCurrentSlot = decoded[key]
           ? meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
-          : (await getCurrentSlot(parent.chain)) * slotIncrease
+          : (await getCurrentSlot(parent)) * slotIncrease
         const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + slotIncrease)
         newEntries.push([key, u8aToHex(newSlot.toU8a())])
       } else {
