@@ -114,10 +114,14 @@ export class SetValidationData implements InherentProvider {
     )
 
     const slotIncrease = Math.max(
-      1,
-      (meta.consts.timestamp.minimumPeriod as any as BN)
-        .divn(3000) // relaychain min period
-        .toNumber(),
+      1, // min
+      (meta.consts.timestamp?.minimumPeriod as any as BN) // legacy
+        ?.divn(3000) // relaychain min period
+        ?.toNumber() ||
+        (meta.consts.aura?.slotDuration as any as BN) // async backing
+          ?.divn(6000) // relaychain block time
+          ?.toNumber() ||
+        1,
     )
 
     for (const key of Object.values(WELL_KNOWN_KEYS)) {
