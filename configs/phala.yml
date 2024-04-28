@@ -8,8 +8,6 @@ db: ./phala.db.sqlite
 # wasm-override: thala_parachain_runtime.compact.compressed.wasm
 
 import-storage:
-  Sudo:
-    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
   System:
     Account:
       -
