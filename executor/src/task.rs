@@ -133,17 +133,22 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut runtime_logs: Vec<LogInfo> = vec![];
 
     for (call, params) in task.calls {
-        let mut vm = runtime_call::run(runtime_call::Config {
+        let vm_res = runtime_call::run(runtime_call::Config {
             virtual_machine: vm_proto.clone(),
             function_to_call: call.as_str(),
             parameter: params.into_iter().map(|x| x.0),
             storage_main_trie_changes,
             max_log_level: task.runtime_log_level,
             calculate_trie_changes: false,
-        })
-        .unwrap();
+        });
 
         log::trace!("Calling {}", call);
+
+        if let Err((start_err, _)) = vm_res {
+            return Ok(TaskResponse::Error(start_err.to_string()));
+        }
+
+        let mut vm = vm_res.unwrap();
 
         let res = loop {
             vm = match vm {
