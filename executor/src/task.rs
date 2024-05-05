@@ -133,7 +133,9 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut runtime_logs: Vec<LogInfo> = vec![];
 
     for (call, params) in task.calls {
-        let vm_res = runtime_call::run(runtime_call::Config {
+        log::trace!("Calling {}", call);
+
+        let vm = runtime_call::run(runtime_call::Config {
             virtual_machine: vm_proto.clone(),
             function_to_call: call.as_str(),
             parameter: params.into_iter().map(|x| x.0),
@@ -142,13 +144,13 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             calculate_trie_changes: false,
         });
 
-        log::trace!("Calling {}", call);
-
-        if let Err((start_err, _)) = vm_res {
-            return Ok(TaskResponse::Error(start_err.to_string()));
-        }
-
-        let mut vm = vm_res.unwrap();
+        let mut vm = match vm {
+            Ok(vm) => vm,
+            // ignore host_vm_proto since it doesn't provide any info
+            Err((start_err, _host_vm_proto)) => {
+                return Ok(TaskResponse::Error(start_err.to_string()));
+            }
+        };
 
         let res = loop {
             vm = match vm {
