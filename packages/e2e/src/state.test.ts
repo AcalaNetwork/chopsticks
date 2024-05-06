@@ -1,8 +1,10 @@
+import { HexString } from '@polkadot/util/types'
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { runTask, taskHandler } from '@acala-network/chopsticks-core'
 import path from 'node:path'
 
-import { api, check, checkHex, env, mockCallback, setupApi, testingPairs } from './helper.js'
+import { api, chain, check, checkHex, env, mockCallback, setupApi, testingPairs } from './helper.js'
 import networks from './networks.js'
 
 setupApi(env.acala)
@@ -180,5 +182,22 @@ describe('state rpc', () => {
     unsub()
 
     await teardown()
+  })
+
+  it('handles unknown runtime call', async () => {
+    const parent = chain.head
+    const wasm = await parent.wasm
+    const calls: [string, HexString[]][] = [['unknown_method', ['0x']]]
+    const result = await runTask(
+      {
+        wasm,
+        calls,
+        mockSignatureHost: false,
+        allowUnresolvedImports: false,
+        runtimeLogLevel: 0,
+      },
+      taskHandler(parent),
+    )
+    expect(result).toMatchObject({ Error: 'Function to start was not found.' })
   })
 })
