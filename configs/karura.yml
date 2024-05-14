@@ -2,6 +2,7 @@ endpoint: wss://karura-rpc.aca-api.network
 mock-signature-host: true
 block: ${env.KARURA_BLOCK_NUMBER}
 db: ./db.sqlite
+runtime-log-level: 5
 
 import-storage:
   Sudo:

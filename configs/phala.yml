@@ -5,6 +5,7 @@ endpoint:
 mock-signature-host: true
 block: ${env.PHALA_BLOCK_NUMBER}
 db: ./phala.db.sqlite
+runtime-log-level: 5
 # wasm-override: thala_parachain_runtime.compact.compressed.wasm
 
 import-storage:

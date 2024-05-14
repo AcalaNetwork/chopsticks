@@ -2,6 +2,7 @@ endpoint: wss://bifrost-parachain.api.onfinality.io/public-ws
 mock-signature-host: true
 block: ${env.BIFROST_BLOCK_NUMBER}
 db: ./db.sqlite
+runtime-log-level: 5
 
 import-storage:
   System:

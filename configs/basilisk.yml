@@ -2,6 +2,8 @@ endpoint: wss://basilisk-rpc.dwellir.com
 mock-signature-host: true
 block: ${env.BASILISK_BLOCK_NUMBER}
 db: ./db.sqlite
+runtime-log-level: 5
+
 
 import-storage:
   System:

@@ -2,6 +2,7 @@ endpoint: wss://rpc-interlay.luckyfriday.io/
 mock-signature-host: true
 block: ${env.INTERLAY_BLOCK_NUMBER}
 db: ./interlay.db.sqlite
+runtime-log-level: 5
 # wasm-override: interlay_runtime.compact.compressed.wasm
 
 import-storage:
