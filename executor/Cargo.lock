@@ -404,9 +404,9 @@ dependencies = [
 
 [[package]]
 name = "event-listener"
-version = "5.2.0"
+version = "5.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b5fb89194fa3cad959b833185b3063ba881dbfc7030680b314250779fb4cc91"
+checksum = "6d9944b8ca13534cdfb2800775f8dd4902ff3fc75a50101466decadfdf322a24"
 dependencies = [
  "concurrent-queue",
  "pin-project-lite",
@@ -629,9 +629,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.12.1"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
+checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
 dependencies = [
  "either",
 ]
@@ -757,12 +757,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "685a9ac4b61f4e728e1d2c6a7844609c16527aeb5e6c865915c08e619c16410f"
 
 [[package]]
-name = "no-std-net"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43794a0ace135be66a25d3ae77d41b91615fb68ae937f904090203e81f755b65"
-
-[[package]]
 name = "nodrop"
 version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -823,9 +817,9 @@ dependencies = [
 
 [[package]]
 name = "num-traits"
-version = "0.2.18"
+version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da0df0e5185db44f69b44f26786fe401b6c293d1907744beaa7fa62b2e5a517a"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
 ]
@@ -1149,7 +1143,7 @@ dependencies = [
  "derive_more",
  "ed25519-zebra",
  "either",
- "event-listener 5.2.0",
+ "event-listener 5.3.0",
  "fnv",
  "futures-lite",
  "futures-util",
@@ -1160,7 +1154,6 @@ dependencies = [
  "libm",
  "libsecp256k1",
  "merlin",
- "no-std-net",
  "nom",
  "num-bigint",
  "num-rational",
@@ -1212,6 +1205,16 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "string-interner"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c6a0d765f5807e98a091107bae0a56ea3799f66a5de47b2c84c94a39c09974e"
+dependencies = [
+ "cfg-if",
+ "hashbrown",
+]
 
 [[package]]
 name = "subtle"
@@ -1368,9 +1371,9 @@ checksum = "af190c94f2773fdb3729c55b007a722abb5384da03bc0986df4c289bf5567e96"
 
 [[package]]
 name = "wasmi"
-version = "0.32.0-beta.8"
+version = "0.32.0-beta.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25c72a5f9570c87a59db8f071bbc1338922c9b19a43128d01e1d0c77f65ff2b1"
+checksum = "89197c624ff57b954a57779b670f43709a023b1e365285af4bf14db37c9bed8b"
 dependencies = [
  "arrayvec 0.7.4",
  "multi-stash",
@@ -1378,22 +1381,27 @@ dependencies = [
  "num-traits",
  "smallvec",
  "spin",
- "wasmi_arena",
+ "wasmi_collections",
  "wasmi_core",
  "wasmparser-nostd",
 ]
 
 [[package]]
-name = "wasmi_arena"
-version = "0.5.0"
+name = "wasmi_collections"
+version = "0.32.0-beta.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f686876d8f92a573a9a1e005b78ec1e893158bbdc3ac75a1270384ca86d6c6b"
+checksum = "3eefbe690421d1957bba7ced57b427263ff66885f6772b7e995806327e1086bf"
+dependencies = [
+ "ahash",
+ "hashbrown",
+ "string-interner",
+]
 
 [[package]]
 name = "wasmi_core"
-version = "0.17.0"
+version = "0.32.0-beta.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06223fd279f83ff4739554b9df82d9632bf5922acb7fc505990a0406837b5474"
+checksum = "1f873c298a7a5581318f6e7e604f90b2c6fc682ba032592126a0e71017f68cc0"
 dependencies = [
  "downcast-rs",
  "libm",
@@ -1403,9 +1411,9 @@ dependencies = [
 
 [[package]]
 name = "wasmparser-nostd"
-version = "0.100.1"
+version = "0.100.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9157cab83003221bfd385833ab587a039f5d6fa7304854042ba358a3b09e0724"
+checksum = "d5a015fe95f3504a94bb1462c717aae75253e39b9dd6c3fb1062c934535c64aa"
 dependencies = [
  "indexmap-nostd",
 ]

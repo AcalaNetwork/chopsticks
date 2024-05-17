@@ -142,6 +142,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             storage_main_trie_changes,
             max_log_level: task.runtime_log_level,
             calculate_trie_changes: false,
+            storage_proof_size_behavior:
+                runtime_call::StorageProofSizeBehavior::ConstantReturnValue(0),
         });
 
         let mut vm = match vm {
