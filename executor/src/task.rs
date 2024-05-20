@@ -67,6 +67,7 @@ pub struct TaskCall {
     mock_signature_host: bool,
     allow_unresolved_imports: bool,
     runtime_log_level: u32,
+    storage_proof_size: u64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -143,7 +144,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             max_log_level: task.runtime_log_level,
             calculate_trie_changes: false,
             storage_proof_size_behavior:
-                runtime_call::StorageProofSizeBehavior::ConstantReturnValue(0),
+                runtime_call::StorageProofSizeBehavior::ConstantReturnValue(task.storage_proof_size),
         });
 
         let mut vm = match vm {

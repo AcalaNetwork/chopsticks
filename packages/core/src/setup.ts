@@ -25,6 +25,7 @@ export type SetupOptions = {
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
   processQueuedMessages?: boolean
+  storageProofSize?: number
 }
 
 export const processOptions = async (options: SetupOptions) => {
@@ -92,6 +93,7 @@ export const setup = async (options: SetupOptions) => {
     offchainWorker: opts.offchainWorker,
     maxMemoryBlockCount: opts.maxMemoryBlockCount,
     processQueuedMessages: opts.processQueuedMessages,
+    storageProofSize: opts.storageProofSize,
   })
 
   if (opts.genesis) {

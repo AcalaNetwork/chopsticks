@@ -35,6 +35,7 @@ export const configSchema = z.object({
       description: 'Mock signature host so any signature starts with 0xdeadbeef and filled by 0xcd is considered valid',
     })
     .optional(),
+  'storage-proof-size': z.number().optional(),
   'max-memory-block-count': z.number().optional(),
   db: z.string({ description: 'Path to database' }).optional(),
   'wasm-override': z.string({ description: 'Path to wasm override' }).optional(),
