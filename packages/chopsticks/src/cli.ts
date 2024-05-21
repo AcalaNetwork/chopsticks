@@ -6,12 +6,15 @@ import type { MiddlewareFunction } from 'yargs'
 
 import { Blockchain, connectParachains, connectVertical, environment } from '@acala-network/chopsticks-core'
 import { configSchema, fetchConfig, getYargsOptions } from './schema/index.js'
-import { pluginExtendCli } from './plugins/index.js'
+import { loadRpcMethodsByScripts, pluginExtendCli } from './plugins/index.js'
 import { setupWithServer } from './index.js'
 
 dotenvConfig()
 
-const processArgv: MiddlewareFunction<{ config?: string; port?: number }> = async (argv) => {
+const processArgv: MiddlewareFunction<{ config?: string; port?: number; unsafeRpcMethods?: string }> = async (argv) => {
+  if (argv.unsafeRpcMethods) {
+    await loadRpcMethodsByScripts(argv.unsafeRpcMethods)
+  }
   if (argv.config) {
     Object.assign(argv, _.defaults(argv, await fetchConfig(argv.config)))
   }
@@ -84,6 +87,7 @@ const commands = yargs(hideBin(process.argv))
   .alias('endpoint', 'e')
   .alias('port', 'p')
   .alias('block', 'b')
+  .alias('unsafe-rpc-methods', 'ur')
   .alias('import-storage', 's')
   .alias('wasm-override', 'w')
   .usage('Usage: $0 <command> [options]')
