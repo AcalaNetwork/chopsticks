@@ -49,11 +49,6 @@ export interface Options {
   maxMemoryBlockCount?: number
   /** Whether to process queued messages */
   processQueuedMessages?: boolean
-  /**
-   * Storage Proof Size passed to runtime.
-   * See <https://github.com/smol-dot/smoldot/blob/26dedea00eafa7073ca1d4678277272d807b3d89/lib/src/executor/host.rs#L248>
-   */
-  storageProofSize?: number
 }
 
 /**
@@ -91,8 +86,6 @@ export class Blockchain {
   #runtimeLogLevel: number
   /** Polkadot.js custom types registration. */
   readonly registeredTypes: RegisteredTypes
-  /** Storage Proof Size passed to runtime. */
-  readonly storageProofSize?: number
 
   readonly #txpool: TxPool
   readonly #inherentProviders: InherentProvider[]
@@ -141,7 +134,6 @@ export class Blockchain {
     header,
     mockSignatureHost = false,
     allowUnresolvedImports = false,
-    storageProofSize = 0,
     runtimeLogLevel = 0,
     registeredTypes = {},
     offchainWorker = false,
@@ -152,7 +144,6 @@ export class Blockchain {
     this.db = db
     this.mockSignatureHost = mockSignatureHost
     this.allowUnresolvedImports = allowUnresolvedImports
-    this.storageProofSize = storageProofSize
     this.#runtimeLogLevel = runtimeLogLevel
     this.registeredTypes = registeredTypes
 

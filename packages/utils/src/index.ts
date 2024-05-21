@@ -32,7 +32,6 @@ export type SetupOption = {
   runtimeLogLevel?: number
   allowUnresolvedImports?: boolean
   processQueuedMessages?: boolean
-  storageProofSize?: number
 }
 
 export type SetupConfig = Config & {
@@ -52,7 +51,6 @@ export const createConfig = ({
   runtimeLogLevel,
   allowUnresolvedImports,
   processQueuedMessages,
-  storageProofSize,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -70,7 +68,6 @@ export const createConfig = ({
     resume: resume ?? false,
     'allow-unresolved-imports': allowUnresolvedImports,
     'process-queued-messages': processQueuedMessages,
-    'storage-proof-size': storageProofSize,
   }
   return config
 }

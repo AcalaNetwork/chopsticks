@@ -47,7 +47,6 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     offchainWorker: argv['offchain-worker'],
     maxMemoryBlockCount: argv['max-memory-block-count'],
     processQueuedMessages: argv['process-queued-messages'],
-    storageProofSize: argv['storage-proof-size'],
   })
 
   // load block from db

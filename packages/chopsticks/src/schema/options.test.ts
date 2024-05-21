@@ -98,12 +98,6 @@ it('get yargs options from zod schema', () => {
         "description": "Runtime maximum log level [off = 0; error = 1; warn = 2; info = 3; debug = 4; trace = 5]",
         "type": "number",
       },
-      "storage-proof-size": {
-        "choices": undefined,
-        "demandOption": false,
-        "description": undefined,
-        "type": "number",
-      },
       "timestamp": {
         "choices": undefined,
         "demandOption": false,

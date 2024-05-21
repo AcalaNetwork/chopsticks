@@ -292,7 +292,6 @@ export class Block {
         mockSignatureHost: this.#chain.mockSignatureHost,
         allowUnresolvedImports: this.#chain.allowUnresolvedImports,
         runtimeLogLevel: this.#chain.runtimeLogLevel,
-        storageProofSize: this.#chain.storageProofSize,
       },
       taskHandler(this),
     )
