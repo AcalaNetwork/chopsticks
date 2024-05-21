@@ -22,6 +22,15 @@ export type RuntimeVersion = {
   stateVersion: number
 }
 
+export type TaskCall = {
+  wasm: HexString
+  calls: [string, HexString[]][]
+  mockSignatureHost: boolean
+  allowUnresolvedImports: boolean
+  runtimeLogLevel: number
+  storageProofSize?: number
+}
+
 export type RuntimeLog = {
   message: string
   level?: number
@@ -113,19 +122,14 @@ export const createProof = async (nodes: HexString[], updates: [HexString, HexSt
   return { trieRootHash, nodes: newNodes }
 }
 
-export const runTask = async (
-  task: {
-    wasm: HexString
-    calls: [string, HexString[]][]
-    mockSignatureHost: boolean
-    allowUnresolvedImports: boolean
-    runtimeLogLevel: number
-  },
-  callback: JsCallback = emptyTaskHandler,
-) => {
+export const runTask = async (task: TaskCall, callback: JsCallback = emptyTaskHandler) => {
+  const task2 = {
+    ...task,
+    storageProofSize: task.storageProofSize ?? 0,
+  }
   const worker = await getWorker()
-  logger.trace(truncate(task), 'taskRun')
-  const response = await worker.remote.runTask(task, Comlink.proxy(callback))
+  logger.trace(truncate(task2), 'taskRun')
+  const response = await worker.remote.runTask(task2, Comlink.proxy(callback))
   if ('Call' in response) {
     logger.trace(truncate(response.Call), 'taskResponse')
   } else {
