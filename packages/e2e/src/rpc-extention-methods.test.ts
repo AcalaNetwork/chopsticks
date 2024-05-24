@@ -1,6 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { request } from 'http'
-
 import { env, setupApi, ws } from './helper.js'
 import { getRpcExtensionMethods, loadRpcMethodsByScripts } from '@acala-network/chopsticks/plugins/index.js'
 import { join, resolve } from 'path'
