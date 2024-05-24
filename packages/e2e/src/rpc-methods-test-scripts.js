@@ -1,3 +1,5 @@
+/* eslint-disable */
+// used to test rpc methods, no need to lint
 return {
   async testdev_testRpcMethod1(context, params) {
     console.log('testdev_testRpcMethod 1', params)
