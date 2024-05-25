@@ -48,7 +48,7 @@ export const loadRpcMethodsByScripts = async (path: string) => {
   try {
     const scriptContent = readFileSync(resolve(path), 'utf8')
     rpcScriptMethods = new Function(scriptContent)()
-    logger.info(`${Object.keys(rpcScriptMethods).length} extension rpc methods loaded from ${path}`)  
+    logger.info(`${Object.keys(rpcScriptMethods).length} extension rpc methods loaded from ${path}`)
   } catch (error) {
     console.log('Failed to load rpc extension methods')
   }
