@@ -7,7 +7,7 @@ import {
   defaultLogger,
 } from '@acala-network/chopsticks-core'
 
-import { loadRpcPlugin, rpcPluginMethods } from '../plugins/index.js'
+import { getRpcExtensionMethods, loadRpcExtensionMethod } from '../plugins/index.js'
 
 const rpcLogger = defaultLogger.child({ name: 'rpc' })
 
@@ -16,15 +16,15 @@ const allHandlers: Handlers = {
   rpc_methods: async () =>
     Promise.resolve({
       version: 1,
-      methods: [...Object.keys(allHandlers), ...rpcPluginMethods].sort(),
+      methods: [...Object.keys(allHandlers), ...getRpcExtensionMethods()].sort(),
     }),
 }
 
 const getHandler = async (method: string) => {
   const handler = allHandlers[method]
   if (!handler) {
-    // no handler for this method, check if it's a plugin
-    return loadRpcPlugin(method)
+    // no handler for this method, check if it's a plugin or a script loaded
+    return loadRpcExtensionMethod(method)
   }
   return handler
 }
