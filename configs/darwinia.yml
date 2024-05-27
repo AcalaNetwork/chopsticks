@@ -1,0 +1,32 @@
+endpoint: wss://darwinia-rpc.dwellir.com
+mock-signature-host: true
+block: ${env.DARWINIA_BLOCK_NUMBER}
+db: ./darwinia.db.sqlite
+runtime-log-level: 5
+# wasm-override: hydradx_runtime.compact.compressed.wasm
+
+import-storage:
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: '1000000000000000000000'
+  Assets:
+    Account:
+      -
+        -
+          - 1027 # Statemint USDT
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - free: '10000000000000000000000000'
+      -
+        -
+          - 1028 # PINK
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - free: '100000000000000000000000'
+  TechnicalCommittee:
+    Members: ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"]
+  Council:
+    Members: ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"]
