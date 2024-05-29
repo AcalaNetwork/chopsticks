@@ -153,3 +153,39 @@ Chopsticks is designed to be extensible. You can write your own plugin to extend
 There are 2 types of plugins: `cli` and `rpc`. `cli` plugins are used to extend Chopsticks' CLI, while `rpc` plugins are used to extend Chopsticks' RPC.
 
 To create a new plugin, you could check out the [run-block plugin](packages/chopsticks/src/plugins/run-block/) as an example.
+
+## Testing big migrations
+
+When testing migrations with lots of keys, use `prefetch-storages` in a config file or cli to cache those storage.
+
+In config file, use a `prefetch-storages` section:
+
+```yml
+prefetch-storages:
+  - 0x123456 # fetch all storages with this prefix
+  - Balances # fetch all storages under Balances pallet
+  - Tokens.Accounts # fetch all storages under Tokens.Accounts stroage
+  - System: Account # fetch all storages under System.Account stroage
+  - Tokens:
+  	  Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY] # fetch all storages for Tokens.Accounts(Alice)
+  - Tokens.Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY, { token: DOT }] # fetch this particular storage
+```
+
+Please note that only the formats mentioned above are supported for config files.
+
+Or use `fetch-storages` subcommand to only fetch and cache the storages:
+
+```sh
+npx @acala-network/chopsticks@latest fetch-storages 0x123456 Balances Tokens.Accounts
+	--endlpint=wss://acala-rpc-0.aca-api.network
+	--block=<blockhash> # default to latest block
+	--db=acala.sqlite
+```
+
+The subcommand arguments could be:
+- hex: fetch all storages with this prefix
+- PalletName: fetch all storages for this pallet
+- PalletName.StorageName: fetch all storages for this storage
+
+Please note that fetched storages will be saved in the sqlite file specified by `--db` option (`db: ./acala.sqlite` in a config file), if not provided, it will default to `./db.sqlite`.
+
