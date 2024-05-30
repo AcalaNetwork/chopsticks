@@ -9,14 +9,15 @@ import { resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { xxhashAsHex } from '@polkadot/util-crypto'
 
-import { FetchStorageConfig, fetchStorage, getPrefixesFromConfig } from './fetch-storages.js'
+import { FetchStorageConfig, fetchStorages, getPrefixesFromConfig } from './fetch-storages.js'
 
-describe('fetch-storage', () => {
+describe('fetch-storages', () => {
   let api: ApiPromise
   let provider: ProviderInterface
+  const endpoint = 'wss://acala-rpc.aca-api.network'
 
   beforeAll(async () => {
-    provider = new WsProvider('wss://acala-rpc.aca-api.network', 30_000)
+    provider = new WsProvider(endpoint, 30_000)
     api = new ApiPromise({ provider })
     await api.isReady
   })
@@ -98,11 +99,10 @@ describe('fetch-storage', () => {
     const blockHash = '0x3a9a2d71537ceedff1a3895d68456f4a870bb89ab649fd47c6cf9c4f9731d580' // 4,500,000
     const dbPath = resolve(tmpdir(), 'fetch.db.sqlite')
 
-    await fetchStorage({
-      blockHash,
+    await fetchStorages({
+      block: blockHash,
+      endpoint,
       dbPath,
-      apiPromise: api,
-      provider,
       config: [
         'System.Number',
         'Tips',

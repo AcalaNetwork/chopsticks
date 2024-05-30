@@ -1,11 +1,9 @@
-import { ApiPromise } from '@polkadot/api'
-import { WsProvider } from '@polkadot/rpc-provider'
 import { z } from 'zod'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 
 import { configSchema, getYargsOptions } from '../../schema/index.js'
-import { fetchStorage, logger } from '../../utils/fetch-storages.js'
+import { fetchStorages, logger } from '../../utils/fetch-storages.js'
 
 const schema = z.object({
   ..._.pick(configSchema.shape, ['endpoint', 'block', 'db']),
@@ -20,36 +18,19 @@ export const cli = (y: Argv) => {
     handler: async (argv) => {
       const config = schema.parse(argv)
       if (!config.endpoint) throw new Error('endpoint is required')
-      const fetchStorageConfig = argv.items as any
-      if (!fetchStorageConfig) throw new Error('fetch-storages items are required')
-      const provider = new WsProvider(config.endpoint, 3_000)
-      const apiPromise = new ApiPromise({ provider })
-      await apiPromise.isReady
+      if (!config.block) throw new Error('block is required')
+      if (!argv.items) throw new Error('fetch-storages items are required')
 
       try {
-        let blockHash: string
-        if (config.block == null) {
-          const lastHdr = await apiPromise.rpc.chain.getHeader()
-          blockHash = lastHdr.hash.toString()
-        } else if (typeof config.block === 'string' && config.block.startsWith('0x')) {
-          blockHash = config.block as string
-        } else if (Number.isInteger(+config.block)) {
-          blockHash = await apiPromise.rpc.chain.getBlockHash(Number(config.block)).then((h) => h.toString())
-        } else {
-          throw new Error(`Invalid block number or hash: ${config.block}`)
-        }
-
-        await fetchStorage({
-          blockHash,
+        await fetchStorages({
+          block: config.block,
+          endpoint: config.endpoint,
           dbPath: config.db ?? 'db.sqlite',
-          apiPromise,
-          provider,
-          config: fetchStorageConfig,
+          config: argv.items as any,
         })
         process.exit(0)
       } catch (e) {
         logger.error(e, 'Error when fetching storages')
-        await apiPromise?.disconnect()
         process.exit(1)
       }
     },

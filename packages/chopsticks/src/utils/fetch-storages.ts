@@ -2,14 +2,17 @@ import { Api, defaultLogger } from '@acala-network/chopsticks-core'
 import { ApiPromise } from '@polkadot/api'
 import { DecoratedMeta, ModuleStorage } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
+import { WsProvider } from '@polkadot/rpc-provider'
 import { compactStripLength, stringCamelCase, u8aToHex } from '@polkadot/util'
 import { expandMetadata } from '@polkadot/types'
+import { wrap } from 'comlink'
 import { xxhashAsHex } from '@polkadot/util-crypto'
 import _ from 'lodash'
+import nodeEndpoint from 'comlink/dist/umd/node-adapter.js'
+import threads from 'node:worker_threads'
 
 const BATCH_SIZE = 1000
 
@@ -110,19 +113,33 @@ export const getPrefixesFromConfig = async (config: FetchStorageConfig, api: Api
 /**
  * Fetch storages and save in a local db
  */
-export const fetchStorage = async ({
-  blockHash,
+export const fetchStorages = async ({
+  block,
+  endpoint,
   dbPath,
-  apiPromise,
-  provider,
   config,
 }: {
-  blockHash: string
+  block: number | string
+  endpoint: string | string[]
   dbPath: string
-  apiPromise: ApiPromise
-  provider: ProviderInterface
   config: FetchStorageConfig
 }) => {
+  const provider = new WsProvider(endpoint, 3_000)
+  const apiPromise = new ApiPromise({ provider })
+  await apiPromise.isReady
+
+  let blockHash: string
+  if (block == null) {
+    const lastHdr = await apiPromise.rpc.chain.getHeader()
+    blockHash = lastHdr.hash.toString()
+  } else if (typeof block === 'string' && block.startsWith('0x')) {
+    blockHash = block as string
+  } else if (Number.isInteger(+block)) {
+    blockHash = await apiPromise.rpc.chain.getBlockHash(Number(block)).then((h) => h.toString())
+  } else {
+    throw new Error(`Invalid block number or hash: ${block}`)
+  }
+
   const prefixesFromConfig = await getPrefixesFromConfig(config, apiPromise)
   const uniqPrefixes = _.uniq(prefixesFromConfig)
 
@@ -167,5 +184,20 @@ export const fetchStorage = async ({
       await db.saveStorageBatch(keyValueEntries)
       logger.debug({ prefix }, `saved ${storages.length} storages ✅`)
     }
+  }
+}
+
+export const startFetchStorageWorker = async (config?: FetchStorageConfig | null) => {
+  if (!config) return null
+  const worker = new threads.Worker(new URL('fetch-storages-worker.js', import.meta.url), {
+    name: 'fetch-storages-worker',
+  })
+  const workerApi = wrap<{ startFetch: (config: FetchStorageConfig) => void }>((nodeEndpoint as any)(worker))
+  workerApi.startFetch(config)
+  return {
+    worker: workerApi,
+    terminate: async () => {
+      await worker.terminate()
+    },
   }
 }
