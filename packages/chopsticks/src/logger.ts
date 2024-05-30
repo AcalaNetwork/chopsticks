@@ -11,7 +11,7 @@ const clearStatus = _.debounce(() => process.stdout.clearLine(1), 500, { trailin
 export const statusFetching = () => {
   if (!process.stdout.clearLine) return
   if (process.env['CI'] || process.env['VITEST'] || process.env['TEST']) return
-  process.stdout.write(spinnerFrames[index++] + ' Fetching')
+  process.stdout.write(` ${spinnerFrames[index++]} Fetching`)
   process.stdout.cursorTo(0)
   index = ++index % spinnerFrames.length
   clearStatus()
