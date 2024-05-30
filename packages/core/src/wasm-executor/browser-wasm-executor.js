@@ -19,7 +19,7 @@ const createProof = async (nodes, updates) => {
 }
 
 const runTask = async (task, callback) => {
-  return pkg.run_task(task, callback, 'info')
+  return pkg.run_task(task, callback)
 }
 
 const testing = async (callback, key) => {

@@ -158,11 +158,7 @@ pub async fn create_proof(nodes: JsValue, updates: JsValue) -> Result<JsValue, J
 }
 
 #[wasm_bindgen]
-pub async fn run_task(
-    task: JsValue,
-    js: JsCallback,
-    _log_level: Option<String>,
-) -> Result<JsValue, JsValue> {
+pub async fn run_task(task: JsValue, js: JsCallback) -> Result<JsValue, JsValue> {
     let task = serde_wasm_bindgen::from_value::<task::TaskCall>(task)?;
     setup_console(task.log_level());
 
