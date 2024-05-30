@@ -1,15 +1,19 @@
+import { Api, defaultLogger } from '@acala-network/chopsticks-core'
 import { ApiPromise } from '@polkadot/api'
 import { DecoratedMeta, ModuleStorage } from '@polkadot/types/metadata/decorate/types'
 import { HexString } from '@polkadot/util/types'
-import { Logger } from 'pino'
+import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { StorageEntry } from '@polkadot/types/primitive/types'
 import { StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
 import { compactStripLength, stringCamelCase, u8aToHex } from '@polkadot/util'
 import { expandMetadata } from '@polkadot/types'
 import { xxhashAsHex } from '@polkadot/util-crypto'
+import _ from 'lodash'
 
 const BATCH_SIZE = 1000
+
+export const logger = defaultLogger.child({ name: 'fetch-storages' })
 
 type FetchStorageConfigItem =
   | HexString
@@ -45,6 +49,9 @@ const checkPalletStorageByName = <T extends boolean>(
   return { pallet, storage }
 }
 
+/**
+ * Convert fetch-storage configs to prefixes for fetching.
+ */
 export const getPrefixesFromConfig = async (config: FetchStorageConfig, api: ApiPromise) => {
   const prefixes: string[] = []
 
@@ -53,10 +60,10 @@ export const getPrefixesFromConfig = async (config: FetchStorageConfig, api: Api
 
   for (const item of config) {
     if (typeof item === 'string' && item.startsWith('0x')) {
-      // hex string
+      // hex
       prefixes.push(item)
     } else if (typeof item === 'string' && !item.includes('.')) {
-      // pallet name
+      // pallet
       checkPalletStorageByName(expandMeta, item)
       prefixes.push(xxhashAsHex(item, 128))
     } else if (typeof item === 'string' && item.includes('.')) {
@@ -100,15 +107,67 @@ export const getPrefixesFromConfig = async (config: FetchStorageConfig, api: Api
   return prefixes
 }
 
-export const fetchStorage = async (
-  at: string,
-  dbPath: string,
-  api: ApiPromise,
-  config: FetchStorageConfig,
-  logger: Logger,
-) => {
-  const prefixes = await getPrefixesFromConfig(config, api)
-  const apiAt = await api.at(at)
+/**
+ * Fetch storages and save in a local db
+ */
+export const fetchStorage = async ({
+  blockHash,
+  dbPath,
+  apiPromise,
+  provider,
+  config,
+}: {
+  blockHash: string
+  dbPath: string
+  apiPromise: ApiPromise
+  provider: ProviderInterface
+  config: FetchStorageConfig
+}) => {
+  const prefixesFromConfig = await getPrefixesFromConfig(config, apiPromise)
+  const uniqPrefixes = _.uniq(prefixesFromConfig)
 
+  const processPrefixes = (prefixes: string[]) => {
+    prefixes.sort()
+    const result: string[] = []
+    for (const prefix of prefixes) {
+      // check if the current prefix is not a prefix of any added prefix
+      if (!result.some((prev) => prefix.startsWith(prev))) {
+        result.push(prefix)
+      }
+    }
+    return result
+  }
+
+  const prefixes = processPrefixes(uniqPrefixes)
+  logger.debug({ prefixes }, 'prefixes from config')
+
+  if (!prefixes.length) throw new Error('No prefixes to fetch')
+
+  const api = new Api(provider)
   const db = new SqliteDatabase(dbPath)
+
+  for (const prefix of prefixes) {
+    let startKey = '0x'
+    let hasMorePages = true
+
+    while (hasMorePages) {
+      logger.debug({ prefix, startKey }, 'fetching keys')
+      const keysPage = await api.getKeysPaged(prefix, BATCH_SIZE, startKey, blockHash)
+      logger.debug({ prefix, startKey }, `fetched ${keysPage.length} keys`)
+      startKey = keysPage[keysPage.length - 1]
+      if (!keysPage || keysPage.length < BATCH_SIZE) {
+        hasMorePages = false
+      }
+
+      logger.debug({ prefix }, 'fetching storages')
+      const storages = await api.getStorageBatch(prefix as HexString, keysPage as HexString[], blockHash as HexString)
+      logger.debug({ prefix }, `fetched ${storages.length} storages`)
+
+      const keyValueEntries = storages.map(([key, value]) => ({ blockHash, key, value }))
+      await db.saveStorageBatch(keyValueEntries)
+      logger.debug({ prefix }, `saved ${storages.length} storages ✅`)
+    }
+  }
+
+  process.exit(0)
 }

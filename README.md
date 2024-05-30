@@ -156,9 +156,11 @@ To create a new plugin, you could check out the [run-block plugin](packages/chop
 
 ## Testing big migrations
 
-When testing migrations with lots of keys, use `prefetch-storages` in a config file or cli to cache those storage.
+When testing migrations with lots of keys, you may want to fetch and cache some storages.
 
-In config file, use a `prefetch-storages` section:
+There are two ways to fetch storages.
+
+The first way is to use a config file with a `prefetch-storages` section:
 
 ```yml
 prefetch-storages:
@@ -171,9 +173,11 @@ prefetch-storages:
   - Tokens.Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY, { token: DOT }] # fetch this particular storage
 ```
 
+When you starts chopsticks, it will fetch these storages in background.
+
 Please note that only the formats mentioned above are supported for config files.
 
-Or use `fetch-storages` subcommand to only fetch and cache the storages:
+The second way is use `fetch-storages` subcommand to only fetch and cache storages:
 
 ```sh
 npx @acala-network/chopsticks@latest fetch-storages 0x123456 Balances Tokens.Accounts
@@ -187,5 +191,5 @@ The subcommand arguments could be:
 - PalletName: fetch all storages for this pallet
 - PalletName.StorageName: fetch all storages for this storage
 
-Please note that fetched storages will be saved in the sqlite file specified by `--db` option (`db: ./acala.sqlite` in a config file), if not provided, it will default to `./db.sqlite`.
+Please note that for both ways, fetched storages will be saved in the sqlite file specified by `--db` option (`db: ./acala.sqlite` in a config file), if not provided, it will default to `./db.sqlite`.
 

@@ -1,14 +1,23 @@
+import { ApiPromise } from '@polkadot/api'
+import { HexString } from '@polkadot/util/types'
+import { Like } from 'typeorm'
+import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { WsProvider } from '@polkadot/rpc-provider'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { resolve } from 'node:path'
+import { tmpdir } from 'node:os'
+import { xxhashAsHex } from '@polkadot/util-crypto'
 
-import { ApiPromise } from '@polkadot/api'
-import { FetchStorageConfig, getPrefixesFromConfig } from './fetch-storages.js'
+import { FetchStorageConfig, fetchStorage, getPrefixesFromConfig } from './fetch-storages.js'
 
 describe('fetch-storage', () => {
   let api: ApiPromise
+  let provider: ProviderInterface
 
   beforeAll(async () => {
-    api = new ApiPromise({ provider: new WsProvider('wss://acala-rpc.aca-api.network', 60_000) })
+    provider = new WsProvider('wss://acala-rpc.aca-api.network', 30_000)
+    api = new ApiPromise({ provider })
     await api.isReady
   })
 
@@ -85,5 +94,47 @@ describe('fetch-storage', () => {
     ).rejects.toThrow(/Unsupported fetch-storage config: System.Account,BlockHash/)
   })
 
-  it('fetch prefixes works')
+  it('fetch prefixes works', async () => {
+    const blockHash = '0x3a9a2d71537ceedff1a3895d68456f4a870bb89ab649fd47c6cf9c4f9731d580' // 4,500,000
+    const dbPath = resolve(tmpdir(), 'fetch.db.sqlite')
+
+    await fetchStorage({
+      blockHash,
+      dbPath,
+      apiPromise: api,
+      provider,
+      config: [
+        'System.Number',
+        'Tips',
+        {
+          Rewards: {
+            PoolInfos: [{ Loans: { Token: 'ACA' } }],
+          },
+        },
+      ],
+    })
+
+    const db = new SqliteDatabase(dbPath)
+
+    const systemNumberStorage = await db.queryStorage(
+      blockHash,
+      (xxhashAsHex('System', 128) + xxhashAsHex('Number', 128).slice(2)) as HexString,
+    )
+    expect(systemNumberStorage?.value).toEqual('0x20aa4400')
+
+    const datasource = await db.datasource
+    const keyValueTable = datasource.getRepository('KeyValuePair')
+
+    expect(await keyValueTable.count()).toEqual(5)
+
+    expect(await keyValueTable.countBy({ key: Like(`${xxhashAsHex('Tips', 128)}%`) })).toEqual(3)
+
+    const rewards = await keyValueTable.findBy({ key: Like(`${xxhashAsHex('Rewards', 128)}%`) })
+    expect(rewards.length).toEqual(1)
+    expect(rewards[0].value).toEqual(
+      '0xf45ce8eb6fcaa12109000000000000000800002333cc48e197963c000000000000000014e1339c9e79e7380000000000000000010000000195319d9b71330d010000000000000000bb59ad064bb0bd000000000000000000',
+    )
+
+    db.close()
+  })
 })
