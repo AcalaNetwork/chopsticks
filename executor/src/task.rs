@@ -18,6 +18,8 @@ use smoldot::{
 use std::collections::BTreeMap;
 use wasm_bindgen::prelude::*;
 
+const LOG_TARGET: &str = "chopsticks::executor";
+
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RuntimeVersion {
@@ -68,6 +70,19 @@ pub struct TaskCall {
     allow_unresolved_imports: bool,
     runtime_log_level: u32,
     storage_proof_size: u64,
+}
+
+impl TaskCall {
+    pub fn log_level(&self) -> Option<log::Level> {
+        match self.runtime_log_level {
+            1 => Some(log::Level::Error),
+            2 => Some(log::Level::Warn),
+            3 => Some(log::Level::Info),
+            4 => Some(log::Level::Debug),
+            5 => Some(log::Level::Trace),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -134,7 +149,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut runtime_logs: Vec<LogInfo> = vec![];
 
     for (call, params) in task.calls {
-        log::trace!("Calling {}", call);
+        log::trace!(target: LOG_TARGET, "Calling {call}");
 
         let vm = runtime_call::run(runtime_call::Config {
             virtual_machine: vm_proto.clone(),
@@ -332,18 +347,14 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                 message,
                             } => {
                                 let level = match log_level {
-                                    0 => "ERROR".to_string(),
-                                    1 => "WARN".to_string(),
-                                    2 => "INFO".to_string(),
-                                    3 => "DEBUG".to_string(),
-                                    4 => "TRACE".to_string(),
-                                    l => format!("_{l}_"),
+                                    0 => log::Level::Error,
+                                    1 => log::Level::Warn,
+                                    2 => log::Level::Info,
+                                    3 => log::Level::Debug,
+                                    4 => log::Level::Trace,
+                                    l => unreachable!("unexpected log level {l}"),
                                 };
-                                log::info!(
-                                    "{}: {}",
-                                    format!("{:<28}{:>6}", target.to_string(), level),
-                                    message.to_string()
-                                );
+                                log::log!(target: target.as_ref(), level, "{}", message.to_string());
                                 runtime_logs.push(LogInfo {
                                     message: message.to_string(),
                                     level: Some(log_level),
@@ -357,7 +368,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             }
         };
 
-        log::trace!("Completed {}", call);
+        log::trace!(target: LOG_TARGET, "Completed {call}");
 
         match res {
             Ok(success) => {

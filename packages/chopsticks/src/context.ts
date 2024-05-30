@@ -4,6 +4,7 @@ import { Config } from './schema/index.js'
 import { HexString } from '@polkadot/util/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { overrideStorage, overrideWasm } from './utils/override.js'
+import { statusFetching } from './logger.js'
 import axios from 'axios'
 
 const logger = defaultLogger.child({ name: 'setup-context' })
@@ -47,6 +48,9 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     offchainWorker: argv['offchain-worker'],
     maxMemoryBlockCount: argv['max-memory-block-count'],
     processQueuedMessages: argv['process-queued-messages'],
+    hooks: {
+      apiFetching: statusFetching,
+    },
   })
 
   // load block from db
