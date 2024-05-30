@@ -168,6 +168,4 @@ export const fetchStorage = async ({
       logger.debug({ prefix }, `saved ${storages.length} storages ✅`)
     }
   }
-
-  process.exit(0)
 }

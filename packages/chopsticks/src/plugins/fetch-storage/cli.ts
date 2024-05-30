@@ -46,6 +46,7 @@ export const cli = (y: Argv) => {
           provider,
           config: fetchStorageConfig,
         })
+        process.exit(0)
       } catch (e) {
         logger.error(e, 'Error when fetching storages')
         await apiPromise?.disconnect()
