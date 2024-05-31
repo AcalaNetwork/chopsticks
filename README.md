@@ -192,12 +192,12 @@ The first way is to use a config file with a `prefetch-storages` section:
 
 ```yml
 prefetch-storages:
-  - 0x123456 # fetch all storages with this prefix
+  - '0x123456' # fetch all storages with this prefix
   - Balances # fetch all storages under Balances pallet
   - Tokens.Accounts # fetch all storages under Tokens.Accounts stroage
   - System: Account # fetch all storages under System.Account stroage
   - Tokens:
-  	  Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY] # fetch all storages for Tokens.Accounts(Alice)
+      Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY] # fetch all storages for Tokens.Accounts(Alice)
   - Tokens.Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY, { token: DOT }] # fetch this particular storage
 ```
 
@@ -219,5 +219,5 @@ The subcommand arguments could be:
 - PalletName: fetch all storages for this pallet
 - PalletName.StorageName: fetch all storages for this storage
 
-Please note that for both ways, fetched storages will be saved in the sqlite file specified by `--db` option (`db: ./acala.sqlite` in a config file), if not provided, it will default to `./db.sqlite`.
+Please note that for both ways, fetched storages will be saved in the sqlite file specified by `--db` option (`db: ./acala.sqlite` in a config file), if not provided, it will default to `./db-{network}-{block}.sqlite`.
 

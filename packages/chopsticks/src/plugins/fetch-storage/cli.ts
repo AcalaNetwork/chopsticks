@@ -17,15 +17,13 @@ export const cli = (y: Argv) => {
     builder: (yargs) => yargs.options(getYargsOptions(schema.shape)),
     handler: async (argv) => {
       const config = schema.parse(argv)
-      if (!config.endpoint) throw new Error('endpoint is required')
-      if (!config.block) throw new Error('block is required')
       if (!argv.items) throw new Error('fetch-storages items are required')
 
       try {
         await fetchStorages({
           block: config.block,
           endpoint: config.endpoint,
-          dbPath: config.db ?? 'db.sqlite',
+          dbPath: config.db,
           config: argv.items as any,
         })
         process.exit(0)

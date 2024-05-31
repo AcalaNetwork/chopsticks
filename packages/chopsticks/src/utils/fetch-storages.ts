@@ -56,6 +56,7 @@ const checkPalletStorageByName = <T extends boolean>(
  * Convert fetch-storage configs to prefixes for fetching.
  */
 export const getPrefixesFromConfig = async (config: FetchStorageConfig, api: ApiPromise) => {
+  logger.debug({ config }, 'received fetch-storage config')
   const prefixes: string[] = []
 
   const metadata = await api.rpc.state.getMetadata()
@@ -107,23 +108,25 @@ export const getPrefixesFromConfig = async (config: FetchStorageConfig, api: Api
     }
   }
 
+  logger.debug({ prefixes }, 'prefixes from config')
+
   return prefixes
+}
+
+type FetchStoragesParams = {
+  block?: number | string | null
+  endpoint?: string | string[]
+  dbPath?: string
+  config: FetchStorageConfig
 }
 
 /**
  * Fetch storages and save in a local db
  */
-export const fetchStorages = async ({
-  block,
-  endpoint,
-  dbPath,
-  config,
-}: {
-  block: number | string
-  endpoint: string | string[]
-  dbPath: string
-  config: FetchStorageConfig
-}) => {
+export const fetchStorages = async ({ block, endpoint, dbPath, config }: FetchStoragesParams) => {
+  if (!endpoint) throw new Error('endpoint is required')
+  if (!block) throw new Error('block is required')
+
   const provider = new WsProvider(endpoint, 3_000)
   const apiPromise = new ApiPromise({ provider })
   await apiPromise.isReady
@@ -139,6 +142,9 @@ export const fetchStorages = async ({
   } else {
     throw new Error(`Invalid block number or hash: ${block}`)
   }
+  const signedBlock = await apiPromise.rpc.chain.getBlock(blockHash)
+  const blockNumber = signedBlock.block.header.number.toNumber()
+  const chainName = (await apiPromise.rpc.system.chain()).toString()
 
   const prefixesFromConfig = await getPrefixesFromConfig(config, apiPromise)
   const uniqPrefixes = _.uniq(prefixesFromConfig)
@@ -161,7 +167,7 @@ export const fetchStorages = async ({
   if (!prefixes.length) throw new Error('No prefixes to fetch')
 
   const api = new Api(provider)
-  const db = new SqliteDatabase(dbPath)
+  const db = new SqliteDatabase(dbPath ?? `db-${chainName}-${blockNumber}.sqlite`)
 
   for (const prefix of prefixes) {
     let startKey = '0x'
@@ -187,13 +193,17 @@ export const fetchStorages = async ({
   }
 }
 
-export const startFetchStorageWorker = async (config?: FetchStorageConfig | null) => {
-  if (!config) return null
+export const startFetchStorageWorker = async (options: FetchStoragesParams) => {
+  if (!options.config) return null
+
   const worker = new threads.Worker(new URL('fetch-storages-worker.js', import.meta.url), {
     name: 'fetch-storages-worker',
   })
-  const workerApi = wrap<{ startFetch: (config: FetchStorageConfig) => void }>((nodeEndpoint as any)(worker))
-  workerApi.startFetch(config)
+  worker.on('error', (err) => {
+    logger.error(err, 'error from worker')
+  })
+  const workerApi = wrap<{ startFetch: (options: FetchStoragesParams) => void }>((nodeEndpoint as any)(worker))
+  workerApi.startFetch(options)
   return {
     worker: workerApi,
     terminate: async () => {

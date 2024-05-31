@@ -19,7 +19,7 @@ export const configSchema = z.object({
         z.string(),
         z
           .number()
-          .max(Number.MAX_SAFE_INTEGER, 'Number is too big, please make it a string if you are uing a hex string'),
+          .max(Number.MAX_SAFE_INTEGER, 'Number is too big, please make it a string if you are using a hex string'),
         z.null(),
       ],
       {
@@ -63,6 +63,12 @@ export const configSchema = z.object({
     .boolean({
       description:
         'Produce extra block when queued messages are detected. Default to true. Set to false to disable it.',
+    })
+    .optional(),
+  'prefetch-storages': z
+    .any({
+      description:
+        'Storage key prefixes config for fetching storage, useful for testing big migrations, see README for examples',
     })
     .optional(),
 })
