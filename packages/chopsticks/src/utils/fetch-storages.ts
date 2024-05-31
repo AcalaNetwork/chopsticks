@@ -8,7 +8,7 @@ import { StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
 import { WsProvider } from '@polkadot/rpc-provider'
 import { compactStripLength, stringCamelCase, u8aToHex } from '@polkadot/util'
 import { expandMetadata } from '@polkadot/types'
-import { wrap } from 'comlink'
+import { releaseProxy, wrap } from 'comlink'
 import { xxhashAsHex } from '@polkadot/util-crypto'
 import _ from 'lodash'
 import nodeEndpoint from 'comlink/dist/umd/node-adapter.js'
@@ -142,9 +142,6 @@ export const fetchStorages = async ({ block, endpoint, dbPath, config }: FetchSt
   } else {
     throw new Error(`Invalid block number or hash: ${block}`)
   }
-  const signedBlock = await apiPromise.rpc.chain.getBlock(blockHash)
-  const blockNumber = signedBlock.block.header.number.toNumber()
-  const chainName = (await apiPromise.rpc.system.chain()).toString()
 
   const prefixesFromConfig = await getPrefixesFromConfig(config, apiPromise)
   const uniqPrefixes = _.uniq(prefixesFromConfig)
@@ -162,12 +159,19 @@ export const fetchStorages = async ({ block, endpoint, dbPath, config }: FetchSt
   }
 
   const prefixes = processPrefixes(uniqPrefixes)
-  logger.debug({ prefixes }, 'prefixes from config')
 
   if (!prefixes.length) throw new Error('No prefixes to fetch')
 
+  const signedBlock = await apiPromise.rpc.chain.getBlock(blockHash)
+  const blockNumber = signedBlock.block.header.number.toNumber()
+  const chainName = (await apiPromise.rpc.system.chain()).toString()
+  const finalDbPath = dbPath ?? `db-${chainName}-${blockNumber}.sqlite`
+
   const api = new Api(provider)
-  const db = new SqliteDatabase(dbPath ?? `db-${chainName}-${blockNumber}.sqlite`)
+  const db = new SqliteDatabase(finalDbPath)
+  logger.info(
+    `Storages will be saved at ${finalDbPath}, use '--db=${finalDbPath} --block=${blockNumber}' to apply it later on`,
+  )
 
   for (const prefix of prefixes) {
     let startKey = '0x'
@@ -177,6 +181,7 @@ export const fetchStorages = async ({ block, endpoint, dbPath, config }: FetchSt
       logger.debug({ prefix, startKey }, 'fetching keys')
       const keysPage = await api.getKeysPaged(prefix, BATCH_SIZE, startKey, blockHash)
       logger.debug({ prefix, startKey }, `fetched ${keysPage.length} keys`)
+      if (!keysPage.length) break
       startKey = keysPage[keysPage.length - 1]
       if (!keysPage || keysPage.length < BATCH_SIZE) {
         hasMorePages = false
@@ -191,23 +196,27 @@ export const fetchStorages = async ({ block, endpoint, dbPath, config }: FetchSt
       logger.debug({ prefix }, `saved ${storages.length} storages ✅`)
     }
   }
+
+  logger.info(`Storages are saved at ${finalDbPath}, use '--db=${finalDbPath} --block=${blockNumber}' to apply it`)
 }
 
 export const startFetchStorageWorker = async (options: FetchStoragesParams) => {
   if (!options.config) return null
 
-  const worker = new threads.Worker(new URL('fetch-storages-worker.js', import.meta.url), {
+  const worker = new threads.Worker(new URL('./fetch-storages-worker.js', import.meta.url), {
     name: 'fetch-storages-worker',
   })
-  worker.on('error', (err) => {
-    logger.error(err, 'error from worker')
-  })
-  const workerApi = wrap<{ startFetch: (options: FetchStoragesParams) => void }>((nodeEndpoint as any)(worker))
+
+  const workerApi = wrap<{ startFetch: (options: FetchStoragesParams) => Promise<void> }>((nodeEndpoint as any)(worker))
   workerApi.startFetch(options)
+
+  const terminate = async () => {
+    workerApi[releaseProxy]()
+    await worker.terminate()
+  }
+
   return {
     worker: workerApi,
-    terminate: async () => {
-      await worker.terminate()
-    },
+    terminate,
   }
 }
