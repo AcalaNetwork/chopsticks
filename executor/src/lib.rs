@@ -1,19 +1,57 @@
 extern crate console_error_panic_hook;
 
+use log::{Level, Log, Metadata, Record};
 use smoldot::{
     json_rpc::methods::{HashHexString, HexString},
     trie::TrieEntryVersion,
 };
-use std::{collections::BTreeMap, str::FromStr};
+use std::collections::BTreeMap;
 use wasm_bindgen::prelude::*;
+use web_sys::console;
 
 mod proof;
 mod task;
 
-fn setup_console(level: Option<String>) {
+static LOGGER: WebConsoleLogger = WebConsoleLogger {};
+
+struct WebConsoleLogger {}
+
+impl Log for WebConsoleLogger {
+    #[inline]
+    fn enabled(&self, metadata: &Metadata) -> bool {
+        metadata.level() <= log::max_level()
+    }
+
+    fn log(&self, record: &Record) {
+        if !self.enabled(record.metadata()) {
+            return;
+        }
+
+        // pick the console.log() variant for the appropriate logging level
+        let console_log = match record.level() {
+            Level::Error => console::error_1,
+            Level::Warn => console::warn_1,
+            Level::Info => console::info_1,
+            Level::Debug => console::log_1,
+            Level::Trace => console::debug_1,
+        };
+
+        let msg = format!(
+            "{}: {}",
+            format!("{:>28} {:>6}", record.target(), record.level()),
+            record.args()
+        );
+
+        console_log(&msg.into());
+    }
+
+    fn flush(&self) {}
+}
+
+fn setup_console(level: Option<log::Level>) {
     console_error_panic_hook::set_once();
-    let level = level.map(|x| x.to_uppercase()).unwrap_or("INFO".into());
-    let _ = console_log::init_with_level(log::Level::from_str(level.as_str()).unwrap());
+    let _ = log::set_logger(&LOGGER);
+    log::set_max_level(level.unwrap_or(log::Level::Info).to_level_filter());
 }
 
 #[wasm_bindgen(typescript_custom_section)]
@@ -120,14 +158,10 @@ pub async fn create_proof(nodes: JsValue, updates: JsValue) -> Result<JsValue, J
 }
 
 #[wasm_bindgen]
-pub async fn run_task(
-    task: JsValue,
-    js: JsCallback,
-    log_level: Option<String>,
-) -> Result<JsValue, JsValue> {
-    setup_console(log_level);
-
+pub async fn run_task(task: JsValue, js: JsCallback) -> Result<JsValue, JsValue> {
     let task = serde_wasm_bindgen::from_value::<task::TaskCall>(task)?;
+    setup_console(task.log_level());
+
     let result = task::run_task(task, js).await?;
     let result = serde_wasm_bindgen::to_value(&result)?;
 
