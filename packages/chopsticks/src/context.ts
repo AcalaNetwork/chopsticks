@@ -3,6 +3,7 @@ import { BlockEntry, GenesisProvider, defaultLogger, isUrl, setup, timeTravel } 
 import { Config } from './schema/index.js'
 import { HexString } from '@polkadot/util/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
+import { apiFetching } from './logger.js'
 import { overrideStorage, overrideWasm } from './utils/override.js'
 import { startFetchStorageWorker } from './utils/fetch-storages.js'
 import axios from 'axios'
@@ -48,6 +49,9 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     offchainWorker: argv['offchain-worker'],
     maxMemoryBlockCount: argv['max-memory-block-count'],
     processQueuedMessages: argv['process-queued-messages'],
+    hooks: {
+      apiFetching,
+    },
   })
 
   // load block from db

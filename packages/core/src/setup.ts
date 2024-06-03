@@ -25,6 +25,9 @@ export type SetupOptions = {
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
   processQueuedMessages?: boolean
+  hooks?: {
+    apiFetching?: () => void
+  }
 }
 
 export const processOptions = async (options: SetupOptions) => {
@@ -39,6 +42,10 @@ export const processOptions = async (options: SetupOptions) => {
     provider = new WsProvider(options.endpoint, 3_000)
   }
   const api = new Api(provider)
+
+  // setup api hooks
+  api.onFetching(options.hooks?.apiFetching)
+
   await api.isReady
 
   let blockHash: string
