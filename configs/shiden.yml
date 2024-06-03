@@ -1,4 +1,7 @@
-endpoint: wss://shiden.api.onfinality.io/public-ws
+endpoint:
+  - wss://rpc.shiden.astar.network
+  - wss://shiden-rpc.dwellir.com
+  - wss://shiden.api.onfinality.io/public-ws
 mock-signature-host: true
 block: ${env.SHIDEN_BLOCK_NUMBER}
 db: ./db.sqlite
