@@ -125,7 +125,6 @@ type FetchStoragesParams = {
  */
 export const fetchStorages = async ({ block, endpoint, dbPath, config }: FetchStoragesParams) => {
   if (!endpoint) throw new Error('endpoint is required')
-  if (!block) throw new Error('block is required')
 
   const provider = new WsProvider(endpoint, 3_000)
   const apiPromise = new ApiPromise({ provider })

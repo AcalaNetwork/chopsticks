@@ -28,7 +28,8 @@
 		"docs:dev": "yarn docs:prep && vitepress dev",
 		"docs:build": "yarn docs:prep && vitepress build",
 		"docs:preview": "yarn docs:build && vitepress preview",
-		"publint": "sh ./publint.sh"
+		"publint": "sh ./publint.sh",
+		"depcheck": "yarn workspaces foreach --all -pvit run depcheck"
 	},
 	"engines": {
 		"node": ">=v18"
@@ -50,6 +51,7 @@
 		"@typescript-eslint/parser": "^7.3.1",
 		"@vitest/coverage-v8": "^1.4.0",
 		"@vitest/ui": "^1.4.0",
+		"depcheck": "^1.4.7",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-import-resolver-typescript": "^3.6.1",
