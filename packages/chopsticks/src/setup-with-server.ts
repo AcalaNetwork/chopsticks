@@ -16,6 +16,7 @@ export const setupWithServer = async (argv: Config) => {
     listenPort,
     async close() {
       await context.chain.close()
+      await context.fetchStorageWorker?.terminate()
       await close()
     },
   }

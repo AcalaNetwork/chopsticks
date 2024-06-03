@@ -25,5 +25,6 @@ export declare class Database {
   deleteBlock: (hash: HexString) => Promise<void>
   blocksCount: () => Promise<number>
   saveStorage: (blockHash: HexString, key: HexString, value: HexString | null) => Promise<void>
+  saveStorageBatch?: (entries: KeyValueEntry[]) => Promise<void>
   queryStorage: (blockHash: HexString, key: HexString) => Promise<KeyValueEntry | null>
 }

@@ -70,6 +70,11 @@ export abstract class BaseSqlDatabase implements Database {
     )
   }
 
+  async saveStorageBatch(entries: KeyValueEntry[]) {
+    const db = await this.datasource
+    await db.getRepository(KeyValuePair).upsert(entries, ['blockHash', 'key'])
+  }
+
   async queryStorage(blockHash: HexString, key: HexString): Promise<KeyValueEntry | null> {
     const db = await this.datasource
     return db.getRepository(KeyValuePair).findOne({ where: { blockHash, key } })

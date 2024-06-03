@@ -74,6 +74,12 @@ it('get yargs options from zod schema', () => {
         "description": "Port to listen on",
         "type": "number",
       },
+      "prefetch-storages": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": "Storage key prefixes config for fetching storage, useful for testing big migrations, see README for examples",
+        "type": undefined,
+      },
       "process-queued-messages": {
         "choices": undefined,
         "demandOption": false,
