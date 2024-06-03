@@ -112,6 +112,7 @@ __metadata:
     "@acala-network/chopsticks-core": "workspace:*"
     "@acala-network/chopsticks-db": "workspace:*"
     "@pnpm/npm-conf": "npm:^2.2.2"
+    "@polkadot/api": "npm:^10.11.2"
     "@polkadot/api-augment": "npm:^10.11.2"
     "@polkadot/types": "npm:^10.11.2"
     "@polkadot/util": "npm:^12.6.2"

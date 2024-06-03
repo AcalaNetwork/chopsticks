@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks",
-	"version": "0.12.0",
+	"version": "0.12.1",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"bin": "./chopsticks.cjs",
@@ -16,6 +16,7 @@
 		"@acala-network/chopsticks-core": "workspace:*",
 		"@acala-network/chopsticks-db": "workspace:*",
 		"@pnpm/npm-conf": "^2.2.2",
+		"@polkadot/api": "^10.11.2",
 		"@polkadot/api-augment": "^10.11.2",
 		"@polkadot/types": "^10.11.2",
 		"@polkadot/util": "^12.6.2",
