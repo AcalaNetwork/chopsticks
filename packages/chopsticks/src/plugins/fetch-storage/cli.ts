@@ -5,9 +5,7 @@ import type { Argv } from 'yargs'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { fetchStorages } from '../../utils/fetch-storages.js'
 
-const schema = z.object({
-  ..._.pick(configSchema.shape, ['endpoint', 'block', 'db']),
-})
+const schema = z.object(_.pick(configSchema.shape, ['endpoint', 'block', 'db']))
 
 export const cli = (y: Argv) => {
   y.command({
