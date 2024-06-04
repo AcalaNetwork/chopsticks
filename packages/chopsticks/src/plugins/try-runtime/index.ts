@@ -11,7 +11,7 @@ const schema = z.object({
   endpoint: configSchema.shape.endpoint,
   block: configSchema.shape.block,
   db: configSchema.shape.db,
-  ['runtime-log-level']: configSchema.shape['runtime-log-level'],
+  ['runtime-log-level']: configSchema.shape['runtime-log-level'].default(5),
   ['runtime']: z.string({
     description: 'Path to WASM built with feature `try-runtime` enabled',
   }),
