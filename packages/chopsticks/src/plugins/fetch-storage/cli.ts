@@ -3,7 +3,7 @@ import _ from 'lodash'
 import type { Argv } from 'yargs'
 
 import { configSchema, getYargsOptions } from '../../schema/index.js'
-import { fetchStorages } from '../../utils/fetch-storages.js'
+import { fetchStorages, logger } from '../../utils/fetch-storages.js'
 
 const schema = z.object(_.pick(configSchema.shape, ['endpoint', 'block', 'db']))
 
@@ -26,6 +26,7 @@ export const cli = (y: Argv) => {
         })
         process.exit(0)
       } catch (e) {
+        logger.error(e)
         process.exit(1)
       }
     },

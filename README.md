@@ -209,7 +209,7 @@ The second way is use `fetch-storages` subcommand to only fetch and cache storag
 
 ```sh
 npx @acala-network/chopsticks@latest fetch-storages 0x123456 Balances Tokens.Accounts
-	--endlpint=wss://acala-rpc-0.aca-api.network
+	--endpoint=wss://acala-rpc-0.aca-api.network
 	--block=<blockhash> # default to latest block
 	--db=acala.sqlite
 ```
