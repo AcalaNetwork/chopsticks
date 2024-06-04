@@ -11,7 +11,7 @@
 		"build:cjs": "swc ./src --config-file ../../.cjsswcrc -d dist/cjs --copy-files && tsc -p tsconfig.json --declarationDir dist/cjs && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
 		"build:esm": "swc ./src --config-file ../../.esmswcrc -d dist/esm --copy-files && tsc -p tsconfig.json --declarationDir dist/esm",
 		"docs:prep": "typedoc",
-		"depcheck": "depcheck --ignore-patterns='*.test.ts'"
+		"depcheck": "npx depcheck --ignore-patterns='*.test.ts'"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",

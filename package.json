@@ -51,7 +51,6 @@
 		"@typescript-eslint/parser": "^7.3.1",
 		"@vitest/coverage-v8": "^1.4.0",
 		"@vitest/ui": "^1.4.0",
-		"depcheck": "^1.4.7",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-import-resolver-typescript": "^3.6.1",

@@ -10,7 +10,7 @@
 		"build:cjs": "swc ./src --config-file ../../.cjsswcrc -d dist/cjs && tsc -p tsconfig.json --declarationDir dist/cjs && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
 		"build:esm": "swc ./src --config-file ../../.esmswcrc -d dist/esm && tsc -p tsconfig.json --declarationDir dist/esm",
 		"docs:prep": "typedoc",
-		"depcheck": "depcheck --ignores=pino-pretty"
+		"depcheck": "npx depcheck --ignores=pino-pretty"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
