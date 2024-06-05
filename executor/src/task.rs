@@ -208,8 +208,8 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
                 }
 
-                RuntimeCall::ClosestDescendantMerkleValue(_req) => {
-                    unreachable!()
+                RuntimeCall::ClosestDescendantMerkleValue(req) => {
+                    req.resume_unknown()
                 }
 
                 RuntimeCall::NextKey(req) => {
