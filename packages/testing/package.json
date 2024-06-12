@@ -13,8 +13,8 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-utils": "workspace:*",
-		"@polkadot/api": "^10.11.2",
-		"@polkadot/types": "^10.11.2"
+		"@polkadot/api": "^11.2.1",
+		"@polkadot/types": "^11.2.1"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.1.65",

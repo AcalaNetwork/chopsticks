@@ -13,10 +13,10 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
-		"@polkadot/api": "^10.11.2",
-		"@polkadot/api-base": "^10.11.2",
+		"@polkadot/api": "^11.2.1",
+		"@polkadot/api-base": "^11.2.1",
 		"@polkadot/keyring": "^12.6.2",
-		"@polkadot/types": "^10.11.2",
+		"@polkadot/types": "^11.2.1",
 		"@polkadot/util": "^12.6.2"
 	},
 	"devDependencies": {
