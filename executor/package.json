@@ -20,8 +20,8 @@
 		"@polkadot/wasm-util": "^7.3.2"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.1.65",
-		"@swc/core": "^1.4.8",
+		"@swc/cli": "0.4.0",
+		"@swc/core": "^1.6.7",
 		"fflate": "^0.8.2"
 	},
 	"files": [

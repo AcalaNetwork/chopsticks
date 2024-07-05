@@ -19,9 +19,9 @@
 		"typeorm": "^0.3.20"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.1.65",
-		"@swc/core": "^1.4.8",
-		"typescript": "^5.3.3"
+		"@swc/cli": "0.4.0",
+		"@swc/core": "^1.6.7",
+		"typescript": "^5.5.3"
 	},
 	"files": [
 		"dist/esm/**",
