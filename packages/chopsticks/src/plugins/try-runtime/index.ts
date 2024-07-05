@@ -76,7 +76,7 @@ export const cli = (y: Argv) => {
       const response = await block.call('TryRuntime_on_runtime_upgrade', [select_none.toHex()])
 
       if (argv.outputPath) {
-        writeFileSync(argv.outputPath, JSON.stringify(response, null, 2))
+        writeFileSync(argv.outputPath as string, JSON.stringify(response, null, 2))
       } else {
         const [actual, max] = registry.createType('(Weight, Weight)', response.result)
         const consumedWeight = actual.refTime.toBn()
