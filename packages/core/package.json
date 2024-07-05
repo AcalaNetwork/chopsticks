@@ -8,7 +8,7 @@
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
 		"build": "yarn clean && ../../package-build.sh",
 		"docs:prep": "typedoc",
-		"depcheck": "npx depcheck --ignores=pino-pretty"
+		"depcheck": "npx depcheck"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
