@@ -19,7 +19,7 @@ describe('dry-run-extrinsic', () => {
     })
     const extrinsic = await api.tx.balances.transfer(bob.address, 1e12).signAsync(alice)
     const { outcome, storageDiff } = await chain.dryRunExtrinsic(extrinsic.toHex())
-    expect(outcome.toHuman()).toMatchSnapshot()
+    expect(outcome.toJSON()).toMatchSnapshot()
     expect(storageDiff).toMatchSnapshot()
   })
 

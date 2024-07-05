@@ -2,7 +2,7 @@
 	"name": "chopsticks-monorepo",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
-	"packageManager": "yarn@4.1.1",
+	"packageManager": "yarn@4.3.1",
 	"private": true,
 	"type": "module",
 	"workspaces": [
@@ -66,6 +66,6 @@
 		"vite-tsconfig-paths": "^4.3.2",
 		"vitepress": "^1.0.1",
 		"vitest": "^1.4.0",
-		"wasm-pack": "^0.12.1"
+		"wasm-pack": "^0.13.0"
 	}
 }
