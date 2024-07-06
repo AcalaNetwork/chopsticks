@@ -75,7 +75,7 @@ export const cli = (y: Argv) => {
           openHtml(filePath)
         }
       } else if (argv.outputPath) {
-        writeFileSync(argv.outputPath, JSON.stringify(result, null, 2))
+        writeFileSync(argv.outputPath as string, JSON.stringify(result, null, 2))
       } else {
         console.dir(result, { depth: null, colors: false })
       }

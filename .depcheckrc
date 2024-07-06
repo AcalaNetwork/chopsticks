@@ -1,0 +1,1 @@
+ignores: ["@swc/*", "typescript", "pino-pretty"]

@@ -1,5 +1,6 @@
 import { BuildBlockMode, defaultLogger, genesisSchema, isUrl } from '@acala-network/chopsticks-core'
 import { HexString } from '@polkadot/util/types'
+import { Options } from 'yargs'
 import { ZodNativeEnum, ZodRawShape, ZodTypeAny, z } from 'zod'
 import { basename, extname } from 'node:path'
 import { readFileSync } from 'node:fs'
@@ -117,12 +118,16 @@ const getZodFirstOption = (option: ZodTypeAny) => {
 }
 
 export const getYargsOptions = (zodShape: ZodRawShape) => {
-  return _.mapValues(zodShape, (option) => ({
-    demandOption: !option.isOptional(),
-    description: option._def.description,
-    type: getZodType(option) || getZodFirstOption(option),
-    choices: getZodChoices(option),
-  }))
+  return _.mapValues(
+    zodShape,
+    (option) =>
+      ({
+        demandOption: !option.isOptional(),
+        description: option._def.description,
+        type: getZodType(option) || getZodFirstOption(option),
+        choices: getZodChoices(option),
+      }) as Options,
+  )
 }
 
 const CONFIGS_BASE_URL = 'https://raw.githubusercontent.com/AcalaNetwork/chopsticks/master/configs/'

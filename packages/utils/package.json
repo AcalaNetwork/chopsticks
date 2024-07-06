@@ -6,23 +6,21 @@
 	"type": "module",
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
-		"build": "yarn clean && yarn build:cjs && yarn build:esm",
-		"build:cjs": "swc ./src --config-file ../../.cjsswcrc -d dist/cjs && tsc -p tsconfig.json --declarationDir dist/cjs && echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json",
-		"build:esm": "swc ./src --config-file ../../.esmswcrc -d dist/esm && tsc -p tsconfig.json --declarationDir dist/esm",
+		"build": "yarn clean && ../../package-build.sh",
 		"depcheck": "npx depcheck"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
-		"@polkadot/api": "^11.2.1",
-		"@polkadot/api-base": "^11.2.1",
+		"@polkadot/api": "^12.1.1",
+		"@polkadot/api-base": "^12.1.1",
 		"@polkadot/keyring": "^12.6.2",
-		"@polkadot/types": "^11.2.1",
+		"@polkadot/types": "^12.1.1",
 		"@polkadot/util": "^12.6.2"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.1.65",
-		"@swc/core": "^1.4.8",
-		"typescript": "^5.3.3"
+		"@swc/cli": "0.4.0",
+		"@swc/core": "^1.6.7",
+		"typescript": "^5.5.3"
 	},
 	"files": [
 		"dist/esm/**",

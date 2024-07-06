@@ -2,8 +2,8 @@
 
 exports[`dry-run-extrinsic > dry run extrinsic 1`] = `
 {
-  "Ok": {
-    "Ok": [],
+  "ok": {
+    "ok": [],
   },
 }
 `;

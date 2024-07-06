@@ -52,11 +52,11 @@ export const cli = (y: Argv) => {
           config['disable-stack'],
           config['enable-memory'],
         )
-        writeFileSync(argv.output, JSON.stringify(steps, null, 2))
+        writeFileSync(argv.output as string, JSON.stringify(steps, null, 2))
       } else {
         pinoLogger.info('Running EVM call trace ...')
         const calls = await traceCalls(tracingBlock, extrinsic)
-        writeFileSync(argv.output, JSON.stringify(calls, null, 2))
+        writeFileSync(argv.output as string, JSON.stringify(calls, null, 2))
       }
 
       pinoLogger.info(`Trace logs: ${argv.output}`)
