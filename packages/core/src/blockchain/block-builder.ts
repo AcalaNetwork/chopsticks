@@ -359,8 +359,8 @@ export const buildBlock = async (
     )
   }
 
-  const finalBlock = new Block(head.chain, newBlock.number, header2.hash.toHex(), head, {
-    header: header2,
+  const finalBlock = new Block(head.chain, newBlock.number, finalHeader.hash.toHex(), head, {
+    header: finalHeader,
     extrinsics: allExtrinsics,
     storage: head.storage,
     storageDiff,
