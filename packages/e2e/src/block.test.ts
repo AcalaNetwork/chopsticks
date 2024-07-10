@@ -25,7 +25,7 @@ describe('block', async () => {
     await Promise.all(promises)
   })
 
-  it.only('block hash are unique', async () => {
+  it('block hash are unique', async () => {
     const { alice } = testingPairs()
     await dev.setStorage({
       System: {
