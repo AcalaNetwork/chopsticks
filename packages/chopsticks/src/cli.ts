@@ -1,5 +1,6 @@
 import { config as dotenvConfig } from 'dotenv'
 import { hideBin } from 'yargs/helpers'
+import { z } from 'zod'
 import _ from 'lodash'
 import yargs from 'yargs'
 import type { MiddlewareFunction } from 'yargs'
@@ -12,14 +13,22 @@ import { setupWithServer } from './index.js'
 dotenvConfig()
 
 const processArgv: MiddlewareFunction<{ config?: string; port?: number; unsafeRpcMethods?: string }> = async (argv) => {
-  if (argv.unsafeRpcMethods) {
-    await loadRpcMethodsByScripts(argv.unsafeRpcMethods)
-  }
-  if (argv.config) {
-    Object.assign(argv, _.defaults(argv, await fetchConfig(argv.config)))
-  }
-  if (environment.PORT) {
-    argv.port = Number(environment.PORT)
+  try {
+    if (argv.unsafeRpcMethods) {
+      await loadRpcMethodsByScripts(argv.unsafeRpcMethods)
+    }
+    if (argv.config) {
+      Object.assign(argv, _.defaults(argv, await fetchConfig(argv.config)))
+    }
+    if (environment.PORT) {
+      argv.port = Number(environment.PORT)
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw error.flatten()
+    } else {
+      throw error
+    }
   }
 }
 
