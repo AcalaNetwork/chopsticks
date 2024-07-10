@@ -30,7 +30,7 @@ describe('block', async () => {
     await dev.setStorage({
       System: {
         Account: [
-          [[alice.address], { data: { free: 10 * 1e12 } }],
+          [[alice.address], { providers: 1, data: { free: 10 * 1e12 } }],
         ],
       },
     })
