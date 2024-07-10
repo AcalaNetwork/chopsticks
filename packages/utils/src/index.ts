@@ -174,7 +174,7 @@ export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'
   const signed = await tx
   const deferred = defer<Codec[]>()
   await signed.send((status) => {
-    logger.debug({ status: status.status.toHuman()}, 'Transaction status')
+    logger.debug({ status: status.status.toHuman() }, 'Transaction status')
     if (status.isInBlock || status.isFinalized) {
       deferred.resolve(status.events)
     }

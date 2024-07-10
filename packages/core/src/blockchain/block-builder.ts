@@ -15,10 +15,10 @@ import { HexString } from '@polkadot/util/types'
 import { InherentProvider } from './inherent/index.js'
 import { StorageLayer, StorageValueKind } from './storage-layer.js'
 import { TaskCallResponse } from '../wasm-executor/index.js'
+import { blake2AsU8a } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex, u8aConcat } from '@polkadot/util'
 import { compactHex, getCurrentSlot } from '../utils/index.js'
 import { defaultLogger, truncate } from '../logger.js'
-import { blake2AsU8a } from '@polkadot/util-crypto'
 
 const logger = defaultLogger.child({ name: 'block-builder' })
 

@@ -29,9 +29,7 @@ describe('block', async () => {
     const { alice } = testingPairs()
     await dev.setStorage({
       System: {
-        Account: [
-          [[alice.address], { providers: 1, data: { free: 10 * 1e12 } }],
-        ],
+        Account: [[[alice.address], { providers: 1, data: { free: 10 * 1e12 } }]],
       },
     })
 
