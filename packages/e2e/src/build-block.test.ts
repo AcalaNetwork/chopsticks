@@ -40,6 +40,7 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
 
   it(
     'build blocks',
+    { timeout: 300_000, retry: 1 },
     async () => {
       const { chain, ws, teardown } = await setup()
       storage && (await ws.send('dev_setStorage', [storage]))
@@ -48,7 +49,6 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
       expect(chain.head.number).eq(blockNumber + 2)
       await teardown()
     },
-    { timeout: 300_000, retry: 1 },
   )
 
   it('build block using unsafeBlockHeight', async () => {
