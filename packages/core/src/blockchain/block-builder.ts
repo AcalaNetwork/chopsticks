@@ -346,7 +346,7 @@ export const buildBlock = async (
 
   const mockExtrinsicRoot = blake2AsU8a(u8aConcat(...allExtrinsics), 256)
   const finalHeader = registry.createType<Header>('Header', {
-    ...header,
+    ...header.toJSON(),
     extrinsicsRoot: mockExtrinsicRoot,
   })
 
