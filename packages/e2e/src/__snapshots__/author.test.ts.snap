@@ -450,6 +450,114 @@ exports[`author rpc > works 5`] = `
       ],
       "internalError": undefined,
       "status": {
+        "inBlock": "0x32369a0ba62edc9409c1ee72cb571e875a5af6eba8eda61381d71b06b7720388",
+      },
+      "txHash": "0xb1ce83f248b8db66bd95d0a5ba5238d776ae1a63851ddbbf5b635a6a9a7d8ce3",
+      "txIndex": 2,
+    },
+  ],
+  [
+    SubmittableResult {
+      "blockNumber": 3000002,
+      "dispatchError": undefined,
+      "dispatchInfo": {
+        "class": "Normal",
+        "paysFee": "Yes",
+        "weight": {
+          "proofSize": 0,
+          "refTime": 272785000,
+        },
+      },
+      "events": [
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+            ],
+            "index": "0x0a08",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              "25cGUumcLHxwFuSnBkPnL8h8UnotvUEJVqfYFb7TPueVg5mU",
+              200,
+            ],
+            "index": "0x0a02",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23M5ttkmR6KcoTAAE6gcmibnKFtVaTP5yxnY8HF1BmrJ2A1i",
+              2420001756,
+            ],
+            "index": "0x0a07",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              2420001756,
+            ],
+            "index": "0x1406",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              "23y3WetbNi6rDMgHmyRDjgpb7PnhgPotuPPawxruTMLYTLzG",
+              2420001756,
+              0,
+              0,
+            ],
+            "index": "0x0e03",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+        {
+          "event": {
+            "data": [
+              {
+                "class": "Normal",
+                "paysFee": "Yes",
+                "weight": {
+                  "proofSize": 0,
+                  "refTime": 272785000,
+                },
+              },
+            ],
+            "index": "0x0000",
+          },
+          "phase": {
+            "applyExtrinsic": 2,
+          },
+          "topics": [],
+        },
+      ],
+      "internalError": undefined,
+      "status": {
         "finalized": "0x32369a0ba62edc9409c1ee72cb571e875a5af6eba8eda61381d71b06b7720388",
       },
       "txHash": "0xb1ce83f248b8db66bd95d0a5ba5238d776ae1a63851ddbbf5b635a6a9a7d8ce3",
