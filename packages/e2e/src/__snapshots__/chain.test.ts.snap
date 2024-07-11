@@ -209,9 +209,9 @@ exports[`chain rpc > getXXX 8`] = `
 }
 `;
 
-exports[`chain rpc > getXXX 9`] = `"0xa08ebd83c5b4d941bf9c6853c0af2bc6620a1878a5d2ce302d09f40feea8ef98"`;
+exports[`chain rpc > getXXX 9`] = `"0x3ee18ba950984f5ed8c6c6d407784c551aea7471ba1000f74998ebd5a3fbc9bf"`;
 
-exports[`chain rpc > getXXX 10`] = `"0xa08ebd83c5b4d941bf9c6853c0af2bc6620a1878a5d2ce302d09f40feea8ef98"`;
+exports[`chain rpc > getXXX 10`] = `"0x3ee18ba950984f5ed8c6c6d407784c551aea7471ba1000f74998ebd5a3fbc9bf"`;
 
 exports[`chain rpc > getXXX 11`] = `
 {
@@ -231,7 +231,7 @@ exports[`chain rpc > getXXX 11`] = `
       },
     ],
   },
-  "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "extrinsicsRoot": "0xef16718ba6ed955c1c258867f31167879ec11fd68312418c4e92fc5cd1dbacd4",
   "number": 3800001,
   "parentHash": "0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7",
   "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -262,7 +262,7 @@ exports[`chain rpc > getXXX 12`] = `
           },
         ],
       },
-      "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "extrinsicsRoot": "0xef16718ba6ed955c1c258867f31167879ec11fd68312418c4e92fc5cd1dbacd4",
       "number": 3800001,
       "parentHash": "0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7",
       "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -301,7 +301,7 @@ exports[`chain rpc > subscribeNewHeads 1`] = `
 ]
 `;
 
-exports[`chain rpc > subscribeNewHeads 2`] = `"0xa08ebd83c5b4d941bf9c6853c0af2bc6620a1878a5d2ce302d09f40feea8ef98"`;
+exports[`chain rpc > subscribeNewHeads 2`] = `"0x3ee18ba950984f5ed8c6c6d407784c551aea7471ba1000f74998ebd5a3fbc9bf"`;
 
 exports[`chain rpc > subscribeNewHeads 3`] = `
 [
@@ -323,7 +323,7 @@ exports[`chain rpc > subscribeNewHeads 3`] = `
           },
         ],
       },
-      "extrinsicsRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "extrinsicsRoot": "0xef16718ba6ed955c1c258867f31167879ec11fd68312418c4e92fc5cd1dbacd4",
       "number": 3800001,
       "parentHash": "0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7",
       "stateRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -332,4 +332,4 @@ exports[`chain rpc > subscribeNewHeads 3`] = `
 ]
 `;
 
-exports[`chain rpc > subscribeNewHeads 4`] = `"0x018ba9714f720e785ed94f4c86cee723fe3f16eb53598f6725fac0b4f4ae5955"`;
+exports[`chain rpc > subscribeNewHeads 4`] = `"0x1950829c5687d921d786c184dae9eb20ae55d2020b07adafcb1cfb1a5be4212f"`;

@@ -11,13 +11,13 @@ describe('relaychain dev rpc', async () => {
 
   it('build blocks', async () => {
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0xbc578eb38288c517a8b9d733af1a0a5283698b24c2360a15bbade3a325151ab6"',
+      `"0x944830e4d3cf6b4c803c23d2ddd2dc9efa5cdaec9d3289107a828638eafdc58f"`,
     )
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0x25bbf7510c57d5e7e26c1dd68c77cbcf25e4c08f5e51fd18d9c3df98507df0fc"',
+      `"0xb823303eb5c79ef4e865f49adbd39f8607d699ac03b30d256441989212de866e"`,
     )
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      '"0xd580fd6d3c17389c2572ef81a21c9be79abb833d228896a7c676799a9def5b58"',
+      `"0xd37527c814d86869b308f16f3eb6126f95da3b8f5a1a782f41e356454215d916"`,
     )
   })
 })

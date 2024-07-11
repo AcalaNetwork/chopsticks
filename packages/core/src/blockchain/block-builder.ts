@@ -15,6 +15,7 @@ import { HexString } from '@polkadot/util/types'
 import { InherentProvider } from './inherent/index.js'
 import { StorageLayer, StorageValueKind } from './storage-layer.js'
 import { TaskCallResponse } from '../wasm-executor/index.js'
+import { blake2AsU8a } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a, stringToHex, u8aConcat } from '@polkadot/util'
 import { compactHex, getCurrentSlot } from '../utils/index.js'
 import { defaultLogger, truncate } from '../logger.js'
@@ -341,9 +342,12 @@ export const buildBlock = async (
     callbacks?.onPhaseApplied?.('finalize', resp)
   }
 
-  const blockData = registry.createType('Block', {
-    header,
-    extrinsics: includedExtrinsic,
+  const allExtrinsics = [...inherents, ...includedExtrinsic]
+
+  const mockExtrinsicRoot = blake2AsU8a(u8aConcat(...allExtrinsics), 256)
+  const finalHeader = registry.createType<Header>('Header', {
+    ...header.toJSON(),
+    extrinsicsRoot: mockExtrinsicRoot,
   })
 
   const storageDiff = await newBlock.storageDiff()
@@ -355,9 +359,9 @@ export const buildBlock = async (
     )
   }
 
-  const finalBlock = new Block(head.chain, newBlock.number, blockData.hash.toHex(), head, {
-    header,
-    extrinsics: [...inherents, ...includedExtrinsic],
+  const finalBlock = new Block(head.chain, newBlock.number, finalHeader.hash.toHex(), head, {
+    header: finalHeader,
+    extrinsics: allExtrinsics,
     storage: head.storage,
     storageDiff,
   })
