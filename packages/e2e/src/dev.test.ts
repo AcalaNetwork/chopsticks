@@ -104,7 +104,7 @@ describe('dev rpc', async () => {
     expect((await api.rpc.chain.getBlockHash()).toHex()).toBe(hash)
     await dev.setHead(blockNumber - 3)
     expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
-      '"0xfab81f03d3275189a7dc02b0e4fabfab3916ff9a729ba3ec6ad84e029f0a74e7"',
+      `"0xc67fac55f8f2e1ba8f3b7d277d3097fd796216998bd6b1bfd8fd9aed87da579d"`,
     )
     await dev.setHead(-3)
     expect((await api.rpc.chain.getBlockHash()).toHex()).toMatchInlineSnapshot(
