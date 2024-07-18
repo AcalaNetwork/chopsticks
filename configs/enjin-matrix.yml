@@ -1,6 +1,6 @@
 endpoint: wss://rpc.matrix.blockchain.enjin.io
 mock-signature-host: true
-block: ${env.ENJIN_BLOCK_NUMBER}
+block: ${env.ENJIN_MATRIX_BLOCK_NUMBER}
 db: ./db.sqlite
 runtime-log-level: 5
 
