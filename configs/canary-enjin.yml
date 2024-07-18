@@ -1,6 +1,6 @@
-endpoint: wss://rpc.canary.enjin.io
+endpoint: wss://rpc.relay.canary.enjin.io
 mock-signature-host: true
-block: ${env.ENJIN_BLOCK_NUMBER}
+block: ${env.CANARY_ENJIN_BLOCK_NUMBER}
 db: ./db.sqlite
 runtime-log-level: 5
 
