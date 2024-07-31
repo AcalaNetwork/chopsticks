@@ -41,7 +41,13 @@ export const configSchema = z.object({
   'wasm-override': z.string({ description: 'Path to wasm override' }).optional(),
   genesis: z
     .union([z.string(), genesisSchema], {
-      description: 'URL to genesis config file. NOTE: Only parachains with AURA consensus are supported!',
+      description:
+        'Alias to `chain-spec`. URL to chain spec file. NOTE: Only parachains with AURA consensus are supported!',
+    })
+    .optional(),
+  'chain-spec': z
+    .union([z.string(), genesisSchema], {
+      description: 'URL to chain spec file. NOTE: Only parachains with AURA consensus are supported!',
     })
     .optional(),
   timestamp: z.number().optional(),

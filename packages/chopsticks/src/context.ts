@@ -27,12 +27,13 @@ export const genesisFromUrl = async (url: string) => {
 }
 
 export const setupContext = async (argv: Config, overrideParent = false) => {
+  const chainSpec = argv['chain-spec'] ?? argv.genesis
   let genesis: GenesisProvider | undefined
-  if (argv.genesis) {
-    if (typeof argv.genesis === 'string') {
-      genesis = await genesisFromUrl(argv.genesis)
+  if (chainSpec) {
+    if (typeof chainSpec === 'string') {
+      genesis = await genesisFromUrl(chainSpec)
     } else {
-      genesis = new GenesisProvider(argv.genesis)
+      genesis = new GenesisProvider(chainSpec)
     }
   }
 
