@@ -41,7 +41,12 @@ export const configSchema = z.object({
   'wasm-override': z.string({ description: 'Path to wasm override' }).optional(),
   genesis: z
     .union([z.string(), genesisSchema], {
-      description: 'URL to genesis config file. NOTE: Only parachains with AURA consensus are supported!',
+      description: 'Alias to `chain-spec`. URL to chain spec file. NOTE: Only parachains with AURA consensus are supported!',
+    })
+    .optional(),
+  'chain-spec': z
+    .union([z.string(), genesisSchema], {
+      description: 'URL to chain spec file. NOTE: Only parachains with AURA consensus are supported!',
     })
     .optional(),
   timestamp: z.number().optional(),
@@ -72,6 +77,10 @@ export const configSchema = z.object({
         'Storage key prefixes config for fetching storage, useful for testing big migrations, see README for examples',
     })
     .optional(),
+})
+.transform((config) => {
+  config['chain-spec'] = config['chain-spec'] ?? config.genesis
+  return config
 })
 
 export type Config = z.infer<typeof configSchema>
