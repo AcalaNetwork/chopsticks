@@ -26,6 +26,12 @@ it('get yargs options from zod schema', () => {
         "description": undefined,
         "type": undefined,
       },
+      "chain-spec": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": "URL to chain spec file. NOTE: Only parachains with AURA consensus are supported!",
+        "type": "string",
+      },
       "db": {
         "choices": undefined,
         "demandOption": false,
@@ -41,7 +47,7 @@ it('get yargs options from zod schema', () => {
       "genesis": {
         "choices": undefined,
         "demandOption": false,
-        "description": "URL to genesis config file. NOTE: Only parachains with AURA consensus are supported!",
+        "description": "Alias to \`chain-spec\`. URL to chain spec file. NOTE: Only parachains with AURA consensus are supported!",
         "type": "string",
       },
       "import-storage": {
