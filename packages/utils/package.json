@@ -11,15 +11,15 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
-		"@polkadot/api": "^12.1.1",
-		"@polkadot/api-base": "^12.1.1",
-		"@polkadot/keyring": "^12.6.2",
-		"@polkadot/types": "^12.1.1",
-		"@polkadot/util": "^12.6.2"
+		"@polkadot/api": "^12.3.1",
+		"@polkadot/api-base": "^12.3.1",
+		"@polkadot/keyring": "^13.0.2",
+		"@polkadot/types": "^12.3.1",
+		"@polkadot/util": "^13.0.2"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.4.0",
-		"@swc/core": "^1.6.7",
+		"@swc/core": "^1.7.6",
 		"typescript": "^5.5.3"
 	},
 	"files": [
