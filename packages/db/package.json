@@ -11,14 +11,14 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot/util": "^12.6.2",
+		"@polkadot/util": "^13.0.2",
 		"idb": "^8.0.0",
 		"sqlite3": "^5.1.7",
 		"typeorm": "^0.3.20"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.4.0",
-		"@swc/core": "^1.6.7",
+		"@swc/core": "^1.7.6",
 		"typescript": "^5.5.3"
 	},
 	"files": [

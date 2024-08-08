@@ -128,7 +128,7 @@ export const setupNetworks = async (networkOptions: Partial<Record<string, Confi
   let wasmOverriden = false
 
   for (const [name, options] of Object.entries(networkOptions) as [string, Config | string | undefined][]) {
-    const config = typeof options === 'string' ? await fetchConfig(options) : options ?? (await fetchConfig(name))
+    const config = typeof options === 'string' ? await fetchConfig(options) : (options ?? (await fetchConfig(name)))
     ret[name] = await setupContextWithConfig(config)
     wasmOverriden ||= config['wasm-override'] != null
   }

@@ -66,9 +66,9 @@ describe('chopsticks provider works', async () => {
   })
 
   it('system rpc', async () => {
-    expect(await api.rpc.system.chain()).toMatch('Acala')
-    expect(await api.rpc.system.name()).toMatch('Subway')
-    expect(await api.rpc.system.version()).toBeInstanceOf(String)
+    expect((await api.rpc.system.chain()).toString()).toMatch('Acala')
+    expect((await api.rpc.system.name()).toString()).toMatch('Subway')
+    expect((await api.rpc.system.version()).toString()).toMatch('chopsticks-v1')
     expect(await api.rpc.system.properties()).not.toBeNull()
     await check(api.rpc.system.health()).toMatchObject({
       peers: 0,
