@@ -103,7 +103,7 @@ pub async fn get_runtime_version(code: JsValue) -> Result<JsValue, JsError> {
     setup_console(None);
 
     let code = serde_wasm_bindgen::from_value::<HexString>(code)?;
-    let runtime_version = task::runtime_version(code).await;
+    let runtime_version = task::runtime_version(code).await?;
     let result = serde_wasm_bindgen::to_value(&runtime_version)?;
 
     Ok(result)

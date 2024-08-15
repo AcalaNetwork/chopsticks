@@ -129,13 +129,18 @@ export const runTask = async (task: TaskCall, callback: JsCallback = emptyTaskHa
   }
   const worker = await getWorker()
   logger.trace(truncate(task2), 'taskRun')
-  const response = await worker.remote.runTask(task2, Comlink.proxy(callback))
-  if ('Call' in response) {
-    logger.trace(truncate(response.Call), 'taskResponse')
-  } else {
-    logger.trace({ response }, 'taskResponse')
+  try {
+    const response = await worker.remote.runTask(task2, Comlink.proxy(callback))
+    if ('Call' in response) {
+      logger.trace(truncate(response.Call), 'taskResponse')
+    } else {
+      logger.trace({ response }, 'taskResponse')
+    }
+    return response
+  } catch (e) {
+    logger.error(e, 'taskError')
+    throw e
   }
-  return response
 }
 
 export const taskHandler = (block: Block): JsCallback => {
