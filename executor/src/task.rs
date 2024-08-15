@@ -138,13 +138,16 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
     let mut offchain_storage_changes: BTreeMap<Vec<u8>, Option<Vec<u8>>> = Default::default();
 
-    let vm_proto = HostVmPrototype::new(Config {
+    let vm_proto = match HostVmPrototype::new(Config {
         module: &task.wasm,
         heap_pages: HeapPages::from(2048),
         exec_hint: smoldot::executor::vm::ExecHint::ValidateAndExecuteOnce,
         allow_unresolved_imports: task.allow_unresolved_imports,
-    })
-    .unwrap();
+    }) {
+        Ok(vm_proto) => vm_proto,
+        Err(e) => return Ok(TaskResponse::Error(e.to_string())),
+    };
+
     let mut ret: Result<Vec<u8>, String> = Ok(Vec::new());
     let mut runtime_logs: Vec<LogInfo> = vec![];
 
@@ -208,9 +211,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     }
                 }
 
-                RuntimeCall::ClosestDescendantMerkleValue(req) => {
-                    req.resume_unknown()
-                }
+                RuntimeCall::ClosestDescendantMerkleValue(req) => req.resume_unknown(),
 
                 RuntimeCall::NextKey(req) => {
                     if req.branch_nodes() {
@@ -415,18 +416,18 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     }))
 }
 
-pub async fn runtime_version(wasm: HexString) -> RuntimeVersion {
+pub async fn runtime_version(wasm: HexString) -> Result<RuntimeVersion, JsError> {
     let vm_proto = HostVmPrototype::new(Config {
         module: &wasm,
         heap_pages: HeapPages::from(2048),
         exec_hint: smoldot::executor::vm::ExecHint::ValidateAndExecuteOnce,
         allow_unresolved_imports: true,
     })
-    .unwrap();
+    .map_err(|e| JsError::new(&e.to_string()))?;
 
     let core_version = vm_proto.runtime_version().decode();
 
-    RuntimeVersion::new(core_version)
+    Ok(RuntimeVersion::new(core_version))
 }
 
 pub fn calculate_state_root(
