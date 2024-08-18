@@ -1,9 +1,8 @@
-endpoint: wss://centrifuge-parachain.api.onfinality.io/public-ws/
+endpoint: wss://fullnode.centrifuge.io
 mock-signature-host: true
 block: ${env.CENTRIFUGE_BLOCK_NUMBER}
 db: ./db.sqlite
 runtime-log-level: 5
-# wasm-override: cfg-1028.wasm
 
 import-storage:
 
@@ -28,6 +27,12 @@ import-storage:
         - providers: 1
           data:
             free: "1000000000000000000000000"
+      -
+        -
+          - 14W74iMbQoRceoyogC9rjxTrig7raDKNevjot2UnZTqs5vZa # Ledger
+        - providers: 1
+          data:
+            free: '10000000000000000000'
   Council:
     # Set Alice as single council member
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
@@ -113,15 +118,6 @@ import-storage:
         -
           -
             - delegate: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" # The proxy account address
-            - proxyType: "Any"
-            - delay: 0
-          - "350000000000000000"
-      -
-        -
-          - 4eEqmbQMbFfNUg6bQnqi9zgUvQvSpNbUgstEM64Xq9FW58Xv
-        -
-          -
-            - delegate: "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
             - proxyType: "Any"
             - delay: 0
           - "350000000000000000"

@@ -1,8 +1,7 @@
-endpoint: wss://fullnode.altair.centrifuge.io/
+endpoint: wss://altair.api.onfinality.io/public-ws
 mock-signature-host: true
 block: ${env.ALTAIR_BLOCK_NUMBER}
 db: ./db.sqlite
-# wasm-override: altair1025-rc1.wasm
 runtime-log-level: 5
 
 import-storage:
@@ -15,12 +14,15 @@ import-storage:
           - "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
         - providers: 1
           data:
-            free: "1000000000000000000000000"
+            free: "100000000000000000000000000000000"
   Council:
     Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
   Elections:
     Members:
       - who: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        stake: "10000000000000000000000"
-        deposit: "10000000000000000000000"
-
+        stake: "1000000000000000000000000"
+        deposit: "1000000000000000000000000"
+  TechnicalCommittee:
+    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+  TechnicalCommitteeMembership:
+    Members: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
