@@ -1,5 +1,6 @@
 import { Block } from '../../blockchain/block.js'
 import { Handler, SubscriptionManager } from '../shared.js'
+import { HexString } from '@polkadot/util/types'
 import { defaultLogger } from '../../logger.js'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
@@ -72,4 +73,14 @@ export const chainHead_v1_unfollow: Handler<[string], null> = async (_, [followS
   unsubscribe(followSubscription)
 
   return null
+}
+
+export const chainHead_v1_header: Handler<[string, HexString], HexString | null> = async (
+  context,
+  [followSubscription, hash],
+) => {
+  if (!callbacks.has(followSubscription)) return null
+  const block = await context.chain.getBlock(hash)
+
+  return block ? (await block.header).toHex() : null
 }
