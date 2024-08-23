@@ -119,3 +119,20 @@ export const chainHead_v1_call: Handler<[string, HexString, string, HexString], 
 
   return operationStarted(operationId)
 }
+
+type StorageStarted = OperationStarted & { discardedItems: number }
+interface StorageItemRequest {
+  key: HexString
+  type: 'value' | 'hash' | 'closestDescendantMerkleValue' | 'descendantsValues' | 'descendantsHashes'
+}
+export const chainHead_v1_storage: Handler<
+  [string, HexString, StorageItemRequest[], HexString | null],
+  StorageStarted
+> = async (context, [followSubscription, hash, items, childTrie]) => {
+  const operationId = randomId()
+
+  return {
+    ...operationStarted(operationId),
+    discardedItems: 0,
+  }
+}
