@@ -84,3 +84,38 @@ export const chainHead_v1_header: Handler<[string, HexString], HexString | null>
 
   return block ? (await block.header).toHex() : null
 }
+
+type OperationStarted = {
+  result: 'started'
+  operationId: string
+}
+const operationStarted = (operationId: string): OperationStarted => ({ result: 'started', operationId })
+const randomId = () => Math.random().toString(36).substring(2)
+
+export const chainHead_v1_call: Handler<[string, HexString, string, HexString], OperationStarted> = async (
+  context,
+  [followSubscription, hash, method, callParameters],
+) => {
+  const operationId = randomId()
+
+  afterResponse(async () => {
+    const block = await context.chain.getBlock(hash)
+
+    if (!block) {
+      callbacks.get(followSubscription)?.({
+        event: 'operationError',
+        operationId,
+        error: `Block ${hash} not found`,
+      })
+    } else {
+      const resp = await block.call(method, [callParameters])
+      callbacks.get(followSubscription)?.({
+        event: 'operationCallDone',
+        operationId,
+        output: resp.result,
+      })
+    }
+  })
+
+  return operationStarted(operationId)
+}
