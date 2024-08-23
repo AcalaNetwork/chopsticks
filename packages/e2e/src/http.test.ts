@@ -115,5 +115,23 @@ describe('http.server', () => {
         },
       ).end(body)
     }
+
+    {
+      // Accepts string ids
+      const id = 'lorem ipsum dolor sit amet'
+      const res = await fetch(`http://localhost:${port}`, {
+        method: 'POST',
+        body: JSON.stringify({ id, jsonrpc: '2.0', method: 'chain_getBlockHash', params: [] }),
+      })
+      expect(await res.json()).toMatchInlineSnapshot(
+        `
+        {
+          "id": "${id}",
+          "jsonrpc": "2.0",
+          "result": "0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7",
+        }
+      `,
+      )
+    }
   })
 })
