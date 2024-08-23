@@ -1,9 +1,11 @@
 import { Handlers } from './shared.js'
 import dev from './dev/index.js'
+import rpcSpec from './rpc-spec/index.js'
 import substrate from './substrate/index.js'
 
 export const allHandlers: Handlers = {
   ...substrate,
+  ...rpcSpec,
   ...dev,
   rpc_methods: async () =>
     Promise.resolve({
