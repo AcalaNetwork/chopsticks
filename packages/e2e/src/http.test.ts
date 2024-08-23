@@ -106,7 +106,7 @@ describe('http.server', () => {
               "error": {
                 "message": "Only POST method is supported",
               },
-              "id": 1,
+              "id": null,
               "jsonrpc": "2.0",
             }
           `,

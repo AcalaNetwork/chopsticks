@@ -93,14 +93,13 @@ export const createServer = async (handler: Handler, port: number) => {
 
   const safeHandleRequest = async (request: z.infer<typeof singleRequest>) => {
     try {
-      const result = handler(request, emptySubscriptionManager)
+      const result = await handler(request, emptySubscriptionManager)
       return request.id === undefined ? undefined : { id: request.id, jsonrpc: '2.0', result }
     } catch (err: any) {
       return {
         jsonrpc: '2.0',
         id: request.id,
         error: {
-          code: -32603,
           message: err.message,
         },
       }
@@ -144,7 +143,6 @@ export const createServer = async (handler: Handler, port: number) => {
           jsonrpc: '2.0',
           id: null,
           error: {
-            code: -32700,
             message: err.message,
           },
         }),
