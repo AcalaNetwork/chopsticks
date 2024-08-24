@@ -8,7 +8,7 @@ const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 const callbacks = new Map<string, (data: any) => void>()
 
 async function afterResponse(fn: () => void) {
-  await Promise.resolve()
+  await new Promise((resolve) => setTimeout(resolve, 0))
   fn()
 }
 
@@ -128,8 +128,74 @@ interface StorageItemRequest {
 export const chainHead_v1_storage: Handler<
   [string, HexString, StorageItemRequest[], HexString | null],
   StorageStarted
-> = async (context, [followSubscription, hash, items, childTrie]) => {
+> = async (context, [followSubscription, hash, items, _childTrie]) => {
   const operationId = randomId()
+
+  afterResponse(async () => {
+    const block = await context.chain.getBlock(hash)
+    if (!block) {
+      callbacks.get(followSubscription)?.({
+        event: 'operationError',
+        operationId,
+        error: 'Block not found',
+      })
+      return
+    }
+
+    const handleStorageItemRequest = async (sir: StorageItemRequest) => {
+      switch (sir.type) {
+        case 'value': {
+          const value = await block.get(sir.key)
+          if (value) {
+            callbacks.get(followSubscription)?.({
+              event: 'operationStorageItems',
+              operationId,
+              items: [{ key: sir.key, value }],
+            })
+          }
+          break
+        }
+        case 'descendantsValues': {
+          // TODO expose pagination
+          const pageSize = 100
+          let startKey: string | null = '0x'
+          while (startKey) {
+            const keys = await block.getKeysPaged({
+              prefix: sir.key,
+              pageSize,
+              startKey,
+            })
+            startKey = keys[pageSize - 1] ?? null
+
+            const items = await Promise.all(
+              keys.map((key) =>
+                block.get(key).then((value) => ({
+                  key,
+                  value,
+                })),
+              ),
+            )
+            callbacks.get(followSubscription)?.({
+              event: 'operationStorageItems',
+              operationId,
+              items,
+            })
+          }
+          break
+        }
+        default:
+          // TODO
+          console.warn(`Storage type not implemented ${sir.type}`)
+      }
+    }
+
+    await Promise.all(items.map(handleStorageItemRequest))
+
+    callbacks.get(followSubscription)?.({
+      event: 'operationStorageDone',
+      operationId,
+    })
+  })
 
   return {
     ...operationStarted(operationId),
