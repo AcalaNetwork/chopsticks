@@ -1,6 +1,5 @@
-import { BN, compactStripLength, hexToU8a, u8aToHex } from '@polkadot/util'
+import { BN, compactStripLength, u8aToHex } from '@polkadot/util'
 import { HexString } from '@polkadot/util/types'
-import { Slot } from '@polkadot/types/interfaces'
 import { StorageKey } from '@polkadot/types'
 import { getAuraSlotDuration } from '../wasm-executor/index.js'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
@@ -114,22 +113,7 @@ export const stripChildPrefix = (key: HexString) => {
   return storageKey
 }
 
-// use raw key here because some chain did not expose those storage to metadata
-const POTENTIAL_SLOT_KEYS = [
-  '0x1cb6f36e027abb2091cfb5110ab5087f06155b3cd9a8c9e5e9a23fd5dc13a5ed', // babe.currentSlot
-  '0x57f8dc2f5ab09467896f47300f04243806155b3cd9a8c9e5e9a23fd5dc13a5ed', // aura.currentSlot
-  '0x8985dff79e6002d0deba9ddac46f32a5a70806914c906d747e668a21f9021729', // asynchronousBacking.slotInfo
-  '0xab2a8d5eca218f218c6fda6b1d22bb926bc171ab77f6a731a6e80c34ee1eda19', // authorInherent.highestSlotSeen
-]
-
 export const getCurrentSlot = async (head: Block) => {
-  const meta = await head.meta
-  for (const key of POTENTIAL_SLOT_KEYS) {
-    const slotRaw = await head.get(key)
-    if (slotRaw) {
-      return meta.registry.createType<Slot>('Slot', hexToU8a(slotRaw)).toNumber()
-    }
-  }
   const timestamp = await getCurrentTimestamp(head)
   const slotDuration = await getSlotDuration(head)
   return Math.floor(Number(timestamp / BigInt(slotDuration)))
