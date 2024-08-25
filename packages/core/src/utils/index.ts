@@ -127,11 +127,8 @@ export const getCurrentTimestamp = async (head: Block) => {
 
 export const getSlotDuration = async (head: Block) => {
   const meta = await head.meta
-  return meta.consts.babe
-    ? (meta.consts.babe.expectedBlockTime as any as BN).toNumber()
-    : meta.query.aura
-      ? getAuraSlotDuration(await head.wasm)
-      : meta.consts.asyncBacking
-        ? (meta.consts.asyncBacking.expectedBlockTime as any as BN).toNumber()
-        : 12_000
+  let slotDuration: number
+  slotDuration ??= (meta.consts.babe?.expectedBlockTime as any as BN)?.toNumber()
+  slotDuration ??= (meta.consts.asyncBacking?.expectedBlockTime as any as BN)?.toNumber()
+  return slotDuration || getAuraSlotDuration(await head.wasm).catch(() => 12_000)
 }
