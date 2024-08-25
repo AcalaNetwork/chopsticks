@@ -149,5 +149,8 @@ export const getSlotDuration = async (head: Block) => {
       ? getAuraSlotDuration(await head.wasm)
       : meta.consts.asyncBacking
         ? (meta.consts.asyncBacking.expectedBlockTime as any as BN).toNumber()
-        : 12_000
+          : meta.consts.timestamp?.minimumPeriod && (meta.consts.timestamp.minimumPeriod as any as BN).toNumber() === 0
+            // Async backing setting
+            ? 6_000
+            : 12_000
 }
