@@ -9,7 +9,7 @@ const httpLogger = defaultLogger.child({ name: 'http' })
 const wsLogger = defaultLogger.child({ name: 'ws' })
 
 const singleRequest = z.object({
-  id: z.number(),
+  id: z.optional(z.union([z.number().int(), z.string(), z.null()])),
   jsonrpc: z.literal('2.0'),
   method: z.string(),
   params: z.array(z.any()).default([]),
@@ -91,6 +91,21 @@ export const createServer = async (handler: Handler, port: number) => {
     },
   }
 
+  const safeHandleRequest = async (request: z.infer<typeof singleRequest>) => {
+    try {
+      const result = await handler(request, emptySubscriptionManager)
+      return request.id === undefined ? undefined : { id: request.id, jsonrpc: '2.0', result }
+    } catch (err: any) {
+      return {
+        jsonrpc: '2.0',
+        id: request.id,
+        error: {
+          message: err.message,
+        },
+      }
+    }
+  }
+
   const server = http.createServer(async (req, res) => {
     if (req.method === 'OPTIONS') {
       return respond(res)
@@ -112,24 +127,21 @@ export const createServer = async (handler: Handler, port: number) => {
 
       let response: any
       if (Array.isArray(parsed.data)) {
-        response = await Promise.all(
-          parsed.data.map((req) => {
-            const result = handler(req, emptySubscriptionManager)
-            return { id: req.id, jsonrpc: '2.0', result }
-          }),
-        )
+        response = await Promise.all(parsed.data.map(safeHandleRequest))
+        response = response.filter((r) => r !== undefined)
       } else {
-        const result = await handler(parsed.data, emptySubscriptionManager)
-        response = { id: parsed.data.id, jsonrpc: '2.0', result }
+        response = await safeHandleRequest(parsed.data)
       }
 
-      respond(res, JSON.stringify(response))
+      if (response !== undefined) {
+        respond(res, JSON.stringify(response))
+      }
     } catch (err: any) {
       respond(
         res,
         JSON.stringify({
           jsonrpc: '2.0',
-          id: 1,
+          id: null,
           error: {
             message: err.message,
           },
