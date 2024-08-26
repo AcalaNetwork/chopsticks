@@ -9,7 +9,7 @@ export class SetTimestamp implements InherentProvider {
     const parent = await newBlock.parentBlock
     if (!parent) throw new Error('parent block not found')
     const meta = await parent.meta
-    const slotDuration = await getSlotDuration(parent)
+    const slotDuration = await getSlotDuration(newBlock)
     const currentTimestamp = await getCurrentTimestamp(parent)
     return [new GenericExtrinsic(meta.registry, meta.tx.timestamp.set(currentTimestamp + BigInt(slotDuration))).toHex()]
   }

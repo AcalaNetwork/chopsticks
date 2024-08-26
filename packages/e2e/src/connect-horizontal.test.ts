@@ -14,7 +14,7 @@ describe('connectHorizontal', () => {
       },
     })
     const zeitgeist = await setupContext({
-      endpoint: 'wss://main.rpc.zeitgeist.pm/ws',
+      endpoint: ['wss://main.rpc.zeitgeist.pm/ws', 'wss://zeitgeist.api.onfinality.io/public-ws'],
       blockNumber: 5084336,
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     })
