@@ -152,8 +152,8 @@ export const chainHead_v1_call: Handler<[string, HexString, string, HexString], 
   return operationStarted(operationId)
 }
 
-type StorageStarted = OperationStarted & { discardedItems: number }
-interface StorageItemRequest {
+export type StorageStarted = OperationStarted & { discardedItems: number }
+export interface StorageItemRequest {
   key: HexString
   type: 'value' | 'hash' | 'closestDescendantMerkleValue' | 'descendantsValues' | 'descendantsHashes'
 }
@@ -244,7 +244,7 @@ export const chainHead_v1_storage: Handler<
   }
 }
 
-type LimitReached = { result: 'limitReached' }
+export type LimitReached = { result: 'limitReached' }
 const limitReached: LimitReached = { result: 'limitReached' }
 
 /**
