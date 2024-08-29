@@ -178,6 +178,18 @@ export class GenesisProvider implements ProviderInterface {
         if (params.length < 1) throw Error('invalid params')
         return this.#genesis.genesis.raw.top[params[0] as HexString]
       }
+      case 'state_queryStorageAt': {
+        if (params.length < 2) throw Error('invalid params')
+        const [keys, hash] = params as [HexString[], HexString]
+        const values: string[] = []
+        for (const key of keys) {
+          const storage = this.#genesis.genesis.raw.top[key as HexString]
+          if (storage) {
+            values.push(storage)
+          }
+        }
+        return { block: hash, changes: values }
+      }
       default:
         throw Error(`${method} not implemented`)
     }
