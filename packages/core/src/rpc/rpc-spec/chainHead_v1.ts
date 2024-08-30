@@ -140,12 +140,20 @@ export const chainHead_v1_call: Handler<[string, HexString, string, HexString], 
         error: `Block ${hash} not found`,
       })
     } else {
-      const resp = await block.call(method, [callParameters])
-      callbacks.get(followSubscription)?.({
-        event: 'operationCallDone',
-        operationId,
-        output: resp.result,
-      })
+      try {
+        const resp = await block.call(method, [callParameters])
+        callbacks.get(followSubscription)?.({
+          event: 'operationCallDone',
+          operationId,
+          output: resp.result,
+        })
+      } catch (ex: any) {
+        callbacks.get(followSubscription)?.({
+          event: 'operationError',
+          operationId,
+          error: ex.message,
+        })
+      }
     }
   })
 
