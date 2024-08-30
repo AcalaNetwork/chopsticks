@@ -2,13 +2,15 @@ import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api'
 import { HexString } from '@polkadot/util/types'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
+import { SubstrateClient, createClient } from '@polkadot-api/substrate-client'
 import { beforeAll, beforeEach, expect, vi } from 'vitest'
+import { getWsProvider } from '@polkadot-api/ws-provider/node'
 
 import { Api } from '@acala-network/chopsticks'
 import { Blockchain, BuildBlockMode, StorageValues } from '@acala-network/chopsticks-core'
+import { Deferred, defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { createServer } from '@acala-network/chopsticks/server.js'
-import { defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { genesisFromUrl } from '@acala-network/chopsticks/context.js'
 import { handler } from '@acala-network/chopsticks/rpc/index.js'
 import { inherentProviders } from '@acala-network/chopsticks-core/blockchain/inherent/index.js'
@@ -102,13 +104,17 @@ export const setupAll = async ({
         noInitWarn: true,
       })
 
+      const substrateClient = createClient(getWsProvider(`ws://localhost:${port}`))
+
       await apiPromise.isReady
 
       return {
         chain,
         ws,
         api: apiPromise,
+        substrateClient,
         async teardown() {
+          substrateClient.destroy()
           await apiPromise.disconnect()
           await delay(100)
           await close()
@@ -125,6 +131,7 @@ export const setupAll = async ({
 export let api: ApiPromise
 export let chain: Blockchain
 export let ws: WsProvider
+export let substrateClient: SubstrateClient
 
 export const setupApi = (option: SetupOption) => {
   let setup: Awaited<ReturnType<typeof setupAll>>['setup']
@@ -141,10 +148,25 @@ export const setupApi = (option: SetupOption) => {
     api = res.api
     chain = res.chain
     ws = res.ws
+    substrateClient = res.substrateClient
 
     return res.teardown
   })
 }
+
+export const asyncSpy = <TArgs extends unknown[], TReturn>(implementation?: (...args: TArgs) => TReturn) => {
+  let deferred: Deferred<Flatten<TArgs>> | null = null
+  const nextCall = () => (deferred ?? (deferred = defer())).promise
+
+  const result = vi.fn((...args: TArgs) => {
+    deferred?.resolve((args.length === 1 ? args[0] : args) as any)
+    deferred = null
+    return implementation?.(...args) as TReturn
+  })
+
+  return Object.assign(result, { nextCall })
+}
+type Flatten<T extends Array<unknown>> = T['length'] extends 1 ? (T extends Array<infer R> ? R : never) : T
 
 export const dev = {
   newBlock: (param?: { count?: number; to?: number }): Promise<string> => {
