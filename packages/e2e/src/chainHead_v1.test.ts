@@ -2,15 +2,15 @@ import { Binary } from '@polkadot-api/substrate-bindings'
 import { describe, expect, it, vi } from 'vitest'
 import type { FollowEventWithRuntime, StorageItemResponse } from '@polkadot-api/substrate-client'
 
-import { api, asyncSpy, dev, env, setupApi, substrateClient } from './helper.js'
+import { api, asyncSpy, dev, env, setupPolkadotApi } from './helper.js'
 
-setupApi(env.acala)
+const testApi = await setupPolkadotApi(env.acalaV15)
 
 describe('chainHead_v1 rpc', () => {
   it('reports the chain state', async () => {
     const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
     const onError = vi.fn()
-    const follower = substrateClient.chainHead(true, onEvent, onError)
+    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
 
     const initialized = await onEvent.nextCall()
     expect(initialized).toMatchSnapshot()
@@ -42,7 +42,7 @@ describe('chainHead_v1 rpc', () => {
   it('resolves storage queries', async () => {
     const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
     const onError = vi.fn()
-    const follower = substrateClient.chainHead(true, onEvent, onError)
+    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
 
     const initialized = await onEvent.nextCall()
     const initializedHash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
@@ -65,7 +65,7 @@ describe('chainHead_v1 rpc', () => {
   it('resolves partial key storage queries', async () => {
     const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
     const onError = vi.fn()
-    const follower = substrateClient.chainHead(true, onEvent, onError)
+    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
 
     const initialized = await onEvent.nextCall()
     const initializedHash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
@@ -102,7 +102,7 @@ describe('chainHead_v1 rpc', () => {
   it('resolves the header for a specific block', async () => {
     const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
     const onError = vi.fn()
-    const follower = substrateClient.chainHead(true, onEvent, onError)
+    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
 
     const initialized = await onEvent.nextCall()
     const hash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
@@ -116,7 +116,7 @@ describe('chainHead_v1 rpc', () => {
   it('runs runtime calls', async () => {
     const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
     const onError = vi.fn()
-    const follower = substrateClient.chainHead(true, onEvent, onError)
+    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
 
     const initialized = await onEvent.nextCall()
     const hash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
@@ -132,7 +132,7 @@ describe('chainHead_v1 rpc', () => {
   it('retrieves the body for a specific block', async () => {
     const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
     const onError = vi.fn()
-    const follower = substrateClient.chainHead(true, onEvent, onError)
+    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
 
     const initialized = await onEvent.nextCall()
     const hash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''

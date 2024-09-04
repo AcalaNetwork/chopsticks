@@ -35,6 +35,11 @@ export const env = {
     // 3,800,000
     blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
   },
+  acalaV15: {
+    endpoint: 'wss://acala-rpc.aca-api.network',
+    // 6,800,000
+    blockHash: '0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145' as HexString,
+  },
   rococo: {
     endpoint: 'wss://rococo-rpc.polkadot.io',
     blockHash: '0xd7fef00504decd41d5d2e9a04346f6bc639fd428083e3ca941f636a8f88d456a' as HexString,
@@ -68,43 +73,55 @@ export const setupAll = async ({
     throw new Error(`Cannot find header for ${blockHash}`)
   }
 
+  const setup = async () => {
+    blockHash ??= await api.getBlockHash().then((hash) => hash ?? undefined)
+    if (!blockHash) {
+      throw new Error('Cannot find block hash')
+    }
+
+    const chain = new Blockchain({
+      api,
+      buildBlockMode: BuildBlockMode.Manual,
+      inherentProviders,
+      header: {
+        hash: blockHash,
+        number: Number(header.number),
+      },
+      mockSignatureHost,
+      allowUnresolvedImports,
+      registeredTypes,
+      runtimeLogLevel,
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
+      processQueuedMessages,
+    })
+
+    if (genesis) {
+      // build 1st block
+      await chain.newBlock()
+    }
+
+    const { port, close } = await createServer(handler({ chain }), 0)
+    const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
+
+    return {
+      chain,
+      port,
+      ws,
+      async teardown() {
+        await delay(100)
+        await close()
+      },
+    }
+  }
+
   return {
-    async setup() {
-      blockHash ??= await api.getBlockHash().then((hash) => hash ?? undefined)
-      if (!blockHash) {
-        throw new Error('Cannot find block hash')
-      }
+    async setupPjs() {
+      const { chain, ws, teardown } = await setup()
 
-      const chain = new Blockchain({
-        api,
-        buildBlockMode: BuildBlockMode.Manual,
-        inherentProviders,
-        header: {
-          hash: blockHash,
-          number: Number(header.number),
-        },
-        mockSignatureHost,
-        allowUnresolvedImports,
-        registeredTypes,
-        runtimeLogLevel,
-        db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
-        processQueuedMessages,
-      })
-
-      if (genesis) {
-        // build 1st block
-        await chain.newBlock()
-      }
-
-      const { port, close } = await createServer(handler({ chain }), 0)
-
-      const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
         provider: ws,
         noInitWarn: true,
       })
-
-      const substrateClient = createClient(getWsProvider(`ws://localhost:${port}`))
 
       await apiPromise.isReady
 
@@ -112,12 +129,24 @@ export const setupAll = async ({
         chain,
         ws,
         api: apiPromise,
+        async teardown() {
+          await apiPromise.disconnect()
+          await teardown()
+        },
+      }
+    },
+    async setupPolkadotApi() {
+      const { chain, port, ws, teardown } = await setup()
+
+      const substrateClient = createClient(getWsProvider(`ws://localhost:${port}`))
+
+      return {
+        chain,
         substrateClient,
+        ws,
         async teardown() {
           substrateClient.destroy()
-          await apiPromise.disconnect()
-          await delay(100)
-          await close()
+          await teardown()
         },
       }
     },
@@ -131,14 +160,13 @@ export const setupAll = async ({
 export let api: ApiPromise
 export let chain: Blockchain
 export let ws: WsProvider
-export let substrateClient: SubstrateClient
 
 export const setupApi = (option: SetupOption) => {
-  let setup: Awaited<ReturnType<typeof setupAll>>['setup']
+  let setup: Awaited<ReturnType<typeof setupAll>>['setupPjs']
 
   beforeAll(async () => {
     const res = await setupAll(option)
-    setup = res.setup
+    setup = res.setupPjs
 
     return res.teardownAll
   })
@@ -148,10 +176,35 @@ export const setupApi = (option: SetupOption) => {
     api = res.api
     chain = res.chain
     ws = res.ws
-    substrateClient = res.substrateClient
 
     return res.teardown
   })
+}
+
+export const setupPolkadotApi = async (option: SetupOption) => {
+  let setup: Awaited<ReturnType<typeof setupAll>>['setupPolkadotApi']
+  const result = {
+    chain: null as unknown as Blockchain,
+    substrateClient: null as unknown as SubstrateClient,
+  }
+
+  beforeAll(async () => {
+    const res = await setupAll(option)
+    setup = res.setupPolkadotApi
+
+    return res.teardownAll
+  })
+
+  beforeEach(async () => {
+    const res = await setup()
+    ws = res.ws
+    chain = result.chain = res.chain
+    result.substrateClient = res.substrateClient
+
+    return res.teardown
+  })
+
+  return result
 }
 
 export const asyncSpy = <TArgs extends unknown[], TReturn>(implementation?: (...args: TArgs) => TReturn) => {
