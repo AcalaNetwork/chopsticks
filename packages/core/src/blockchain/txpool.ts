@@ -197,7 +197,7 @@ export class TxPool {
         unsafeBlockHeight,
       })
 
-      // with the latest message queue, messages are processed in the upcoming block
+      // with the latest message queue, messages could be processed in the upcoming block
       if (!this.#chain.processQueuedMessages) return
       // if block was built without horizontal or downward messages then skip
       if (_.isEmpty(horizontalMessages) && _.isEmpty(downwardMessages)) return
@@ -210,7 +210,7 @@ export class TxPool {
         const rawValue = await this.#chain.head.get(key)
         if (!rawValue) continue
         const message = meta.registry.createType('PalletMessageQueueBookState', hexToU8a(rawValue)).toJSON() as any
-        if (message.size > 0) {
+        if (message.size > 0 && message.end > message.begin) {
           logger.info('Queued messages detected, building a new block')
           // build a new block to process the queued messages
           await this.#chain.newBlock()
