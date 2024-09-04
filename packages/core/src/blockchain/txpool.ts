@@ -197,24 +197,27 @@ export class TxPool {
         unsafeBlockHeight,
       })
 
-      // with the latest message queue, messages are processed in the upcoming block
-      if (!this.#chain.processQueuedMessages) return
-      // if block was built without horizontal or downward messages then skip
-      if (_.isEmpty(horizontalMessages) && _.isEmpty(downwardMessages)) return
+      // try to process queued messages if not in manual mode
+      if (this.#mode !== BuildBlockMode.Manual) {
+        // with the latest message queue, messages could be processed in the upcoming block
+        if (!this.#chain.processQueuedMessages) return
+        // if block was built without horizontal or downward messages then skip
+        if (_.isEmpty(horizontalMessages) && _.isEmpty(downwardMessages)) return
 
-      // messageQueue.bookStateFor
-      const prefix = '0xb8753e9383841da95f7b8871e5de326954e062a2cf8df68178ee2e5dbdf00bff'
-      const meta = await this.#chain.head.meta
-      const keys = await this.#chain.head.getKeysPaged({ prefix, pageSize: 1000 })
-      for (const key of keys) {
-        const rawValue = await this.#chain.head.get(key)
-        if (!rawValue) continue
-        const message = meta.registry.createType('PalletMessageQueueBookState', hexToU8a(rawValue)).toJSON() as any
-        if (message.size > 0) {
-          logger.info('Queued messages detected, building a new block')
-          // build a new block to process the queued messages
-          await this.#chain.newBlock()
-          return
+        // messageQueue.bookStateFor
+        const prefix = '0xb8753e9383841da95f7b8871e5de326954e062a2cf8df68178ee2e5dbdf00bff'
+        const meta = await this.#chain.head.meta
+        const keys = await this.#chain.head.getKeysPaged({ prefix, pageSize: 1000 })
+        for (const key of keys) {
+          const rawValue = await this.#chain.head.get(key)
+          if (!rawValue) continue
+          const message = meta.registry.createType('PalletMessageQueueBookState', hexToU8a(rawValue)).toJSON() as any
+          if (message.size > 0) {
+            logger.info('Queued messages detected, building a new block')
+            // build a new block to process the queued messages
+            await this.#chain.newBlock()
+            return
+          }
         }
       }
     } catch (err) {
