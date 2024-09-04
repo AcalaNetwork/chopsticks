@@ -76,7 +76,52 @@ exports[`chainHead_v1 rpc > reports the chain state 1`] = `
 }
 `;
 
-exports[`chainHead_v1 rpc > resolves the header for a specific block 1`] = `"0xa4052fe0e02be39765c5c2c565f4f3f14bbead21ef2d58174c77c544b96b7c9d020a9f019d51466c1d3d5ba90cca4ca887a7532a36dca3cd06f85334346f1345b412c77e4e5803caed34cae3c042eb27184d5f6f821a298bb39a8e328609ef172160ac940c066175726120723f9008000000000452505352902860b2165e66da4ac9bc708888850161ae98a09cc17dd4bf11748006d7591ab1464b480505617572610101c8cac1f7cd74ee2d23687b086a1b460c95105b15d617e4b397229a18d56f7f36f2238a5454d541431e73e52d83242a062ab709a7e32213ba3fbc098a179f9a89"`;
+exports[`chainHead_v1 rpc > resolves storage queries 1`] = `
+{
+  "consumers": 0,
+  "data": {
+    "flags": 0n,
+    "free": 213800847850000n,
+    "frozen": 0n,
+    "reserved": 0n,
+  },
+  "nonce": 0,
+  "providers": 1,
+  "sufficients": 0,
+}
+`;
+
+exports[`chainHead_v1 rpc > resolves the header for a specific block 1`] = `
+{
+  "digests": [
+    {
+      "type": "preRuntime",
+      "value": {
+        "engine": "aura",
+        "payload": "0x723f900800000000",
+      },
+    },
+    {
+      "type": "consensus",
+      "value": {
+        "engine": "RPSR",
+        "payload": "0x2860b2165e66da4ac9bc708888850161ae98a09cc17dd4bf11748006d7591ab1464b4805",
+      },
+    },
+    {
+      "type": "seal",
+      "value": {
+        "engine": "aura",
+        "payload": "0xc8cac1f7cd74ee2d23687b086a1b460c95105b15d617e4b397229a18d56f7f36f2238a5454d541431e73e52d83242a062ab709a7e32213ba3fbc098a179f9a89",
+      },
+    },
+  ],
+  "extrinsicRoot": "0x4e5803caed34cae3c042eb27184d5f6f821a298bb39a8e328609ef172160ac94",
+  "number": 6800000,
+  "parentHash": "0xa4052fe0e02be39765c5c2c565f4f3f14bbead21ef2d58174c77c544b96b7c9d",
+  "stateRoot": "0x9d51466c1d3d5ba90cca4ca887a7532a36dca3cd06f85334346f1345b412c77e",
+}
+`;
 
 exports[`chainHead_v1 rpc > retrieves the body for a specific block 1`] = `
 [

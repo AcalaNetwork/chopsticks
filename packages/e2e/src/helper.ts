@@ -1,16 +1,18 @@
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api'
 import { HexString } from '@polkadot/util/types'
+import { Mock, beforeAll, beforeEach, expect, vi } from 'vitest'
+import { Observable } from 'rxjs'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
 import { SubstrateClient, createClient } from '@polkadot-api/substrate-client'
-import { beforeAll, beforeEach, expect, vi } from 'vitest'
+import { getObservableClient } from '@polkadot-api/observable-client'
 import { getWsProvider } from '@polkadot-api/ws-provider/node'
 
 import { Api } from '@acala-network/chopsticks'
 import { Blockchain, BuildBlockMode, StorageValues } from '@acala-network/chopsticks-core'
-import { Deferred, defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { createServer } from '@acala-network/chopsticks/server.js'
+import { defer } from '@acala-network/chopsticks-core/utils/index.js'
 import { genesisFromUrl } from '@acala-network/chopsticks/context.js'
 import { handler } from '@acala-network/chopsticks/rpc/index.js'
 import { inherentProviders } from '@acala-network/chopsticks-core/blockchain/inherent/index.js'
@@ -135,16 +137,19 @@ export const setupAll = async ({
         },
       }
     },
-    async setupPolkadotApi() {
+    async setupPolkadotApi(): Promise<TestPolkadotApi> {
       const { chain, port, ws, teardown } = await setup()
 
       const substrateClient = createClient(getWsProvider(`ws://localhost:${port}`))
+      const observableClient = getObservableClient(substrateClient)
 
       return {
         chain,
         substrateClient,
+        observableClient,
         ws,
         async teardown() {
+          observableClient.destroy()
           substrateClient.destroy()
           await teardown()
         },
@@ -155,6 +160,14 @@ export const setupAll = async ({
       await api.disconnect()
     },
   }
+}
+
+interface TestPolkadotApi {
+  ws: WsProvider
+  chain: Blockchain
+  substrateClient: SubstrateClient
+  observableClient: ObservableClient
+  teardown: () => Promise<void>
 }
 
 export let api: ApiPromise
@@ -181,11 +194,13 @@ export const setupApi = (option: SetupOption) => {
   })
 }
 
+type ObservableClient = ReturnType<typeof getObservableClient>
 export const setupPolkadotApi = async (option: SetupOption) => {
   let setup: Awaited<ReturnType<typeof setupAll>>['setupPolkadotApi']
   const result = {
     chain: null as unknown as Blockchain,
     substrateClient: null as unknown as SubstrateClient,
+    observableClient: null as unknown as ObservableClient,
   }
 
   beforeAll(async () => {
@@ -200,26 +215,13 @@ export const setupPolkadotApi = async (option: SetupOption) => {
     ws = res.ws
     chain = result.chain = res.chain
     result.substrateClient = res.substrateClient
+    result.observableClient = res.observableClient
 
     return res.teardown
   })
 
   return result
 }
-
-export const asyncSpy = <TArgs extends unknown[], TReturn>(implementation?: (...args: TArgs) => TReturn) => {
-  let deferred: Deferred<Flatten<TArgs>> | null = null
-  const nextCall = () => (deferred ?? (deferred = defer())).promise
-
-  const result = vi.fn((...args: TArgs) => {
-    deferred?.resolve((args.length === 1 ? args[0] : args) as any)
-    deferred = null
-    return implementation?.(...args) as TReturn
-  })
-
-  return Object.assign(result, { nextCall })
-}
-type Flatten<T extends Array<unknown>> = T['length'] extends 1 ? (T extends Array<infer R> ? R : never) : T
 
 export const dev = {
   newBlock: (param?: { count?: number; to?: number }): Promise<string> => {
@@ -256,3 +258,40 @@ export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve
 const { check, checkHex, checkSystemEvents } = withExpect(expect)
 
 export { defer, check, checkHex, checkSystemEvents }
+
+export const observe = <T>(observable$: Observable<T>) => {
+  const next: Mock<[T], void> = vi.fn()
+  const error: Mock<any, void> = vi.fn()
+  const complete: Mock<[], void> = vi.fn()
+
+  const getEmissions = () => next.mock.calls.map((v) => v[0])
+
+  let resolvePromise: ((value: T) => void) | null = null
+  let rejectPromise: ((error: any) => void) | null = null
+  let promise: Promise<T> | null = null
+  const nextValue = () =>
+    promise ??
+    (promise = new Promise<T>((resolve, reject) => {
+      rejectPromise = reject
+      resolvePromise = (v) => {
+        promise = null
+        resolve(v)
+      }
+    }))
+
+  const subscription = observable$.subscribe({
+    next: (v) => {
+      resolvePromise?.(v)
+      next(v)
+    },
+    error: (e) => {
+      rejectPromise?.(e)
+      error(e)
+    },
+    complete: () => {
+      rejectPromise?.(new Error('Subscription completed without a new value'))
+      complete()
+    },
+  })
+  return { getEmissions, nextValue, next, error, complete, subscription }
+}

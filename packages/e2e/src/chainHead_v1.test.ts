@@ -1,28 +1,27 @@
-import { Binary } from '@polkadot-api/substrate-bindings'
-import { describe, expect, it, vi } from 'vitest'
-import type { FollowEventWithRuntime, StorageItemResponse } from '@polkadot-api/substrate-client'
+import { RuntimeContext } from '@polkadot-api/observable-client'
+import { describe, expect, it } from 'vitest'
 
-import { api, asyncSpy, dev, env, setupPolkadotApi } from './helper.js'
+import { dev, env, observe, setupPolkadotApi } from './helper.js'
+import { firstValueFrom } from 'rxjs'
 
 const testApi = await setupPolkadotApi(env.acalaV15)
 
 describe('chainHead_v1 rpc', () => {
   it('reports the chain state', async () => {
-    const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
-    const onError = vi.fn()
-    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
+    const chainHead = testApi.observableClient.chainHead$()
+    const { next, error, subscription, nextValue } = observe(chainHead.follow$)
 
-    const initialized = await onEvent.nextCall()
+    const initialized = await nextValue()
     expect(initialized).toMatchSnapshot()
 
     const blockHash = await dev.newBlock()
 
-    const [[newBlock], [bestBlock], [finalized]] = onEvent.mock.calls.slice(1)
+    const [[newBlock], [bestBlock], [finalized]] = next.mock.calls.slice(1)
 
     expect(newBlock).toEqual({
       type: 'newBlock',
       blockHash,
-      parentBlockHash: {},
+      parentBlockHash: '0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145',
       newRuntime: null,
     })
     expect(bestBlock).toEqual({
@@ -35,111 +34,86 @@ describe('chainHead_v1 rpc', () => {
       prunedBlockHashes: [],
     })
 
-    expect(onError).not.toHaveBeenCalled()
-    follower.unfollow()
+    expect(error).not.toHaveBeenCalled()
+    subscription.unsubscribe()
+    chainHead.unfollow()
   })
 
   it('resolves storage queries', async () => {
-    const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
-    const onError = vi.fn()
-    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
+    const chainHead = testApi.observableClient.chainHead$()
 
-    const initialized = await onEvent.nextCall()
-    const initializedHash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
-
-    const key = Binary.fromBytes(
-      api.query.system.account.creator('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn').slice(2),
-    ).asHex()
+    const keyEncoder = (addr: string) => (ctx: RuntimeContext) =>
+      ctx.dynamicBuilder.buildStorage('System', 'Account').enc(addr)
+    const emptyAccount = await firstValueFrom(
+      chainHead.storage$(null, 'value', keyEncoder('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')),
+    )
 
     // An empty value resolves to null
-    expect(await follower.storage(initializedHash, 'value', key, null)).toEqual(null)
+    expect(emptyAccount).toEqual(null)
 
     // With an existing value it returns the SCALE-encoded value.
-    const hash = '0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c'
-    expect(await follower.storage(hash, 'value', key, null)).toMatchSnapshot()
+    const resultDecoder = (data: string | null, ctx: RuntimeContext) =>
+      data ? ctx.dynamicBuilder.buildStorage('System', 'Account').dec(data) : null
+    const account = await firstValueFrom(
+      chainHead.storage$(
+        null,
+        'value',
+        keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH'),
+        null,
+        resultDecoder,
+      ),
+    )
+    expect(account).toMatchSnapshot()
 
-    expect(onError).not.toHaveBeenCalled()
-    follower.unfollow()
+    chainHead.unfollow()
   })
 
   it('resolves partial key storage queries', async () => {
-    const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
-    const onError = vi.fn()
-    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
+    const chainHead = testApi.observableClient.chainHead$()
 
-    const initialized = await onEvent.nextCall()
-    const initializedHash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
-
-    const key = Binary.fromBytes(api.query.tokens.totalIssuance.creator.iterKey!()).asHex()
-
-    // An empty value resolves to null
-    let receivedItems: StorageItemResponse[] = []
-    const onDone = asyncSpy()
-    const onDiscardedItems = vi.fn()
-    follower.storageSubscription(
-      initializedHash,
-      [
-        {
-          key,
-          type: 'descendantsValues',
-        },
-      ],
-      null,
-      (items) => (receivedItems = [...receivedItems, ...items]),
-      onError,
-      onDone,
-      onDiscardedItems,
+    const receivedItems = await firstValueFrom(
+      chainHead.storage$(null, 'descendantsValues', (ctx) =>
+        ctx.dynamicBuilder.buildStorage('Tokens', 'TotalIssuance').enc(),
+      ),
     )
-    await onDone.nextCall()
 
-    expect(onDiscardedItems).toHaveBeenCalledWith(0)
-    expect(receivedItems.length).toEqual(23)
+    expect(receivedItems.length).toEqual(26)
 
-    expect(onError).not.toHaveBeenCalled()
-    follower.unfollow()
+    chainHead.unfollow()
   })
 
   it('resolves the header for a specific block', async () => {
-    const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
-    const onError = vi.fn()
-    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
+    const chainHead = testApi.observableClient.chainHead$()
 
-    const initialized = await onEvent.nextCall()
-    const hash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
+    const header = await firstValueFrom(chainHead.header$(null))
 
-    expect(await follower.header(hash)).toMatchSnapshot()
+    expect(header).toMatchSnapshot()
 
-    expect(onError).not.toHaveBeenCalled()
-    follower.unfollow()
+    chainHead.unfollow()
   })
 
   it('runs runtime calls', async () => {
-    const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
-    const onError = vi.fn()
-    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
+    const chainHead = testApi.observableClient.chainHead$()
 
-    const initialized = await onEvent.nextCall()
-    const hash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
+    const result = await firstValueFrom(chainHead.call$(null, 'Core_version', ''))
 
-    expect(await follower.call(hash, 'Core_version', '')).toMatchSnapshot()
+    expect(result).toMatchSnapshot()
 
-    await expect(follower.call(hash, 'bruh', '')).rejects.toThrow('Function to start was not found')
+    const nonExisting = firstValueFrom(chainHead.call$(null, 'bruh', ''))
 
-    expect(onError).not.toHaveBeenCalled()
-    follower.unfollow()
+    await expect(nonExisting).rejects.toThrow('Function to start was not found')
+
+    chainHead.unfollow()
   })
 
   it('retrieves the body for a specific block', async () => {
-    const onEvent = asyncSpy<[FollowEventWithRuntime], []>()
-    const onError = vi.fn()
-    const follower = testApi.substrateClient.chainHead(true, onEvent, onError)
+    const chainHead = testApi.observableClient.chainHead$()
 
-    const initialized = await onEvent.nextCall()
-    const hash = (initialized.type === 'initialized' && initialized.finalizedBlockHashes[0]) || ''
+    const { hash } = await firstValueFrom(chainHead.finalized$)
+    const result = await firstValueFrom(chainHead.body$(hash))
 
-    expect(await follower.body(hash)).toMatchSnapshot()
+    expect(result).toMatchSnapshot()
 
-    expect(onError).not.toHaveBeenCalled()
-    follower.unfollow()
+    chainHead.unfollow()
   })
 })

@@ -43,7 +43,7 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
     callback({
       event: 'newBlock',
       blockHash: block.hash,
-      parentBlockHash: block.parentBlock,
+      parentBlockHash: (await block.parentBlock)?.hash,
       newRuntime,
     })
     callback({
@@ -229,6 +229,7 @@ export const chainHead_v1_storage: Handler<
               operationId,
               items,
             })
+            break
           }
           break
         }
