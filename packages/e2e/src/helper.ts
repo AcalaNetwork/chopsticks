@@ -1,8 +1,12 @@
 import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api'
 import { HexString } from '@polkadot/util/types'
+import { Mock, beforeAll, beforeEach, expect, vi } from 'vitest'
+import { Observable } from 'rxjs'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
-import { beforeAll, beforeEach, expect, vi } from 'vitest'
+import { SubstrateClient, createClient } from '@polkadot-api/substrate-client'
+import { getObservableClient } from '@polkadot-api/observable-client'
+import { getWsProvider } from '@polkadot-api/ws-provider/node'
 
 import { Api } from '@acala-network/chopsticks'
 import { Blockchain, BuildBlockMode, StorageValues } from '@acala-network/chopsticks-core'
@@ -32,6 +36,11 @@ export const env = {
     endpoint: 'wss://acala-rpc.aca-api.network',
     // 3,800,000
     blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
+  },
+  acalaV15: {
+    endpoint: 'wss://acala-rpc.aca-api.network',
+    // 6,800,000
+    blockHash: '0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145' as HexString,
   },
   rococo: {
     endpoint: 'wss://rococo-rpc.polkadot.io',
@@ -66,37 +75,51 @@ export const setupAll = async ({
     throw new Error(`Cannot find header for ${blockHash}`)
   }
 
+  const setup = async () => {
+    blockHash ??= await api.getBlockHash().then((hash) => hash ?? undefined)
+    if (!blockHash) {
+      throw new Error('Cannot find block hash')
+    }
+
+    const chain = new Blockchain({
+      api,
+      buildBlockMode: BuildBlockMode.Manual,
+      inherentProviders,
+      header: {
+        hash: blockHash,
+        number: Number(header.number),
+      },
+      mockSignatureHost,
+      allowUnresolvedImports,
+      registeredTypes,
+      runtimeLogLevel,
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
+      processQueuedMessages,
+    })
+
+    if (genesis) {
+      // build 1st block
+      await chain.newBlock()
+    }
+
+    const { port, close } = await createServer(handler({ chain }), 0)
+    const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
+
+    return {
+      chain,
+      port,
+      ws,
+      async teardown() {
+        await delay(100)
+        await close()
+      },
+    }
+  }
+
   return {
-    async setup() {
-      blockHash ??= await api.getBlockHash().then((hash) => hash ?? undefined)
-      if (!blockHash) {
-        throw new Error('Cannot find block hash')
-      }
+    async setupPjs() {
+      const { chain, ws, teardown } = await setup()
 
-      const chain = new Blockchain({
-        api,
-        buildBlockMode: BuildBlockMode.Manual,
-        inherentProviders,
-        header: {
-          hash: blockHash,
-          number: Number(header.number),
-        },
-        mockSignatureHost,
-        allowUnresolvedImports,
-        registeredTypes,
-        runtimeLogLevel,
-        db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
-        processQueuedMessages,
-      })
-
-      if (genesis) {
-        // build 1st block
-        await chain.newBlock()
-      }
-
-      const { port, close } = await createServer(handler({ chain }), 0)
-
-      const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
       const apiPromise = await ApiPromise.create({
         provider: ws,
         noInitWarn: true,
@@ -110,8 +133,25 @@ export const setupAll = async ({
         api: apiPromise,
         async teardown() {
           await apiPromise.disconnect()
-          await delay(100)
-          await close()
+          await teardown()
+        },
+      }
+    },
+    async setupPolkadotApi(): Promise<TestPolkadotApi> {
+      const { chain, port, ws, teardown } = await setup()
+
+      const substrateClient = createClient(getWsProvider(`ws://localhost:${port}`))
+      const observableClient = getObservableClient(substrateClient)
+
+      return {
+        chain,
+        substrateClient,
+        observableClient,
+        ws,
+        async teardown() {
+          observableClient.destroy()
+          substrateClient.destroy()
+          await teardown()
         },
       }
     },
@@ -122,16 +162,24 @@ export const setupAll = async ({
   }
 }
 
+interface TestPolkadotApi {
+  ws: WsProvider
+  chain: Blockchain
+  substrateClient: SubstrateClient
+  observableClient: ObservableClient
+  teardown: () => Promise<void>
+}
+
 export let api: ApiPromise
 export let chain: Blockchain
 export let ws: WsProvider
 
 export const setupApi = (option: SetupOption) => {
-  let setup: Awaited<ReturnType<typeof setupAll>>['setup']
+  let setup: Awaited<ReturnType<typeof setupAll>>['setupPjs']
 
   beforeAll(async () => {
     const res = await setupAll(option)
-    setup = res.setup
+    setup = res.setupPjs
 
     return res.teardownAll
   })
@@ -144,6 +192,35 @@ export const setupApi = (option: SetupOption) => {
 
     return res.teardown
   })
+}
+
+type ObservableClient = ReturnType<typeof getObservableClient>
+export const setupPolkadotApi = async (option: SetupOption) => {
+  let setup: Awaited<ReturnType<typeof setupAll>>['setupPolkadotApi']
+  const result = {
+    chain: null as unknown as Blockchain,
+    substrateClient: null as unknown as SubstrateClient,
+    observableClient: null as unknown as ObservableClient,
+  }
+
+  beforeAll(async () => {
+    const res = await setupAll(option)
+    setup = res.setupPolkadotApi
+
+    return res.teardownAll
+  })
+
+  beforeEach(async () => {
+    const res = await setup()
+    ws = res.ws
+    chain = result.chain = res.chain
+    result.substrateClient = res.substrateClient
+    result.observableClient = res.observableClient
+
+    return res.teardown
+  })
+
+  return result
 }
 
 export const dev = {
@@ -181,3 +258,40 @@ export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve
 const { check, checkHex, checkSystemEvents } = withExpect(expect)
 
 export { defer, check, checkHex, checkSystemEvents }
+
+export const observe = <T>(observable$: Observable<T>) => {
+  const next: Mock<[T], void> = vi.fn()
+  const error: Mock<any, void> = vi.fn()
+  const complete: Mock<[], void> = vi.fn()
+
+  const getEmissions = () => next.mock.calls.map((v) => v[0])
+
+  let resolvePromise: ((value: T) => void) | null = null
+  let rejectPromise: ((error: any) => void) | null = null
+  let promise: Promise<T> | null = null
+  const nextValue = () =>
+    promise ??
+    (promise = new Promise<T>((resolve, reject) => {
+      rejectPromise = reject
+      resolvePromise = (v) => {
+        promise = null
+        resolve(v)
+      }
+    }))
+
+  const subscription = observable$.subscribe({
+    next: (v) => {
+      resolvePromise?.(v)
+      next(v)
+    },
+    error: (e) => {
+      rejectPromise?.(e)
+      error(e)
+    },
+    complete: () => {
+      rejectPromise?.(new Error('Subscription completed without a new value'))
+      complete()
+    },
+  })
+  return { getEmissions, nextValue, next, error, complete, subscription }
+}
