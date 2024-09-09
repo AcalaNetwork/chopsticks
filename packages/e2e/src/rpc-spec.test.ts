@@ -19,8 +19,8 @@ describe('transaction_v1', async () => {
 
     // We don't have a confirmation of when the transaction has been broadcasted through the network
     // it just continues to get broadcasted through the nodes until we unsubscribe from it.
-    // In this case, where there's only one node, a couple of blocks should be enough.
-    await dev.newBlock()
+    // In this case, where there's only one node, waiting for 300ms should be enough.
+    await new Promise((resolve) => setTimeout(resolve, 300))
     const hash = await dev.newBlock()
 
     expect(await resultPromise).toMatchObject({

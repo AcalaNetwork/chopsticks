@@ -1,6 +1,6 @@
 import { Handler } from '../shared.js'
 import { HexString } from '@polkadot/util/types'
-import { defaultLogger } from '@acala-network/chopsticks-core'
+import { defaultLogger } from '../../logger.js'
 
 const logger = defaultLogger.child({ name: 'rpc-transaction_v1' })
 const randomId = () => Math.random().toString(36).substring(2)
