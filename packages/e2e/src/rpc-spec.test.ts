@@ -47,6 +47,12 @@ describe('transaction_v1', async () => {
   })
 })
 
+describe('chainSpec_v1', () => {
+  it('retrieves the chainSpec data', async () => {
+    expect(await testApi.substrateClient.getChainSpecData()).toMatchSnapshot()
+  })
+})
+
 const INITIAL_ACCOUNT_VALUE = 100_000_000_000_000n
 async function prepareChainForTx() {
   const api = await ApiPromise.create({
