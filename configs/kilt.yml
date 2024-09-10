@@ -1,0 +1,16 @@
+endpoint: wss://kilt.ibp.network/
+mock-signature-host: true
+block: ${env.KILT_BLOCK_NUMBER}
+db: ./kilt.db.sqlite
+runtime-log-level: 5
+
+import-storage:
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: 1000000000000000
+

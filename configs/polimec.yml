@@ -1,0 +1,15 @@
+endpoint: wss://polimec.ibp.network/
+mock-signature-host: true
+block: ${env.POLIMEC_BLOCK_NUMBER}
+db: ./polimec.db.sqlite
+runtime-log-level: 5
+
+import-storage:
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: 1000000000000000

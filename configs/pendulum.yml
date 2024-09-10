@@ -1,0 +1,79 @@
+endpoint: wss://rpc-pendulum.prd.pendulumchain.tech/
+mock-signature-host: true
+block: ${env.PENDULUM_BLOCK_NUMBER}
+db: ./pendulum.db.sqlite
+runtime-log-level: 5
+
+import-storage:
+  Tokens:
+    Accounts:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - native
+        - free: 1000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 0 # DOT
+        - free: 1000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 1 # USDT on AssetHub
+        - free: 1000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 2 # USDC on AssetHub
+        - free: 10000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 4 # Brazilian Real (BRZ) on Moonbeam
+        - free: 1000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 5 # PDEX
+        - free: 1000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 6 # GLMR
+        - free: 100000000000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 7 # PINK
+        - free: 100000000000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 8 # HDX
+        - free: 100000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 9 # ASTR
+        - free: 100000000000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 10 # Voucher DOT (vDOT) from Bifrost
+        - free: 10000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 11 # BNC
+        - free: 1000000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - xcm: 12 # USDC (Axelar)
+        - free: 100000000000000000000000
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - stellar: stellarnative # XLM.s
+        - free: 100000000000000000000000
