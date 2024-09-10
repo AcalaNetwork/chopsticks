@@ -18,12 +18,9 @@ describe('transaction_v1', async () => {
     const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice)
     const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toHex()))
     const resultPromise = nextValue()
-    const broadcast = testApi.observableClient.broadcastTx$(tx.toHex()).subscribe()
-
-    // We don't have a confirmation of when the transaction has been broadcasted through the network
-    // it just continues to get broadcasted through the nodes until we unsubscribe from it.
-    // In this case, where there's only one node, waiting for 500ms should be enough.
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((onSuccess, onError) =>
+      testApi.substrateClient._request('transaction_v1_broadcast', [tx.toHex()], { onSuccess, onError }),
+    )
     const hash = await dev.newBlock()
 
     expect(await resultPromise).toMatchObject({
@@ -45,7 +42,6 @@ describe('transaction_v1', async () => {
       },
     })
 
-    broadcast.unsubscribe()
     subscription.unsubscribe()
     chainHead.unfollow()
   })
