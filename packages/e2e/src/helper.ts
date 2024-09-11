@@ -201,6 +201,7 @@ export const setupPolkadotApi = async (option: SetupOption) => {
     chain: null as unknown as Blockchain,
     substrateClient: null as unknown as SubstrateClient,
     observableClient: null as unknown as ObservableClient,
+    ws: null as unknown as WsProvider,
   }
 
   beforeAll(async () => {
@@ -212,7 +213,7 @@ export const setupPolkadotApi = async (option: SetupOption) => {
 
   beforeEach(async () => {
     const res = await setup()
-    ws = res.ws
+    ws = result.ws = res.ws
     chain = result.chain = res.chain
     result.substrateClient = res.substrateClient
     result.observableClient = res.observableClient
