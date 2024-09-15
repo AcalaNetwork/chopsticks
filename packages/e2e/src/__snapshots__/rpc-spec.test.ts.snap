@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`chainSpec_v1 > retrieves the chainSpec data 1`] = `
+{
+  "genesisHash": "0xfc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
+  "name": "Acala",
+  "properties": {
+    "ss58Format": 10,
+    "tokenDecimals": [
+      12,
+      12,
+      10,
+      10,
+    ],
+    "tokenSymbol": [
+      "ACA",
+      "AUSD",
+      "DOT",
+      "LDOT",
+    ],
+  },
+}
+`;
