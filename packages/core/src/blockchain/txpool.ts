@@ -39,6 +39,7 @@ export interface BuildBlockParams {
   horizontalMessages: Record<number, HorizontalMessage[]>
   transactions: HexString[]
   unsafeBlockHeight?: number
+  relayChainStateOverrides?: [HexString, HexString | null][]
 }
 
 export class TxPool {
@@ -177,6 +178,7 @@ export class TxPool {
     const downwardMessages = params?.downwardMessages || this.#dmp.splice(0)
     const horizontalMessages = params?.horizontalMessages || { ...this.#hrmp }
     const unsafeBlockHeight = params?.unsafeBlockHeight
+    const relayChainStateOverrides = params?.relayChainStateOverrides
     if (!params?.upwardMessages) {
       for (const id of Object.keys(this.#ump)) {
         delete this.#ump[id]
@@ -195,6 +197,7 @@ export class TxPool {
         downwardMessages,
         horizontalMessages,
         unsafeBlockHeight,
+        relayChainStateOverrides,
       })
 
       // with the latest message queue, messages could be processed in the upcoming block
