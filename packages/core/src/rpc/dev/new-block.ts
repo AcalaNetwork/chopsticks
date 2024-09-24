@@ -67,7 +67,7 @@ export interface NewBlockParams {
    */
   unsafeBlockHeight: Params['unsafeBlockHeight']
   /**
-   * Build block using a specific block height (unsafe)
+   * Build block using a custom relay chain state
    */
   relayChainStateOverrides: Params['relayChainStateOverrides']
 }
