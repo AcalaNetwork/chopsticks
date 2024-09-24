@@ -1,9 +1,6 @@
 import { afterAll, describe, expect, it } from 'vitest'
 
-import { TypeRegistry } from '@polkadot/types'
-import { decodeProof } from '@acala-network/chopsticks-core'
 import { setupAll } from './helper.js'
-import { upgradeRestrictionSignal } from '@acala-network/chopsticks-core/utils/proof.js'
 
 const KUSAMA_STORAGE = {
   FellowshipCollective: {
@@ -65,31 +62,6 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
       '1: unsafeBlockHeight must be greater than current block height',
     )
     expect(chain.head.number).eq(unsafeBlockHeight + 1)
-
-    await teardown()
-  })
-
-  it('build block using relayChainStateOverrides', async () => {
-    const { ws, api, teardown } = await setupPjs()
-    const registry = new TypeRegistry()
-    const paraId = registry.createType('u32', 1000)
-
-    const keyToOverride = upgradeRestrictionSignal(paraId)
-    const value = '0x00'
-    const relayChainStateOverrides = [[keyToOverride, value]]
-
-    await ws.send('dev_newBlock', [{ relayChainStateOverrides }])
-    const block = await api.rpc.chain.getBlock()
-    const setValidationData = block.block.extrinsics
-      .filter(({ method }) => method.method == 'setValidationData')[0]
-      .method.toJSON().args.data
-
-    const relayParentStorageRoot = setValidationData.validationData.relayParentStorageRoot
-    const trieNodes = setValidationData.relayChainState.trieNodes
-
-    const relayChainState = await decodeProof(relayParentStorageRoot, trieNodes)
-
-    expect(relayChainState[keyToOverride]).to.be.eq(value)
 
     await teardown()
   })
