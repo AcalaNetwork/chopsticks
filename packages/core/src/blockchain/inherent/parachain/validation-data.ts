@@ -268,11 +268,15 @@ export class SetValidationData implements InherentProvider {
       newEntries.push([upgradeKey, null])
     }
 
-    // Apply relay state overrides
-    newEntries = (params.relayChainStateOverrides || []).reduce(
-      (entries, [key, value]) => [...entries.filter(([k, _]) => k != key), [key, value]],
-      newEntries,
-    )
+    // Apply relay chain state overrides
+    if (params.relayChainStateOverrides) {
+      for (const [key, value] of params.relayChainStateOverrides) {
+        // Remove any entry that matches the key being overridden
+        newEntries = newEntries.filter(([k, _]) => k != key)
+        // Push override
+        newEntries.push([key, value])
+      }
+    }
 
     const { trieRootHash, nodes } = await createProof(extrinsic.relayChainState.trieNodes, newEntries)
 
