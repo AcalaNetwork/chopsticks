@@ -98,7 +98,7 @@ export class SetValidationData implements InherentProvider {
 
     const extrinsic = await getValidationData(parent)
 
-    const newEntries: [HexString, HexString | null][] = []
+    let newEntries: [HexString, HexString | null][] = []
     const downwardMessages: DownwardMessage[] = []
     const horizontalMessages: Record<number, HorizontalMessage[]> = {}
 
@@ -266,6 +266,16 @@ export class SetValidationData implements InherentProvider {
     } else {
       // make sure previous goAhead is removed
       newEntries.push([upgradeKey, null])
+    }
+
+    // Apply relay chain state overrides
+    if (params.relayChainStateOverrides) {
+      for (const [key, value] of params.relayChainStateOverrides) {
+        // Remove any entry that matches the key being overridden
+        newEntries = newEntries.filter(([k, _]) => k != key)
+        // Push override
+        newEntries.push([key, value])
+      }
     }
 
     const { trieRootHash, nodes } = await createProof(extrinsic.relayChainState.trieNodes, newEntries)

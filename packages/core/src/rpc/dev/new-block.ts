@@ -32,6 +32,7 @@ const schema = z.object({
     .optional(),
   transactions: z.array(zHex).min(1).optional(),
   unsafeBlockHeight: z.number().optional(),
+  relayChainStateOverrides: z.array(z.tuple([zHex, z.union([zHex, z.null()])])).optional(),
 })
 
 type Params = z.infer<typeof schema>
@@ -65,6 +66,10 @@ export interface NewBlockParams {
    * Build block using a specific block height (unsafe)
    */
   unsafeBlockHeight: Params['unsafeBlockHeight']
+  /**
+   * Build block using a custom relay chain state
+   */
+  relayChainStateOverrides: Params['relayChainStateOverrides']
 }
 
 /**
@@ -106,7 +111,9 @@ export interface NewBlockParams {
  * ```
  */
 export const dev_newBlock = async (context: Context, [params]: [NewBlockParams]) => {
-  const { count, to, hrmp, ump, dmp, transactions, unsafeBlockHeight } = schema.parse(params || {})
+  const { count, to, hrmp, ump, dmp, transactions, unsafeBlockHeight, relayChainStateOverrides } = schema.parse(
+    params || {},
+  )
   const now = context.chain.head.number
   const diff = to ? to - now : count
   const finalCount = diff !== undefined ? Math.max(diff, 1) : 1
@@ -124,6 +131,7 @@ export const dev_newBlock = async (context: Context, [params]: [NewBlockParams])
         upwardMessages: ump,
         downwardMessages: dmp,
         unsafeBlockHeight: i === 0 ? unsafeBlockHeight : undefined,
+        relayChainStateOverrides: relayChainStateOverrides,
       })
       .catch((error) => {
         throw new ResponseError(1, error.toString())

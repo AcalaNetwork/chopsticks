@@ -27,6 +27,11 @@ export const upgradeGoAheadSignal = (paraId: u32) => {
   return hash(prefix, paraId.toU8a())
 }
 
+export const upgradeRestrictionSignal = (paraId: u32) => {
+  const prefix = '0xcd710b30bd2eab0352ddcc26417aa194f27bbb460270642b5bcaf032ea04d56a'
+  return hash(prefix, paraId.toU8a())
+}
+
 export const hrmpIngressChannelIndex = (paraId: u32) => {
   const prefix = '0x6a0da05ca59913bc38a8630590f2627c1d3719f5b0b12c7105c073c507445948'
   return hash(prefix, paraId.toU8a())
