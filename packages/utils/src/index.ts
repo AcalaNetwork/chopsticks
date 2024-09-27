@@ -26,7 +26,7 @@ export type SetupOption = {
   wasmOverride?: string
   db?: string
   timeout?: number
-  addr?: string,
+  addr?: string
   port?: number
   maxMemoryBlockCount?: number
   resume?: boolean | HexString | number
@@ -54,7 +54,7 @@ export const createConfig = ({
   allowUnresolvedImports,
   processQueuedMessages,
 }: SetupOption): SetupConfig => {
-  addr = addr ?? 'localhost';
+  addr = addr ?? 'localhost'
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
   const config = {
