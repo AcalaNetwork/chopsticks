@@ -37,7 +37,7 @@ export const cli = (y: Argv) => {
       if (!config.db) {
         console.log('⚠️ Make sure to provide db, it will speed up the process')
       }
-      const context = await setupContext({ ...config, port: 8000, 'build-block-mode': BuildBlockMode.Manual })
+      const context = await setupContext({ ...config, addr: 'localhost', port: 8000, 'build-block-mode': BuildBlockMode.Manual })
       const block = context.chain.head
       const registry = await block.registry
       registry.register({

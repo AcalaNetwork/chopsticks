@@ -26,6 +26,7 @@ export type SetupOption = {
   wasmOverride?: string
   db?: string
   timeout?: number
+  addr?: string,
   port?: number
   maxMemoryBlockCount?: number
   resume?: boolean | HexString | number
@@ -45,6 +46,7 @@ export const createConfig = ({
   wasmOverride,
   db,
   timeout,
+  addr,
   port,
   maxMemoryBlockCount,
   resume,
@@ -52,10 +54,12 @@ export const createConfig = ({
   allowUnresolvedImports,
   processQueuedMessages,
 }: SetupOption): SetupConfig => {
+  addr = addr ?? 'localhost';
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
   const config = {
     endpoint,
+    addr,
     port,
     block: blockNumber || blockHash,
     'mock-signature-host': true,

@@ -102,7 +102,7 @@ export const setupAll = async ({
       await chain.newBlock()
     }
 
-    const { port, close } = await createServer(handler({ chain }), 0)
+    const { port, close } = await createServer(handler({ chain }), 'localhost', 0)
     const ws = new WsProvider(`ws://localhost:${port}`, 3_000, undefined, 300_000)
 
     return {
