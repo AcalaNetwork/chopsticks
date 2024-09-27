@@ -79,7 +79,7 @@ export const setupContext = async (option: SetupOption) => {
 export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig) => {
   const { chain, listenPort, close } = await setupWithServer(config)
 
-  const url = `ws://localhost:${listenPort}`
+  const url = `ws://${addr}:${listenPort}`
   const ws = new WsProvider(url, 3_000, undefined, timeout)
   const api = await ApiPromise.create({
     provider: ws,
