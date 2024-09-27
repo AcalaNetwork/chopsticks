@@ -4,6 +4,12 @@ import { expect, it } from 'vitest'
 it('get yargs options from zod schema', () => {
   expect(getYargsOptions(configSchema.shape)).toMatchInlineSnapshot(`
     {
+      "addr": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": "Server listening interface",
+        "type": "string",
+      },
       "allow-unresolved-imports": {
         "choices": undefined,
         "demandOption": false,
@@ -77,7 +83,7 @@ it('get yargs options from zod schema', () => {
       "port": {
         "choices": undefined,
         "demandOption": false,
-        "description": "Port to listen on",
+        "description": "Server listening port",
         "type": "number",
       },
       "prefetch-storages": {
