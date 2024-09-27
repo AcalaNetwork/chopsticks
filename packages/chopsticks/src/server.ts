@@ -78,7 +78,7 @@ const portInUse = async (port: number) => {
   return inUse
 }
 
-export const createServer = async (handler: Handler, port: number) => {
+export const createServer = async (handler: Handler, addr: string, port: number) => {
   let wss: WebSocketServer | undefined
   let listenPort: number | undefined
 
@@ -162,7 +162,7 @@ export const createServer = async (handler: Handler, port: number) => {
         reject(e)
       }
       server.once('error', onError)
-      server.listen(preferPort, () => {
+      server.listen(preferPort, addr, () => {
         wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 * 100 })
         listenPort = (server.address() as AddressInfo).port
         server.removeListener('error', onError)

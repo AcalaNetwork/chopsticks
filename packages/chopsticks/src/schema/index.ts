@@ -12,7 +12,12 @@ export const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
 export const zHash = z.string().length(66).and(zHex)
 
 export const configSchema = z.object({
-  port: z.number({ description: 'Port to listen on' }).default(8000),
+  addr: z
+    .union([z.literal('localhost'), z.string().ip()], {
+      description: 'Server listening interface',
+    })
+    .default('localhost'),
+  port: z.number({ description: 'Server listening port' }).default(8000),
   endpoint: z.union([z.string(), z.array(z.string())], { description: 'Endpoint to connect to' }).optional(),
   block: z
     .union(
