@@ -7,9 +7,10 @@ import { setupContext } from './context.js'
 export const setupWithServer = async (argv: Config) => {
   const context = await setupContext(argv)
 
-  const { close, port: listenPort } = await createServer(handler(context), argv.addr, argv.port)
+  const addr = argv.addr ?? 'localhost'
+  const { close, port: listenPort } = await createServer(handler(context), addr, argv.port)
 
-  defaultLogger.info(`${await context.chain.api.getSystemChain()} RPC listening on ${argv.addr}:${listenPort}`)
+  defaultLogger.info(`${await context.chain.api.getSystemChain()} RPC listening on ${addr}:${listenPort}`)
 
   return {
     ...context,
