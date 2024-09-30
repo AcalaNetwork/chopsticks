@@ -57,7 +57,7 @@ const respond = (res: http.ServerResponse, data?: any) => {
   res.end()
 }
 
-const portInUse = async (port: number) => {
+const portInUse = async (port: number, addr: string) => {
   const server = http.createServer()
   const inUse = await new Promise<boolean>((resolve) => {
     server.once('error', (e: any) => {
@@ -71,7 +71,7 @@ const portInUse = async (port: number) => {
       server.close()
       resolve(false)
     })
-    server.listen(port)
+    server.listen(port, addr)
   })
   server.removeAllListeners()
   server.unref()
@@ -151,7 +151,7 @@ export const createServer = async (handler: Handler, addr: string, port: number)
   })
 
   for (let i = 0; i < 10; i++) {
-    if (port && (await portInUse(port + i))) {
+    if (port && (await portInUse(port + i, addr))) {
       continue
     }
     const preferPort = port ? port + i : undefined
