@@ -73,13 +73,13 @@ describe('dev rpc', async () => {
   })
 
   it('newBlock with relayParentNumber', async () => {
-    await dev.newBlock({ relayParentNumber: 14355200 })
+    await dev.newBlock({ relayParentNumber: 14355209 })
     const block = await api.rpc.chain.getBlock()
     const setValidationData = block.block.extrinsics
       .find(({ method }) => method.method == 'setValidationData')
       ?.method.toJSON().args.data
 
-    expect(setValidationData.validationData.relayParentNumber).to.be.eq(14355200)
+    expect(setValidationData.validationData.relayParentNumber).to.be.eq(14355209)
   })
 
   it('timeTravel', async () => {
