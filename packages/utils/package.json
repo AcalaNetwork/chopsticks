@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
+		"@acala-network/chopsticks-core": "workspace:*",
 		"@polkadot/api": "^12.3.1",
 		"@polkadot/api-base": "^12.3.1",
 		"@polkadot/keyring": "^13.0.2",

@@ -93,6 +93,7 @@ __metadata:
   resolution: "@acala-network/chopsticks-utils@workspace:packages/utils"
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
+    "@acala-network/chopsticks-core": "workspace:*"
     "@polkadot/api": "npm:^12.3.1"
     "@polkadot/api-base": "npm:^12.3.1"
     "@polkadot/keyring": "npm:^13.0.2"
