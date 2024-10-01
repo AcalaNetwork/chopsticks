@@ -116,11 +116,8 @@ export interface NewBlockParams {
  * ```
  */
 export const dev_newBlock = async (context: Context, [params]: [NewBlockParams]) => {
-  const {
-    count, to, hrmp, ump, dmp, transactions, unsafeBlockHeight, relayChainStateOverrides, relayParentNumber
-  } = schema.parse(
-    params || {},
-  )
+  const { count, to, hrmp, ump, dmp, transactions, unsafeBlockHeight, relayChainStateOverrides, relayParentNumber } =
+    schema.parse(params || {})
   const now = context.chain.head.number
   const diff = to ? to - now : count
   const finalCount = diff !== undefined ? Math.max(diff, 1) : 1
