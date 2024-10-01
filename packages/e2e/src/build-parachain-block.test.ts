@@ -30,4 +30,18 @@ describe('override-relay-state-proof', async () => {
 
     await teardown()
   })
+
+  it('newBlock with relayParentNumber', async () => {
+    const { dev, api, teardown } = await networks.acala()
+
+    await dev.newBlock({ relayParentNumber: 14355209 })
+    const block = await api.rpc.chain.getBlock()
+    const setValidationData = block.block.extrinsics
+      .find(({ method }) => method.method == 'setValidationData')
+      ?.method.toJSON().args.data
+
+    expect(setValidationData.validationData.relayParentNumber).to.be.eq(14355209)
+
+    await teardown()
+  })
 })

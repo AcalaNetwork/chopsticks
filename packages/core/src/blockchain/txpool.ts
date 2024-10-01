@@ -40,6 +40,7 @@ export interface BuildBlockParams {
   transactions: HexString[]
   unsafeBlockHeight?: number
   relayChainStateOverrides?: [HexString, HexString | null][]
+  relayParentNumber?: number
 }
 
 export class TxPool {
@@ -179,6 +180,7 @@ export class TxPool {
     const horizontalMessages = params?.horizontalMessages || { ...this.#hrmp }
     const unsafeBlockHeight = params?.unsafeBlockHeight
     const relayChainStateOverrides = params?.relayChainStateOverrides
+    const relayParentNumber = params?.relayParentNumber
     if (!params?.upwardMessages) {
       for (const id of Object.keys(this.#ump)) {
         delete this.#ump[id]
@@ -198,6 +200,7 @@ export class TxPool {
         horizontalMessages,
         unsafeBlockHeight,
         relayChainStateOverrides,
+        relayParentNumber,
       })
 
       // with the latest message queue, messages could be processed in the upcoming block

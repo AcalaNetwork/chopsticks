@@ -13,6 +13,7 @@ import { Codec } from '@polkadot/types/types'
 import { Config } from '@acala-network/chopsticks/schema/index.js'
 import { HexString } from '@polkadot/util/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
+import { NewBlockParams } from '@acala-network/chopsticks-core/rpc/dev/new-block.js'
 import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 
 const logger = defaultLogger.child({ name: 'utils' })
@@ -96,7 +97,7 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
     ws,
     api,
     dev: {
-      newBlock: (param?: { count?: number; to?: number; unsafeBlockHeight?: number }): Promise<string> => {
+      newBlock: (param?: Partial<NewBlockParams>): Promise<string> => {
         return ws.send('dev_newBlock', [param])
       },
       setStorage: (values: StorageValues, blockHash?: string) => {
