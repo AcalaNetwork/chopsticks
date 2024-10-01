@@ -72,6 +72,16 @@ describe('dev rpc', async () => {
     expect(newBlockNumber2).toBe(blockNumber + 5)
   })
 
+  it('newBlock with relayParentNumber', async () => {
+    await dev.newBlock({ relayParentNumber: 14355200 })
+    const block = await api.rpc.chain.getBlock()
+    const setValidationData = block.block.extrinsics
+      .find(({ method }) => method.method == 'setValidationData')
+      ?.method.toJSON().args.data
+
+    expect(setValidationData.validationData.relayParentNumber).to.be.eq(14355200)
+  })
+
   it('timeTravel', async () => {
     const date = 'Jan 1, 2023'
     const timestamp = await dev.timeTravel(date)

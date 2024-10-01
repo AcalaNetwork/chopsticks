@@ -287,7 +287,7 @@ export class SetValidationData implements InherentProvider {
       validationData: {
         ...extrinsic.validationData,
         relayParentStorageRoot: trieRootHash,
-        relayParentNumber: extrinsic.validationData.relayParentNumber + relaySlotIncrease,
+        relayParentNumber: params.relayParentNumber ?? extrinsic.validationData.relayParentNumber + relaySlotIncrease,
       },
       relayChainState: {
         trieNodes: nodes,
