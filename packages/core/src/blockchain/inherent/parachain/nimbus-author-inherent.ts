@@ -7,7 +7,7 @@ import { compactHex } from '../../../utils/index.js'
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements InherentProvider {
   async createInherents(newBlock: Block, _params: BuildBlockParams): Promise<HexString[]> {
-    const parent = await newB lock.parentBlock
+    const parent = await newBlock.parentBlock
     if (!parent) throw new Error('parent block not found')
 
     const meta = await parent.meta
