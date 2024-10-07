@@ -11,12 +11,19 @@ export class SetNimbusAuthorInherent implements InherentProvider {
     if (!parent) throw new Error('parent block not found')
 
     const meta = await parent.meta
-    if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
-      return []
-    }
-
+    
     // mock author inherent data and authorities noting data
     const layer = newBlock.pushStorageLayer()
+
+    layer.set(
+      compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
+      meta.registry.createType('bool', true).toHex(),
+    )
+
+    if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
+      console.log("not found")
+      return []
+    }
 
     const accountType = meta.registry.hasType('NimbusPrimitivesNimbusCryptoPublic')
       ? 'NimbusPrimitivesNimbusCryptoPublic'
@@ -64,11 +71,7 @@ export class SetNimbusAuthorInherent implements InherentProvider {
             .toHex(),
         )
       }
-
-      layer.set(
-        compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
-        meta.registry.createType('bool', true).toHex(),
-      )
+  
     }
     return [new GenericExtrinsic(meta.registry, meta.tx.authorInherent.kickOffAuthorshipValidation()).toHex()]
   }
