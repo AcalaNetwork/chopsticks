@@ -12,19 +12,20 @@ export class SetNimbusAuthorInherent implements InherentProvider {
 
     const meta = await parent.meta
 
-    // mock author inherent data and authorities noting data
-    const layer = newBlock.pushStorageLayer()
-
-    if (meta.query.authorNoting) {
-      layer.set(
-        compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
-        meta.registry.createType('bool', true).toHex(),
-      )
-    }
-
     if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
+      if (meta.query.authorNoting) {
+        newBlock
+          .pushStorageLayer()
+          .set(
+            compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
+            meta.registry.createType('bool', true).toHex(),
+          )
+      }
       return []
     }
+
+    // mock author inherent data and authorities noting data
+    const layer = newBlock.pushStorageLayer()
 
     const accountType = meta.registry.hasType('NimbusPrimitivesNimbusCryptoPublic')
       ? 'NimbusPrimitivesNimbusCryptoPublic'
@@ -72,6 +73,10 @@ export class SetNimbusAuthorInherent implements InherentProvider {
             .toHex(),
         )
       }
+      layer.set(
+        compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
+        meta.registry.createType('bool', true).toHex(),
+      )
     }
     return [new GenericExtrinsic(meta.registry, meta.tx.authorInherent.kickOffAuthorshipValidation()).toHex()]
   }
