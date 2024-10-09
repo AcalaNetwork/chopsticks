@@ -11,7 +11,16 @@ export class SetNimbusAuthorInherent implements InherentProvider {
     if (!parent) throw new Error('parent block not found')
 
     const meta = await parent.meta
+
     if (!meta.tx.authorInherent?.kickOffAuthorshipValidation) {
+      if (meta.query.authorNoting) {
+        newBlock
+          .pushStorageLayer()
+          .set(
+            compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
+            meta.registry.createType('bool', true).toHex(),
+          )
+      }
       return []
     }
 
@@ -64,7 +73,6 @@ export class SetNimbusAuthorInherent implements InherentProvider {
             .toHex(),
         )
       }
-
       layer.set(
         compactHex(meta.query.authorNoting.didSetContainerAuthorData()),
         meta.registry.createType('bool', true).toHex(),
