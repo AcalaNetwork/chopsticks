@@ -82,6 +82,20 @@ describe('chainHead_v1 rpc', () => {
     chainHead.unfollow()
   })
 
+  it('runs through multiple pages of storage queries', async () => {
+    const chainHead = testApi.observableClient.chainHead$()
+
+    const receivedItems = await firstValueFrom(
+      chainHead.storage$(null, 'descendantsValues', (ctx) =>
+        ctx.dynamicBuilder.buildStorage('System', 'BlockHash').enc(),
+      ),
+    )
+
+    expect(receivedItems.length).toEqual(7510)
+
+    chainHead.unfollow()
+  })
+
   it('resolves the header for a specific block', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
