@@ -187,7 +187,6 @@ async function getDescendantValues(
   }>
   next: DescendantValuesParams | null
 }> {
-  const pageSize = 100
   const keys = await block.getKeysPaged({
     ...params,
     pageSize: PAGE_SIZE,
@@ -202,7 +201,7 @@ async function getDescendantValues(
     ),
   )
 
-  if (keys.length < pageSize) {
+  if (keys.length < PAGE_SIZE) {
     return {
       items,
       next: null,
@@ -213,7 +212,7 @@ async function getDescendantValues(
     items,
     next: {
       ...params,
-      startKey: keys[pageSize - 1],
+      startKey: keys[PAGE_SIZE - 1],
     },
   }
 }

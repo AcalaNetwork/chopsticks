@@ -91,7 +91,7 @@ describe('chainHead_v1 rpc', () => {
       ),
     )
 
-    expect(receivedItems.length).toEqual(7510)
+    expect(receivedItems.length).toEqual(1201)
 
     chainHead.unfollow()
   })
