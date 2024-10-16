@@ -164,6 +164,31 @@ import-storage:
       -
         -
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - 29 # Polimec (PLMC)
+        - free: '100000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - 30 # Mythos (MYTH)
+        - free: '100000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - 31 # Darwinia (RING)
+        - free: '100000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - 32 # Ajuna (AJUN)
+        - free: '100000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - 33 # Voucher ASTR (vASTR)
+        - free: '100000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - 100 # 4-pool   (USDT(AssetHub), DAI.wh MRL, USDC.wh MRL, USDT.wh MRL)
         - free: '100000000000000000000000'
       -
@@ -176,6 +201,16 @@ import-storage:
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
           - 102 # 2-Pool-Stbl  (native USDC/USDT)
         - free: '100000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - 1000081 # Pendulum (PEN)
+        - free: '100000000000000000000000'
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+          - 1000099 # Acala (ACA)
+        - free: '100000000000000000000000'  
   TechnicalCommittee:
     Members: ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"]
   Council:
