@@ -224,3 +224,34 @@ Please note that for both ways, fetched storages will be saved in the sqlite fil
 ## Try-Runtime CLI
 
 Documentation can be found [here](packages/chopsticks/src/plugins/try-runtime/README.md)
+
+## FAQ
+
+### 127.0.0.1:8000 Abnormal Closure
+
+Chopsticks listen on `localhost:8000` by default, if you are on `macos`, it may not resolve to `127.0.0.1` to `localhost`. You can access chopsticks using `localhost:8000` instead, or you can start chopsticks with `--addr=127.0.0.1`.
+
+### What is mocked? What are things that could work with chopsticks, but still fail in production?
+
+Generally, anything that involves something more than onchain STF `new_state = f(old_state)` are not guaranteed to work in production.
+In practice, here is an incomplete list that I can think of:
+
+- mocked tx pool
+- no real block finalization
+- mocked inherents
+- simulated XCM channels
+
+### How to change a pallet constant in chopsticks?
+
+You cannot change runtime constants in chopsticks, you have to edit and build a new runtime, and use `wasm-override` with the new wasm.
+
+### Storage override of value type `()`
+
+You can use `0x` for empty values, for example:
+
+```yaml
+Whitelist:
+    WhitelistedCall:
+      - - - '0xe284be84dcfaf714ef2b7717b54914632406f2c17d8203d3268e4c4ca68fa144'
+        - 0x
+```
