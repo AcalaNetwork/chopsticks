@@ -81,6 +81,8 @@ const portInUse = async (port: number, addr: string) => {
 export const createServer = async (handler: Handler, addr: string, port: number) => {
   let wss: WebSocketServer | undefined
   let listenPort: number | undefined
+  // for node.js http server, need to use `127.0.0.1` so it works for both `localhost` and `127.0.0.1`
+  const addrSafe = addr === 'localhost' ? '127.0.0.1' : addr
 
   const emptySubscriptionManager = {
     subscribe: () => {
@@ -151,7 +153,7 @@ export const createServer = async (handler: Handler, addr: string, port: number)
   })
 
   for (let i = 0; i < 10; i++) {
-    if (port && (await portInUse(port + i, addr))) {
+    if (port && (await portInUse(port + i, addrSafe))) {
       continue
     }
     const preferPort = port ? port + i : undefined
@@ -162,7 +164,7 @@ export const createServer = async (handler: Handler, addr: string, port: number)
         reject(e)
       }
       server.once('error', onError)
-      server.listen(preferPort, addr, () => {
+      server.listen(preferPort, addrSafe, () => {
         wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 * 100 })
         listenPort = (server.address() as AddressInfo).port
         server.removeListener('error', onError)
