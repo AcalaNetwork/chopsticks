@@ -5,6 +5,10 @@ import { handler } from './rpc/index.js'
 import { setupContext } from './context.js'
 
 export const setupWithServer = async (argv: Config) => {
+  if (argv.addr) {
+    defaultLogger.warn({}, `⚠️ Option --addr is deprecated, please use --host instead.`)
+    argv.host ??= argv.addr
+  }
   const context = await setupContext(argv)
 
   const { close, addr } = await createServer(handler(context), argv.port, argv.host)
