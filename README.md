@@ -227,10 +227,6 @@ Documentation can be found [here](packages/chopsticks/src/plugins/try-runtime/RE
 
 ## FAQ
 
-### 127.0.0.1:8000 Abnormal Closure
-
-Chopsticks listen on `localhost:8000` by default, if you are on `macos`, it may not resolve to `127.0.0.1` to `localhost`. You can access chopsticks using `localhost:8000` instead, or you can start chopsticks with `--addr=127.0.0.1`.
-
 ### What is mocked? What are things that could work with chopsticks, but still fail in production?
 
 Generally, anything that involves something more than onchain STF `new_state = f(old_state)` are not guaranteed to work in production.
