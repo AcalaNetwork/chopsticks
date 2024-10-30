@@ -27,7 +27,7 @@ export type SetupOption = {
   wasmOverride?: string
   db?: string
   timeout?: number
-  addr?: string
+  host?: string
   port?: number
   maxMemoryBlockCount?: number
   resume?: boolean | HexString | number
@@ -47,7 +47,7 @@ export const createConfig = ({
   wasmOverride,
   db,
   timeout,
-  addr,
+  host,
   port,
   maxMemoryBlockCount,
   resume,
@@ -55,12 +55,11 @@ export const createConfig = ({
   allowUnresolvedImports,
   processQueuedMessages,
 }: SetupOption): SetupConfig => {
-  addr = addr ?? 'localhost'
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
   const config = {
     endpoint,
-    addr,
+    host,
     port,
     block: blockNumber || blockHash,
     'mock-signature-host': true,
@@ -82,9 +81,9 @@ export const setupContext = async (option: SetupOption) => {
 }
 
 export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig) => {
-  const { chain, addr, listenPort, close } = await setupWithServer(config)
+  const { chain, addr, close } = await setupWithServer(config)
 
-  const url = `ws://${addr}:${listenPort}`
+  const url = `ws://${addr}`
   const ws = new WsProvider(url, 3_000, undefined, timeout)
   const api = await ApiPromise.create({
     provider: ws,

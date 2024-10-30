@@ -28,7 +28,6 @@ describe('Existing configs', async () => {
 
 describe('Parsed options', () => {
   const defaults = {
-    addr: 'localhost',
     port: 8000,
     'build-block-mode': 'Batch',
   }
