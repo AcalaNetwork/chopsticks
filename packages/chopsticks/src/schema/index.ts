@@ -12,11 +12,7 @@ export const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
 export const zHash = z.string().length(66).and(zHex)
 
 export const configSchema = z.object({
-  addr: z
-    .union([z.literal('localhost'), z.string().ip()], {
-      description: '[DEPRECATED] Use --host instead',
-    })
-    .optional(),
+  addr: z.union([z.literal('localhost'), z.string().ip()]).optional(),
   host: z
     .union([z.literal('localhost'), z.string().ip()], {
       description: 'Server listening interface',
