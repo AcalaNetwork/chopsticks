@@ -8,7 +8,7 @@ export const setupWithServer = async (argv: Config) => {
   const context = await setupContext(argv)
 
   const { close, addr } = await createServer(handler(context), argv.port, argv.host)
-  defaultLogger.info(`${await context.chain.api.getSystemChain()} RPC listening on ${addr}`)
+  defaultLogger.info(`${await context.chain.api.getSystemChain()} RPC listening on http://${addr} and ws://${addr}`)
 
   return {
     ...context,

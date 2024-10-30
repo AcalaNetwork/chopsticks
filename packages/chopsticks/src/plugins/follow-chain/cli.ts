@@ -39,7 +39,7 @@ export const cli = (y: Argv) => {
 
       const context = await setupContext(config, true)
       const { close, addr } = await createServer(handler(context), config.port, config.host)
-      logger.info(`${await context.chain.api.getSystemChain()} RPC listening on ${addr}`)
+      logger.info(`${await context.chain.api.getSystemChain()} RPC listening on http://${addr} and ws://${addr}`)
 
       const chain = context.chain
 
