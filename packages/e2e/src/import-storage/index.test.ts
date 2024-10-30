@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import path from 'path'
+import path from 'node:path'
 
 import { api, chain, setupApi } from '../helper.js'
 import { compactHex } from '@acala-network/chopsticks'
