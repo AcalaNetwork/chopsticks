@@ -11,7 +11,7 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot/util": "^13.2.2",
+		"@polkadot/util": "^13.0.2",
 		"idb": "^8.0.0",
 		"sqlite3": "^5.1.7",
 		"typeorm": "^0.3.20"

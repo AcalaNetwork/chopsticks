@@ -14,8 +14,8 @@
 		"build": "yarn wasm && ./package.sh"
 	},
 	"dependencies": {
-		"@polkadot/util": "^13.2.2",
-		"@polkadot/wasm-util": "^7.4.1"
+		"@polkadot/util": "^13.0.2",
+		"@polkadot/wasm-util": "^7.3.2"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.5.0",
