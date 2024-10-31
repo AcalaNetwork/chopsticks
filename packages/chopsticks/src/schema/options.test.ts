@@ -7,7 +7,7 @@ it('get yargs options from zod schema', () => {
       "addr": {
         "choices": undefined,
         "demandOption": false,
-        "description": "Server listening interface",
+        "description": undefined,
         "type": "string",
       },
       "allow-unresolved-imports": {
@@ -54,6 +54,12 @@ it('get yargs options from zod schema', () => {
         "choices": undefined,
         "demandOption": false,
         "description": "Alias to \`chain-spec\`. URL to chain spec file. NOTE: Only parachains with AURA consensus are supported!",
+        "type": "string",
+      },
+      "host": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": "Server listening interface",
         "type": "string",
       },
       "import-storage": {

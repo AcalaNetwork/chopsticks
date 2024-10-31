@@ -57,7 +57,7 @@ const respond = (res: http.ServerResponse, data?: any) => {
   res.end()
 }
 
-const portInUse = async (port: number, addr: string) => {
+const portInUse = async (port: number, host?: string) => {
   const server = http.createServer()
   const inUse = await new Promise<boolean>((resolve) => {
     server.once('error', (e: any) => {
@@ -71,16 +71,17 @@ const portInUse = async (port: number, addr: string) => {
       server.close()
       resolve(false)
     })
-    server.listen(port, addr)
+    server.listen(port, host)
   })
   server.removeAllListeners()
   server.unref()
+  await new Promise((r) => setTimeout(r, 50))
   return inUse
 }
 
-export const createServer = async (handler: Handler, addr: string, port: number) => {
+export const createServer = async (handler: Handler, port: number, host?: string) => {
   let wss: WebSocketServer | undefined
-  let listenPort: number | undefined
+  let addressInfo: AddressInfo | undefined
 
   const emptySubscriptionManager = {
     subscribe: () => {
@@ -151,7 +152,7 @@ export const createServer = async (handler: Handler, addr: string, port: number)
   })
 
   for (let i = 0; i < 10; i++) {
-    if (port && (await portInUse(port + i, addr))) {
+    if (port && (await portInUse(port + i, host))) {
       continue
     }
     const preferPort = port ? port + i : undefined
@@ -162,9 +163,9 @@ export const createServer = async (handler: Handler, addr: string, port: number)
         reject(e)
       }
       server.once('error', onError)
-      server.listen(preferPort, addr, () => {
+      server.listen(preferPort, host, () => {
         wss = new WebSocketServer({ server, maxPayload: 1024 * 1024 * 100 })
-        listenPort = (server.address() as AddressInfo).port
+        addressInfo = server.address() as AddressInfo
         server.removeListener('error', onError)
         resolve()
       })
@@ -172,7 +173,7 @@ export const createServer = async (handler: Handler, addr: string, port: number)
     break
   }
 
-  if (!wss || !listenPort) {
+  if (!wss || !addressInfo) {
     throw new Error(`Failed to create WebsocketServer at port ${port}`)
   }
 
@@ -289,7 +290,8 @@ export const createServer = async (handler: Handler, addr: string, port: number)
   })
 
   return {
-    port: listenPort,
+    addr: `${addressInfo.family === 'IPv6' ? `[${addressInfo.address}]` : addressInfo.address}:${addressInfo.port}`,
+    port: addressInfo.port,
     close: async () => {
       server.close()
       server.closeAllConnections()

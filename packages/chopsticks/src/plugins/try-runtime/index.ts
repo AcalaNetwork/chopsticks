@@ -39,7 +39,7 @@ export const cli = (y: Argv) => {
       }
       const context = await setupContext({
         ...config,
-        addr: 'localhost',
+        host: 'localhost',
         port: 8000,
         'build-block-mode': BuildBlockMode.Manual,
       })

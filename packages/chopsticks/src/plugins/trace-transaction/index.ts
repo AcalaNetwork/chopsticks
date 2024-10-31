@@ -1,6 +1,6 @@
 import { Argv } from 'yargs'
 import { pinoLogger } from '@acala-network/chopsticks-core'
-import { writeFileSync } from 'fs'
+import { writeFileSync } from 'node:fs'
 import { z } from 'zod'
 import _ from 'lodash'
 

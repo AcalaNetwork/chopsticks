@@ -45,7 +45,8 @@ const commands = yargs(hideBin(process.argv))
           'Path to config file with default options',
           () => ({}), // we load config in middleware
         )
-        .options(getYargsOptions(configSchema.shape)),
+        .options(getYargsOptions(configSchema.shape))
+        .deprecateOption('addr', '⚠️ Use --host instead.'),
     async (argv) => {
       await setupWithServer(configSchema.parse(argv))
     },
@@ -101,6 +102,7 @@ const commands = yargs(hideBin(process.argv))
   .alias('wasm-override', 'w')
   .usage('Usage: $0 <command> [options]')
   .example('$0', '-c acala')
+  .showHelpOnFail(false)
 
 if (!environment.DISABLE_PLUGINS) {
   pluginExtendCli(
