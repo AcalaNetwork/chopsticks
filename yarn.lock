@@ -10,12 +10,12 @@ __metadata:
   resolution: "@acala-network/chopsticks-core@workspace:packages/core"
   dependencies:
     "@acala-network/chopsticks-executor": "workspace:*"
-    "@polkadot/rpc-provider": "npm:^12.3.1"
-    "@polkadot/types": "npm:^12.3.1"
-    "@polkadot/types-codec": "npm:^12.3.1"
-    "@polkadot/types-known": "npm:^12.3.1"
-    "@polkadot/util": "npm:^13.0.2"
-    "@polkadot/util-crypto": "npm:^13.0.2"
+    "@polkadot/rpc-provider": "npm:^12.4.2"
+    "@polkadot/types": "npm:^12.4.2"
+    "@polkadot/types-codec": "npm:^12.4.2"
+    "@polkadot/types-known": "npm:^12.4.2"
+    "@polkadot/util": "npm:^13.2.2"
+    "@polkadot/util-crypto": "npm:^13.2.2"
     "@swc/cli": "npm:0.5.0"
     "@swc/core": "npm:^1.7.40"
     "@types/lodash": "npm:^4.17.13"
@@ -37,7 +37,7 @@ __metadata:
   resolution: "@acala-network/chopsticks-db@workspace:packages/db"
   dependencies:
     "@acala-network/chopsticks-core": "workspace:*"
-    "@polkadot/util": "npm:^13.0.2"
+    "@polkadot/util": "npm:^13.2.2"
     "@swc/cli": "npm:0.5.0"
     "@swc/core": "npm:^1.7.40"
     idb: "npm:^8.0.0"
@@ -56,7 +56,7 @@ __metadata:
     "@polkadot-api/observable-client": "npm:^0.5.14"
     "@polkadot-api/substrate-client": "npm:^0.2.2"
     "@polkadot-api/ws-provider": "npm:^0.3.2"
-    "@polkadot/api": "npm:^12.3.1"
+    "@polkadot/api": "npm:^12.4.2"
     rxjs: "npm:^7.8.1"
     typescript: "npm:^5.6.3"
     vitest: "npm:^2.1.4"
@@ -67,8 +67,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks-executor@workspace:executor"
   dependencies:
-    "@polkadot/util": "npm:^13.0.2"
-    "@polkadot/wasm-util": "npm:^7.3.2"
+    "@polkadot/util": "npm:^13.2.2"
+    "@polkadot/wasm-util": "npm:^7.4.1"
     "@swc/cli": "npm:0.5.0"
     "@swc/core": "npm:^1.7.40"
     fflate: "npm:^0.8.2"
@@ -94,11 +94,11 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
     "@acala-network/chopsticks-core": "workspace:*"
-    "@polkadot/api": "npm:^12.3.1"
-    "@polkadot/api-base": "npm:^12.3.1"
-    "@polkadot/keyring": "npm:^13.0.2"
-    "@polkadot/types": "npm:^12.3.1"
-    "@polkadot/util": "npm:^13.0.2"
+    "@polkadot/api": "npm:^12.4.2"
+    "@polkadot/api-base": "npm:^12.4.2"
+    "@polkadot/keyring": "npm:^13.2.2"
+    "@polkadot/types": "npm:^12.4.2"
+    "@polkadot/util": "npm:^13.2.2"
     "@swc/cli": "npm:0.5.0"
     "@swc/core": "npm:^1.7.40"
     typescript: "npm:^5.6.3"
@@ -112,12 +112,12 @@ __metadata:
     "@acala-network/chopsticks-core": "workspace:*"
     "@acala-network/chopsticks-db": "workspace:*"
     "@pnpm/npm-conf": "npm:^2.3.1"
-    "@polkadot/api": "npm:^12.3.1"
-    "@polkadot/api-augment": "npm:^12.3.1"
-    "@polkadot/rpc-provider": "npm:^12.3.1"
-    "@polkadot/types": "npm:^12.3.1"
-    "@polkadot/util": "npm:^13.0.2"
-    "@polkadot/util-crypto": "npm:^13.0.2"
+    "@polkadot/api": "npm:^12.4.2"
+    "@polkadot/api-augment": "npm:^12.4.2"
+    "@polkadot/rpc-provider": "npm:^12.4.2"
+    "@polkadot/types": "npm:^12.4.2"
+    "@polkadot/util": "npm:^13.2.2"
+    "@polkadot/util-crypto": "npm:^13.2.2"
     "@swc/cli": "npm:0.5.0"
     "@swc/core": "npm:^1.7.40"
     "@types/global-agent": "npm:^2.1.3"
@@ -1682,7 +1682,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/api-augment@npm:12.4.2, @polkadot/api-augment@npm:^12.3.1":
+"@polkadot/api-augment@npm:12.4.2, @polkadot/api-augment@npm:^12.4.2":
   version: 12.4.2
   resolution: "@polkadot/api-augment@npm:12.4.2"
   dependencies:
@@ -1712,7 +1712,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/api-base@npm:12.4.2, @polkadot/api-base@npm:^12.3.1":
+"@polkadot/api-base@npm:12.4.2, @polkadot/api-base@npm:^12.4.2":
   version: 12.4.2
   resolution: "@polkadot/api-base@npm:12.4.2"
   dependencies:
@@ -1774,7 +1774,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/api@npm:12.4.2, @polkadot/api@npm:^12.3.1":
+"@polkadot/api@npm:12.4.2, @polkadot/api@npm:^12.4.2":
   version: 12.4.2
   resolution: "@polkadot/api@npm:12.4.2"
   dependencies:
@@ -1903,7 +1903,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/rpc-provider@npm:12.4.2, @polkadot/rpc-provider@npm:^12.3.1":
+"@polkadot/rpc-provider@npm:12.4.2, @polkadot/rpc-provider@npm:^12.4.2":
   version: 12.4.2
   resolution: "@polkadot/rpc-provider@npm:12.4.2"
   dependencies:
@@ -1975,7 +1975,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types-codec@npm:12.4.2, @polkadot/types-codec@npm:^12.3.1":
+"@polkadot/types-codec@npm:12.4.2, @polkadot/types-codec@npm:^12.4.2":
   version: 12.4.2
   resolution: "@polkadot/types-codec@npm:12.4.2"
   dependencies:
@@ -2019,7 +2019,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types-known@npm:12.4.2, @polkadot/types-known@npm:^12.3.1":
+"@polkadot/types-known@npm:12.4.2, @polkadot/types-known@npm:^12.4.2":
   version: 12.4.2
   resolution: "@polkadot/types-known@npm:12.4.2"
   dependencies:
@@ -2067,7 +2067,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/types@npm:12.4.2, @polkadot/types@npm:^12.3.1":
+"@polkadot/types@npm:12.4.2, @polkadot/types@npm:^12.4.2":
   version: 12.4.2
   resolution: "@polkadot/types@npm:12.4.2"
   dependencies:
@@ -2203,7 +2203,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/wasm-util@npm:7.4.1, @polkadot/wasm-util@npm:^7.3.2, @polkadot/wasm-util@npm:^7.4.1":
+"@polkadot/wasm-util@npm:7.4.1, @polkadot/wasm-util@npm:^7.4.1":
   version: 7.4.1
   resolution: "@polkadot/wasm-util@npm:7.4.1"
   dependencies:

@@ -12,11 +12,11 @@
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot/api": "^12.3.1",
-		"@polkadot/api-base": "^12.3.1",
-		"@polkadot/keyring": "^13.0.2",
-		"@polkadot/types": "^12.3.1",
-		"@polkadot/util": "^13.0.2"
+		"@polkadot/api": "^12.4.2",
+		"@polkadot/api-base": "^12.4.2",
+		"@polkadot/keyring": "^13.2.2",
+		"@polkadot/types": "^12.4.2",
+		"@polkadot/util": "^13.2.2"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.5.0",
