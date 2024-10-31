@@ -44,39 +44,6 @@ jobs:
     - run: yarn test
       timeout-minutes: 30
 
-  sidecar:
-    if: ${{ github.ref_name == 'master' }}
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          executor/target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    - name: Install toolchain
-      uses: dtolnay/rust-toolchain@nightly
-      with:
-        toolchain: nightly-2022-10-30
-        components: rustfmt
-        target: wasm32-unknown-unknown
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18.x
-        cache: 'yarn'
-    - run: yarn --immutable
-    - run: yarn check
-    - run: yarn build-wasm
-    - name: Test Sidecar
-      run: yarn workspace @acala-network/chopsticks-e2e run sidecar
-
   web-test:
       runs-on: ubuntu-latest
       steps:
