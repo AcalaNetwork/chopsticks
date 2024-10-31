@@ -50,7 +50,7 @@ export const loadRpcMethodsByScripts = async (path: string) => {
     rpcScriptMethods = new Function(scriptContent)()
     logger.info(`${Object.keys(rpcScriptMethods).length} extension rpc methods loaded from ${path}`)
   } catch (error) {
-    console.log('Failed to load rpc extension methods')
+    console.log('Failed to load rpc extension methods', error)
   }
 }
 

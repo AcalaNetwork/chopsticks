@@ -40,7 +40,9 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
 
   it('build blocks', { timeout: 300_000, retry: 1 }, async () => {
     const { chain, ws, teardown } = await setupPjs()
-    storage && (await ws.send('dev_setStorage', [storage]))
+    if (storage) {
+      await ws.send('dev_setStorage', [storage])
+    }
     const blockNumber = chain.head.number
     await ws.send('dev_newBlock', [{ count: 2 }])
     expect(chain.head.number).eq(blockNumber + 2)
@@ -49,7 +51,9 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
 
   it('build block using unsafeBlockHeight', async () => {
     const { chain, ws, teardown } = await setupPjs()
-    storage && (await ws.send('dev_setStorage', [storage]))
+    if (storage) {
+      await ws.send('dev_setStorage', [storage])
+    }
     const blockNumber = chain.head.number
     const unsafeBlockHeight = blockNumber + 100
 

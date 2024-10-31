@@ -29,13 +29,12 @@ export const cli = (y: Argv) => {
     (yargs) => yargs.options(getYargsOptions(schema.shape)),
     async (argv) => {
       const config = schema.parse(argv)
-      Array.isArray(config.endpoint)
-        ? config.endpoint
-        : [config.endpoint || ''].forEach((endpoint) => {
-            if (/^(https|http):\/\//.test(endpoint)) {
-              throw Error('http provider is not supported')
-            }
-          })
+      const endpoints = Array.isArray(config.endpoint) ? config.endpoint : [config.endpoint ?? '']
+      for (const endpoint of endpoints) {
+        if (/^(https|http):\/\//.test(endpoint)) {
+          throw Error('http provider is not supported')
+        }
+      }
 
       const context = await setupContext(config, true)
       const { close, addr } = await createServer(handler(context), config.port, config.host)

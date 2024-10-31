@@ -261,9 +261,9 @@ const { check, checkHex, checkSystemEvents } = withExpect(expect)
 export { defer, check, checkHex, checkSystemEvents }
 
 export const observe = <T>(observable$: Observable<T>) => {
-  const next: Mock<[T], void> = vi.fn()
-  const error: Mock<any, void> = vi.fn()
-  const complete: Mock<[], void> = vi.fn()
+  const next: Mock<(t: T) => void> = vi.fn()
+  const error = vi.fn()
+  const complete: Mock<() => void> = vi.fn()
 
   const getEmissions = () => next.mock.calls.map((v) => v[0])
 

@@ -27,7 +27,7 @@ export type Handler = (
 const parseRequest = (request: string) => {
   try {
     return JSON.parse(request)
-  } catch (e) {
+  } catch (_e) {
     return undefined
   }
 }

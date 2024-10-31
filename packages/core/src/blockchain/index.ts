@@ -166,7 +166,8 @@ export class Blockchain {
   #registerBlock(block: Block) {
     // if exceed max memory block count, delete the oldest block
     if (this.#blocksByNumber.size === this.#maxMemoryBlockCount) {
-      const { hash, number }: Block = this.#blocksByNumber.values().next().value
+      // #blocksByNumber can't be empty so the force unwrap is safe
+      const { hash, number }: Block = this.#blocksByNumber.values().next().value!
       this.#blocksByNumber.delete(number)
       this.#blocksByHash.delete(hash)
     }
