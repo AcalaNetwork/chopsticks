@@ -48,7 +48,7 @@ describe.each([
     it('build blocks', async () => {
       expect(await dev.newBlock()).toBeTruthy()
       const block = await chain.getBlockAt(1)
-      expect(block).toBeTruthy
+      expect(block).toBeTruthy()
       expect(block?.number).toBe(1)
       await check(api.rpc.system.name()).toMatchSnapshot()
     })

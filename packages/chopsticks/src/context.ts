@@ -71,7 +71,9 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
 
       if (blockData) {
         const block = await chain.loadBlockFromDB(blockData.number)
-        block && (await chain.setHead(block))
+        if (block) {
+          await chain.setHead(block)
+        }
         logger.info(`Resume from block ${blockData.number}, hash: ${blockData.hash}`)
       } else {
         throw new Error(`Resume failed. Cannot find block ${argv.resume}`)
