@@ -114,6 +114,7 @@ export const chain_unsubscribeNewHead: Handler<[string], void> = async (_context
   unsubscribe(subid)
 }
 
+export const archive_unstable_hashByHeight = chain_getBlockHash
 export const chain_getHead = chain_getBlockHash
 export const chain_subscribeNewHeads = chain_subscribeNewHead
 export const chain_unsubscribeNewHeads = chain_unsubscribeNewHead
