@@ -29,6 +29,8 @@ describe('chain rpc', () => {
     expect(await api.rpc('chain_getBlockHash', '0x03e8')).toEqual(hash1000)
     expect(await api.rpc('chain_getBlockHash', ['0x03e8'])).toEqual(expect.arrayContaining([hash1000]))
     expect(await api.rpc('chain_getBlockHash', ['0x03e8', null])).toEqual(expect.arrayContaining([hash1000, hashHead]))
+    // alias works
+    expect(await api.rpc('archive_unstable_hashByHeight', [1000])).toEqual(expect.arrayContaining([hash1000]))
 
     await check(api.rpc.chain.getHeader()).toMatchSnapshot()
     await check(api.rpc.chain.getHeader(hashHead)).toMatchSnapshot()
