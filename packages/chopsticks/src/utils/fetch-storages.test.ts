@@ -18,7 +18,7 @@ describe('fetch-storages', () => {
 
   beforeAll(async () => {
     provider = new WsProvider(endpoint, 30_000)
-    api = new ApiPromise({ provider })
+    api = new ApiPromise({ provider, noInitWarn: true })
     await api.isReady
   })
 

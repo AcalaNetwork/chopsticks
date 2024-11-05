@@ -1,12 +1,12 @@
 import { Api } from '../api.js'
-import { RemoteStorageLayer, StorageLayer, StorageValueKind } from './storage-layer.js'
+import { RemoteStorageLayer, StorageLayer, StorageValue, StorageValueKind } from './storage-layer.js'
 import { describe, expect, it, vi } from 'vitest'
 import _ from 'lodash'
 
 describe('getKeysPaged', () => {
   const hash = '0x1111111111111111111111111111111111111111111111111111111111111111'
 
-  const allKeys = [
+  const remoteKeys = [
     '0x0000000000000000000000000000000000000000000000000000000000000000_00',
     '0x0000000000000000000000000000000000000000000000000000000000000000_03',
     '0x0000000000000000000000000000000000000000000000000000000000000000_04',
@@ -22,9 +22,12 @@ describe('getKeysPaged', () => {
   ]
 
   Api.prototype['getKeysPaged'] = vi.fn(async (prefix, pageSize, startKey) => {
-    const withPrefix = allKeys.filter((k) => k.startsWith(prefix) && k > startKey)
+    const withPrefix = remoteKeys.filter((k) => k.startsWith(prefix) && k > startKey)
     const result = withPrefix.slice(0, pageSize)
     return result
+  })
+  Api.prototype['getStorage'] = vi.fn(async (_key, _at) => {
+    return '0x1' as any
   })
   const mockApi = new Api(undefined!)
 
@@ -92,6 +95,17 @@ describe('getKeysPaged', () => {
   it('remote layer works', async () => {
     expect(
       await remoteLayer.getKeysPaged(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        10,
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+      ),
+    ).toEqual([
+      '0x0000000000000000000000000000000000000000000000000000000000000000_00',
+      '0x0000000000000000000000000000000000000000000000000000000000000000_03',
+      '0x0000000000000000000000000000000000000000000000000000000000000000_04',
+    ])
+    expect(
+      await remoteLayer.getKeysPaged(
         '0x1111111111111111111111111111111111111111111111111111111111111111',
         3,
         '0x1111111111111111111111111111111111111111111111111111111111111111',
@@ -140,10 +154,7 @@ describe('getKeysPaged', () => {
 
   it('updated values', async () => {
     const layer2 = new StorageLayer(storageLayer)
-    layer2.setAll([
-      ['0x1111111111111111111111111111111111111111111111111111111111111111_00', '0x00'],
-      ['0x1111111111111111111111111111111111111111111111111111111111111111_04', '0x04'],
-    ])
+    layer2.setAll([['0x1111111111111111111111111111111111111111111111111111111111111111_04', '0x04']])
     expect(
       await layer2.getKeysPaged(
         '0x1111111111111111111111111111111111111111111111111111111111111111',
@@ -156,6 +167,20 @@ describe('getKeysPaged', () => {
       '0x1111111111111111111111111111111111111111111111111111111111111111_07',
     ])
 
+    expect(
+      await layer2.getKeysPaged(
+        '0x1111111111111111111111111111111111111111111111111111111111111111',
+        4,
+        '0x1111111111111111111111111111111111111111111111111111111111111111',
+      ),
+    ).toEqual([
+      '0x1111111111111111111111111111111111111111111111111111111111111111_01',
+      '0x1111111111111111111111111111111111111111111111111111111111111111_02',
+      '0x1111111111111111111111111111111111111111111111111111111111111111_03',
+      '0x1111111111111111111111111111111111111111111111111111111111111111_04',
+    ])
+
+    layer2.setAll([['0x1111111111111111111111111111111111111111111111111111111111111111_00', '0x00']])
     expect(
       await layer2.getKeysPaged(
         '0x1111111111111111111111111111111111111111111111111111111111111111',
@@ -303,5 +328,155 @@ describe('getKeysPaged', () => {
         '0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2',
       ),
     ).toEqual([])
+
+    layer3.setAll([['0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2_01', '0x01']])
+    expect(
+      await layer3.getKeysPaged(
+        '0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2',
+        1,
+        '0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2',
+      ),
+    ).toEqual(['0xcd710b30bd2eab0352ddcc26417aa19463c716fb8fff3de61a883bb76adb34a2_01'])
+  })
+
+  it('deleted key is ignored', async () => {
+    const pages = [
+      {
+        1: '0x1',
+        2: '0x2',
+        3: '0x3',
+        8: '0x8',
+      },
+      {
+        3: StorageValueKind.Deleted,
+        7: '0x7',
+      },
+      {
+        1: StorageValueKind.Deleted,
+        7: '0x77',
+        8: StorageValueKind.Deleted,
+        9: '0x9',
+      },
+      {
+        3: '0x33',
+        4: '0x4',
+      },
+    ]
+
+    const prefix = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+    const makeKey = (x: string) => prefix + '_' + Number(x).toString().padStart(2, '0')
+
+    // build layers
+    const layers: StorageLayer[] = []
+    for (const page of pages) {
+      const layer = new StorageLayer(layers[layers.length - 1])
+      layer.setAll(Object.entries(page).map(([k, v]) => [makeKey(k), v] as [string, StorageValue]))
+      layers.push(layer)
+    }
+
+    // last layer
+    expect(await layers[3].getKeysPaged(prefix, 100, prefix)).toEqual([
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_02',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_03',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_04',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_07',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_09',
+    ])
+
+    expect(
+      await layers[3].getKeysPaged(
+        prefix,
+        100,
+        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_05',
+      ),
+    ).toEqual([
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_07',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_09',
+    ])
+
+    expect(
+      await layers[3].getKeysPaged(
+        prefix,
+        100,
+        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_08',
+      ),
+    ).toEqual(['0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_09'])
+
+    expect(
+      // previous layer
+      await layers[2].getKeysPaged(prefix, 100, prefix),
+    ).toEqual([
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_02',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_07',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_09',
+    ])
+
+    expect(
+      // previous layer
+      await layers[1].getKeysPaged(prefix, 100, prefix),
+    ).toEqual([
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_01',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_02',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_07',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_08',
+    ])
+
+    expect(
+      // previous layer
+      await layers[1].getKeysPaged(
+        prefix,
+        100,
+        '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_02',
+      ),
+    ).toEqual([
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_07',
+      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff_08',
+    ])
+  })
+
+  it('fuzz', async () => {
+    const oddPrefix = '0x1111111111111111111111111111111111111111111111111111111111111111'
+    const evenPrefix = '0x2222222222222222222222222222222222222222222222222222222222222222'
+    const makeKey = (x: number) => (x % 2 === 0 ? evenPrefix : oddPrefix) + '_' + x.toString().padStart(2, '0')
+
+    // create some random keys
+    const pages: number[][] = []
+    let p = Math.floor(Math.random() * 10) + 5
+    while (p) {
+      p--
+      const page: number[] = []
+      let i = Math.floor(Math.random() * 10) + 5
+      while (i) {
+        i--
+        page.push(Math.floor(Math.random() * 30) + 1)
+      }
+      pages.push(page)
+    }
+
+    // build layers
+    const layers: StorageLayer[] = []
+    for (const page of pages) {
+      const layer = new StorageLayer(layers[layers.length - 1])
+      layer.setAll(page.map((x) => [makeKey(x), '0x' + Number(x).toString(16)] as [string, StorageValue]))
+      layers.push(layer)
+    }
+
+    const allKeys = pages
+      .flatMap((x) => x)
+      .reduce((acc, x) => {
+        if (acc.includes(x)) {
+          return acc
+        }
+        acc.push(x)
+        return acc
+      }, [] as number[])
+      .sort((a, b) => a - b)
+      .map(makeKey)
+
+    const oddKeys = await layers[layers.length - 1].getKeysPaged(oddPrefix, 100, oddPrefix)
+    expect(oddKeys, 'oddKeys').toEqual(allKeys.filter((x) => x.startsWith(oddPrefix)))
+
+    const evenKeys = await layers[layers.length - 1].getKeysPaged(evenPrefix, 100, evenPrefix)
+    expect(evenKeys, 'evenKeys').toEqual(allKeys.filter((x) => x.startsWith(evenPrefix)))
   })
 })
