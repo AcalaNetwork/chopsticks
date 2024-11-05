@@ -127,7 +127,7 @@ export const fetchStorages = async ({ block, endpoint, dbPath, config }: FetchSt
   if (!endpoint) throw new Error('endpoint is required')
 
   const provider = new WsProvider(endpoint, 3_000)
-  const apiPromise = new ApiPromise({ provider })
+  const apiPromise = new ApiPromise({ provider, noInitWarn: true })
   await apiPromise.isReady
 
   let blockHash: string

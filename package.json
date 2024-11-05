@@ -9,17 +9,6 @@
 		"packages/*",
 		"executor"
 	],
-	"resolutions": {
-		"@polkadot/api": "14.0.1",
-		"@polkadot/types": "14.0.1",
-		"@polkadot/api-base": "14.0.1",
-		"@polkadot/api-derive": "14.0.1",
-		"@polkadot/api-augment": "14.0.1",
-		"@polkadot/rpc-provider": "14.0.1",
-		"@polkadot/types-codec": "14.0.1",
-		"@polkadot/types-create": "14.0.1",
-		"@polkadot/types-known": "14.0.1"
-	},
 	"scripts": {
 		"lint": "tsc --noEmit --project tsconfig.lint.json && eslint . --ext .js,.ts && prettier --check .",
 		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
