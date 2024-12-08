@@ -105,7 +105,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@acala-network/chopsticks@workspace:*, @acala-network/chopsticks@workspace:packages/chopsticks":
+"@acala-network/chopsticks@workspace:*, @acala-network/chopsticks@workspace:^, @acala-network/chopsticks@workspace:packages/chopsticks":
   version: 0.0.0-use.local
   resolution: "@acala-network/chopsticks@workspace:packages/chopsticks"
   dependencies:
@@ -4102,6 +4102,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "chopsticks-monorepo@workspace:."
   dependencies:
+    "@acala-network/chopsticks": "workspace:^"
     "@swc/core": "npm:^1.7.40"
     "@types/node": "npm:^22.8.4"
     "@types/prettier": "npm:^3.0.0"
@@ -4116,6 +4117,7 @@ __metadata:
     eslint-plugin-sort-imports-es6-autofix: "npm:^0.6.0"
     husky: "npm:^9.1.6"
     prettier: "npm:^3.3.3"
+    smoldot: "npm:2.0.34"
     ts-node: "npm:^10.9.2"
     typedoc: "npm:^0.26.10"
     typedoc-plugin-markdown: "npm:^4.2.9"
@@ -8868,6 +8870,15 @@ __metadata:
   dependencies:
     ws: "npm:^8.8.1"
   checksum: 10c0/a4788fb92e5ed6e8c3d171d00474712c6f98f62cae68543f1029e7976a64ce9c8126956e50d6bd89482df8568f8ac043d5eb50b63f44f9a6062cbc49f0ef2dad
+  languageName: node
+  linkType: hard
+
+"smoldot@npm:2.0.34":
+  version: 2.0.34
+  resolution: "smoldot@npm:2.0.34"
+  dependencies:
+    ws: "npm:^8.8.1"
+  checksum: 10c0/b9079a70706c54ee16d0ec0b626f6f13807b6130856c570b84ca8dd0506283110017bcc7696d08f3a15e70c9bf2d5ba8a2d7249665347185593193beb1907d1e
   languageName: node
   linkType: hard
 

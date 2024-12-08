@@ -44,6 +44,7 @@
 		"*.{js,ts,css,md}": "prettier --write"
 	},
 	"devDependencies": {
+		"@acala-network/chopsticks": "workspace:^",
 		"@swc/core": "^1.7.40",
 		"@types/node": "^22.8.4",
 		"@types/prettier": "^3.0.0",
@@ -67,5 +68,8 @@
 		"vitepress": "^1.4.2",
 		"vitest": "^2.1.4",
 		"wasm-pack": "^0.13.1"
+	},
+	"dependencies": {
+		"smoldot": "2.0.34"
 	}
 }
