@@ -1,0 +1,64 @@
+endpoint: wss://rpc-kusama.luckyfriday.io
+mock-signature-host: true
+block: 26000000
+db: ./db.sqlite
+# wasm-override: staging_kusama_runtime.wasm
+runtime-log-level: 5
+
+import-storage:
+  System:
+    Account:
+      - - - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: '10000000000000000000'
+      - - - JEqfw2FPda5eycsqqXN2Ay67eEh5R85aSHcArs3XdUYjj5H
+        - providers: 1
+          data:
+            free: '10000000000000000000'
+      - - - JF3RaX21TrQuPrRbEV7i1iT5QXNQZBN6qvKx3iZN8CEN9bB
+        - providers: 1
+          data:
+            free: '10000000000000000000'
+      - - - HxehWqUZGorCrahv3PiWWqdcFNBG9oQhZ2ft5VXueWaSBEs
+        - providers: 1
+          data:
+            free: '10000000000000000000'
+  FellowshipCollective:
+    $removePrefix:
+      - IdToIndex
+      - IndexToId
+      - MemberCount
+      - Members
+    IdToIndex:
+      - [[0, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[1, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[2, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[3, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[4, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[5, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[6, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+      - [[7, 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], 0]
+    IndexToId:
+      - [[0, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[1, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[2, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[3, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[4, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[5, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[6, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+      - [[7, 0], 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY]
+    MemberCount:
+      - [[0], 1]
+      - [[1], 1]
+      - [[2], 1]
+      - [[3], 1]
+      - [[4], 1]
+      - [[5], 1]
+      - [[6], 1]
+      - [[7], 1]
+    Members:
+      - [[5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY], rank: 7]
+    Voting: []
+  ParasDisputes:
+    # $removePrefix: ['disputes'] # those can makes block building super slow
