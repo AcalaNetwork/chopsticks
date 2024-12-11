@@ -73,20 +73,6 @@ export const chain_getBlock: Handler<
 
 /**
  * @param context
- * @param params - [`blockhash`]
- *
- * @return Block extrinsics
- */
-export const archive_unstable_body: Handler<[HexString], HexString[]> = async (context, [hash]) => {
-  const block = await context.chain.getBlock(hash)
-  if (!block) {
-    throw new ResponseError(1, `Block ${hash} not found`)
-  }
-  return await block.extrinsics
-}
-
-/**
- * @param context
  *
  * @return head hash
  */
@@ -128,7 +114,6 @@ export const chain_unsubscribeNewHead: Handler<[string], void> = async (_context
   unsubscribe(subid)
 }
 
-export const archive_unstable_hashByHeight = chain_getBlockHash
 export const chain_getHead = chain_getBlockHash
 export const chain_subscribeNewHeads = chain_subscribeNewHead
 export const chain_unsubscribeNewHeads = chain_unsubscribeNewHead
