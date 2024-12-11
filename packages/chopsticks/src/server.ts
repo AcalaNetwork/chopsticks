@@ -289,6 +289,11 @@ export const createServer = async (handler: Handler, port: number, host?: string
     })
   })
 
+  // Localhost in IPv6 is ::1, and not ::, which the code below will display.
+  if (addressInfo.family === 'IPv6' && addressInfo.address === '::') {
+    addressInfo.address = '::1'
+  }
+
   return {
     addr: `${addressInfo.family === 'IPv6' ? `[${addressInfo.address}]` : addressInfo.address}:${addressInfo.port}`,
     port: addressInfo.port,
