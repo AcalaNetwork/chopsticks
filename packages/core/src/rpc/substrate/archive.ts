@@ -2,6 +2,7 @@ import { HexString } from '@polkadot/util/types'
 
 import { Handler, ResponseError } from '../shared.js'
 import { chain_getBlockHash } from './chain.js'
+import { state_call } from './state.js'
 
 /**
  * @param context
@@ -18,3 +19,4 @@ export const archive_unstable_body: Handler<[HexString], HexString[]> = async (c
 }
 
 export const archive_unstable_hashByHeight = chain_getBlockHash
+export const archive_unstable_call = state_call
