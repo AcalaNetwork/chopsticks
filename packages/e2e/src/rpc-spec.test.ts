@@ -31,14 +31,16 @@ describe('transaction_v1', async () => {
     })
 
     const keyEncoder = (addr: string) => (ctx: RuntimeContext) =>
-      ctx.dynamicBuilder.buildStorage('System', 'Account').enc(addr)
+      ctx.dynamicBuilder.buildStorage('System', 'Account').keys.enc(addr)
     const resultDecoder = (data: string | null, ctx: RuntimeContext) =>
-      data ? ctx.dynamicBuilder.buildStorage('System', 'Account').dec(data) : null
+      data ? ctx.dynamicBuilder.buildStorage('System', 'Account').value.dec(data) : null
     expect(
       await firstValueFrom(chainHead.storage$(null, 'value', keyEncoder(bob.address), null, resultDecoder)),
     ).toMatchObject({
-      data: {
-        free: INITIAL_ACCOUNT_VALUE + TRANSFERRED_VALUE,
+      mapped: {
+        data: {
+          free: INITIAL_ACCOUNT_VALUE + TRANSFERRED_VALUE,
+        },
       },
     })
 

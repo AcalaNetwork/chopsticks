@@ -255,7 +255,7 @@ export const buildBlock = async (
         const origin = { ump: { para: paraId } }
 
         let last = 0
-        let heap = new Uint8Array(0)
+        let heap: Uint8Array = new Uint8Array(0)
 
         for (const message of upwardMessagesU8a) {
           const payloadLen = message.length
