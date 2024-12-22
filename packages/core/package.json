@@ -4,6 +4,9 @@
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
+	"engines": {
+		"node": ">=v20"
+	},
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
 		"build": "yarn clean && ../../package-build.sh",
@@ -12,27 +15,27 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
-		"@polkadot/rpc-provider": "^14.0.1",
-		"@polkadot/types": "^14.0.1",
-		"@polkadot/types-codec": "^14.0.1",
-		"@polkadot/types-known": "^14.0.1",
-		"@polkadot/util": "^13.2.2",
-		"@polkadot/util-crypto": "^13.2.2",
-		"comlink": "^4.4.1",
+		"@polkadot/rpc-provider": "^15.0",
+		"@polkadot/types": "^15.0",
+		"@polkadot/types-codec": "^15.0",
+		"@polkadot/types-known": "^15.0",
+		"@polkadot/util": "^13.2",
+		"@polkadot/util-crypto": "^13.2",
+		"comlink": "^4.4.2",
 		"eventemitter3": "^5.0.1",
 		"lodash": "^4.17.21",
-		"lru-cache": "^11.0.1",
+		"lru-cache": "^11.0.2",
 		"pino": "^9.5.0",
-		"pino-pretty": "^11.3.0",
+		"pino-pretty": "^13.0.0",
 		"rxjs": "^7.8.1",
-		"zod": "^3.23.8"
+		"zod": "^3.24.1"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.5.0",
-		"@swc/core": "^1.7.40",
+		"@swc/cli": "0.5.2",
+		"@swc/core": "^1.10.1",
 		"@types/lodash": "^4.17.13",
-		"typescript": "^5.6.3",
-		"vitest": "^2.1.4"
+		"typescript": "^5.7.2",
+		"vitest": "^2.1.8"
 	},
 	"files": [
 		"dist/esm/**",

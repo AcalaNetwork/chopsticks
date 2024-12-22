@@ -43,7 +43,7 @@ describe('chainHead_v1 rpc', () => {
     const chainHead = testApi.observableClient.chainHead$()
 
     const keyEncoder = (addr: string) => (ctx: RuntimeContext) =>
-      ctx.dynamicBuilder.buildStorage('System', 'Account').enc(addr)
+      ctx.dynamicBuilder.buildStorage('System', 'Account').keys.enc(addr)
     const emptyAccount = await firstValueFrom(
       chainHead.storage$(null, 'value', keyEncoder('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')),
     )
@@ -53,7 +53,7 @@ describe('chainHead_v1 rpc', () => {
 
     // With an existing value it returns the SCALE-encoded value.
     const resultDecoder = (data: string | null, ctx: RuntimeContext) =>
-      data ? ctx.dynamicBuilder.buildStorage('System', 'Account').dec(data) : null
+      data ? ctx.dynamicBuilder.buildStorage('System', 'Account').value.dec(data) : null
     const account = await firstValueFrom(
       chainHead.storage$(
         null,
@@ -73,7 +73,7 @@ describe('chainHead_v1 rpc', () => {
 
     const receivedItems = await firstValueFrom(
       chainHead.storage$(null, 'descendantsValues', (ctx) =>
-        ctx.dynamicBuilder.buildStorage('Tokens', 'TotalIssuance').enc(),
+        ctx.dynamicBuilder.buildStorage('Tokens', 'TotalIssuance').keys.enc(),
       ),
     )
 
@@ -87,7 +87,7 @@ describe('chainHead_v1 rpc', () => {
 
     const receivedItems = await firstValueFrom(
       chainHead.storage$(null, 'descendantsValues', (ctx) =>
-        ctx.dynamicBuilder.buildStorage('System', 'BlockHash').enc(),
+        ctx.dynamicBuilder.buildStorage('System', 'BlockHash').keys.enc(),
       ),
     )
 

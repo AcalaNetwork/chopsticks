@@ -72,22 +72,27 @@ exports[`chainHead_v1 rpc > reports the chain state 1`] = `
     "stateVersion": 0,
     "transactionVersion": 3,
   },
+  "number": 6800000,
+  "parentHash": "0xa4052fe0e02be39765c5c2c565f4f3f14bbead21ef2d58174c77c544b96b7c9d",
   "type": "initialized",
 }
 `;
 
 exports[`chainHead_v1 rpc > resolves storage queries 1`] = `
 {
-  "consumers": 0,
-  "data": {
-    "flags": 0n,
-    "free": 213800847850000n,
-    "frozen": 0n,
-    "reserved": 0n,
+  "mapped": {
+    "consumers": 0,
+    "data": {
+      "flags": 0n,
+      "free": 213800847850000n,
+      "frozen": 0n,
+      "reserved": 0n,
+    },
+    "nonce": 0,
+    "providers": 1,
+    "sufficients": 0,
   },
-  "nonce": 0,
-  "providers": 1,
-  "sufficients": 0,
+  "raw": "0x0000000000000000010000000000000010ba966373c200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 }
 `;
 

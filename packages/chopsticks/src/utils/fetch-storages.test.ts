@@ -77,13 +77,13 @@ describe('fetch-storages', () => {
   })
 
   it('get prefixes from config throws', async () => {
-    expect(() => getPrefixesFromConfig(['Balancess'], api)).rejects.toThrow(/Cannot find pallet Balancess/)
+    await expect(() => getPrefixesFromConfig(['Balancess'], api)).rejects.toThrow(/Cannot find pallet Balancess/)
 
-    expect(() => getPrefixesFromConfig(['System.Acount'], api)).rejects.toThrow(
+    await expect(() => getPrefixesFromConfig(['System.Acount'], api)).rejects.toThrow(
       /Cannot find storage Acount in pallet System/,
     )
 
-    expect(() =>
+    await expect(() =>
       getPrefixesFromConfig(
         [
           {
