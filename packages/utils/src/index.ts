@@ -20,26 +20,51 @@ const logger = defaultLogger.child({ name: 'utils' })
 
 export * from './signFake.js'
 
+/**
+ * Configuration options for setting up a blockchain network instance
+ */
 export type SetupOption = {
+  /** WebSocket endpoint(s) for connecting to the network */
   endpoint: string | string[]
+  /** Specific block number to start from */
   blockNumber?: number
+  /** Specific block hash to start from */
   blockHash?: HexString
+  /** Path to override WASM runtime */
   wasmOverride?: string
+  /** Path to database file */
   db?: string
+  /** Connection timeout in milliseconds */
   timeout?: number
+  /** Host address to bind the server to */
   host?: string
+  /** Port number to bind the server to */
   port?: number
+  /** Maximum number of blocks to keep in memory */
   maxMemoryBlockCount?: number
+  /** Resume from a previous state (block hash or number) */
   resume?: boolean | HexString | number
+  /** Runtime log level (0-5) */
   runtimeLogLevel?: number
+  /** Allow unresolved imports in runtime */
   allowUnresolvedImports?: boolean
+  /** Process queued XCM messages */
   processQueuedMessages?: boolean
 }
 
+/**
+ * Extended configuration type that includes timeout
+ */
 export type SetupConfig = Config & {
+  /** Connection timeout in milliseconds */
   timeout?: number
 }
 
+/**
+ * Creates a configuration object from setup options
+ * @param options - Setup options for the network
+ * @returns Configuration object compatible with chopsticks
+ */
 export const createConfig = ({
   endpoint,
   blockNumber,
@@ -76,10 +101,20 @@ export const createConfig = ({
   return config
 }
 
+/**
+ * Sets up a blockchain network context using provided options
+ * @param option - Setup options for the network
+ * @returns Network context including API, WebSocket provider, and utility functions
+ */
 export const setupContext = async (option: SetupOption) => {
   return setupContextWithConfig(createConfig(option))
 }
 
+/**
+ * Sets up a blockchain network context using a configuration object
+ * @param config - Configuration object for the network
+ * @returns Network context including API, WebSocket provider, and utility functions
+ */
 export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig) => {
   const { chain, addr, close } = await setupWithServer(config)
 
@@ -96,23 +131,29 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
     ws,
     api,
     dev: {
+      /** Creates a new block with optional parameters */
       newBlock: (param?: Partial<NewBlockParams>): Promise<string> => {
         return ws.send('dev_newBlock', [param])
       },
+      /** Sets storage values at a specific block */
       setStorage: (values: StorageValues, blockHash?: string) => {
         return ws.send('dev_setStorage', [values, blockHash])
       },
+      /** Moves blockchain time to a specific timestamp */
       timeTravel: (date: string | number) => {
         return ws.send<number>('dev_timeTravel', [date])
       },
+      /** Sets the chain head to a specific block */
       setHead: (hashOrNumber: string | number) => {
         return ws.send('dev_setHead', [hashOrNumber])
       },
     },
+    /** Cleans up resources and closes connections */
     async teardown() {
       await api.disconnect()
       await close()
     },
+    /** Pauses execution and enables manual interaction through Polkadot.js apps */
     async pause() {
       await ws.send('dev_setBlockBuildMode', [BuildBlockMode.Instant])
 
@@ -124,8 +165,14 @@ export const setupContextWithConfig = async ({ timeout, ...config }: SetupConfig
   }
 }
 
+/** Type alias for the network context returned by setupContext */
 export type NetworkContext = Awaited<ReturnType<typeof setupContext>>
 
+/**
+ * Sets up multiple blockchain networks and establishes connections between them
+ * @param networkOptions - Configuration options for each network
+ * @returns Record of network contexts indexed by network name
+ */
 export const setupNetworks = async (networkOptions: Partial<Record<string, Config | string | undefined>>) => {
   const ret = {} as Record<string, NetworkContext>
 
@@ -165,6 +212,10 @@ export const setupNetworks = async (networkOptions: Partial<Record<string, Confi
   return ret
 }
 
+/**
+ * Creates a deferred promise that can be resolved or rejected from outside
+ * @returns Object containing promise, resolve function, and reject function
+ */
 export function defer<T>() {
   const deferred = {} as { resolve: (value: any) => void; reject: (reason: any) => void; promise: Promise<T> }
   deferred.promise = new Promise((resolve, reject) => {
@@ -174,6 +225,11 @@ export function defer<T>() {
   return deferred
 }
 
+/**
+ * Sends a transaction and waits for it to be included in a block
+ * @param tx - Promise of a submittable extrinsic
+ * @returns Promise that resolves with transaction events
+ */
 export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'>>) => {
   const signed = await tx
   const deferred = defer<Codec[]>()
@@ -192,6 +248,12 @@ export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'
   }
 }
 
+/**
+ * Creates a set of test keypairs for both ed25519/sr25519 and ethereum addresses
+ * @param keyringType - Type of keyring to use for substrate addresses ('ed25519' or 'sr25519')
+ * @param ss58Format - SS58 address format to use
+ * @returns Object containing various test keypairs and keyring instances
+ */
 export const testingPairs = (keyringType: 'ed25519' | 'sr25519' = 'ed25519', ss58Format?: number) => {
   const keyringEth = createTestKeyring({ type: 'ethereum' })
   // default to ed25519 because sr25519 signature is non-deterministic
