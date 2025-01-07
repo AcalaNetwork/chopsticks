@@ -186,6 +186,120 @@ return {
 }
 ```
 
+## Testing with @acala-network/chopsticks-testing
+
+The `@acala-network/chopsticks-testing` package provides powerful utilities for testing blockchain data, making it easier to write and maintain tests for your Substrate-based chain. It offers features like data redaction, event filtering, snapshot testing, and XCM message checking.
+
+### Installation
+
+```bash
+npm install --save-dev @acala-network/chopsticks-testing
+```
+
+### Basic Usage
+
+```typescript
+import { withExpect, setupContext } from '@acala-network/chopsticks-testing';
+import { expect } from 'vitest'; // or jest, or other test runners
+
+// Create testing utilities with your test runner's expect function
+const { check, checkEvents, checkSystemEvents, checkUmp, checkHrmp } = withExpect(expect);
+
+describe('My Chain Tests', () => {
+  it('should process events correctly', async () => {
+	const network = setupContext({ endpoint: 'wss://polkadot-rpc.dwellir.com' });
+    // Check and redact system events
+    await checkSystemEvents(network)
+      .redact({ number: 2, hash: true })
+      .toMatchSnapshot('system events');
+
+    // Filter specific events
+    await checkSystemEvents(network, 'balances', { section: 'system', method: 'ExtrinsicSuccess' })
+      .toMatchSnapshot('filtered events');
+  });
+});
+```
+
+### Data Redaction
+
+The testing package provides powerful redaction capabilities to make your tests more stable and focused on what matters:
+
+```typescript
+await check(someData)
+  .redact({
+    number: 2,           // Redact numbers with 2 decimal precision
+    hash: true,          // Redact 32-byte hex values
+    hex: true,           // Redact any hex values
+    address: true,       // Redact base58 addresses
+    redactKeys: /hash/,  // Redact values of keys matching regex
+    removeKeys: /time/   // Remove keys matching regex entirely
+  })
+  .toMatchSnapshot('redacted data');
+```
+
+### Event Filtering
+
+Filter and check specific blockchain events:
+
+```typescript
+// Check all balances events
+await checkSystemEvents(api, 'balances')
+  .toMatchSnapshot('balances events');
+
+// Check specific event type
+await checkSystemEvents(api, { section: 'system', method: 'ExtrinsicSuccess' })
+  .toMatchSnapshot('successful extrinsics');
+
+// Multiple filters
+await checkSystemEvents(api,
+  'balances',
+  { section: 'system', method: 'ExtrinsicSuccess' }
+)
+.toMatchSnapshot('filtered events');
+```
+
+### XCM Testing
+
+Test XCM (Cross-Chain Message) functionality:
+
+```typescript
+// Check UMP (Upward Message Passing) messages
+await checkUmp(api)
+  .redact()
+  .toMatchSnapshot('upward messages');
+
+// Check HRMP (Horizontal Relay-routed Message Passing) messages
+await checkHrmp(api)
+  .redact()
+  .toMatchSnapshot('horizontal messages');
+```
+
+### Data Format Conversion
+
+Convert data to different formats for testing:
+
+```typescript
+// Convert to human-readable format
+await check(data).toHuman().toMatchSnapshot('human readable');
+
+// Convert to hex format
+await check(data).toHex().toMatchSnapshot('hex format');
+
+// Convert to JSON format (default)
+await check(data).toJson().toMatchSnapshot('json format');
+```
+
+### Custom Transformations
+
+Apply custom transformations to your data:
+
+```typescript
+await check(data)
+  .map(value => value.filter(item => item.amount > 1000))
+  .redact()
+  .toMatchSnapshot('filtered and redacted');
+```
+
 ## Testing big migrations
 
 When testing migrations with lots of keys, you may want to fetch and cache some storages.
