@@ -13,7 +13,7 @@
 		"@polkadot-api/observable-client": "^0.7.0",
 		"@polkadot-api/substrate-client": "^0.3.0",
 		"@polkadot-api/ws-provider": "^0.3.6",
-		"@polkadot/api": "^15.0",
+		"@polkadot/api": "^15.1.1",
 		"rxjs": "^7.8.1",
 		"typescript": "^5.7.2",
 		"vitest": "^2.1.8"

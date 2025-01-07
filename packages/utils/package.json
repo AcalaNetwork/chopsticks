@@ -15,10 +15,10 @@
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot/api": "^15.0",
-		"@polkadot/api-base": "^15.0",
+		"@polkadot/api": "^15.1.1",
+		"@polkadot/api-base": "^15.1.1",
 		"@polkadot/keyring": "^13.2",
-		"@polkadot/types": "^15.0",
+		"@polkadot/types": "^15.1.1",
 		"@polkadot/util": "^13.2"
 	},
 	"devDependencies": {
