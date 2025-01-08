@@ -14,6 +14,7 @@ const following = new Map<
   {
     callback: (data: any) => void
     pendingDescendantValues: Map<string, { hash: HexString; params: DescendantValuesParams[] }>
+    storageDiffs: Map<HexString, number>
   }
 >()
 
@@ -65,6 +66,16 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
       finalizedBlockHashes: [block.hash],
       prunedBlockHashes: [],
     })
+
+    const storageDiffs = following.get(id)?.storageDiffs
+    if (storageDiffs?.size) {
+      const diffKeys = Object.keys(await block.storageDiff())
+      for (const [prefix, value] of storageDiffs.entries()) {
+        if (diffKeys.some((key) => key.startsWith(prefix))) {
+          storageDiffs.set(prefix, value + 1)
+        }
+      }
+    }
   }
 
   const id = context.chain.headState.subscribeHead(update)
@@ -75,7 +86,7 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
   }
 
   const callback = subscribe('chainHead_v1_followEvent', id, cleanup)
-  following.set(id, { callback, pendingDescendantValues: new Map() })
+  following.set(id, { callback, pendingDescendantValues: new Map(), storageDiffs: new Map() })
 
   afterResponse(async () => {
     callback({
@@ -265,6 +276,26 @@ export const chainHead_v1_storage: Handler<
           })
 
           return next
+        }
+        case 'closestDescendantMerkleValue': {
+          const followingSubscription = following.get(followSubscription)
+          if (!followingSubscription) return null
+          if (!followingSubscription.storageDiffs.has(sir.key)) {
+            followingSubscription.storageDiffs.set(sir.key, 0)
+          }
+
+          followingSubscription.callback({
+            event: 'operationStorageItems',
+            operationId,
+            items: [
+              {
+                key: sir.key,
+                closestDescendantMerkleValue: String(followingSubscription.storageDiffs.get(sir.key)),
+              },
+            ],
+          })
+
+          return null
         }
         default:
           // TODO
