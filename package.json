@@ -44,6 +44,7 @@
 		"*.{js,ts,css,md}": "prettier --write"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
 		"@swc/core": "^1.10.1",
 		"@types/node": "^22.10.2",
 		"@types/prettier": "^3.0.0",
