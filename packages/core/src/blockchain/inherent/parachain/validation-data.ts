@@ -1,12 +1,11 @@
+import { GenericExtrinsic } from '@polkadot/types'
 import { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
 import { BN, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
-import { GenericExtrinsic } from '@polkadot/types'
 import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
-import { Block } from '../../block.js'
-import { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool.js'
-import { InherentProvider } from '../index.js'
+import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
+import { compactHex, getCurrentSlot, getParaId } from '../../../utils/index.js'
 import {
   WELL_KNOWN_KEYS,
   dmqMqcHead,
@@ -16,9 +15,10 @@ import {
   paraHead,
   upgradeGoAheadSignal,
 } from '../../../utils/proof.js'
-import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
-import { compactHex, getCurrentSlot, getParaId } from '../../../utils/index.js'
 import { createProof, decodeProof } from '../../../wasm-executor/index.js'
+import { Block } from '../../block.js'
+import { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool.js'
+import { InherentProvider } from '../index.js'
 
 const MOCK_VALIDATION_DATA = {
   validationData: {

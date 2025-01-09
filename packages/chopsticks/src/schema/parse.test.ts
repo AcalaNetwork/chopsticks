@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
 import { readdirSync } from 'node:fs'
-import _ from 'lodash'
 import path from 'node:path'
+import _ from 'lodash'
+import { describe, expect, it } from 'vitest'
 
 import { configSchema, fetchConfig } from './index.js'
 

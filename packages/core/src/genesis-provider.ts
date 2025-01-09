@@ -1,15 +1,15 @@
-import { EventEmitter } from 'eventemitter3'
-import { HexString } from '@polkadot/util/types'
 import {
   ProviderInterface,
   ProviderInterfaceCallback,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
+import { HexString } from '@polkadot/util/types'
+import { EventEmitter } from 'eventemitter3'
 
+import { defaultLogger, isPrefixedChildKey } from './index.js'
 import { Genesis, genesisSchema } from './schema/index.js'
 import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
-import { defaultLogger, isPrefixedChildKey } from './index.js'
 
 /**
  * Provider to start a chain from genesis

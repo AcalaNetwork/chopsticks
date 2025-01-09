@@ -1,6 +1,6 @@
-import { HexString } from '@polkadot/util/types'
 import { Index } from '@polkadot/types/interfaces'
 import { hexToU8a } from '@polkadot/util'
+import { HexString } from '@polkadot/util/types'
 
 import { ChainProperties } from '../../index.js'
 import { Handler } from '../shared.js'

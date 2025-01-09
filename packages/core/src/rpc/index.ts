@@ -1,6 +1,6 @@
-import { Handlers } from './shared.js'
 import dev from './dev/index.js'
 import rpcSpec from './rpc-spec/index.js'
+import { Handlers } from './shared.js'
 import substrate from './substrate/index.js'
 
 export const allHandlers: Handlers = {

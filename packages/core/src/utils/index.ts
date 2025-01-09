@@ -1,8 +1,8 @@
-import { BN, compactStripLength, u8aToHex } from '@polkadot/util'
-import { HexString } from '@polkadot/util/types'
 import { StorageKey } from '@polkadot/types'
-import { getAuraSlotDuration } from '../wasm-executor/index.js'
+import { BN, compactStripLength, u8aToHex } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
+import { HexString } from '@polkadot/util/types'
+import { getAuraSlotDuration } from '../wasm-executor/index.js'
 
 import { Block } from '../blockchain/block.js'
 import { Blockchain } from '../blockchain/index.js'

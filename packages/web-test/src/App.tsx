@@ -1,4 +1,7 @@
 import '@polkadot/api-augment'
+import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
+import type { SetupOptions } from '@acala-network/chopsticks-core'
+import { IdbDatabase } from '@acala-network/chopsticks-db/browser.js'
 import {
 	Alert,
 	Box,
@@ -11,14 +14,11 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material'
-import { ApiPromise } from '@polkadot/api'
-import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
-import { IdbDatabase } from '@acala-network/chopsticks-db/browser.js'
-import { createTestPairs } from '@polkadot/keyring'
 import { styled } from '@mui/system'
+import { ApiPromise } from '@polkadot/api'
+import { createTestPairs } from '@polkadot/keyring'
+import { HexString } from '@polkadot/util/types'
 import { useEffect, useState } from 'react'
-import type { SetupOptions } from '@acala-network/chopsticks-core'
 
 const { alice, bob } = createTestPairs()
 

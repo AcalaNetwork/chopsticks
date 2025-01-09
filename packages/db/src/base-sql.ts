@@ -1,6 +1,6 @@
 import { BlockEntry, Database, KeyValueEntry } from '@acala-network/chopsticks-core'
-import { DataSource } from 'typeorm'
 import { HexString } from '@polkadot/util/types'
+import { DataSource } from 'typeorm'
 
 import { BlockEntity, KeyValuePair } from './db/entities.js'
 

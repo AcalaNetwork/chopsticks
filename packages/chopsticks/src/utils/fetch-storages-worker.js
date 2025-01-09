@@ -1,5 +1,5 @@
-import * as Comlink from 'comlink'
 import { parentPort } from 'node:worker_threads'
+import * as Comlink from 'comlink'
 import nodeEndpoint from 'comlink/dist/umd/node-adapter.js'
 
 import { fetchStorages } from './fetch-storages.js'

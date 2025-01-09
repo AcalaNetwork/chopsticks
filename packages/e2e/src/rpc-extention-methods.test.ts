@@ -1,7 +1,7 @@
+import { join, resolve } from 'path'
+import { getRpcExtensionMethods, loadRpcMethodsByScripts } from '@acala-network/chopsticks/plugins/index.js'
 import { describe, expect, it } from 'vitest'
 import { env, setupApi, ws } from './helper.js'
-import { getRpcExtensionMethods, loadRpcMethodsByScripts } from '@acala-network/chopsticks/plugins/index.js'
-import { join, resolve } from 'path'
 
 setupApi(env.acala)
 

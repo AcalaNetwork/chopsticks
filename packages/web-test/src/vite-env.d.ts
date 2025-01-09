@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
-import { ApiPromise } from '@polkadot/api'
 import { Blockchain } from '@acala-network/chopsticks-core'
+import { ApiPromise } from '@polkadot/api'
 
 declare global {
   // eslint-disable-next-line no-var

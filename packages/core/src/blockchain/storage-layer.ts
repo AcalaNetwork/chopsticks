@@ -2,9 +2,9 @@ import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
 import { Api } from '../api.js'
-import { CHILD_PREFIX_LENGTH, PREFIX_LENGTH, isPrefixedChildKey } from '../utils/index.js'
 import { Database } from '../database.js'
 import { defaultLogger } from '../logger.js'
+import { CHILD_PREFIX_LENGTH, PREFIX_LENGTH, isPrefixedChildKey } from '../utils/index.js'
 import KeyCache from '../utils/key-cache.js'
 
 const logger = defaultLogger.child({ name: 'layer' })

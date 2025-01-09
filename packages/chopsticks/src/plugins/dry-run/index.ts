@@ -1,5 +1,5 @@
-import { configSchema } from '../../schema/index.js'
 import { z } from 'zod'
+import { configSchema } from '../../schema/index.js'
 
 export const dryRunSchema = z.object({
   ...configSchema.shape,

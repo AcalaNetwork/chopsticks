@@ -1,9 +1,9 @@
 import { RuntimeContext } from '@polkadot-api/observable-client'
 import { describe, expect, it } from 'vitest'
 
-import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
-import { firstValueFrom } from 'rxjs'
 import { getPolkadotSigner } from 'polkadot-api/signer'
+import { firstValueFrom } from 'rxjs'
+import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
 
 import { Binary } from 'polkadot-api'
 

@@ -1,11 +1,11 @@
-import { BuildBlockMode } from '@acala-network/chopsticks-core'
 import { writeFileSync } from 'node:fs'
-import { z } from 'zod'
+import { BuildBlockMode } from '@acala-network/chopsticks-core'
 import type { Argv } from 'yargs'
+import { z } from 'zod'
 
+import { setupContext } from '../../context.js'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { overrideWasm } from '../../utils/override.js'
-import { setupContext } from '../../context.js'
 
 const schema = z.object({
   endpoint: configSchema.shape.endpoint,

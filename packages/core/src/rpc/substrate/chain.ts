@@ -1,9 +1,9 @@
 import { Header as CodecHeader } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
 import { hexToNumber, isHex } from '@polkadot/util'
+import { HexString } from '@polkadot/util/types'
 
-import { Handler, ResponseError } from '../shared.js'
 import type { Header } from '../../index.js'
+import { Handler, ResponseError } from '../shared.js'
 
 const processHeader = ({ parentHash, number, stateRoot, extrinsicsRoot, digest }: CodecHeader) => {
   return {

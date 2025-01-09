@@ -1,12 +1,12 @@
 import './utils/tunnel.js'
 import { BlockEntry, GenesisProvider, defaultLogger, isUrl, setup, timeTravel } from '@acala-network/chopsticks-core'
-import { Config } from './schema/index.js'
-import { HexString } from '@polkadot/util/types'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
-import { apiFetching } from './logger.js'
-import { overrideStorage, overrideWasm } from './utils/override.js'
-import { startFetchStorageWorker } from './utils/fetch-storages.js'
+import { HexString } from '@polkadot/util/types'
 import axios from 'axios'
+import { apiFetching } from './logger.js'
+import { Config } from './schema/index.js'
+import { startFetchStorageWorker } from './utils/fetch-storages.js'
+import { overrideStorage, overrideWasm } from './utils/override.js'
 
 const logger = defaultLogger.child({ name: 'setup-context' })
 

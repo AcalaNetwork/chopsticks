@@ -1,15 +1,15 @@
-import { HexString } from '@polkadot/util/types'
 import { writeFileSync } from 'node:fs'
-import { z } from 'zod'
+import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
+import { z } from 'zod'
 
 import { runTask, taskHandler } from '@acala-network/chopsticks-core'
 
+import { setupContext } from '../../context.js'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { openHtml } from '../../utils/open-html.js'
-import { setupContext } from '../../context.js'
 
 const schema = z.object({
   ...configSchema.shape,

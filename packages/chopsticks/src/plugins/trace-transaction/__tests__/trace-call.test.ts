@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { prepareBlock, traceCalls } from '../utils.js'
 import { setup } from '../../../index.js'
+import { prepareBlock, traceCalls } from '../utils.js'
 
 describe.runIf(process.env.CI || process.env.RUN_ALL)('trace-call', () => {
   it('Acala', async () => {

@@ -1,9 +1,9 @@
 import { GenericExtrinsic } from '@polkadot/types'
 import { Header } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
 import { u8aToHex } from '@polkadot/util'
-import { z } from 'zod'
+import { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
+import { z } from 'zod'
 
 import {
   Block,

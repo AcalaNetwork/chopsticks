@@ -1,5 +1,5 @@
-import { HexString } from '@polkadot/util/types'
 import { hexToU8a } from '@polkadot/util'
+import { HexString } from '@polkadot/util/types'
 
 import { Blockchain } from '../blockchain/index.js'
 import { compactHex } from '../utils/index.js'

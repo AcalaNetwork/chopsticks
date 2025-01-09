@@ -1,11 +1,11 @@
-import { HexString } from '@polkadot/util/types'
 import { stringToHex } from '@polkadot/util'
+import { HexString } from '@polkadot/util/types'
 
 import { Block } from '../../blockchain/block.js'
-import { Handler, ResponseError } from '../shared.js'
-import { RuntimeVersion } from '../../wasm-executor/index.js'
 import { defaultLogger } from '../../logger.js'
 import { isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '../../utils/index.js'
+import { RuntimeVersion } from '../../wasm-executor/index.js'
+import { Handler, ResponseError } from '../shared.js'
 
 const logger = defaultLogger.child({ name: 'rpc-state' })
 

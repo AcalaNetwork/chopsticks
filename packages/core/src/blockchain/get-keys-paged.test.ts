@@ -1,7 +1,7 @@
+import _ from 'lodash'
+import { describe, expect, it, vi } from 'vitest'
 import { Api } from '../api.js'
 import { RemoteStorageLayer, StorageLayer, StorageValue, StorageValueKind } from './storage-layer.js'
-import { describe, expect, it, vi } from 'vitest'
-import _ from 'lodash'
 
 describe('getKeysPaged', () => {
   const hash = '0x1111111111111111111111111111111111111111111111111111111111111111'

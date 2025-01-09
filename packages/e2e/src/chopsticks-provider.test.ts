@@ -1,5 +1,5 @@
-import { ApiPromise } from '@polkadot/api'
 import { BuildBlockMode, ChopsticksProvider, setStorage } from '@acala-network/chopsticks-core'
+import { ApiPromise } from '@polkadot/api'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { check, checkHex, env, testingPairs } from './helper.js'

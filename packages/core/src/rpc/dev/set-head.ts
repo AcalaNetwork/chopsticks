@@ -1,6 +1,6 @@
+import { z } from 'zod'
 import { Block } from '../../blockchain/block.js'
 import { Context, ResponseError, zHash } from '../shared.js'
-import { z } from 'zod'
 
 const schema = zHash.or(z.number())
 type Params = z.infer<typeof schema>

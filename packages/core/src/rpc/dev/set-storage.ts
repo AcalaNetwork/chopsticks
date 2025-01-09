@@ -1,8 +1,8 @@
-import { Context, ResponseError } from '../shared.js'
 import { HexString } from '@polkadot/util/types'
+import { Context, ResponseError } from '../shared.js'
 
-import { StorageValues, setStorage } from '../../utils/set-storage.js'
 import { defaultLogger } from '../../logger.js'
+import { StorageValues, setStorage } from '../../utils/set-storage.js'
 
 /**
  * Set storage values.

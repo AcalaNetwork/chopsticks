@@ -1,15 +1,15 @@
-import { EventEmitter } from 'eventemitter3'
 import {
   ProviderInterface,
   ProviderInterfaceCallback,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
+import { EventEmitter } from 'eventemitter3'
 
 import { Blockchain } from './blockchain/index.js'
 import { Database } from './database.js'
-import { Handlers, allHandlers } from './rpc/index.js'
 import { defaultLogger } from './logger.js'
+import { Handlers, allHandlers } from './rpc/index.js'
 import { setup } from './setup.js'
 
 const providerHandlers: Handlers = {

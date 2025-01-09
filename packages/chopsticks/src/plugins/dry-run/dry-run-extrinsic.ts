@@ -1,12 +1,12 @@
-import { HexString } from '@polkadot/util/types'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { writeFileSync } from 'node:fs'
+import { blake2AsHex } from '@polkadot/util-crypto'
+import { HexString } from '@polkadot/util/types'
 
-import { DryRunSchemaType } from './index.js'
+import { setupContext } from '../../context.js'
 import { defaultLogger } from '../../logger.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { openHtml } from '../../utils/open-html.js'
-import { setupContext } from '../../context.js'
+import { DryRunSchemaType } from './index.js'
 
 export const dryRunExtrinsic = async (argv: DryRunSchemaType) => {
   const context = await setupContext(argv)
