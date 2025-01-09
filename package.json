@@ -5,13 +5,10 @@
 	"packageManager": "yarn@4.5.3",
 	"private": true,
 	"type": "module",
-	"workspaces": [
-		"packages/*",
-		"executor"
-	],
+	"workspaces": ["packages/*", "executor"],
 	"scripts": {
-		"lint": "tsc --noEmit --project tsconfig.lint.json && eslint . --ext .js,.ts && prettier --check .",
-		"fix": "eslint . --ext .js,.ts --fix && prettier -w .",
+		"lint": "biome check .",
+		"fix": "biome check --write .",
 		"prepare": "husky install",
 		"clean": "yarn workspaces foreach --all -pvit run clean",
 		"build": "yarn workspaces foreach --all -pvit --include '@acala-network/*' run build",

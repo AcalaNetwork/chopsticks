@@ -3,7 +3,20 @@
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["*.txt", "*.snap", "*.wasm", "*.html", "*.md", "*.gitignore", "*.yml", "*.tsbuildinfo"]
+		"ignore": [
+			"*.txt",
+			"*.snap",
+			"*.wasm",
+			"*.html",
+			"*.md",
+			"*.gitignore",
+			"*.yml",
+			"*.tsbuildinfo",
+			"**/executor/**",
+			"**/vendor/**",
+			"**/dist/**",
+			"**/node_modules/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -27,7 +40,7 @@
 			"**/.pnp.loader.mjs",
 			"**/lib/**",
 			"**/dist/**",
-			"**/node_modules/",
+			"**/node_modules/**",
 			"**/preview/",
 			"**/packages/core/scripts/",
 			"packages/core/src/wasm-executor/browser-wasm-executor.js",
