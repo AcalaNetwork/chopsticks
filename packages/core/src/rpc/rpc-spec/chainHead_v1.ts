@@ -69,6 +69,7 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
 
     const storageDiffs = following.get(id)?.storageDiffs
     if (storageDiffs?.size) {
+      // Fetch the storage diffs and update the `closestDescendantMerkleValue` for those that changed
       const diffKeys = Object.keys(await block.storageDiff())
       for (const [prefix, value] of storageDiffs.entries()) {
         if (diffKeys.some((key) => key.startsWith(prefix))) {
@@ -235,6 +236,15 @@ async function getDescendantValues(
  * @param params - [`followSubscription`, `hash`, `items`, `childTrie`]
  *
  * @return OperationStarted event with operationId to receive the result on the follow subscription
+ *
+ * The query type `closestDescendantMerkleValue` is not up to spec.
+ * According to the spec, the result should be the Merkle value of the key or
+ * the closest descendant of the key.
+ * As chopsticks doesn't have direct access to the Merkle tree, it will return
+ * a string that will change every time that one of the descendant changes, but
+ * it won't be the actual Merkle value.
+ * This should be enough for applications that don't rely on the actual Merkle
+ * value, but just use it to detect for storage changes.
  */
 export const chainHead_v1_storage: Handler<
   [string, HexString, StorageItemRequest[], HexString | null],
@@ -281,6 +291,7 @@ export const chainHead_v1_storage: Handler<
           const followingSubscription = following.get(followSubscription)
           if (!followingSubscription) return null
           if (!followingSubscription.storageDiffs.has(sir.key)) {
+            // Set up a diff watch for this key
             followingSubscription.storageDiffs.set(sir.key, 0)
           }
 
