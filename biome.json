@@ -9,7 +9,7 @@
 		"enabled": true,
 		"useEditorconfig": true,
 		"formatWithErrors": false,
-		"indentStyle": "space",
+		"indentStyle": "tab",
 		"indentWidth": 2,
 		"lineEnding": "lf",
 		"lineWidth": 120,
@@ -32,6 +32,8 @@
 			"**/packages/core/scripts/",
 			"packages/core/src/wasm-executor/browser-wasm-executor.js",
 			"packages/core/src/wasm-executor/node-wasm-executor.js",
+			"packages/e2e/src/rpc-methods-test-scripts.js",
+			"packages/e2e/blobs/**",
 			"packages/web-test/playwright-report/**"
 		]
 	},
