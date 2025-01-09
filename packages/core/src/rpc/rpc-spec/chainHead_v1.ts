@@ -14,6 +14,7 @@ const following = new Map<
   {
     callback: (data: any) => void
     pendingDescendantValues: Map<string, { hash: HexString; params: DescendantValuesParams[] }>
+    storageDiffs: Map<HexString, number>
   }
 >()
 
@@ -65,6 +66,17 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
       finalizedBlockHashes: [block.hash],
       prunedBlockHashes: [],
     })
+
+    const storageDiffs = following.get(id)?.storageDiffs
+    if (storageDiffs?.size) {
+      // Fetch the storage diffs and update the `closestDescendantMerkleValue` for those that changed
+      const diffKeys = Object.keys(await block.storageDiff())
+      for (const [prefix, value] of storageDiffs.entries()) {
+        if (diffKeys.some((key) => key.startsWith(prefix))) {
+          storageDiffs.set(prefix, value + 1)
+        }
+      }
+    }
   }
 
   const id = context.chain.headState.subscribeHead(update)
@@ -75,7 +87,7 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
   }
 
   const callback = subscribe('chainHead_v1_followEvent', id, cleanup)
-  following.set(id, { callback, pendingDescendantValues: new Map() })
+  following.set(id, { callback, pendingDescendantValues: new Map(), storageDiffs: new Map() })
 
   afterResponse(async () => {
     callback({
@@ -224,6 +236,15 @@ async function getDescendantValues(
  * @param params - [`followSubscription`, `hash`, `items`, `childTrie`]
  *
  * @return OperationStarted event with operationId to receive the result on the follow subscription
+ *
+ * The query type `closestDescendantMerkleValue` is not up to spec.
+ * According to the spec, the result should be the Merkle value of the key or
+ * the closest descendant of the key.
+ * As chopsticks doesn't have direct access to the Merkle tree, it will return
+ * a string that will change every time that one of the descendant changes, but
+ * it won't be the actual Merkle value.
+ * This should be enough for applications that don't rely on the actual Merkle
+ * value, but just use it to detect for storage changes.
  */
 export const chainHead_v1_storage: Handler<
   [string, HexString, StorageItemRequest[], HexString | null],
@@ -265,6 +286,27 @@ export const chainHead_v1_storage: Handler<
           })
 
           return next
+        }
+        case 'closestDescendantMerkleValue': {
+          const followingSubscription = following.get(followSubscription)
+          if (!followingSubscription) return null
+          if (!followingSubscription.storageDiffs.has(sir.key)) {
+            // Set up a diff watch for this key
+            followingSubscription.storageDiffs.set(sir.key, 0)
+          }
+
+          followingSubscription.callback({
+            event: 'operationStorageItems',
+            operationId,
+            items: [
+              {
+                key: sir.key,
+                closestDescendantMerkleValue: String(followingSubscription.storageDiffs.get(sir.key)),
+              },
+            ],
+          })
+
+          return null
         }
         default:
           // TODO

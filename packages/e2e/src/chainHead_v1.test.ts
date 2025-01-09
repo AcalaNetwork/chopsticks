@@ -1,8 +1,11 @@
 import { RuntimeContext } from '@polkadot-api/observable-client'
 import { describe, expect, it } from 'vitest'
 
-import { dev, env, observe, setupPolkadotApi } from './helper.js'
+import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
 import { firstValueFrom } from 'rxjs'
+import { getPolkadotSigner } from 'polkadot-api/signer'
+
+import { Binary } from 'polkadot-api'
 
 const testApi = await setupPolkadotApi(env.acalaV15)
 
@@ -130,4 +133,142 @@ describe('chainHead_v1 rpc', () => {
 
     chainHead.unfollow()
   })
+
+  it('changes the closestDescendantMerkleValue when the storage changes for that key', async () => {
+    const chainHead = testApi.observableClient.chainHead$()
+    const runtimeCtx = await firstValueFrom(chainHead.getRuntimeContext$(null))
+
+    const { alice, bob, charlie } = testingPairs()
+    await dev.setStorage({
+      System: {
+        Account: [
+          [[alice.address], { providers: 1, data: { free: 10 * 1e12 } }],
+          [[bob.address], { providers: 1, data: { free: 10 * 1e12 } }],
+        ],
+      },
+    })
+
+    const balancesKeyBuilder = runtimeCtx.dynamicBuilder.buildStorage('System', 'Account').keys
+    const aliceBalanceKey = balancesKeyBuilder.enc(alice.address)
+    const bobBalanceKey = balancesKeyBuilder.enc(bob.address)
+    const commonPrefix = findCommonPrefix([aliceBalanceKey, bobBalanceKey])
+
+    const [aliceMerkleValue, bobMerkleValue, commonMerkleValue] = await Promise.all(
+      [aliceBalanceKey, bobBalanceKey, commonPrefix].map((key) =>
+        firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)),
+      ),
+    )
+
+    const extrinsic = await testApi.client
+      .getUnsafeApi()
+      .tx.Balances.transfer_keep_alive({
+        dest: {
+          type: 'Id',
+          value: charlie.address,
+        },
+        value: 1_000_000_000n,
+      })
+      .sign(getPolkadotSigner(alice.publicKey, 'Ed25519', alice.sign))
+
+    await testApi.chain.newBlock({
+      transactions: [extrinsic as `0x${string}`],
+    })
+
+    const [newAliceMerkleValue, newBobMerkleValue, newCommonMerkleValue] = await Promise.all(
+      [aliceBalanceKey, bobBalanceKey, commonPrefix].map((key) =>
+        firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)),
+      ),
+    )
+
+    // Alice has transfered some funds, their value must change
+    expect(newAliceMerkleValue).not.toEqual(aliceMerkleValue)
+    // Bob shouldn't have any change
+    expect(newBobMerkleValue).toEqual(bobMerkleValue)
+    // The common prefix should also reflect a change
+    expect(newCommonMerkleValue).not.toEqual(commonMerkleValue)
+
+    chainHead.unfollow()
+  })
+
+  it('supports watching entries of a storage entry', async () => {
+    const { nextValue } = observe(testApi.client.getUnsafeApi().query.Multisig.Multisigs.watchEntries())
+    // Wait for initial set of entries
+    await nextValue()
+
+    const { alice, bob } = testingPairs()
+    await dev.setStorage({
+      System: {
+        Account: [
+          [[alice.address], { providers: 1, data: { free: 10 * 1e12 } }],
+          [[bob.address], { providers: 1, data: { free: 10 * 1e12 } }],
+        ],
+      },
+    })
+
+    const aliceSigner = getPolkadotSigner(alice.publicKey, 'Ed25519', alice.sign)
+
+    const callHash = Binary.fromBytes(new Uint8Array(32))
+    const extrinsic = await testApi.client
+      .getUnsafeApi()
+      .tx.Multisig.approve_as_multi({
+        threshold: 2,
+        other_signatories: [bob.address],
+        call_hash: callHash,
+        max_weight: {
+          proof_size: 1000n,
+          ref_time: 1000n,
+        },
+        maybe_timepoint: undefined,
+      })
+      .sign(aliceSigner)
+
+    // Watch out for new entries
+    let entries = nextValue()
+
+    await testApi.chain.newBlock({
+      transactions: [extrinsic as `0x${string}`],
+    })
+
+    let { deltas } = await entries
+
+    expect(deltas?.deleted).toEqual([])
+    expect(deltas?.upserted.length).toEqual(1)
+    expect(deltas?.upserted[0].args[1].asHex()).toEqual(callHash.asHex())
+
+    // Test deletion
+    const timepoint = deltas!.upserted[0].value.when
+    const cancelExtrinsic = await testApi.client
+      .getUnsafeApi()
+      .tx.Multisig.cancel_as_multi({
+        threshold: 2,
+        other_signatories: [bob.address],
+        call_hash: callHash,
+        timepoint,
+      })
+      .sign(aliceSigner)
+
+    entries = nextValue()
+    await testApi.chain.newBlock({
+      transactions: [cancelExtrinsic as `0x${string}`],
+    })
+    deltas = (await entries).deltas
+
+    expect(deltas?.deleted.length).toEqual(1)
+    expect(deltas?.upserted.length).toEqual(0)
+    expect(deltas?.deleted[0].args[1].asHex()).toEqual(callHash.asHex())
+  })
 })
+
+function findCommonPrefix(strings: string[]) {
+  if (!strings.length) return ''
+
+  const [first, ...rest] = strings
+
+  for (let i = 1; i < first.length; i++) {
+    const prefix = first.slice(0, i)
+    if (rest.some((s) => !s.startsWith(prefix))) {
+      return first.slice(0, i - 1)
+    }
+  }
+  return first
+}

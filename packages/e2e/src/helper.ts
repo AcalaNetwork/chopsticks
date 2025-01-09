@@ -2,9 +2,10 @@ import { ApiPromise, HttpProvider, WsProvider } from '@polkadot/api'
 import { HexString } from '@polkadot/util/types'
 import { Mock, beforeAll, beforeEach, expect, vi } from 'vitest'
 import { Observable } from 'rxjs'
+import { PolkadotClient, createClient } from 'polkadot-api'
 import { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { RegisteredTypes } from '@polkadot/types/types'
-import { SubstrateClient, createClient } from '@polkadot-api/substrate-client'
+import { SubstrateClient, createClient as createSubstrateClient } from '@polkadot-api/substrate-client'
 import { getObservableClient } from '@polkadot-api/observable-client'
 import { getWsProvider } from '@polkadot-api/ws-provider/node'
 
@@ -140,11 +141,14 @@ export const setupAll = async ({
     async setupPolkadotApi(): Promise<TestPolkadotApi> {
       const { chain, port, ws, teardown } = await setup()
 
-      const substrateClient = createClient(getWsProvider(`ws://localhost:${port}`))
+      const provider = getWsProvider(`ws://localhost:${port}`)
+      const client = createClient(provider)
+      const substrateClient = createSubstrateClient(provider)
       const observableClient = getObservableClient(substrateClient)
 
       return {
         chain,
+        client,
         substrateClient,
         observableClient,
         ws,
@@ -165,6 +169,7 @@ export const setupAll = async ({
 interface TestPolkadotApi {
   ws: WsProvider
   chain: Blockchain
+  client: PolkadotClient
   substrateClient: SubstrateClient
   observableClient: ObservableClient
   teardown: () => Promise<void>
@@ -199,6 +204,7 @@ export const setupPolkadotApi = async (option: SetupOption) => {
   let setup: Awaited<ReturnType<typeof setupAll>>['setupPolkadotApi']
   const result = {
     chain: null as unknown as Blockchain,
+    client: null as unknown as PolkadotClient,
     substrateClient: null as unknown as SubstrateClient,
     observableClient: null as unknown as ObservableClient,
     ws: null as unknown as WsProvider,
@@ -215,6 +221,7 @@ export const setupPolkadotApi = async (option: SetupOption) => {
     const res = await setup()
     ws = result.ws = res.ws
     chain = result.chain = res.chain
+    result.client = res.client
     result.substrateClient = res.substrateClient
     result.observableClient = res.observableClient
 
