@@ -18,7 +18,7 @@ describe('override-relay-state-proof', async () => {
     await ws.send('dev_newBlock', [{ relayChainStateOverrides }])
     const block = await api.rpc.chain.getBlock()
     const setValidationData = block.block.extrinsics
-      .find(({ method }) => method.method == 'setValidationData')
+      .find(({ method }) => method.method === 'setValidationData')
       ?.method.toJSON().args.data
 
     const relayParentStorageRoot = setValidationData.validationData.relayParentStorageRoot
@@ -37,7 +37,7 @@ describe('override-relay-state-proof', async () => {
     await dev.newBlock({ relayParentNumber: 14355209 })
     const block = await api.rpc.chain.getBlock()
     const setValidationData = block.block.extrinsics
-      .find(({ method }) => method.method == 'setValidationData')
+      .find(({ method }) => method.method === 'setValidationData')
       ?.method.toJSON().args.data
 
     expect(setValidationData.validationData.relayParentNumber).to.be.eq(14355209)

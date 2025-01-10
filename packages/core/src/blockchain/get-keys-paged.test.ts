@@ -21,12 +21,12 @@ describe('getKeysPaged', () => {
     '0x94533e05c34400caee0d8976774f0dd064443ba500633e46053c7a0a68b8ef3392a72b59fc8b67b702000001a12dfa1fa4ab9a0000',
   ]
 
-  Api.prototype['getKeysPaged'] = vi.fn(async (prefix, pageSize, startKey) => {
+  Api.prototype.getKeysPaged = vi.fn(async (prefix, pageSize, startKey) => {
     const withPrefix = remoteKeys.filter((k) => k.startsWith(prefix) && k > startKey)
     const result = withPrefix.slice(0, pageSize)
     return result
   })
-  Api.prototype['getStorage'] = vi.fn(async (_key, _at) => {
+  Api.prototype.getStorage = vi.fn(async (_key, _at) => {
     return '0x1' as any
   })
   const mockApi = new Api(undefined!)
@@ -364,7 +364,7 @@ describe('getKeysPaged', () => {
     ]
 
     const prefix = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
-    const makeKey = (x: string) => prefix + '_' + Number(x).toString().padStart(2, '0')
+    const makeKey = (x: string) => `${prefix}_${Number(x).toString().padStart(2, '0')}`
 
     // build layers
     const layers: StorageLayer[] = []
@@ -437,7 +437,7 @@ describe('getKeysPaged', () => {
   it('fuzz', async () => {
     const oddPrefix = '0x1111111111111111111111111111111111111111111111111111111111111111'
     const evenPrefix = '0x2222222222222222222222222222222222222222222222222222222222222222'
-    const makeKey = (x: number) => (x % 2 === 0 ? evenPrefix : oddPrefix) + '_' + x.toString().padStart(2, '0')
+    const makeKey = (x: number) => `${x % 2 === 0 ? evenPrefix : oddPrefix}_${x.toString().padStart(2, '0')}`
 
     // create some random keys
     const pages: number[][] = []
@@ -457,7 +457,7 @@ describe('getKeysPaged', () => {
     const layers: StorageLayer[] = []
     for (const page of pages) {
       const layer = new StorageLayer(layers[layers.length - 1])
-      layer.setAll(page.map((x) => [makeKey(x), '0x' + Number(x).toString(16)] as [string, StorageValue]))
+      layer.setAll(page.map((x) => [makeKey(x), `0x${Number(x).toString(16)}`] as [string, StorageValue]))
       layers.push(layer)
     }
 

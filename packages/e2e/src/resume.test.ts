@@ -36,7 +36,7 @@ describe('resume', async () => {
     assert(block && blockData, 'block and blockData should be defined')
     expect(blockData.hash).toEqual(block.hash)
     expect(blockData.header).toEqual((await block.header).toHex())
-    expect(blockData.parentHash).toEqual((await block.parentBlock)!.hash)
+    expect(blockData.parentHash).toEqual((await block.parentBlock)?.hash)
     expect(JSON.stringify(blockData.extrinsics)).toEqual(JSON.stringify(await block.extrinsics))
     expect(JSON.stringify(blockData.storageDiff)).toEqual(JSON.stringify(await block.storageDiff()))
 

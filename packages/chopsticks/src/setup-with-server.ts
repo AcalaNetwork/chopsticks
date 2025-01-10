@@ -6,7 +6,7 @@ import { createServer } from './server.js'
 
 export const setupWithServer = async (argv: Config) => {
   if (argv.addr) {
-    defaultLogger.warn({}, `⚠️ Option --addr is deprecated, please use --host instead.`)
+    defaultLogger.warn({}, '⚠️ Option --addr is deprecated, please use --host instead.')
     argv.host ??= argv.addr
   }
   const context = await setupContext(argv)

@@ -21,7 +21,8 @@ export const genesisFromUrl = async (url: string) => {
   const getFile = async (url: string) => {
     if (isUrl(url)) {
       return axios.get(url).then((x) => x.data)
-    } else if (typeof process === 'object') {
+    }
+    if (typeof process === 'object') {
       const { lstatSync, readFileSync } = await import('node:fs')
       if (lstatSync(url).isFile()) {
         return JSON.parse(String(readFileSync(url)))

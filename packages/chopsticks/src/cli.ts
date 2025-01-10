@@ -26,9 +26,8 @@ const processArgv: MiddlewareFunction<{ config?: string; port?: number; unsafeRp
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw new Error('Bad argv', { cause: error.flatten().fieldErrors })
-    } else {
-      throw error
     }
+    throw error
   }
 }
 

@@ -244,7 +244,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
       if (len > 0) {
         argObj = {}
         for (let i = 0; i < len; i++) {
-          argObj[event.event.data.names![i]] = event.event.data[i].toJSON()
+          argObj[event.event.data.names?.[i]] = event.event.data[i].toJSON()
         }
       }
 

@@ -29,7 +29,7 @@ export const cli = (y: Argv) => {
     async (argv) => {
       const config = schema.parse(argv)
       const wasmPath = config['wasm-override']
-      delete config['wasm-override']
+      config['wasm-override'] = undefined
 
       const context = await setupContext(config, false)
       const txHash = argv['tx-hash']

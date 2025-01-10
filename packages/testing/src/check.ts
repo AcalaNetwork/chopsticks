@@ -128,7 +128,8 @@ export class Checker {
           return filters.some((filter) => {
             if (typeof filter === 'string') {
               return evt.section === filter
-            } else if ('method' in filter) {
+            }
+            if ('method' in filter) {
               const { section, method } = filter
               return evt.section === section && evt.method === method
             }

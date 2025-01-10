@@ -155,10 +155,9 @@ export class ChopsticksProvider implements ProviderInterface {
         }
 
         return subid
-      } else {
-        logger.debug('call', { method, params })
-        return rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
       }
+      logger.debug('call', { method, params })
+      return rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
     } catch (e) {
       logger.error('send error.', e)
       throw e

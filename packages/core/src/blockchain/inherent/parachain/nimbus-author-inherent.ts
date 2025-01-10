@@ -59,7 +59,7 @@ export class SetNimbusAuthorInherent implements InherentProvider {
         layer.set(
           compactHex(meta.query.authorityAssignment.collatorContainerChain(session)),
           meta.registry
-            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+            .createType('DpCollatorAssignmentAssignedCollatorsPublic', {
               orchestratorChain: [alice],
             })
             .toHex(),
@@ -67,7 +67,7 @@ export class SetNimbusAuthorInherent implements InherentProvider {
         layer.set(
           compactHex(meta.query.authorityAssignment.collatorContainerChain(session.toBigInt() + 1n)),
           meta.registry
-            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+            .createType('DpCollatorAssignmentAssignedCollatorsPublic', {
               orchestratorChain: [alice],
             })
             .toHex(),

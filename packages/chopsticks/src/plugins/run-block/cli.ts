@@ -13,7 +13,7 @@ import { openHtml } from '../../utils/open-html.js'
 
 const schema = z.object({
   ...configSchema.shape,
-  ['output-path']: z
+  'output-path': z
     .string({
       description: 'File path to print output',
     })

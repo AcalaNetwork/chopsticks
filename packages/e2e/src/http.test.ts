@@ -1,4 +1,4 @@
-import { request } from 'http'
+import { request } from 'node:http'
 import { describe, expect, it } from 'vitest'
 
 import { env, setupApi, ws } from './helper.js'

@@ -16,7 +16,7 @@ describe('trace-vm', async () => {
     )
     const steps = await traceVM(tracingBlock, extrinsic)
 
-    expect(steps.length).toMatchInlineSnapshot(`3398`)
+    expect(steps.length).toMatchInlineSnapshot('3398')
     expect(steps[0]).toMatchInlineSnapshot(`
       {
         "depth": 0,

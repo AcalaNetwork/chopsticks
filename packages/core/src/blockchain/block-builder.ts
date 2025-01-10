@@ -41,14 +41,13 @@ export const genesisDigestLogs = async (head: Block) => {
       PreRuntime: [consensusEngine, compactAddLength(preDigest.toU8a())],
     })
     return [digest]
-  } else {
-    const newSlot = meta.registry.createType('Slot', currentSlot + 1)
-    const consensusEngine = meta.registry.createType<ConsensusEngineId>('ConsensusEngineId', 'aura')
-    const digest = meta.registry.createType<DigestItem>('DigestItem', {
-      PreRuntime: [consensusEngine, compactAddLength(newSlot.toU8a())],
-    })
-    return [digest]
   }
+  const newSlot = meta.registry.createType('Slot', currentSlot + 1)
+  const consensusEngine = meta.registry.createType<ConsensusEngineId>('ConsensusEngineId', 'aura')
+  const digest = meta.registry.createType<DigestItem>('DigestItem', {
+    PreRuntime: [consensusEngine, compactAddLength(newSlot.toU8a())],
+  })
+  return [digest]
 }
 
 const getConsensus = (header: Header) => {
@@ -108,7 +107,7 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
       meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensus.consensusEngine, newSlot] }),
       ...consensus.rest,
     ]
-  } else if (consensus?.consensusEngine?.toString() == 'nmbs') {
+  } else if (consensus?.consensusEngine?.toString() === 'nmbs') {
     const nmbsKey = stringToHex('nmbs')
     newLogs = [
       meta.registry.createType<DigestItem>('DigestItem', {
@@ -116,7 +115,7 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
         PreRuntime: [
           consensus.consensusEngine,
           parentHeader.digest.logs
-            .find((log) => log.isPreRuntime && log.asPreRuntime[0].toHex() == nmbsKey)
+            .find((log) => log.isPreRuntime && log.asPreRuntime[0].toHex() === nmbsKey)
             ?.asPreRuntime[1].toHex(),
         ],
       }),

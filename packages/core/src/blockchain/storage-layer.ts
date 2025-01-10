@@ -114,7 +114,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
         // batch fetch storage values and save to db, they may be used later
         this.#api.getStorageBatch(prefix as HexString, batch as HexString[], this.#at as HexString).then((storage) => {
           for (const [key, value] of storage) {
-            this.#db!.saveStorage(this.#at as HexString, key as HexString, value)
+            this.#db?.saveStorage(this.#at as HexString, key as HexString, value)
           }
         })
       }
@@ -217,7 +217,8 @@ export class StorageLayer implements StorageLayerProvider {
       if (parentBest) {
         if (!maybeBest) {
           return parentBest
-        } else if (parentBest < maybeBest) {
+        }
+        if (parentBest < maybeBest) {
           return parentBest
         }
       }
@@ -235,7 +236,7 @@ export class StorageLayer implements StorageLayerProvider {
       const next = await this.findNextKey(prefix, startKey, undefined)
       if (!next) break
       startKey = next
-      if ((await this.get(next, false)) == StorageValueKind.Deleted) continue
+      if ((await this.get(next, false)) === StorageValueKind.Deleted) continue
       keys.push(next)
     }
     return keys

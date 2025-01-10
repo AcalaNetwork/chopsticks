@@ -41,10 +41,10 @@ export const fetchEVMTransaction = async (runtimeVersion: RuntimeVersion, txHash
   } else if (runtimeVersion.specName.includes('karura')) {
     ethRpc = KARURA_ETH_RPC
   } else {
-    throw new Error(`Unsupported chain. Only Acala and Karura are supported`)
+    throw new Error('Unsupported chain. Only Acala and Karura are supported')
   }
 
-  pinoLogger.info(`Fetching EVM transaction ...`)
+  pinoLogger.info('Fetching EVM transaction ...')
 
   const response = await fetch(ethRpc, {
     headers: [
@@ -113,7 +113,7 @@ export const traceVM = async (
               // remove 0x prefix
               const slice = chunk.slice(2)
               // make sure each chunk is 64 bytes
-              if (slice.length < 64 && idx + 1 < step.memory!.length) {
+              if (slice.length < 64 && idx + 1 < step.memory?.length) {
                 return slice.padStart(64, '0')
               }
               return slice
@@ -124,7 +124,7 @@ export const traceVM = async (
 
     page += 1
 
-    traceNextPage = outcome.steps.length == pageSize
+    traceNextPage = outcome.steps.length === pageSize
   }
   return steps
 }
@@ -168,7 +168,9 @@ export const prepareBlock = async (
 ) => {
   let wasm: string | Buffer | undefined = wasmPath
   const block =
-    typeof blockHashNumber == 'number' ? await chain.getBlockAt(blockHashNumber) : await chain.getBlock(blockHashNumber)
+    typeof blockHashNumber === 'number'
+      ? await chain.getBlockAt(blockHashNumber)
+      : await chain.getBlock(blockHashNumber)
   if (!block) {
     throw new Error(`Block not found ${blockHashNumber}`)
   }

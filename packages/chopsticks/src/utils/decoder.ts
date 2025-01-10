@@ -11,8 +11,8 @@ const diffPatcher = create({
 export const decodeStorageDiff = async (block: Block, diff: [HexString, HexString | null][]) => {
   const [oldState, newState] = await decodeBlockStorageDiff(block, diff)
   const oldStateWithoutEvents = _.cloneDeep(oldState)
-  if (oldStateWithoutEvents['system']?.['events']) {
-    oldStateWithoutEvents['system']['events'] = []
+  if (oldStateWithoutEvents.system?.events) {
+    oldStateWithoutEvents.system.events = []
   }
   return { oldState, newState, delta: diffPatcher.diff(oldStateWithoutEvents, newState) }
 }

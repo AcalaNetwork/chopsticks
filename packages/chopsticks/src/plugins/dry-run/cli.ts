@@ -26,7 +26,7 @@ const schema = z.object({
       description: 'Block hash to dry run',
     })
     .optional(),
-  ['output-path']: z
+  'output-path': z
     .string({
       description: 'File path to print output',
     })

@@ -37,7 +37,7 @@ export const overrideWasm = async (chain: Blockchain, wasmPath?: string, at?: He
     // starts with 0x
     wasmHex = wasm.toString().trim()
   } else {
-    wasmHex = '0x' + wasm.toString('hex')
+    wasmHex = `0x${wasm.toString('hex')}`
   }
   if (at) {
     const block = await chain.getBlock(at)

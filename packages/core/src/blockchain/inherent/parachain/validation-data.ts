@@ -272,7 +272,7 @@ export class SetValidationData implements InherentProvider {
     if (params.relayChainStateOverrides) {
       for (const [key, value] of params.relayChainStateOverrides) {
         // Remove any entry that matches the key being overridden
-        newEntries = newEntries.filter(([k, _]) => k != key)
+        newEntries = newEntries.filter(([k, _]) => k !== key)
         // Push override
         newEntries.push([key, value])
       }

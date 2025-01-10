@@ -37,10 +37,16 @@ export const processOptions = async (options: SetupOptions) => {
   if (options.genesis) {
     provider = options.genesis
   } else if (typeof options.endpoint === 'string' && /^(https|http):\/\//.test(options.endpoint || '')) {
-    provider = new HttpProvider(options.endpoint)
+    provider = new HttpProvider(options.endpoint) as ProviderInterface
   } else {
-    provider = new WsProvider(options.endpoint, 3_000)
+    // Create a wrapper around WsProvider that matches ProviderInterface
+    const wsProvider = new WsProvider(options.endpoint, 3_000)
+    provider = {
+      ...wsProvider,
+      isReady: wsProvider.isReady.then(() => { /* void */ }) as Promise<void>
+    } as ProviderInterface
   }
+
   const api = new Api(provider)
 
   // setup api hooks
