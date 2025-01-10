@@ -1,5 +1,5 @@
-import { afterAll, describe, expect, it } from 'vitest'
 import { u8aToHex } from '@polkadot/util'
+import { afterAll, describe, expect, it } from 'vitest'
 
 import { check, testingPairs } from './helper.js'
 import networks from './networks.js'

@@ -1,15 +1,15 @@
-import { EventEmitter } from 'eventemitter3'
-import {
+import type {
   ProviderInterface,
   ProviderInterfaceCallback,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
+import { EventEmitter } from 'eventemitter3'
 
-import { Blockchain } from './blockchain/index.js'
-import { Database } from './database.js'
-import { Handlers, allHandlers } from './rpc/index.js'
+import type { Blockchain } from './blockchain/index.js'
+import type { Database } from './database.js'
 import { defaultLogger } from './logger.js'
+import { type Handlers, allHandlers } from './rpc/index.js'
 import { setup } from './setup.js'
 
 const providerHandlers: Handlers = {
@@ -155,10 +155,9 @@ export class ChopsticksProvider implements ProviderInterface {
         }
 
         return subid
-      } else {
-        logger.debug('call', { method, params })
-        return rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
       }
+      logger.debug('call', { method, params })
+      return rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
     } catch (e) {
       logger.error('send error.', e)
       throw e

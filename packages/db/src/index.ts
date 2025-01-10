@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm'
+import type { DataSource } from 'typeorm'
 
 import { BaseSqlDatabase } from './base-sql.js'
 import { openDb } from './db/index.js'

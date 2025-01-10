@@ -1,7 +1,7 @@
-import { BN, u8aToHex } from '@polkadot/util'
-import { HexString } from '@polkadot/util/types'
+import { type BN, u8aToHex } from '@polkadot/util'
+import type { HexString } from '@polkadot/util/types'
 
-import { Blockchain } from '../blockchain/index.js'
+import type { Blockchain } from '../blockchain/index.js'
 import { compactHex, getSlotDuration } from './index.js'
 import { setStorage } from './set-storage.js'
 

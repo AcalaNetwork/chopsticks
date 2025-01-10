@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { prepareBlock, traceVM } from '../utils.js'
 import { setup } from '../../../index.js'
+import { prepareBlock, traceVM } from '../utils.js'
 
 describe('trace-vm', async () => {
   const acala = await setup({
@@ -16,7 +16,7 @@ describe('trace-vm', async () => {
     )
     const steps = await traceVM(tracingBlock, extrinsic)
 
-    expect(steps.length).toMatchInlineSnapshot(`3398`)
+    expect(steps.length).toMatchInlineSnapshot('3398')
     expect(steps[0]).toMatchInlineSnapshot(`
       {
         "depth": 0,

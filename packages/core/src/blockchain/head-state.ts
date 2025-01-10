@@ -1,5 +1,5 @@
-import { Block } from './block.js'
 import { defaultLogger } from '../logger.js'
+import type { Block } from './block.js'
 
 type Callback = (block: Block, pairs: [string, string | null][]) => void | Promise<void>
 

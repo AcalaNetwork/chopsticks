@@ -1,6 +1,6 @@
-import { Handler } from '../shared.js'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { defaultLogger } from '../../logger.js'
+import type { Handler } from '../shared.js'
 
 const logger = defaultLogger.child({ name: 'rpc-transaction_v1' })
 const randomId = () => Math.random().toString(36).substring(2)

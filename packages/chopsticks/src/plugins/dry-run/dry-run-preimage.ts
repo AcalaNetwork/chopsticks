@@ -1,18 +1,18 @@
-import { HexString } from '@polkadot/util/types'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import { compactAddLength, hexToU8a } from '@polkadot/util'
+import { blake2AsHex } from '@polkadot/util-crypto'
+import type { HexString } from '@polkadot/util/types'
 
 import { Block, newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
-import { DryRunSchemaType } from './index.js'
+import { setupContext } from '../../context.js'
 import { defaultLogger } from '../../logger.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { openHtml } from '../../utils/open-html.js'
-import { setupContext } from '../../context.js'
+import type { DryRunSchemaType } from './index.js'
 
 export const dryRunPreimage = async (argv: DryRunSchemaType) => {
   const context = await setupContext(argv)
 
-  const extrinsic = argv['preimage']
+  const extrinsic = argv.preimage
 
   const block = context.chain.head
   const registry = await block.registry
@@ -103,17 +103,17 @@ export const dryRunPreimage = async (argv: DryRunSchemaType) => {
 
   const filePath = await generateHtmlDiffPreviewFile(block, result.Call.storageDiff, hash)
   console.log(`Generated preview ${filePath}`)
-  if (argv['open']) {
+  if (argv.open) {
     openHtml(filePath)
   }
 
   // if dry-run preimage has extrinsic arguments then dry-run extrinsic
   // this is useful to test something after preimage is applied
-  if (argv['extrinsic']) {
+  if (argv.extrinsic) {
     await context.chain.newBlock()
-    const input = argv['address']
-      ? { call: argv['extrinsic'] as HexString, address: argv['address'] }
-      : (argv['extrinsic'] as HexString)
+    const input = argv.address
+      ? { call: argv.extrinsic as HexString, address: argv.address }
+      : (argv.extrinsic as HexString)
     const { outcome, storageDiff } = await context.chain.dryRunExtrinsic(input)
     if (outcome.isErr) {
       throw new Error(outcome.asErr.toString())
@@ -124,10 +124,10 @@ export const dryRunPreimage = async (argv: DryRunSchemaType) => {
     const filePath = await generateHtmlDiffPreviewFile(
       context.chain.head,
       storageDiff,
-      blake2AsHex(argv['extrinsic'], 256),
+      blake2AsHex(argv.extrinsic, 256),
     )
     console.log(`Generated preview ${filePath}`)
-    if (argv['open']) {
+    if (argv.open) {
       openHtml(filePath)
     }
   }

@@ -1,9 +1,9 @@
-import { Block } from '../../block.js'
-import { BuildBlockParams } from '../../txpool.js'
 import { GenericExtrinsic } from '@polkadot/types'
-import { HexString } from '@polkadot/util/types'
-import { InherentProvider } from '../index.js'
+import type { HexString } from '@polkadot/util/types'
 import { compactHex } from '../../../utils/index.js'
+import type { Block } from '../../block.js'
+import type { BuildBlockParams } from '../../txpool.js'
+import type { InherentProvider } from '../index.js'
 // Support for Nimbus Author Inherent
 export class SetNimbusAuthorInherent implements InherentProvider {
   async createInherents(newBlock: Block, _params: BuildBlockParams): Promise<HexString[]> {
@@ -59,7 +59,7 @@ export class SetNimbusAuthorInherent implements InherentProvider {
         layer.set(
           compactHex(meta.query.authorityAssignment.collatorContainerChain(session)),
           meta.registry
-            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+            .createType('DpCollatorAssignmentAssignedCollatorsPublic', {
               orchestratorChain: [alice],
             })
             .toHex(),
@@ -67,7 +67,7 @@ export class SetNimbusAuthorInherent implements InherentProvider {
         layer.set(
           compactHex(meta.query.authorityAssignment.collatorContainerChain(session.toBigInt() + 1n)),
           meta.registry
-            .createType(`DpCollatorAssignmentAssignedCollatorsPublic`, {
+            .createType('DpCollatorAssignmentAssignedCollatorsPublic', {
               orchestratorChain: [alice],
             })
             .toHex(),

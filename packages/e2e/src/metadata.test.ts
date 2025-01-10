@@ -1,5 +1,5 @@
-import { chain, setupApi } from './helper.js'
 import { describe, expect, it } from 'vitest'
+import { chain, setupApi } from './helper.js'
 
 setupApi({
   endpoint: 'wss://acala-rpc-1.aca-api.network',

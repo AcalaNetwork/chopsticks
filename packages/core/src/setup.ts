@@ -1,16 +1,16 @@
 import '@polkadot/types-codec'
-import { HexString } from '@polkadot/util/types'
 import { HttpProvider, WsProvider } from '@polkadot/rpc-provider'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
-import { RegisteredTypes } from '@polkadot/types/types'
+import type { ProviderInterface } from '@polkadot/rpc-provider/types'
+import type { RegisteredTypes } from '@polkadot/types/types'
+import type { HexString } from '@polkadot/util/types'
 
 import { Api } from './api.js'
 import { Blockchain } from './blockchain/index.js'
-import { BuildBlockMode } from './blockchain/txpool.js'
-import { Database } from './database.js'
-import { GenesisProvider } from './genesis-provider.js'
-import { defaultLogger } from './logger.js'
 import { inherentProviders } from './blockchain/inherent/index.js'
+import type { BuildBlockMode } from './blockchain/txpool.js'
+import type { Database } from './database.js'
+import type { GenesisProvider } from './genesis-provider.js'
+import { defaultLogger } from './logger.js'
 
 export type SetupOptions = {
   endpoint?: string | string[]
@@ -37,10 +37,16 @@ export const processOptions = async (options: SetupOptions) => {
   if (options.genesis) {
     provider = options.genesis
   } else if (typeof options.endpoint === 'string' && /^(https|http):\/\//.test(options.endpoint || '')) {
-    provider = new HttpProvider(options.endpoint)
+    provider = new HttpProvider(options.endpoint) as ProviderInterface
   } else {
-    provider = new WsProvider(options.endpoint, 3_000)
+    // Create a wrapper around WsProvider that matches ProviderInterface
+    const wsProvider = new WsProvider(options.endpoint, 3_000)
+    provider = {
+      ...wsProvider,
+      isReady: wsProvider.isReady.then(() => { /* void */ }) as Promise<void>
+    } as ProviderInterface
   }
+
   const api = new Api(provider)
 
   // setup api hooks

@@ -1,5 +1,5 @@
-import { afterAll, describe, expect, it } from 'vitest'
 import { setupContext, testingPairs } from '@acala-network/chopsticks-testing'
+import { afterAll, describe, expect, it } from 'vitest'
 
 describe('Migration', async () => {
   const { alice } = testingPairs()

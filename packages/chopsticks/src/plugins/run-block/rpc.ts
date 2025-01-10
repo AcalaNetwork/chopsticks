@@ -1,14 +1,14 @@
-import { GenericExtrinsic } from '@polkadot/types'
-import { Header } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
+import type { GenericExtrinsic } from '@polkadot/types'
+import type { Header } from '@polkadot/types/interfaces'
 import { u8aToHex } from '@polkadot/util'
-import { z } from 'zod'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
+import { z } from 'zod'
 
 import {
   Block,
-  Context,
-  RuntimeLog,
+  type Context,
+  type RuntimeLog,
   compactHex,
   decodeKeyValue,
   runTask,
@@ -244,7 +244,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
       if (len > 0) {
         argObj = {}
         for (let i = 0; i < len; i++) {
-          argObj[event.event.data.names![i]] = event.event.data[i].toJSON()
+          argObj[event.event.data.names?.[i]] = event.event.data[i].toJSON()
         }
       }
 

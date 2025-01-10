@@ -1,9 +1,9 @@
-import { HexString } from '@polkadot/util/types'
-import { Index } from '@polkadot/types/interfaces'
+import type { Index } from '@polkadot/types/interfaces'
 import { hexToU8a } from '@polkadot/util'
+import type { HexString } from '@polkadot/util/types'
 
-import { ChainProperties } from '../../index.js'
-import { Handler } from '../shared.js'
+import type { ChainProperties } from '../../index.js'
+import type { Handler } from '../shared.js'
 
 export const system_localPeerId = async () => '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'
 export const system_nodeRoles = async () => ['Full']

@@ -1,6 +1,6 @@
-import { Blockchain, StorageValues, isUrl, setStorage } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
 import { existsSync, readFileSync } from 'node:fs'
+import { type Blockchain, type StorageValues, isUrl, setStorage } from '@acala-network/chopsticks-core'
+import type { HexString } from '@polkadot/util/types'
 import axios from 'axios'
 import yaml from 'js-yaml'
 
@@ -37,7 +37,7 @@ export const overrideWasm = async (chain: Blockchain, wasmPath?: string, at?: He
     // starts with 0x
     wasmHex = wasm.toString().trim()
   } else {
-    wasmHex = '0x' + wasm.toString('hex')
+    wasmHex = `0x${wasm.toString('hex')}`
   }
   if (at) {
     const block = await chain.getBlock(at)

@@ -1,15 +1,15 @@
-import * as Comlink from 'comlink'
-import { HexString } from '@polkadot/util/types'
 import { hexToString, hexToU8a, u8aToBn } from '@polkadot/util'
 import { randomAsHex } from '@polkadot/util-crypto'
+import type { HexString } from '@polkadot/util/types'
+import * as Comlink from 'comlink'
 import _ from 'lodash'
 
-import { Block } from '../blockchain/block.js'
-import { PREFIX_LENGTH, stripChildPrefix } from '../utils/index.js'
+import type { Block } from '../blockchain/block.js'
 import { defaultLogger, truncate } from '../logger.js'
+import { PREFIX_LENGTH, stripChildPrefix } from '../utils/index.js'
 
 import type { JsCallback } from '@acala-network/chopsticks-executor'
-export { JsCallback }
+export type { JsCallback }
 
 export type RuntimeVersion = {
   specName: string
@@ -141,10 +141,8 @@ export const runTask = async (task: TaskCall, callback: JsCallback = emptyTaskHa
 
 export const taskHandler = (block: Block): JsCallback => {
   return {
-    getStorage: async function (key: HexString) {
-      return block.get(key)
-    },
-    getNextKey: async function (prefix: HexString, key: HexString) {
+    getStorage: async (key: HexString) => block.get(key),
+    getNextKey: async (prefix: HexString, key: HexString) => {
       const [nextKey] = await block.getKeysPaged({
         prefix: prefix.length === 2 /** 0x */ ? key.slice(0, PREFIX_LENGTH) : prefix,
         pageSize: 1,
@@ -152,17 +150,13 @@ export const taskHandler = (block: Block): JsCallback => {
       })
       return nextKey && stripChildPrefix(nextKey as HexString)
     },
-    offchainGetStorage: async function (key: HexString) {
+    offchainGetStorage: async (key: HexString) => {
       if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
       return block.chain.offchainWorker.get(key) as string
     },
-    offchainTimestamp: async function () {
-      return Date.now()
-    },
-    offchainRandomSeed: async function () {
-      return randomAsHex(32)
-    },
-    offchainSubmitTransaction: async function (tx: HexString) {
+    offchainTimestamp: async () => Date.now(),
+    offchainRandomSeed: async () => randomAsHex(32),
+    offchainSubmitTransaction: async (tx: HexString) => {
       if (!block.chain.offchainWorker) throw new Error('offchain worker not found')
       try {
         const hash = await block.chain.offchainWorker.pushExtrinsic(block, tx)
@@ -177,22 +171,22 @@ export const taskHandler = (block: Block): JsCallback => {
 }
 
 export const emptyTaskHandler = {
-  getStorage: async function (_key: HexString) {
+  getStorage: async (_key: HexString) => {
     throw new Error('Method not implemented')
   },
-  getNextKey: async function (_prefix: HexString, _key: HexString) {
+  getNextKey: async (_prefix: HexString, _key: HexString) => {
     throw new Error('Method not implemented')
   },
-  offchainGetStorage: async function (_key: HexString) {
+  offchainGetStorage: async (_key: HexString) => {
     throw new Error('Method not implemented')
   },
-  offchainTimestamp: async function () {
+  offchainTimestamp: async () => {
     throw new Error('Method not implemented')
   },
-  offchainRandomSeed: async function () {
+  offchainRandomSeed: async () => {
     throw new Error('Method not implemented')
   },
-  offchainSubmitTransaction: async function (_tx: HexString) {
+  offchainSubmitTransaction: async (_tx: HexString) => {
     throw new Error('Method not implemented')
   },
 }

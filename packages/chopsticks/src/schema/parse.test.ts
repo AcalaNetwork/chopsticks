@@ -1,14 +1,14 @@
-import { describe, expect, it } from 'vitest'
 import { readdirSync } from 'node:fs'
-import _ from 'lodash'
 import path from 'node:path'
+import _ from 'lodash'
+import { describe, expect, it } from 'vitest'
 
 import { configSchema, fetchConfig } from './index.js'
 
 function getAllFiles(dirPath: string) {
   const files = readdirSync(dirPath)
   const arrayOfFiles: string[] = []
-  files.forEach(function (file) {
+  files.forEach((file) => {
     arrayOfFiles.push(path.join(dirPath, '/', file))
   })
 

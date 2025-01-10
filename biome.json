@@ -1,0 +1,84 @@
+{
+	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+	"files": {
+		"ignoreUnknown": false,
+		"ignore": [
+			"*.txt",
+			"*.snap",
+			"*.wasm",
+			"*.html",
+			"*.md",
+			"*.gitignore",
+			"*.yml",
+			"*.tsbuildinfo",
+			"**/executor/**",
+			"**/vendor/**",
+			"**/dist/**",
+			"**/node_modules/**"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"useEditorconfig": true,
+		"formatWithErrors": false,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineEnding": "lf",
+		"lineWidth": 120,
+		"attributePosition": "auto",
+		"bracketSpacing": true,
+		"ignore": [
+			"**/tsconfig.tsbuildinfo",
+			"**/.gitignore",
+			"**/.yarn",
+			"**/*.yml",
+			"**/*.md",
+			"**/executor/**",
+			"**/vendor/**",
+			"**/.pnp.cjs",
+			"**/.pnp.loader.mjs",
+			"**/lib/**",
+			"**/dist/**",
+			"**/node_modules/**",
+			"**/preview/",
+			"**/packages/core/scripts/",
+			"packages/core/src/wasm-executor/browser-wasm-executor.js",
+			"packages/core/src/wasm-executor/node-wasm-executor.js",
+			"packages/e2e/src/rpc-methods-test-scripts.js",
+			"packages/e2e/blobs/**",
+			"packages/web-test/playwright-report/**"
+		]
+	},
+	"organizeImports": { "enabled": true },
+	"linter": {
+		"enabled": true,
+		"rules": { "recommended": true },
+		"ignore": [
+			"**/.eslintrc.js",
+			"**/node_modules/",
+			"**/executor/",
+			"**/vendor/",
+			"**/lib/",
+			"**/dist/",
+			"packages/core/scripts/",
+			"**/chopsticks.js",
+			"packages/core/src/wasm-executor/browser-wasm-executor.js",
+			"packages/core/src/wasm-executor/node-wasm-executor.js",
+			"packages/web-test/playwright-report"
+		]
+	},
+	"javascript": {
+		"formatter": {
+			"jsxQuoteStyle": "double",
+			"quoteProperties": "asNeeded",
+			"trailingCommas": "all",
+			"semicolons": "asNeeded",
+			"arrowParentheses": "always",
+			"bracketSameLine": false,
+			"quoteStyle": "single",
+			"attributePosition": "auto",
+			"bracketSpacing": true
+		}
+	}
+}

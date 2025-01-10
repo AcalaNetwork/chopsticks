@@ -1,6 +1,6 @@
-import { afterAll, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import { afterAll, describe, expect, it } from 'vitest'
 
 import { check, testingPairs } from './helper.js'
 
@@ -32,7 +32,7 @@ describe('upgrade', async () => {
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
     await dev.newBlock({ count: 3 })
     expect(await chain.head.runtimeVersion).toEqual(expect.objectContaining({ specVersion: 2101 }))
-    expect(api.runtimeVersion.specVersion).toMatchInlineSnapshot(`2101`)
+    expect(api.runtimeVersion.specVersion).toMatchInlineSnapshot('2101')
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
     await dev.newBlock()

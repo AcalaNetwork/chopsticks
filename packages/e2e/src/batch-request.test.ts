@@ -1,5 +1,5 @@
-import { WebSocket } from 'ws'
 import { afterAll, describe, expect, it } from 'vitest'
+import { WebSocket } from 'ws'
 
 import networks from './networks.js'
 

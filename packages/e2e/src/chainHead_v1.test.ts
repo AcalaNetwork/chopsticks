@@ -1,9 +1,9 @@
-import { RuntimeContext } from '@polkadot-api/observable-client'
+import type { RuntimeContext } from '@polkadot-api/observable-client'
 import { describe, expect, it } from 'vitest'
 
-import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
-import { firstValueFrom } from 'rxjs'
 import { getPolkadotSigner } from 'polkadot-api/signer'
+import { firstValueFrom } from 'rxjs'
+import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
 
 import { Binary } from 'polkadot-api'
 
@@ -236,7 +236,7 @@ describe('chainHead_v1 rpc', () => {
     expect(deltas?.upserted[0].args[1].asHex()).toEqual(callHash.asHex())
 
     // Test deletion
-    const timepoint = deltas!.upserted[0].value.when
+    const timepoint = deltas?.upserted[0].value.when
     const cancelExtrinsic = await testApi.client
       .getUnsafeApi()
       .tx.Multisig.cancel_as_multi({
