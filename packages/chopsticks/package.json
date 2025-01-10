@@ -46,11 +46,7 @@
 		"@types/yargs": "^17.0.33",
 		"typescript": "^5.7.2"
 	},
-	"files": [
-		"dist/esm/**",
-		"dist/cjs/**",
-		"chopsticks.cjs"
-	],
+	"files": ["dist/esm/**", "dist/cjs/**", "chopsticks.cjs"],
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
 	"exports": {
