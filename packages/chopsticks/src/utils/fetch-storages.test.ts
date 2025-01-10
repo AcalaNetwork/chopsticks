@@ -3,13 +3,13 @@ import { resolve } from 'node:path'
 import { SqliteDatabase } from '@acala-network/chopsticks-db'
 import { ApiPromise } from '@polkadot/api'
 import { WsProvider } from '@polkadot/rpc-provider'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
+import type { ProviderInterface } from '@polkadot/rpc-provider/types'
 import { xxhashAsHex } from '@polkadot/util-crypto'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { Like } from 'typeorm'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
-import { FetchStorageConfig, fetchStorages, getPrefixesFromConfig } from './fetch-storages.js'
+import { type FetchStorageConfig, fetchStorages, getPrefixesFromConfig } from './fetch-storages.js'
 
 describe('fetch-storages', () => {
   let api: ApiPromise

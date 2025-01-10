@@ -1,15 +1,15 @@
 import '@polkadot/types-codec'
 import { HttpProvider, WsProvider } from '@polkadot/rpc-provider'
-import { ProviderInterface } from '@polkadot/rpc-provider/types'
-import { RegisteredTypes } from '@polkadot/types/types'
-import { HexString } from '@polkadot/util/types'
+import type { ProviderInterface } from '@polkadot/rpc-provider/types'
+import type { RegisteredTypes } from '@polkadot/types/types'
+import type { HexString } from '@polkadot/util/types'
 
 import { Api } from './api.js'
 import { Blockchain } from './blockchain/index.js'
 import { inherentProviders } from './blockchain/inherent/index.js'
-import { BuildBlockMode } from './blockchain/txpool.js'
-import { Database } from './database.js'
-import { GenesisProvider } from './genesis-provider.js'
+import type { BuildBlockMode } from './blockchain/txpool.js'
+import type { Database } from './database.js'
+import type { GenesisProvider } from './genesis-provider.js'
 import { defaultLogger } from './logger.js'
 
 export type SetupOptions = {

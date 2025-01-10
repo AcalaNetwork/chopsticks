@@ -1,4 +1,4 @@
-import { Blockchain } from '../blockchain/index.js'
+import type { Blockchain } from '../blockchain/index.js'
 import { defaultLogger } from '../logger.js'
 import { getParaId } from '../utils/index.js'
 import { connectDownward } from './downward.js'

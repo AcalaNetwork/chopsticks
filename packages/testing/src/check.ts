@@ -1,5 +1,5 @@
-import { ApiPromise } from '@polkadot/api'
-import { Codec } from '@polkadot/types/types'
+import type { ApiPromise } from '@polkadot/api'
+import type { Codec } from '@polkadot/types/types'
 
 type CodecOrArray = Codec | Codec[]
 
@@ -169,7 +169,7 @@ export class Checker {
 
     const processNumber = (value: number) => {
       if (precision > 0) {
-        const rounded = parseFloat(value.toPrecision(precision))
+        const rounded = Number.parseFloat(value.toPrecision(precision))
         if (rounded === value) {
           return rounded
         }
@@ -191,7 +191,7 @@ export class Checker {
       if (typeof obj === 'string') {
         if (redactNumber && obj.match(/0x000000[0-9a-f]{26}/)) {
           // this is very likely u128 encoded in hex
-          const num = parseInt(obj)
+          const num = Number.parseInt(obj)
           return processNumber(num)
         }
         if (redactHash && obj.match(/0x[0-9a-f]{64}/)) {
@@ -204,7 +204,7 @@ export class Checker {
           return '(address)'
         }
         if (redactNumber && obj.match(/^-?[\d,]+$/)) {
-          const num = parseInt(obj.replace(/,/g, ''))
+          const num = Number.parseInt(obj.replace(/,/g, ''))
           return processNumber(num)
         }
         return obj

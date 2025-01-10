@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { TypeRegistry } from '@polkadot/types'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import * as Comlink from 'comlink'
 import _ from 'lodash'
 import { describe, expect, it } from 'vitest'

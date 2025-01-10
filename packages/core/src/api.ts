@@ -1,9 +1,9 @@
-import { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
-import { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
-import { HexString } from '@polkadot/util/types'
+import type { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
+import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
-import { ChainProperties, Header, SignedBlock } from './index.js'
+import type { ChainProperties, Header, SignedBlock } from './index.js'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
 
 /**

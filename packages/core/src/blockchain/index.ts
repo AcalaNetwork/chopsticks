@@ -1,26 +1,32 @@
 import { Metadata, TypeRegistry } from '@polkadot/types'
 import { getSpecExtensions, getSpecHasher, getSpecTypes } from '@polkadot/types-known/util'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
-import { ApplyExtrinsicResult, ChainProperties, Header } from '@polkadot/types/interfaces'
+import type { ApplyExtrinsicResult, ChainProperties, Header } from '@polkadot/types/interfaces'
 import type { TransactionValidity } from '@polkadot/types/interfaces/txqueue'
-import { RegisteredTypes } from '@polkadot/types/types'
+import type { RegisteredTypes } from '@polkadot/types/types'
 import { objectSpread, u8aConcat, u8aToHex } from '@polkadot/util'
 import { blake2AsHex, xxhashAsHex } from '@polkadot/util-crypto'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
-import { Api } from '../api.js'
-import { Database } from '../database.js'
+import type { Api } from '../api.js'
+import type { Database } from '../database.js'
 import { defaultLogger } from '../logger.js'
 import { OffchainWorker } from '../offchain.js'
 import { compactHex } from '../utils/index.js'
-import { RuntimeVersion } from '../wasm-executor/index.js'
+import type { RuntimeVersion } from '../wasm-executor/index.js'
 import { dryRunExtrinsic, dryRunInherents } from './block-builder.js'
 import { Block } from './block.js'
 import { HeadState } from './head-state.js'
-import { InherentProvider } from './inherent/index.js'
-import { StorageValue } from './storage-layer.js'
-import { BuildBlockMode, BuildBlockParams, DownwardMessage, HorizontalMessage, TxPool } from './txpool.js'
+import type { InherentProvider } from './inherent/index.js'
+import type { StorageValue } from './storage-layer.js'
+import {
+  type BuildBlockMode,
+  type BuildBlockParams,
+  type DownwardMessage,
+  type HorizontalMessage,
+  TxPool,
+} from './txpool.js'
 
 const logger = defaultLogger.child({ name: 'blockchain' })
 

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { describe, expect, it, vi } from 'vitest'
 import { Api } from '../api.js'
-import { RemoteStorageLayer, StorageLayer, StorageValue, StorageValueKind } from './storage-layer.js'
+import { RemoteStorageLayer, StorageLayer, type StorageValue, StorageValueKind } from './storage-layer.js'
 
 describe('getKeysPaged', () => {
   const hash = '0x1111111111111111111111111111111111111111111111111111111111111111'
@@ -462,7 +462,7 @@ describe('getKeysPaged', () => {
     }
 
     const allKeys = pages
-      .flatMap((x) => x)
+      .flat()
       .reduce((acc, x) => {
         if (acc.includes(x)) {
           return acc

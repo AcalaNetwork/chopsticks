@@ -1,13 +1,13 @@
 import { compactAddLength, hexToU8a } from '@polkadot/util'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 
 import { Block, newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
 import { setupContext } from '../../context.js'
 import { defaultLogger } from '../../logger.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'
 import { openHtml } from '../../utils/open-html.js'
-import { DryRunSchemaType } from './index.js'
+import type { DryRunSchemaType } from './index.js'
 
 export const dryRunPreimage = async (argv: DryRunSchemaType) => {
   const context = await setupContext(argv)

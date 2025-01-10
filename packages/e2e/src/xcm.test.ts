@@ -1,12 +1,12 @@
 import { beforeEach, describe, it } from 'vitest'
 
 import { setStorage } from '@acala-network/chopsticks-core'
-import { DownwardMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
+import type { DownwardMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
 import { connectDownward } from '@acala-network/chopsticks-core/xcm/downward.js'
 import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
 
 import { check, checkSystemEvents, testingPairs } from './helper.js'
-import networks, { Network } from './networks.js'
+import networks, { type Network } from './networks.js'
 
 const downwardMessages: DownwardMessage[] = [
   {

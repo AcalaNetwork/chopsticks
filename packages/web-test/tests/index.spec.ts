@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 
 test.describe('index', () => {
   test.beforeEach(async ({ page }) => {

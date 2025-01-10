@@ -1,11 +1,11 @@
-import { StorageKey } from '@polkadot/types'
-import { BN, compactStripLength, u8aToHex } from '@polkadot/util'
+import type { StorageKey } from '@polkadot/types'
+import { type BN, compactStripLength, u8aToHex } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { getAuraSlotDuration } from '../wasm-executor/index.js'
 
-import { Block } from '../blockchain/block.js'
-import { Blockchain } from '../blockchain/index.js'
+import type { Block } from '../blockchain/block.js'
+import type { Blockchain } from '../blockchain/index.js'
 
 export * from './set-storage.js'
 export * from './time-travel.js'

@@ -1,15 +1,15 @@
-import {
+import type {
   ProviderInterface,
   ProviderInterfaceCallback,
   ProviderInterfaceEmitCb,
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { EventEmitter } from 'eventemitter3'
 
 import { defaultLogger, isPrefixedChildKey } from './index.js'
-import { Genesis, genesisSchema } from './schema/index.js'
-import { JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
+import { type Genesis, genesisSchema } from './schema/index.js'
+import { type JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
 
 /**
  * Provider to start a chain from genesis
@@ -121,14 +121,14 @@ export class GenesisProvider implements ProviderInterface {
     const storage = this.#genesis.genesis.raw.top
     return {
       ...emptyTaskHandler,
-      getStorage: async function (key: HexString) {
+      getStorage: async (key: HexString) => {
         if (isPrefixedChildKey(key)) {
           defaultLogger.warn({ key }, 'genesis child storage not supported')
           return undefined
         }
         return storage[key]
       },
-      getNextKey: async function (prefix: HexString, key: HexString) {
+      getNextKey: async (prefix: HexString, key: HexString) => {
         if (isPrefixedChildKey(key)) {
           defaultLogger.warn({ prefix, key }, 'genesis child storage not supported')
           return undefined

@@ -1,6 +1,6 @@
 import http from 'node:http'
-import { ResponseError, SubscriptionManager } from '@acala-network/chopsticks-core'
-import { AddressInfo, WebSocket, WebSocketServer } from 'ws'
+import { ResponseError, type SubscriptionManager } from '@acala-network/chopsticks-core'
+import { type AddressInfo, WebSocket, WebSocketServer } from 'ws'
 import { z } from 'zod'
 
 import { defaultLogger, truncate } from './logger.js'

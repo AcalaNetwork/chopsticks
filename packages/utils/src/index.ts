@@ -1,6 +1,6 @@
 import {
   BuildBlockMode,
-  StorageValues,
+  type StorageValues,
   connectParachains,
   connectVertical,
   defaultLogger,
@@ -8,13 +8,13 @@ import {
   fetchConfig,
   setupWithServer,
 } from '@acala-network/chopsticks'
-import { NewBlockParams } from '@acala-network/chopsticks-core/rpc/dev/new-block.js'
-import { Config } from '@acala-network/chopsticks/schema/index.js'
+import type { NewBlockParams } from '@acala-network/chopsticks-core/rpc/dev/new-block.js'
+import type { Config } from '@acala-network/chopsticks/schema/index.js'
 import { ApiPromise, WsProvider } from '@polkadot/api'
-import { SubmittableExtrinsic } from '@polkadot/api-base/types'
+import type { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { Keyring, createTestKeyring } from '@polkadot/keyring'
-import { Codec } from '@polkadot/types/types'
-import { HexString } from '@polkadot/util/types'
+import type { Codec } from '@polkadot/types/types'
+import type { HexString } from '@polkadot/util/types'
 
 const logger = defaultLogger.child({ name: 'utils' })
 

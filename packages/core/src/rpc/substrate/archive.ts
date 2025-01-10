@@ -1,6 +1,6 @@
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 
-import { Handler, ResponseError } from '../shared.js'
+import { type Handler, ResponseError } from '../shared.js'
 import { chain_getBlockHash } from './chain.js'
 import { state_call } from './state.js'
 

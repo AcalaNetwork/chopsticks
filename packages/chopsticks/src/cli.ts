@@ -5,7 +5,7 @@ import type { MiddlewareFunction } from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { z } from 'zod'
 
-import { Blockchain, connectParachains, connectVertical, environment } from '@acala-network/chopsticks-core'
+import { type Blockchain, connectParachains, connectVertical, environment } from '@acala-network/chopsticks-core'
 import { setupWithServer } from './index.js'
 import { loadRpcMethodsByScripts, pluginExtendCli } from './plugins/index.js'
 import { configSchema, fetchConfig, getYargsOptions } from './schema/index.js'

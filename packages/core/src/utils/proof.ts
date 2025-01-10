@@ -1,8 +1,8 @@
-import { u32 } from '@polkadot/types'
-import { HrmpChannelId } from '@polkadot/types/interfaces'
+import type { u32 } from '@polkadot/types'
+import type { HrmpChannelId } from '@polkadot/types/interfaces'
 import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import { xxhashAsU8a } from '@polkadot/util-crypto'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 
 export const WELL_KNOWN_KEYS = {
   EPOCH_INDEX: '0x1cb6f36e027abb2091cfb5110ab5087f38316cbf8fa0da822a20ac1c55bf1be3' as HexString,

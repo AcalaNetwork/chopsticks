@@ -1,4 +1,4 @@
-import { RuntimeContext } from '@polkadot-api/observable-client'
+import type { RuntimeContext } from '@polkadot-api/observable-client'
 import { ApiPromise } from '@polkadot/api'
 import { firstValueFrom } from 'rxjs'
 import { describe, expect, it } from 'vitest'

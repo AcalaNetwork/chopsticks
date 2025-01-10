@@ -1,8 +1,8 @@
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
-import { Api } from '../api.js'
-import { Database } from '../database.js'
+import type { Api } from '../api.js'
+import type { Database } from '../database.js'
 import { defaultLogger } from '../logger.js'
 import { CHILD_PREFIX_LENGTH, PREFIX_LENGTH, isPrefixedChildKey } from '../utils/index.js'
 import KeyCache from '../utils/key-cache.js'
@@ -11,7 +11,7 @@ const logger = defaultLogger.child({ name: 'layer' })
 
 const BATCH_SIZE = 1000
 
-export const enum StorageValueKind {
+export enum StorageValueKind {
   Deleted = 'Deleted',
   DeletedPrefix = 'DeletedPrefix',
 }

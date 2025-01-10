@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs'
 import { pinoLogger } from '@acala-network/chopsticks-core'
 import _ from 'lodash'
-import { Argv } from 'yargs'
+import type { Argv } from 'yargs'
 import { z } from 'zod'
 
 import { setupContext } from '../../context.js'

@@ -1,7 +1,7 @@
 import { hexToU8a } from '@polkadot/util'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 
-import { Handler, ResponseError } from '../shared.js'
+import { type Handler, ResponseError } from '../shared.js'
 
 /**
  * @param context

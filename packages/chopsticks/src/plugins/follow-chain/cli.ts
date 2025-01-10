@@ -1,6 +1,6 @@
 import { Block, defaultLogger, runTask, taskHandler } from '@acala-network/chopsticks-core'
-import { Header } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
+import type { Header } from '@polkadot/types/interfaces'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 import { z } from 'zod'

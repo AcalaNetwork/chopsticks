@@ -1,5 +1,5 @@
 import { writeFileSync } from 'node:fs'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 import { z } from 'zod'

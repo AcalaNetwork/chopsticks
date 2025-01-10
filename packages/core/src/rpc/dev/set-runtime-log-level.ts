@@ -1,5 +1,5 @@
 import { defaultLogger } from '../../logger.js'
-import { Context, ResponseError } from '../shared.js'
+import { type Context, ResponseError } from '../shared.js'
 
 /**
  * Set runtime log level.

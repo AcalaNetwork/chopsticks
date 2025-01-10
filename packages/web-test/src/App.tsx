@@ -17,7 +17,7 @@ import {
 import { styled } from '@mui/system'
 import { ApiPromise } from '@polkadot/api'
 import { createTestPairs } from '@polkadot/keyring'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { useEffect, useState } from 'react'
 
 const { alice, bob } = createTestPairs()

@@ -1,7 +1,7 @@
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { z } from 'zod'
 
-import { Blockchain } from '../blockchain/index.js'
+import type { Blockchain } from '../blockchain/index.js'
 import { defaultLogger } from '../logger.js'
 
 export const logger = defaultLogger.child({ name: 'rpc' })

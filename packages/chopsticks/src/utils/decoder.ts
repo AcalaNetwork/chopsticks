@@ -1,5 +1,5 @@
-import { Block, decodeBlockStorageDiff } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
+import { type Block, decodeBlockStorageDiff } from '@acala-network/chopsticks-core'
+import type { HexString } from '@polkadot/util/types'
 import { create } from 'jsondiffpatch'
 import _ from 'lodash'
 

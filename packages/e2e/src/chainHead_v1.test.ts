@@ -1,4 +1,4 @@
-import { RuntimeContext } from '@polkadot-api/observable-client'
+import type { RuntimeContext } from '@polkadot-api/observable-client'
 import { describe, expect, it } from 'vitest'
 
 import { getPolkadotSigner } from 'polkadot-api/signer'

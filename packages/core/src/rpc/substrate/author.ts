@@ -1,10 +1,10 @@
-import { TransactionValidityError } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
+import type { TransactionValidityError } from '@polkadot/types/interfaces'
+import type { HexString } from '@polkadot/util/types'
 
-import { Block } from '../../blockchain/block.js'
+import type { Block } from '../../blockchain/block.js'
 import { APPLY_EXTRINSIC_ERROR } from '../../blockchain/txpool.js'
 import { defaultLogger } from '../../logger.js'
-import { Handler, ResponseError, SubscriptionManager } from '../shared.js'
+import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
 
 const logger = defaultLogger.child({ name: 'rpc-author' })
 

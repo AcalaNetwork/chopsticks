@@ -1,7 +1,7 @@
-import { Registry } from '@polkadot/types-codec/types'
+import type { Registry } from '@polkadot/types-codec/types'
 import { hexToU8a, stringToHex } from '@polkadot/util'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 
 const decodeValue = (type: string) => (registry: Registry, value: HexString) => {
   return registry.createType(type, hexToU8a(value)).toJSON()

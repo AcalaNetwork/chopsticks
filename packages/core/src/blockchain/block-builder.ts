@@ -1,5 +1,5 @@
-import { GenericExtrinsic } from '@polkadot/types'
-import {
+import type { GenericExtrinsic } from '@polkadot/types'
+import type {
   AccountInfo,
   ApplyExtrinsicResult,
   Call,
@@ -11,14 +11,14 @@ import {
 } from '@polkadot/types/interfaces'
 import { compactAddLength, hexToU8a, stringToHex, u8aConcat } from '@polkadot/util'
 import { blake2AsU8a } from '@polkadot/util-crypto'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { defaultLogger, truncate } from '../logger.js'
 import { compactHex, getCurrentSlot } from '../utils/index.js'
-import { TaskCallResponse } from '../wasm-executor/index.js'
+import type { TaskCallResponse } from '../wasm-executor/index.js'
 import { Block } from './block.js'
-import { InherentProvider } from './inherent/index.js'
+import type { InherentProvider } from './inherent/index.js'
 import { StorageLayer, StorageValueKind } from './storage-layer.js'
-import { BuildBlockParams } from './txpool.js'
+import type { BuildBlockParams } from './txpool.js'
 
 const logger = defaultLogger.child({ name: 'block-builder' })
 

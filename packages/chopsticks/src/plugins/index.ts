@@ -1,5 +1,5 @@
 import { lstatSync, readFileSync, readdirSync } from 'node:fs'
-import { Handlers, environment } from '@acala-network/chopsticks-core'
+import { type Handlers, environment } from '@acala-network/chopsticks-core'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
 

@@ -1,7 +1,7 @@
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { queueScheduler } from 'rxjs'
-import { Block } from './blockchain/block.js'
+import type { Block } from './blockchain/block.js'
 import { defaultLogger } from './logger.js'
 
 const logger = defaultLogger.child({ name: 'offchain' })

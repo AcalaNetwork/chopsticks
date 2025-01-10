@@ -8,7 +8,7 @@ import { configSchema, fetchConfig } from './index.js'
 function getAllFiles(dirPath: string) {
   const files = readdirSync(dirPath)
   const arrayOfFiles: string[] = []
-  files.forEach(function (file) {
+  files.forEach((file) => {
     arrayOfFiles.push(path.join(dirPath, '/', file))
   })
 
