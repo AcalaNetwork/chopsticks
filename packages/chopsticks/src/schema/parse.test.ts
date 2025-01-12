@@ -1,14 +1,14 @@
-import { describe, expect, it } from 'vitest'
 import { readdirSync } from 'node:fs'
-import _ from 'lodash'
 import path from 'node:path'
+import _ from 'lodash'
+import { describe, expect, it } from 'vitest'
 
 import { configSchema, fetchConfig } from './index.js'
 
 function getAllFiles(dirPath: string) {
   const files = readdirSync(dirPath)
   const arrayOfFiles: string[] = []
-  files.forEach(function (file) {
+  files.forEach((file) => {
     arrayOfFiles.push(path.join(dirPath, '/', file))
   })
 
@@ -61,7 +61,6 @@ describe('Parsed options', () => {
 
     expect(() =>
       configSchema.parse({
-        // eslint-disable-next-line no-loss-of-precision
         block: 0xb10f03bbc183da4d26e27528d28f6a73ddaf182fb6400ca363b77d2411ea5b0c,
       }),
     ).toThrowError(/you are using a hex string/)

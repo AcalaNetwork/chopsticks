@@ -1,8 +1,8 @@
 import {
-  Context,
-  Handlers,
+  type Context,
+  type Handlers,
   ResponseError,
-  SubscriptionManager,
+  type SubscriptionManager,
   allHandlers as coreHandlers,
   defaultLogger,
 } from '@acala-network/chopsticks-core'

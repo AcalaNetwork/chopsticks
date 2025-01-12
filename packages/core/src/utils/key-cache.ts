@@ -1,4 +1,4 @@
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
 export default class KeyCache {

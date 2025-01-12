@@ -1,6 +1,6 @@
-import { ChainProperties } from '../../index.js'
-import { Handler, ResponseError } from '../shared.js'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
+import type { ChainProperties } from '../../index.js'
+import { type Handler, ResponseError } from '../shared.js'
 
 export const chainSpec_v1_chainName: Handler<[], string> = async (context) => {
   return context.chain.api.getSystemChain()

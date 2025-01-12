@@ -1,6 +1,6 @@
-import { ApiPromise } from '@polkadot/api'
-import { GenericExtrinsic } from '@polkadot/types'
-import { SignatureOptions } from '@polkadot/types/types'
+import type { ApiPromise } from '@polkadot/api'
+import type { GenericExtrinsic } from '@polkadot/types'
+import type { SignatureOptions } from '@polkadot/types/types'
 
 export type SignFakeOptions = Partial<SignatureOptions>
 

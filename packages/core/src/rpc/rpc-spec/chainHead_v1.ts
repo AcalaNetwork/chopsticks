@@ -1,7 +1,7 @@
-import { Block } from '../../blockchain/block.js'
-import { Handler, ResponseError, SubscriptionManager } from '../shared.js'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
+import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
+import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 

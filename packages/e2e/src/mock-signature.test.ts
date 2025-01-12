@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
 import { signFake, signFakeWithApi } from '@acala-network/chopsticks-testing'
+import { describe, expect, it } from 'vitest'
 
 import { api, dev, env, setupApi, testingPairs } from './helper.js'
 

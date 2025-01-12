@@ -1,6 +1,6 @@
-import { z } from 'zod'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
+import { z } from 'zod'
 
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { fetchStorages, logger } from '../../utils/fetch-storages.js'

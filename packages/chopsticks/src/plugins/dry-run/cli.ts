@@ -1,8 +1,8 @@
+import type { Argv } from 'yargs'
+import { z } from 'zod'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { dryRunExtrinsic } from './dry-run-extrinsic.js'
 import { dryRunPreimage } from './dry-run-preimage.js'
-import { z } from 'zod'
-import type { Argv } from 'yargs'
 
 const schema = z.object({
   ...configSchema.shape,
@@ -26,7 +26,7 @@ const schema = z.object({
       description: 'Block hash to dry run',
     })
     .optional(),
-  ['output-path']: z
+  'output-path': z
     .string({
       description: 'File path to print output',
     })

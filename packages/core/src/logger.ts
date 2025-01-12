@@ -29,10 +29,9 @@ const innerTruncate =
     switch (typeof val) {
       case 'string':
         if (val.length > 66 && !verboseLog) {
-          return val.slice(0, 34) + '…' + val.slice(-32)
-        } else {
-          return val
+          return `${val.slice(0, 34)}…${val.slice(-32)}`
         }
+        return val
       case 'object':
         if (Array.isArray(val)) {
           return val.map(innerTruncate(level + 1))

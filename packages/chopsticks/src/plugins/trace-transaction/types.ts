@@ -1,5 +1,5 @@
-import { HexString } from '@polkadot/util/types'
-import { Registry } from '@polkadot/types/types'
+import type { Registry } from '@polkadot/types/types'
+import type { HexString } from '@polkadot/util/types'
 
 export type CallTrace = {
   type: 'CALL' | 'CALLCODE' | 'STATICCALL' | 'DELEGATECALL' | 'CREATE' | 'SUICIDE'

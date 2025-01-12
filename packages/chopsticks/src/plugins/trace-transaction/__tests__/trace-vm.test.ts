@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { prepareBlock, traceVM } from '../utils.js'
 import { setup } from '../../../index.js'
+import { prepareBlock, traceVM } from '../utils.js'
 
 describe('trace-vm', async () => {
   const acala = await setup({

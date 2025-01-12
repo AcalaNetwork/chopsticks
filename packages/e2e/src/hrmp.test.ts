@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest'
 
-import { HorizontalMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
+import type { HorizontalMessage } from '@acala-network/chopsticks-core/blockchain/txpool.js'
 
 import { checkSystemEvents, setupContext } from './helper.js'
 

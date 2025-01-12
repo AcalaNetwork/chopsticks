@@ -1,10 +1,10 @@
-import * as Comlink from 'comlink'
-import { HexString } from '@polkadot/util/types'
-import { TypeRegistry } from '@polkadot/types'
-import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
-import _ from 'lodash'
 import path from 'node:path'
+import { TypeRegistry } from '@polkadot/types'
+import type { HexString } from '@polkadot/util/types'
+import * as Comlink from 'comlink'
+import _ from 'lodash'
+import { describe, expect, it } from 'vitest'
 
 import { WELL_KNOWN_KEYS, upgradeGoAheadSignal } from '../utils/proof.js'
 import {

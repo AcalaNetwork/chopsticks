@@ -1,14 +1,14 @@
 import { Block, defaultLogger, runTask, taskHandler } from '@acala-network/chopsticks-core'
-import { Header } from '@polkadot/types/interfaces'
-import { HexString } from '@polkadot/util/types'
-import { z } from 'zod'
+import type { Header } from '@polkadot/types/interfaces'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
+import { z } from 'zod'
 
+import { setupContext } from '../../context.js'
+import { handler } from '../../rpc/index.js'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { createServer } from '../../server.js'
-import { handler } from '../../rpc/index.js'
-import { setupContext } from '../../context.js'
 
 const logger = defaultLogger.child({ name: 'follow-chain' })
 

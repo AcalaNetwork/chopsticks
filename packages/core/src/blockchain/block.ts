@@ -1,22 +1,22 @@
-import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
-import { Header } from '@polkadot/types/interfaces'
-import { Metadata, TypeRegistry } from '@polkadot/types'
-import { StorageEntry } from '@polkadot/types/primitive/types'
+import { Metadata, type TypeRegistry } from '@polkadot/types'
+import type { Header } from '@polkadot/types/interfaces'
 import { expandMetadata } from '@polkadot/types/metadata'
+import type { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import type { StorageEntry } from '@polkadot/types/primitive/types'
 import { hexToU8a, stringToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 
-import { Blockchain } from './index.js'
-import {
-  RemoteStorageLayer,
-  StorageLayer,
-  StorageLayerProvider,
-  StorageValue,
-  StorageValueKind,
-} from './storage-layer.js'
 import { compactHex } from '../utils/index.js'
 import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor/index.js'
 import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor/index.js'
+import type { Blockchain } from './index.js'
+import {
+  RemoteStorageLayer,
+  StorageLayer,
+  type StorageLayerProvider,
+  type StorageValue,
+  StorageValueKind,
+} from './storage-layer.js'
 
 /**
  * Block class.

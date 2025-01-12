@@ -1,16 +1,16 @@
 import '@polkadot/types-codec'
-import { Block } from '../blockchain/block.js'
-import { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
-import { HexString } from '@polkadot/util/types'
-import { LRUCache } from 'lru-cache'
-import { Registry } from '@polkadot/types-codec/types'
-import { StorageEntry } from '@polkadot/types/primitive/types'
-import { StorageKey } from '@polkadot/types'
+import type { StorageKey } from '@polkadot/types'
+import type { Registry } from '@polkadot/types-codec/types'
+import type { DecoratedMeta } from '@polkadot/types/metadata/decorate/types'
+import type { StorageEntry } from '@polkadot/types/primitive/types'
 import { hexToU8a, u8aToHex } from '@polkadot/util'
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
+import { LRUCache } from 'lru-cache'
+import type { Block } from '../blockchain/block.js'
 
-import { decodeWellKnownKey } from './well-known-keys.js'
 import { defaultLogger } from '../logger.js'
+import { decodeWellKnownKey } from './well-known-keys.js'
 
 const logger = defaultLogger.child({ name: 'decoder' })
 

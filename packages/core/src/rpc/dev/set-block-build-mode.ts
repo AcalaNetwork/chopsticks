@@ -1,6 +1,6 @@
 import { BuildBlockMode } from '../../blockchain/txpool.js'
-import { Context, ResponseError } from '../shared.js'
 import { defaultLogger } from '../../logger.js'
+import { type Context, ResponseError } from '../shared.js'
 
 /**
  * Set block build mode.

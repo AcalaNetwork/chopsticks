@@ -1,12 +1,12 @@
-import { BuildBlockMode, defaultLogger, genesisSchema, isUrl } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
-import { Options } from 'yargs'
-import { ZodNativeEnum, ZodRawShape, ZodTypeAny, z } from 'zod'
-import { basename, extname } from 'node:path'
 import { readFileSync } from 'node:fs'
-import _ from 'lodash'
+import { basename, extname } from 'node:path'
+import { BuildBlockMode, defaultLogger, genesisSchema, isUrl } from '@acala-network/chopsticks-core'
+import type { HexString } from '@polkadot/util/types'
 import axios from 'axios'
 import yaml from 'js-yaml'
+import _ from 'lodash'
+import type { Options } from 'yargs'
+import { ZodNativeEnum, type ZodRawShape, type ZodTypeAny, z } from 'zod'
 
 export const zHex = z.custom<HexString>((val: any) => /^0x\w+$/.test(val))
 export const zHash = z.string().length(66).and(zHex)

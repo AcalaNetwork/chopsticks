@@ -1,4 +1,4 @@
-import { SubmittableResult } from '@polkadot/api'
+import type { SubmittableResult } from '@polkadot/api'
 import { afterAll, describe, expect, it } from 'vitest'
 
 import { check, defer, mockCallback, testingPairs } from './helper.js'

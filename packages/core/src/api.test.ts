@@ -1,6 +1,6 @@
-import { Api } from './api.js'
 import { WsProvider } from '@polkadot/rpc-provider'
 import { expect, test } from 'vitest'
+import { Api } from './api.js'
 
 test('handle invalid block hash', async () => {
   const api = new Api(new WsProvider('wss://acala-rpc.aca-api.network', 3_000))

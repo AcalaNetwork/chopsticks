@@ -1,5 +1,5 @@
-import { configSchema, getYargsOptions } from './index.js'
 import { expect, it } from 'vitest'
+import { configSchema, getYargsOptions } from './index.js'
 
 it('get yargs options from zod schema', () => {
   expect(getYargsOptions(configSchema.shape)).toMatchInlineSnapshot(`
