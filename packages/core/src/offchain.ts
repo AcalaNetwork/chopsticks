@@ -1,8 +1,8 @@
-import { Block } from './blockchain/block.js'
-import { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { defaultLogger } from './logger.js'
+import type { HexString } from '@polkadot/util/types'
 import { queueScheduler } from 'rxjs'
+import type { Block } from './blockchain/block.js'
+import { defaultLogger } from './logger.js'
 
 const logger = defaultLogger.child({ name: 'offchain' })
 

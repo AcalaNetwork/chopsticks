@@ -1,6 +1,6 @@
-import { Context, ResponseError, zHex } from '../shared.js'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 import { z } from 'zod'
+import { type Context, ResponseError, zHex } from '../shared.js'
 
 import { defaultLogger } from '../../logger.js'
 

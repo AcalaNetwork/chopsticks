@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { testingPairs } from '@acala-network/chopsticks-testing'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import networks from './networks.js'
 

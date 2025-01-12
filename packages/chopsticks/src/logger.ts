@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 export { defaultLogger, truncate } from '@acala-network/chopsticks-core'
 
-const showProgress = process.stdout.isTTY && !process.env['CI'] && !process.env['TEST']
+const showProgress = process.stdout.isTTY && !process.env.CI && !process.env.TEST
 
 export const spinnerFrames =
   process.platform === 'win32' ? ['-', '\\', '|', '/'] : ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']

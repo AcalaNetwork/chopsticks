@@ -1,8 +1,8 @@
-import { HexString } from '@polkadot/util/types'
-import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { decodeKey } from '@acala-network/chopsticks-core'
-import { setupContext } from '../../context.js'
+import type { HexString } from '@polkadot/util/types'
 import type { Argv } from 'yargs'
+import { setupContext } from '../../context.js'
+import { configSchema, getYargsOptions } from '../../schema/index.js'
 
 export const cli = (y: Argv) => {
   y.command(

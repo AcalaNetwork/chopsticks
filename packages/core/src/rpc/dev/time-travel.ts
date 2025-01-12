@@ -1,5 +1,5 @@
-import { Context, ResponseError } from '../shared.js'
 import { timeTravel } from '../../utils/time-travel.js'
+import { type Context, ResponseError } from '../shared.js'
 
 /**
  * Travel to a specific time.

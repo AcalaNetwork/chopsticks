@@ -1,6 +1,6 @@
-import { afterAll, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
+import { afterAll, describe, expect, it } from 'vitest'
 
 import { check, testingPairs } from './helper.js'
 

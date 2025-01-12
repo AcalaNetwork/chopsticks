@@ -1,4 +1,7 @@
 import '@polkadot/api-augment'
+import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
+import type { SetupOptions } from '@acala-network/chopsticks-core'
+import { IdbDatabase } from '@acala-network/chopsticks-db/browser.js'
 import {
 	Alert,
 	Box,
@@ -11,14 +14,11 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material'
-import { ApiPromise } from '@polkadot/api'
-import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
-import { HexString } from '@polkadot/util/types'
-import { IdbDatabase } from '@acala-network/chopsticks-db/browser.js'
-import { createTestPairs } from '@polkadot/keyring'
 import { styled } from '@mui/system'
-import { useEffect, useState } from 'react'
-import type { SetupOptions } from '@acala-network/chopsticks-core'
+import { ApiPromise } from '@polkadot/api'
+import { createTestPairs } from '@polkadot/keyring'
+import type { HexString } from '@polkadot/util/types'
+import { useCallback, useEffect, useState } from 'react'
 
 const { alice, bob } = createTestPairs()
 
@@ -93,14 +93,14 @@ function App() {
 	const [bobBalance, setBobBalance] = useState('')
 	const [transferDisabled, setTransferDisabled] = useState(false)
 
-	const resetState = () => {
+	const resetState = useCallback(() => {
 		setBlocks([])
 		setDryRunLoading(false)
 		setExtrinsic('0x0a000088dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee0f0090c04bb6db2b')
 		setDryRunResult('')
-	}
+	}, [])
 
-	const setupChain = async () => {
+	const setupChain = useCallback(async () => {
 		setChainLoading(true)
 		const chain = await setup({
 			endpoint: config.endpoint,
@@ -135,7 +135,7 @@ function App() {
 
 		setChainLoading(false)
 		setBlocks([{ number: chain.head.number, hash: chain.head.hash }])
-	}
+	}, [config])
 
 	useEffect(() => {
 		resetState()
@@ -144,7 +144,7 @@ function App() {
 		return () => {
 			globalThis.chain?.close()
 		}
-	}, [])
+	}, [resetState, setupChain])
 
 	const handleBuildBlock = async () => {
 		// build a block

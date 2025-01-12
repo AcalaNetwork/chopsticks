@@ -1,12 +1,12 @@
-import { Argv } from 'yargs'
-import { pinoLogger } from '@acala-network/chopsticks-core'
 import { writeFileSync } from 'node:fs'
-import { z } from 'zod'
+import { pinoLogger } from '@acala-network/chopsticks-core'
 import _ from 'lodash'
+import type { Argv } from 'yargs'
+import { z } from 'zod'
 
+import { setupContext } from '../../context.js'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { fetchEVMTransaction, prepareBlock, traceCalls, traceVM } from './utils.js'
-import { setupContext } from '../../context.js'
 
 const schema = configSchema.extend({
   vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
@@ -29,7 +29,7 @@ export const cli = (y: Argv) => {
     async (argv) => {
       const config = schema.parse(argv)
       const wasmPath = config['wasm-override']
-      delete config['wasm-override']
+      config['wasm-override'] = undefined
 
       const context = await setupContext(config, false)
       const txHash = argv['tx-hash']

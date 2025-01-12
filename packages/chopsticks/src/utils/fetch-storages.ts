@@ -1,18 +1,18 @@
-import { Api, defaultLogger } from '@acala-network/chopsticks-core'
-import { ApiPromise } from '@polkadot/api'
-import { DecoratedMeta, ModuleStorage } from '@polkadot/types/metadata/decorate/types'
-import { HexString } from '@polkadot/util/types'
-import { SqliteDatabase } from '@acala-network/chopsticks-db'
-import { StorageEntry } from '@polkadot/types/primitive/types'
-import { StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
-import { WsProvider } from '@polkadot/rpc-provider'
-import { compactStripLength, stringCamelCase, u8aToHex } from '@polkadot/util'
-import { expandMetadata } from '@polkadot/types'
-import { releaseProxy, wrap } from 'comlink'
-import { xxhashAsHex } from '@polkadot/util-crypto'
-import _ from 'lodash'
-import nodeEndpoint from 'comlink/dist/umd/node-adapter.js'
 import threads from 'node:worker_threads'
+import { Api, defaultLogger } from '@acala-network/chopsticks-core'
+import { SqliteDatabase } from '@acala-network/chopsticks-db'
+import { ApiPromise } from '@polkadot/api'
+import { WsProvider } from '@polkadot/rpc-provider'
+import { expandMetadata } from '@polkadot/types'
+import type { StorageEntryMetadataLatest } from '@polkadot/types/interfaces'
+import type { DecoratedMeta, ModuleStorage } from '@polkadot/types/metadata/decorate/types'
+import type { StorageEntry } from '@polkadot/types/primitive/types'
+import { compactStripLength, stringCamelCase, u8aToHex } from '@polkadot/util'
+import { xxhashAsHex } from '@polkadot/util-crypto'
+import type { HexString } from '@polkadot/util/types'
+import { releaseProxy, wrap } from 'comlink'
+import nodeEndpoint from 'comlink/dist/umd/node-adapter.js'
+import _ from 'lodash'
 
 const BATCH_SIZE = 1000
 
@@ -43,7 +43,7 @@ const checkPalletStorageByName = <T extends boolean>(
   const pallet = meta.query[stringCamelCase(palletName)]
   if (!pallet) throw Error(`Cannot find pallet ${palletName}`)
 
-  let storage
+  let storage: any
   if (storageName) {
     storage = pallet[stringCamelCase(storageName)]
     if (!storage) throw Error(`Cannot find storage ${storageName} in pallet ${palletName}`)

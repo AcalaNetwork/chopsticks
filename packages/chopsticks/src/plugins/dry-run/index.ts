@@ -1,5 +1,5 @@
-import { configSchema } from '../../schema/index.js'
 import { z } from 'zod'
+import { configSchema } from '../../schema/index.js'
 
 export const dryRunSchema = z.object({
   ...configSchema.shape,
@@ -23,7 +23,7 @@ export const dryRunSchema = z.object({
       description: 'Block hash to dry run',
     })
     .optional(),
-  ['output-path']: z
+  'output-path': z
     .string({
       description: 'File path to print output',
     })

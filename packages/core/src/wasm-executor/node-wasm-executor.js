@@ -1,5 +1,5 @@
-import * as Comlink from 'comlink'
 import * as pkg from '@acala-network/chopsticks-executor'
+import * as Comlink from 'comlink'
 
 import { parentPort } from 'node:worker_threads'
 import nodeEndpoint from 'comlink/dist/umd/node-adapter.js'

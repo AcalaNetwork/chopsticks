@@ -1,9 +1,9 @@
-import { resolve } from 'node:path'
 import { tmpdir } from 'node:os'
+import { resolve } from 'node:path'
 
-import { assert, describe, expect, it } from 'vitest'
-import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
 import { setStorage } from '@acala-network/chopsticks'
+import { connectUpward } from '@acala-network/chopsticks-core/xcm/upward.js'
+import { assert, describe, expect, it } from 'vitest'
 
 import { check, checkSystemEvents, testingPairs } from './helper.js'
 import networks from './networks.js'

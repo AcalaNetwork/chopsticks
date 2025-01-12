@@ -1,7 +1,7 @@
-import { AddressInfo, WebSocket, WebSocketServer } from 'ws'
-import { ResponseError, SubscriptionManager } from '@acala-network/chopsticks-core'
-import { z } from 'zod'
 import http from 'node:http'
+import { ResponseError, type SubscriptionManager } from '@acala-network/chopsticks-core'
+import { type AddressInfo, WebSocket, WebSocketServer } from 'ws'
+import { z } from 'zod'
 
 import { defaultLogger, truncate } from './logger.js'
 
@@ -121,7 +121,7 @@ export const createServer = async (handler: Handler, port: number, host?: string
 
       if (!parsed.success) {
         httpLogger.error('Invalid request: %s', body)
-        throw new Error('Invalid request: ' + body)
+        throw new Error(`Invalid request: ${body}`)
       }
 
       httpLogger.trace({ req: parsed.data }, 'Received request')

@@ -1,9 +1,9 @@
 import { GenericExtrinsic } from '@polkadot/types'
-import { HexString } from '@polkadot/util/types'
+import type { HexString } from '@polkadot/util/types'
 
-import { Block } from '../block.js'
-import { BuildBlockParams } from '../txpool.js'
-import { InherentProvider } from './index.js'
+import type { Block } from '../block.js'
+import type { BuildBlockParams } from '../txpool.js'
+import type { InherentProvider } from './index.js'
 
 export class ParaInherentEnter implements InherentProvider {
   async createInherents(newBlock: Block, _params: BuildBlockParams): Promise<HexString[]> {

@@ -1,7 +1,7 @@
-import { HexString } from '@polkadot/util/types'
-import { Registry } from '@polkadot/types-codec/types'
-import { blake2AsHex } from '@polkadot/util-crypto'
+import type { Registry } from '@polkadot/types-codec/types'
 import { hexToU8a, stringToHex } from '@polkadot/util'
+import { blake2AsHex } from '@polkadot/util-crypto'
+import type { HexString } from '@polkadot/util/types'
 
 const decodeValue = (type: string) => (registry: Registry, value: HexString) => {
   return registry.createType(type, hexToU8a(value)).toJSON()
@@ -54,7 +54,7 @@ const wellKnownKeys = [
     prefixHex: '0xf5207f03cfdce586301014700e2c2593fad157e461d71fd4c1f936839a5f1f3e',
     decodeKey: (registry: Registry, key: HexString) => {
       // get last 4 bytes
-      const last4Bytes = '0x' + key.slice(-8)
+      const last4Bytes = `0x${key.slice(-8)}`
       return [registry.createType('u32', hexToU8a(last4Bytes)).toJSON()]
     },
     type: '(u32, u32)',

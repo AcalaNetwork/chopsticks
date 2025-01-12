@@ -1,24 +1,24 @@
-import { BuildBlockMode } from '@acala-network/chopsticks-core'
 import { writeFileSync } from 'node:fs'
-import { z } from 'zod'
+import { BuildBlockMode } from '@acala-network/chopsticks-core'
 import type { Argv } from 'yargs'
+import { z } from 'zod'
 
+import { setupContext } from '../../context.js'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { overrideWasm } from '../../utils/override.js'
-import { setupContext } from '../../context.js'
 
 const schema = z.object({
   endpoint: configSchema.shape.endpoint,
   block: configSchema.shape.block,
   db: configSchema.shape.db,
-  ['runtime-log-level']: configSchema.shape['runtime-log-level'].default(5),
-  ['runtime']: z.string({
+  'runtime-log-level': configSchema.shape['runtime-log-level'].default(5),
+  runtime: z.string({
     description: 'Path to WASM built with feature `try-runtime` enabled',
   }),
   'import-storage': configSchema.shape['import-storage'],
   checks: z.enum(['None', 'All', 'PreAndPost', 'TryState']),
   'disable-spec-check': z.boolean({ description: 'Disable spec name/version check' }).optional(),
-  ['output-path']: z
+  'output-path': z
     .string({
       description: 'File path to print output',
     })

@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-import { Context, ResponseError } from '@acala-network/chopsticks-core'
+import { type Context, ResponseError } from '@acala-network/chopsticks-core'
+import { zHash, zHex } from '../../schema/index.js'
 import { decodeStorageDiff } from '../../utils/decoder.js'
 import { generateHtmlDiff } from '../../utils/generate-html-diff.js'
-import { zHash, zHex } from '../../schema/index.js'
 
 const zParaId = z.string().regex(/^\d+$/).transform(Number)
 

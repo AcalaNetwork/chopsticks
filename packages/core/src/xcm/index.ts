@@ -1,9 +1,9 @@
-import { Blockchain } from '../blockchain/index.js'
+import type { Blockchain } from '../blockchain/index.js'
+import { defaultLogger } from '../logger.js'
+import { getParaId } from '../utils/index.js'
 import { connectDownward } from './downward.js'
 import { connectHorizontal } from './horizontal.js'
 import { connectUpward } from './upward.js'
-import { defaultLogger } from '../logger.js'
-import { getParaId } from '../utils/index.js'
 
 export const xcmLogger = defaultLogger.child({ name: 'xcm' })
 

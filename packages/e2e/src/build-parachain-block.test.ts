@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { TypeRegistry } from '@polkadot/types'
 import { decodeProof } from '@acala-network/chopsticks-core'
 import { upgradeRestrictionSignal } from '@acala-network/chopsticks-core/utils/proof.js'
+import { TypeRegistry } from '@polkadot/types'
 import networks from './networks.js'
 
 describe('override-relay-state-proof', async () => {
@@ -18,7 +18,7 @@ describe('override-relay-state-proof', async () => {
     await ws.send('dev_newBlock', [{ relayChainStateOverrides }])
     const block = await api.rpc.chain.getBlock()
     const setValidationData = block.block.extrinsics
-      .find(({ method }) => method.method == 'setValidationData')
+      .find(({ method }) => method.method === 'setValidationData')
       ?.method.toJSON().args.data
 
     const relayParentStorageRoot = setValidationData.validationData.relayParentStorageRoot
@@ -37,7 +37,7 @@ describe('override-relay-state-proof', async () => {
     await dev.newBlock({ relayParentNumber: 14355209 })
     const block = await api.rpc.chain.getBlock()
     const setValidationData = block.block.extrinsics
-      .find(({ method }) => method.method == 'setValidationData')
+      .find(({ method }) => method.method === 'setValidationData')
       ?.method.toJSON().args.data
 
     expect(setValidationData.validationData.relayParentNumber).to.be.eq(14355209)
