@@ -95,6 +95,9 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
     "@acala-network/chopsticks-core": "workspace:*"
+    "@polkadot-api/signer": "npm:^0.1.13"
+    "@polkadot-labs/hdkd": "npm:^0.0.10"
+    "@polkadot-labs/hdkd-helpers": "npm:^0.0.10"
     "@polkadot/api": "npm:^15.0"
     "@polkadot/api-base": "npm:^15.0"
     "@polkadot/keyring": "npm:^13.2"
@@ -1633,6 +1636,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/curves@npm:^1.7.0":
+  version: 1.8.0
+  resolution: "@noble/curves@npm:1.8.0"
+  dependencies:
+    "@noble/hashes": "npm:1.7.0"
+  checksum: 10c0/3ebb1795f3f7d74c879bc6262a3444061585a2cab90b7b637dc57d931063dd0c95be858a4c2389e932651825dbc461c215dbcf43984a232de3bd6b2d326ba555
+  languageName: node
+  linkType: hard
+
+"@noble/curves@npm:~1.7.0":
+  version: 1.7.0
+  resolution: "@noble/curves@npm:1.7.0"
+  dependencies:
+    "@noble/hashes": "npm:1.6.0"
+  checksum: 10c0/3317ec9b7699d2476707a89ceb3ddce60e69bac287561a31dd533669408633e093860fea5067eb9c54e5a7ced0705da1cba8859b6b1e0c48d3afff55fe2e77d0
+  languageName: node
+  linkType: hard
+
 "@noble/hashes@npm:1.5.0":
   version: 1.5.0
   resolution: "@noble/hashes@npm:1.5.0"
@@ -1640,7 +1661,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:^1.3.1, @noble/hashes@npm:^1.3.3, @noble/hashes@npm:^1.6.1":
+"@noble/hashes@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@noble/hashes@npm:1.6.0"
+  checksum: 10c0/e7e75898257fb36d933935fcdf1cc67ca7c083eb7b2411aa57fde7eb494c2cea0bec03686462032e25d5b0e1e4ab7357d1afb6718f6a68515db1f392141e9f14
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@noble/hashes@npm:1.7.0"
+  checksum: 10c0/1ef0c985ebdb5a1bd921ea6d959c90ba826af3ae05b40b459a703e2a5e9b259f190c6e92d6220fb3800e2385521e4159e238415ad3f6b79c52f91dd615e491dc
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:^1.3.1, @noble/hashes@npm:^1.3.3, @noble/hashes@npm:^1.6.1, @noble/hashes@npm:~1.6.0":
   version: 1.6.1
   resolution: "@noble/hashes@npm:1.6.1"
   checksum: 10c0/27643cd8b551bc933b57cc29aa8c8763d586552fc4c3e06ecf7897f55be3463c0c9dff7f6ebacd88e5ce6d0cdb5415ca4874d0cf4359b5ea4a85be21ada03aab
@@ -1961,7 +1996,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot-api/signer@npm:0.1.13":
+"@polkadot-api/signer@npm:0.1.13, @polkadot-api/signer@npm:^0.1.13":
   version: 0.1.13
   resolution: "@polkadot-api/signer@npm:0.1.13"
   dependencies:
@@ -2081,6 +2116,28 @@ __metadata:
     "@polkadot-api/json-rpc-provider-proxy": "npm:0.2.4"
     ws: "npm:^8.18.0"
   checksum: 10c0/902c599ef02ddc3564cd4517aa3235262de1523a6879f81f94d73c90c260990fd595db7eacb2184670d9aa811eddc5eb346e78f74a60677846d991457e014ce9
+  languageName: node
+  linkType: hard
+
+"@polkadot-labs/hdkd-helpers@npm:0.0.10, @polkadot-labs/hdkd-helpers@npm:^0.0.10":
+  version: 0.0.10
+  resolution: "@polkadot-labs/hdkd-helpers@npm:0.0.10"
+  dependencies:
+    "@noble/curves": "npm:^1.7.0"
+    "@noble/hashes": "npm:^1.6.1"
+    "@scure/base": "npm:^1.2.1"
+    micro-sr25519: "npm:^0.1.0"
+    scale-ts: "npm:^1.6.1"
+  checksum: 10c0/0a30aef8dded84ca7d6550fd327ffcbb7c6273d32f2c6b076b871554deee78c70bd1b673c61f4838b8179754a1dc6bb8d82cafa5d006c441f375e840163c7908
+  languageName: node
+  linkType: hard
+
+"@polkadot-labs/hdkd@npm:^0.0.10":
+  version: 0.0.10
+  resolution: "@polkadot-labs/hdkd@npm:0.0.10"
+  dependencies:
+    "@polkadot-labs/hdkd-helpers": "npm:0.0.10"
+  checksum: 10c0/750c9bb5a1c617167350b9f7a35ce440e1b6ab8ea227144ac7c3fe11d6c453f78e15440330baf5adc17620d099cf3fe797995d2eaa0422c3818ad2080cf324c0
   languageName: node
   linkType: hard
 
@@ -6940,6 +6997,16 @@ __metadata:
   version: 1.4.1
   resolution: "merge2@npm:1.4.1"
   checksum: 10c0/254a8a4605b58f450308fc474c82ac9a094848081bf4c06778200207820e5193726dc563a0d2c16468810516a5c97d9d3ea0ca6585d23c58ccfff2403e8dbbeb
+  languageName: node
+  linkType: hard
+
+"micro-sr25519@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "micro-sr25519@npm:0.1.0"
+  dependencies:
+    "@noble/curves": "npm:~1.7.0"
+    "@noble/hashes": "npm:~1.6.0"
+  checksum: 10c0/3b2b51e51615ffdd60cadf43bf7560213a01843d301dfb52ded13851442f9d23dfdf151b5cd5fe6340713dd8eb8b1c6e21a539b51f6523f13436cba7b03dd946
   languageName: node
   linkType: hard
 
