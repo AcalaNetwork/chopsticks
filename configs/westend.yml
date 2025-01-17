@@ -1,0 +1,16 @@
+endpoint: wss://westend-rpc.polkadot.io
+mock-signature-host: true
+block: ${env.WESTEND_BLOCK_NUMBER}
+db: ./db.sqlite
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: '10000000000000000000'
