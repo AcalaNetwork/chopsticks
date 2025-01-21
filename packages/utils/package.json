@@ -15,11 +15,14 @@
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-core": "workspace:*",
+		"@polkadot-labs/hdkd": "^0.0.10",
+		"@polkadot-labs/hdkd-helpers": "^0.0.10",
 		"@polkadot/api": "^15.0",
 		"@polkadot/api-base": "^15.0",
 		"@polkadot/keyring": "^13.2",
 		"@polkadot/types": "^15.0",
-		"@polkadot/util": "^13.2"
+		"@polkadot/util": "^13.2",
+		"polkadot-api": "^1.8.2"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.5.2",
