@@ -1,4 +1,4 @@
-endpoint: wss://bifrost-parachain.api.onfinality.io/public-ws
+endpoint: wss://bifrost-rpc.dwellir.com
 mock-signature-host: true
 block: ${env.BIFROST_BLOCK_NUMBER}
 db: ./db.sqlite
