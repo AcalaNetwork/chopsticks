@@ -200,14 +200,14 @@ npm install --save-dev @acala-network/chopsticks-testing
 
 ```typescript
 import { withExpect, setupContext } from '@acala-network/chopsticks-testing';
-import { expect } from 'vitest'; // or jest, or other test runners
+import { describe, expect, it } from 'vitest'; // or jest, or other test runners
 
 // Create testing utilities with your test runner's expect function
 const { check, checkEvents, checkSystemEvents, checkUmp, checkHrmp } = withExpect(expect);
 
 describe('My Chain Tests', () => {
   it('should process events correctly', async () => {
-	const network = setupContext({ endpoint: 'wss://polkadot-rpc.dwellir.com' });
+	const network = await setupContext({ endpoint: 'wss://polkadot-rpc.dwellir.com' });
     // Check and redact system events
     await checkSystemEvents(network)
       .redact({ number: 2, hash: true })
