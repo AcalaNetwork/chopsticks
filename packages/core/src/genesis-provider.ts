@@ -158,6 +158,7 @@ export class GenesisProvider implements ProviderInterface {
       case 'chain_getBlock':
         return this.getBlock()
       case 'chain_getBlockHash':
+      case 'chain_getFinalizedHead':
         return this.blockHash
       case 'state_getKeysPaged':
       case 'state_getKeysPagedAt': {
