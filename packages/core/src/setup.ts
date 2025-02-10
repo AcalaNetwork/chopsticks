@@ -50,7 +50,7 @@ export const processOptions = async (options: SetupOptions) => {
 
   let blockHash: string
   if (options.block == null) {
-    blockHash = await api.getBlockHash().then((hash) => {
+    blockHash = await api.getFinalizedHead().then((hash) => {
       if (!hash) {
         // should not happen, but just in case
         throw new Error('Cannot find block hash')

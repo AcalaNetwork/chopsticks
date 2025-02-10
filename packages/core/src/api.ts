@@ -106,6 +106,10 @@ export class Api {
     return this.send<Header | null>('chain_getHeader', hash ? [hash] : [], !!hash)
   }
 
+  async getFinalizedHead() {
+    return this.send<string>('chain_getFinalizedHead', [])
+  }
+
   async getBlock(hash?: string) {
     return this.send<SignedBlock | null>('chain_getBlock', hash ? [hash] : [], !!hash)
   }
