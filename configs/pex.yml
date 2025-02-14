@@ -1,0 +1,19 @@
+# Energy Web X on Paseo Network (Energy Web X Testnet)
+endpoint:
+  - wss://public-rpc.testnet.energywebx.com
+  - wss://wnp-rpc.testnet.energywebx.com
+mock-signature-host: true
+block: ${env.PEX_BLOCK_NUMBER}
+db: ./pex.db.sqlite
+# wasm-override: ew_parachain_runtime.compact.compressed.wasm
+
+runtime-log-level: 5
+import-storage:
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: '50000000000000000000'

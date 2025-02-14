@@ -1,0 +1,20 @@
+# Energy Web X on Pokadot Network (Energy Web X Mainnet)
+endpoint:
+  - wss://public-rpc.mainnet.energywebx.com
+  - wss://wnp-rpc.mainnet.energywebx.com
+  - wss://wns-rpc.mainnet.energywebx.com
+mock-signature-host: true
+block: ${env.ENERGYWBEX_BLOCK_NUMBER}
+db: ./ewx.db.sqlite
+# wasm-override: ew_parachain_runtime.compact.compressed.wasm
+
+runtime-log-level: 5
+import-storage:
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: '50000000000000000000'
