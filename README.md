@@ -300,6 +300,46 @@ await check(data)
   .toMatchSnapshot('filtered and redacted');
 ```
 
+### Resuming Network State with `--resume`
+
+When testing complex scenarios, especially with XCM interactions between networks, you may want to persist and resume network states. The `--resume` feature allows you to resume from a specific block hash, block number, or the latest block in the database.
+
+Each network in an XCM setup can have its own database path specified in its config file. This allows independent state persistence and resumption for each network.
+
+#### Configuration Examples
+
+In your config file (e.g., `configs/acala.yml`):
+```yaml
+endpoint: wss://acala-rpc.aca-api.network
+db: ./db-acala.sqlite  # Specify custom database path
+```
+
+Or with a specific block:
+```yaml
+endpoint: wss://rpc.ibp.network/polkadot
+db: ./db-polkadot.sqlite # Must be a different path from other networks
+```
+
+#### Using with XCM Setup
+
+When connecting multiple networks with XCM, each can have its own database:
+
+```bash
+# Start XCM setup with custom database paths
+npx @acala-network/chopsticks@latest xcm \
+  -r configs/polkadot.yml \
+  -p configs/acala.yml \
+  --resume
+```
+
+### Single network resumption
+
+You can also pass a block number or hash to resume from a specific block:
+
+```bash
+npx @acala-network/chopsticks@latest -c configs/acala.yml --resume=12345
+```
+
 ## Testing big migrations
 
 When testing migrations with lots of keys, you may want to fetch and cache some storages.
