@@ -379,6 +379,9 @@ The subcommand arguments could be:
 
 Please note that for both ways, fetched storages will be saved in the sqlite file specified by `--db` option (`db: ./acala.sqlite` in a config file), if not provided, it will default to `./db-{network}-{block}.sqlite`.
 
+In a multi-chain scenario, do not pass `--db` flags to each chain, and instead insert a `db:` key in each config with
+the appropriate value.
+
 ## Try-Runtime CLI
 
 Documentation can be found [here](packages/chopsticks/src/plugins/try-runtime/README.md)
