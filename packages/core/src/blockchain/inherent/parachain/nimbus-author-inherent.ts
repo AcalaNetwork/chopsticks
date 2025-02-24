@@ -55,7 +55,7 @@ export class SetNimbusAuthorInherent implements InherentProvider {
       const session = await newBlock.chain.head.read('u32', meta.query.session.currentIndex)
 
       if (session) {
-        // We need to set both the assignemnt for current and next sessions
+        // We need to set both the assignment for current and next sessions
         layer.set(
           compactHex(meta.query.authorityAssignment.collatorContainerChain(session)),
           meta.registry
