@@ -17,16 +17,16 @@
 		"@emotion/react": "^11.14.0",
 		"@emotion/styled": "^11.14.0",
 		"@mui/material": "^6.2.1",
-		"@playwright/test": "^1.49.1",
-		"@types/react": "^19.0.1",
-		"@types/react-dom": "^19.0.2",
+		"@playwright/test": "^1.50.1",
+		"@types/react": "^19.0.10",
+		"@types/react-dom": "^19.0.4",
 		"@vitejs/plugin-react": "^4.3.4",
 		"crypto-browserify": "^3.12.1",
 		"path-browserify": "^1.0.1",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
 		"stream-browserify": "^3.0.0",
-		"typescript": "^5.7.2"
+		"typescript": "^5.7.3"
 	},
 	"peerDependencies": {
 		"vite": "*",
