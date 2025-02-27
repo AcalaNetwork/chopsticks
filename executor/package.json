@@ -14,12 +14,12 @@
 		"build": "yarn wasm && ./package.sh"
 	},
 	"dependencies": {
-		"@polkadot/util": "^13.2",
-		"@polkadot/wasm-util": "^7.4"
+		"@polkadot/util": "^13.4.3",
+		"@polkadot/wasm-util": "^7.4.1"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.5.2",
-		"@swc/core": "^1.10.1",
+		"@swc/cli": "0.6.0",
+		"@swc/core": "^1.11.1",
 		"fflate": "^0.8.2"
 	},
 	"files": [

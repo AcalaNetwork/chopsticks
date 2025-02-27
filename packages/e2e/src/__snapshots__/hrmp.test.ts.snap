@@ -31,7 +31,7 @@ exports[`HRMP > Statemine handles horizonal messages > system events 1`] = `
       "success": true,
       "weightUsed": {
         "proofSize": "(rounded 7200)",
-        "refTime": "(rounded 320000000)",
+        "refTime": "(rounded 330000000)",
       },
     },
     "method": "Processed",

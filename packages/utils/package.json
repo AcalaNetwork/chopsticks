@@ -15,19 +15,19 @@
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot-labs/hdkd": "^0.0.10",
-		"@polkadot-labs/hdkd-helpers": "^0.0.10",
-		"@polkadot/api": "^15.0",
-		"@polkadot/api-base": "^15.0",
-		"@polkadot/keyring": "^13.2",
-		"@polkadot/types": "^15.0",
-		"@polkadot/util": "^13.2",
-		"polkadot-api": "^1.8.2"
+		"@polkadot-labs/hdkd": "^0.0.11",
+		"@polkadot-labs/hdkd-helpers": "^0.0.11",
+		"@polkadot/api": "^15.7.1",
+		"@polkadot/api-base": "^15.7.1",
+		"@polkadot/keyring": "^13.4.3",
+		"@polkadot/types": "^15.7.1",
+		"@polkadot/util": "^13.4.3",
+		"polkadot-api": "^1.9.2"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.5.2",
-		"@swc/core": "^1.10.1",
-		"typescript": "^5.7.2"
+		"@swc/cli": "0.6.0",
+		"@swc/core": "^1.11.1",
+		"typescript": "^5.7.3"
 	},
 	"files": [
 		"dist/esm/**",
