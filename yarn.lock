@@ -53,9 +53,9 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
     "@acala-network/chopsticks-testing": "workspace:*"
-    "@polkadot-api/observable-client": "npm:^0.7.2"
+    "@polkadot-api/observable-client": "npm:^0.8.1"
     "@polkadot-api/substrate-client": "npm:^0.3.0"
-    "@polkadot-api/ws-provider": "npm:^0.3.6"
+    "@polkadot-api/ws-provider": "npm:^0.4.0"
     "@polkadot/api": "npm:^15.7.1"
     polkadot-api: "npm:^1.9.2"
     rxjs: "npm:^7.8.2"
@@ -1930,7 +1930,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot-api/observable-client@npm:0.8.1":
+"@polkadot-api/observable-client@npm:0.8.1, @polkadot-api/observable-client@npm:^0.8.1":
   version: 0.8.1
   resolution: "@polkadot-api/observable-client@npm:0.8.1"
   dependencies:
@@ -1955,20 +1955,6 @@ __metadata:
     "@polkadot-api/substrate-client": 0.1.4
     rxjs: ">=7.8.0"
   checksum: 10c0/9f93fab03c37af0483f5c8487ec5250d366eb401a2c9744c014dfb4c7aa524645ae71f6b0e60761e2bca89bdcd862c119e4ac0e798123d8ee9f037eb2f4aaef3
-  languageName: node
-  linkType: hard
-
-"@polkadot-api/observable-client@npm:^0.7.2":
-  version: 0.7.2
-  resolution: "@polkadot-api/observable-client@npm:0.7.2"
-  dependencies:
-    "@polkadot-api/metadata-builders": "npm:0.10.1"
-    "@polkadot-api/substrate-bindings": "npm:0.11.0"
-    "@polkadot-api/utils": "npm:0.1.2"
-  peerDependencies:
-    "@polkadot-api/substrate-client": 0.3.0
-    rxjs: ">=7.8.0"
-  checksum: 10c0/165ee1349ad14cd67bfbf64014b3bb6596894bd54090696547f07530dbe3fd9a327aa2cf63abeef4ed32f7fee92d103b7371bf22509a85cabef68c3f76f3f7bf
   languageName: node
   linkType: hard
 
@@ -2113,7 +2099,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot-api/ws-provider@npm:0.4.0":
+"@polkadot-api/ws-provider@npm:0.4.0, @polkadot-api/ws-provider@npm:^0.4.0":
   version: 0.4.0
   resolution: "@polkadot-api/ws-provider@npm:0.4.0"
   dependencies:
@@ -2121,17 +2107,6 @@ __metadata:
     "@polkadot-api/json-rpc-provider-proxy": "npm:0.2.4"
     ws: "npm:^8.18.1"
   checksum: 10c0/5b253ad1055d6b78a9c13241de0d7ca12cde7eb68bd8eb33cbc45a76d1860f2d2e9dc0fb652bc2402ad5c12c26651ef840c4e95642dd0ea5f870941f32b5412a
-  languageName: node
-  linkType: hard
-
-"@polkadot-api/ws-provider@npm:^0.3.6":
-  version: 0.3.6
-  resolution: "@polkadot-api/ws-provider@npm:0.3.6"
-  dependencies:
-    "@polkadot-api/json-rpc-provider": "npm:0.0.4"
-    "@polkadot-api/json-rpc-provider-proxy": "npm:0.2.4"
-    ws: "npm:^8.18.0"
-  checksum: 10c0/902c599ef02ddc3564cd4517aa3235262de1523a6879f81f94d73c90c260990fd595db7eacb2184670d9aa811eddc5eb346e78f74a60677846d991457e014ce9
   languageName: node
   linkType: hard
 
