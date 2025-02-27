@@ -121,7 +121,7 @@ export const name = 'runBlock'
 /**
  * Run a set of extrinsics on top of a block and get the storage diff
  * and optionally the parsed storage diff and block details.
- * NOTE: The extrinsics should include inherents or tranasctions may have unexpected results.
+ * NOTE: The extrinsics should include inherents or transactions may have unexpected results.
  * NOTE: system.events and system.extrinsicData are excluded from storage diff to reduce size.
  *
  * This function is a dev rpc handler. Use `dev_runBlock` as the method name when calling it.
@@ -157,7 +157,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     phases: [],
   } as RunBlockResponse
 
-  // exclude system events because it can be stupidly large and redudant
+  // exclude system events because it can be stupidly large and redundant
   const systemEventsKey = compactHex(meta.query.system.events())
   // large and not really useful
   const systemExtrinsicDataKey = u8aToHex(meta.query.system.extrinsicData.keyPrefix())

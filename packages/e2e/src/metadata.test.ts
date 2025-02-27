@@ -7,7 +7,7 @@ setupApi({
 })
 
 describe('metadata', () => {
-  it('metadata with stroage value', async () => {
+  it('metadata with storage value', async () => {
     const meta = await chain.head.meta
     expect((meta.consts.evmAccounts.chainId as any).toNumber()).eq(787)
   })
