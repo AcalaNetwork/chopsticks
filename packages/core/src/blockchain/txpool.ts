@@ -243,6 +243,12 @@ export class TxPool {
     this.#isBuilding = true
     try {
       await this.#buildBlock()
+    } catch (error) {
+      logger.error({ error }, 'build block failed')
+      for (const { deferred } of this.#pendingBlocks) {
+        deferred.reject(error)
+      }
+      this.#pendingBlocks.length = 0
     } finally {
       this.#isBuilding = false
     }

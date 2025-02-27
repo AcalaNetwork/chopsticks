@@ -27,11 +27,13 @@ const innerTruncate =
       return '( Too Deep )'
     }
     switch (typeof val) {
-      case 'string':
-        if (val.length > 66 && !verboseLog) {
+      case 'string': {
+        const maxLength = verboseLog ? 10 * 1024 : 66
+        if (val.length > maxLength) {
           return `${val.slice(0, 34)}…${val.slice(-32)}`
         }
         return val
+      }
       case 'object':
         if (Array.isArray(val)) {
           return val.map(innerTruncate(level + 1))
