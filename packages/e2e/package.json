@@ -10,13 +10,13 @@
 	"devDependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-testing": "workspace:*",
-		"@polkadot-api/observable-client": "^0.7.0",
+		"@polkadot-api/observable-client": "^0.7.2",
 		"@polkadot-api/substrate-client": "^0.3.0",
 		"@polkadot-api/ws-provider": "^0.3.6",
-		"@polkadot/api": "^15.0",
-		"polkadot-api": "^1.8.1",
-		"rxjs": "^7.8.1",
-		"typescript": "^5.7.2",
-		"vitest": "^2.1.9"
+		"@polkadot/api": "^15.7.1",
+		"polkadot-api": "^1.9.2",
+		"rxjs": "^7.8.2",
+		"typescript": "^5.7.3",
+		"vitest": "^3.0.7"
 	}
 }
