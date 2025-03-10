@@ -370,8 +370,8 @@ The first way is to use a config file with a `prefetch-storages` section:
 prefetch-storages:
   - '0x123456' # fetch all storages with this prefix
   - Balances # fetch all storages under Balances pallet
-  - Tokens.Accounts # fetch all storages under Tokens.Accounts stroage
-  - System: Account # fetch all storages under System.Account stroage
+  - Tokens.Accounts # fetch all storages under Tokens.Accounts storage
+  - System: Account # fetch all storages under System.Account storage
   - Tokens:
       Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY] # fetch all storages for Tokens.Accounts(Alice)
   - Tokens.Accounts: [5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY, { token: DOT }] # fetch this particular storage
