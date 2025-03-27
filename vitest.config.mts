@@ -13,7 +13,7 @@ export default defineConfig({
 			include: ['packages/chopsticks/**/*.ts', 'packages/core/**/*.ts'],
 			reporter: ['text', 'json-summary', 'json', 'html'],
 		},
-		reporters: process.env.GITHUB_ACTIONS ? ['basic', 'github-actions'] : ['verbose', 'hanging-process'],
+		reporters: process.env.GITHUB_ACTIONS ? ['default', 'github-actions'] : ['verbose', 'hanging-process'],
 	},
 	plugins: [swc.vite(), tsconfigPaths()],
 })

@@ -1,3 +1,4 @@
+import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 import { describe, expect, it, vi } from 'vitest'
 import { Api } from '../api.js'
@@ -24,7 +25,7 @@ describe('getKeysPaged', () => {
   Api.prototype.getKeysPaged = vi.fn(async (prefix, pageSize, startKey) => {
     const withPrefix = remoteKeys.filter((k) => k.startsWith(prefix) && k > startKey)
     const result = withPrefix.slice(0, pageSize)
-    return result
+    return result as HexString[]
   })
   Api.prototype.getStorage = vi.fn(async (_key, _at) => {
     return '0x1' as any

@@ -92,7 +92,8 @@ export const CHILD_PREFIX_LENGTH = DEFAULT_CHILD_STORAGE.length + 64
 export const PREFIX_LENGTH = 66
 
 // returns a key that is prefixed with the child storage key
-export const prefixedChildKey = (prefix: HexString, key: HexString) => prefix + hexStripPrefix(key)
+export const prefixedChildKey = (prefix: HexString, key: HexString): HexString =>
+  (prefix + hexStripPrefix(key)) as HexString
 
 // returns true if the key is a child storage key
 export const isPrefixedChildKey = (key: HexString) => key.startsWith(DEFAULT_CHILD_STORAGE)
