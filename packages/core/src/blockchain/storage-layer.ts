@@ -35,12 +35,12 @@ export interface StorageLayerProvider {
 
 export class RemoteStorageLayer implements StorageLayerProvider {
   readonly #api: Api
-  readonly #at: string
+  readonly #at: HexString
   readonly #db: Database | undefined
   readonly #keyCache = new KeyCache(PREFIX_LENGTH)
   readonly #defaultChildKeyCache = new KeyCache(CHILD_PREFIX_LENGTH)
 
-  constructor(api: Api, at: string, db: Database | undefined) {
+  constructor(api: Api, at: HexString, db: Database | undefined) {
     this.#api = api
     this.#at = at
     this.#db = db
@@ -111,12 +111,27 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
 
       if (this.#db) {
-        // batch fetch storage values and save to db, they may be used later
-        this.#api.getStorageBatch(prefix as HexString, batch as HexString[], this.#at as HexString).then((storage) => {
-          for (const [key, value] of storage) {
-            this.#db?.saveStorage(this.#at as HexString, key as HexString, value)
+        // filter out keys that are not in the db]
+        const newBatch: HexString[] = []
+
+        for (const key of batch) {
+          const res = await this.#db.queryStorage(this.#at, key)
+          if (res) {
+            continue
           }
-        })
+          newBatch.push(key)
+        }
+
+        if (newBatch.length > 0) {
+          // batch fetch storage values and save to db, they may be used later
+          this.#api
+            .getStorageBatch(prefix as HexString, newBatch, this.#at)
+            .then((storage) => {
+              for (const [key, value] of storage) {
+                this.#db?.saveStorage(this.#at, key, value)
+              }
+            })
+        }
       }
     }
     return keysPaged
