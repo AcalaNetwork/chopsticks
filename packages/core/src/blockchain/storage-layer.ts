@@ -124,13 +124,11 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 
         if (newBatch.length > 0) {
           // batch fetch storage values and save to db, they may be used later
-          this.#api
-            .getStorageBatch(prefix as HexString, newBatch, this.#at)
-            .then((storage) => {
-              for (const [key, value] of storage) {
-                this.#db?.saveStorage(this.#at, key, value)
-              }
-            })
+          this.#api.getStorageBatch(prefix as HexString, newBatch, this.#at).then((storage) => {
+            for (const [key, value] of storage) {
+              this.#db?.saveStorage(this.#at, key, value)
+            }
+          })
         }
       }
     }
