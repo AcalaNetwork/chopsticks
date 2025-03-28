@@ -1,0 +1,16 @@
+endpoint: wss://paseo-rpc.dwellir.com
+mock-signature-host: true
+block: ${env.PASEO_BLOCK_NUMBER}
+db: ./db.sqlite
+
+import-storage:
+  Sudo:
+    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+  System:
+    Account:
+      -
+        -
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - providers: 1
+          data:
+            free: '10000000000000000000'
