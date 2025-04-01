@@ -84,6 +84,7 @@ export const configSchema = z.object({
         'Storage key prefixes config for fetching storage, useful for testing big migrations, see README for examples',
     })
     .optional(),
+  'rpc-timeout': z.number({ description: 'RPC timeout in milliseconds' }).optional(),
 })
 
 export type Config = z.infer<typeof configSchema>

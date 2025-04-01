@@ -25,6 +25,7 @@ export type SetupOptions = {
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
   processQueuedMessages?: boolean
+  rpcTimeout?: number
   hooks?: {
     apiFetching?: () => void
   }
@@ -39,7 +40,7 @@ export const processOptions = async (options: SetupOptions) => {
   } else if (typeof options.endpoint === 'string' && /^(https|http):\/\//.test(options.endpoint || '')) {
     provider = new HttpProvider(options.endpoint)
   } else {
-    provider = new WsProvider(options.endpoint, 3_000)
+    provider = new WsProvider(options.endpoint, 3_000, undefined, options.rpcTimeout)
   }
   const api = new Api(provider)
 
