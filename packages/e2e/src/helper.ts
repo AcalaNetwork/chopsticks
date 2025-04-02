@@ -30,6 +30,7 @@ export type SetupOption = {
   registeredTypes?: RegisteredTypes
   runtimeLogLevel?: number
   processQueuedMessages?: boolean
+  rpcTimeout?: number
 }
 
 export const env = {
@@ -58,6 +59,7 @@ export const setupAll = async ({
   registeredTypes = {},
   runtimeLogLevel,
   processQueuedMessages,
+  rpcTimeout,
 }: SetupOption) => {
   let provider: ProviderInterface
   if (genesis) {
@@ -65,7 +67,7 @@ export const setupAll = async ({
   } else if (typeof endpoint === 'string' && /^(https|http):\/\//.test(endpoint || '')) {
     provider = new HttpProvider(endpoint)
   } else {
-    provider = new WsProvider(endpoint, 3_000)
+    provider = new WsProvider(endpoint, 3_000, undefined, rpcTimeout)
   }
   const api = new Api(provider)
 

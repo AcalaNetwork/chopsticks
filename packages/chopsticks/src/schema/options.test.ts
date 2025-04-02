@@ -116,6 +116,12 @@ it('get yargs options from zod schema', () => {
         "description": "Resume from the specified block hash or block number in db. If true, it will resume from the latest block in db. Note this will override the block option",
         "type": "string",
       },
+      "rpc-timeout": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": "RPC timeout in milliseconds",
+        "type": "number",
+      },
       "runtime-log-level": {
         "choices": undefined,
         "demandOption": false,
