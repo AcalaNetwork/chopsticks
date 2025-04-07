@@ -122,19 +122,22 @@ export const createProof = async (nodes: HexString[], updates: [HexString, HexSt
   return { trieRootHash, nodes: newNodes }
 }
 
+let nextTaskId = 0
+
 export const runTask = async (task: TaskCall, callback: JsCallback = emptyTaskHandler) => {
+  const taskId = nextTaskId++
   const task2 = {
     ...task,
     storageProofSize: task.storageProofSize ?? 0,
   }
   const worker = await getWorker()
-  logger.trace(truncate(task2), 'taskRun')
+  logger.trace(truncate(task2), `runTask ${taskId}`)
 
   const response = await worker.remote.runTask(task2, Comlink.proxy(callback))
   if ('Call' in response) {
-    logger.trace(truncate(response.Call), 'taskResponse')
+    logger.trace(truncate(response.Call), `taskResponse ${taskId}`)
   } else {
-    logger.trace({ response }, 'taskResponse')
+    logger.trace({ response }, `taskResponse ${taskId}`)
   }
   return response
 }
