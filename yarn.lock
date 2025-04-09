@@ -130,7 +130,7 @@ __metadata:
     "@types/node": "npm:^22.13.5"
     "@types/ws": "npm:^8.5.14"
     "@types/yargs": "npm:^17.0.33"
-    axios: "npm:^1.8.2"
+    axios: "npm:^1.8.4"
     comlink: "npm:^4.4.2"
     dotenv: "npm:^16.4.7"
     global-agent: "npm:^3.0.0"
@@ -4212,7 +4212,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.8.2":
+"axios@npm:^1.8.4":
   version: 1.8.4
   resolution: "axios@npm:1.8.4"
   dependencies:
