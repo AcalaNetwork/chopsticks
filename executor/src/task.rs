@@ -64,6 +64,7 @@ impl RuntimeVersion {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskCall {
+	id: u32,
     wasm: HexString,
     calls: Vec<(String, Vec<HexString>)>,
     mock_signature_host: bool,
@@ -152,7 +153,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
     let mut runtime_logs: Vec<LogInfo> = vec![];
 
     for (call, params) in task.calls {
-        log::trace!(target: LOG_TARGET, "Calling {call}");
+        log::trace!(target: LOG_TARGET, "[{}] Calling {call}", task.id);
 
         let vm = runtime_call::run(runtime_call::Config {
             virtual_machine: vm_proto.clone(),
@@ -319,7 +320,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                     {
                         match req.info() {
                             LogEmitInfo::Num(v) => {
-                                log::info!("{}", v);
+                                log::info!("[{}] {}", task.id, v);
                                 runtime_logs.push(LogInfo {
                                     message: format!("{}", v),
                                     level: None,
@@ -327,7 +328,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                 });
                             }
                             LogEmitInfo::Utf8(v) => {
-                                log::info!("{}", v.to_string());
+                                log::info!("[{}] {}", task.id, v.to_string());
                                 runtime_logs.push(LogInfo {
                                     message: v.to_string(),
                                     level: None,
@@ -335,7 +336,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                 });
                             }
                             LogEmitInfo::Hex(v) => {
-                                log::info!("{}", v.to_string());
+                                log::info!("[{}] {}", task.id, v.to_string());
                                 runtime_logs.push(LogInfo {
                                     message: v.to_string(),
                                     level: None,
@@ -355,7 +356,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                                     4 => log::Level::Trace,
                                     l => unreachable!("unexpected log level {l}"),
                                 };
-                                log::log!(target: target.as_ref(), level, "{}", message.to_string());
+                                log::log!(target: target.as_ref(), level, "[{}] {}", task.id, message.to_string());
                                 runtime_logs.push(LogInfo {
                                     message: message.to_string(),
                                     level: Some(log_level),
@@ -369,7 +370,7 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
             }
         };
 
-        log::trace!(target: LOG_TARGET, "Completed {call}");
+        log::trace!(target: LOG_TARGET, "[{}] Completed {call}", task.id);
 
         match res {
             Ok(success) => {
