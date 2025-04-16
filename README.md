@@ -14,7 +14,7 @@ Chopsticks provides a developer-friendly method of locally forking existing Subs
 
 ## Quick Start
 
-Fork Acala mainnet: `npx @acala-network/chopsticks@latest --endpoint=wss://acala-rpc-2.aca-api.network/ws`
+Fork Acala mainnet: `npx @acala-network/chopsticks@latest --endpoint=wss://acala-rpc.aca-api.network/ws`
 
 It is recommended to use config file. You can check [configs](configs/) for examples.
 
@@ -26,6 +26,8 @@ Run node using config file
 
 npx @acala-network/chopsticks@latest -c acala
 ```
+
+**Note:** While Chopsticks may work with `bun`, it is not recommended due to known issues with Bun's WASM support, which can cause the Chopsticks instance to hang.
 
 ## Wiki
 
