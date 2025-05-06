@@ -53,6 +53,8 @@ export type SetupOption = {
   allowUnresolvedImports?: boolean
   /** Process queued XCM messages */
   processQueuedMessages?: boolean
+  /** Whether to save newly created blocks to the database */
+  saveBlock?: boolean
 }
 
 /**
@@ -82,6 +84,7 @@ export const createConfig = ({
   runtimeLogLevel,
   allowUnresolvedImports,
   processQueuedMessages,
+  saveBlock,
 }: SetupOption): SetupConfig => {
   // random port if not specified
   port = port ?? Math.floor(Math.random() * 10000) + 10000
@@ -100,6 +103,7 @@ export const createConfig = ({
     resume: resume ?? false,
     'allow-unresolved-imports': allowUnresolvedImports,
     'process-queued-messages': processQueuedMessages,
+    'save-block': saveBlock,
   }
   return config
 }
