@@ -25,6 +25,7 @@ export type SetupOptions = {
   offchainWorker?: boolean
   maxMemoryBlockCount?: number
   processQueuedMessages?: boolean
+  saveBlocks?: boolean
   rpcTimeout?: number
   hooks?: {
     apiFetching?: () => void
@@ -100,6 +101,7 @@ export const setup = async (options: SetupOptions) => {
     offchainWorker: opts.offchainWorker,
     maxMemoryBlockCount: opts.maxMemoryBlockCount,
     processQueuedMessages: opts.processQueuedMessages,
+    saveBlocks: opts.saveBlocks,
   })
 
   if (opts.genesis) {

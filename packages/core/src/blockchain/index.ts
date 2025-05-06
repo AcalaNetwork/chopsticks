@@ -55,6 +55,8 @@ export interface Options {
   maxMemoryBlockCount?: number
   /** Whether to process queued messages */
   processQueuedMessages?: boolean
+  /** Whether to save blocks to db */
+  saveBlocks?: boolean
 }
 
 /**
@@ -107,6 +109,7 @@ export class Blockchain {
   readonly offchainWorker: OffchainWorker | undefined
   readonly #maxMemoryBlockCount: number
   readonly processQueuedMessages: boolean = true
+  readonly saveBlocks: boolean
 
   // first arg is used as cache key
   readonly #registryBuilder = _.memoize(
@@ -145,6 +148,7 @@ export class Blockchain {
     offchainWorker = false,
     maxMemoryBlockCount = 500,
     processQueuedMessages = true,
+    saveBlocks = true,
   }: Options) {
     this.api = api
     this.db = db
@@ -167,6 +171,7 @@ export class Blockchain {
 
     this.#maxMemoryBlockCount = maxMemoryBlockCount
     this.processQueuedMessages = processQueuedMessages
+    this.saveBlocks = saveBlocks
   }
 
   #registerBlock(block: Block) {
@@ -204,7 +209,7 @@ export class Blockchain {
   }
 
   async saveBlockToDB(block: Block) {
-    if (this.db) {
+    if (this.db && this.saveBlocks) {
       const { hash, number, header, extrinsics } = block
       // delete old ones with the same block number if any, keep the latest one
       await this.db.saveBlock({
