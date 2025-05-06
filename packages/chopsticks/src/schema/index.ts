@@ -44,6 +44,7 @@ export const configSchema = z.object({
     .optional(),
   'max-memory-block-count': z.number().optional(),
   db: z.string({ description: 'Path to database' }).optional(),
+  'save-blocks': z.boolean({ description: 'Save blocks to database. Default to true.' }).optional(),
   'wasm-override': z.string({ description: 'Path to wasm override' }).optional(),
   genesis: z
     .union([z.string(), genesisSchema], {

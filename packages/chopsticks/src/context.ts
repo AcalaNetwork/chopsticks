@@ -58,6 +58,7 @@ export const setupContext = async (argv: Config, overrideParent = false) => {
     offchainWorker: argv['offchain-worker'],
     maxMemoryBlockCount: argv['max-memory-block-count'],
     processQueuedMessages: argv['process-queued-messages'],
+    saveBlocks: argv['save-blocks'],
     rpcTimeout: argv['rpc-timeout'],
     hooks: {
       apiFetching,

@@ -128,6 +128,12 @@ it('get yargs options from zod schema', () => {
         "description": "Runtime maximum log level [off = 0; error = 1; warn = 2; info = 3; debug = 4; trace = 5]",
         "type": "number",
       },
+      "save-blocks": {
+        "choices": undefined,
+        "demandOption": false,
+        "description": "Save blocks to database. Default to true.",
+        "type": "boolean",
+      },
       "timestamp": {
         "choices": undefined,
         "demandOption": false,
