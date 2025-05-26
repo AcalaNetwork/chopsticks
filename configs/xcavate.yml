@@ -1,6 +1,6 @@
 endpoint: wss://rpc2-paseo.xcavate.io
 mock-signature-host: true
-block: ${env.FREQUENCY_BLOCK_NUMBER}
+block: ${env.XCAVATE_BLOCK_NUMBER}
 db: ./db.sqlite
 runtime-log-level: 5
 
