@@ -1,6 +1,6 @@
 import type { RuntimeContext } from '@polkadot-api/observable-client'
-import { describe, expect, it } from 'vitest'
 import { blake2AsHex } from '@polkadot/util-crypto'
+import { describe, expect, it } from 'vitest'
 
 import { getPolkadotSigner } from 'polkadot-api/signer'
 import { firstValueFrom } from 'rxjs'
@@ -100,32 +100,32 @@ describe('chainHead_v1 rpc', () => {
     chainHead.unfollow()
   })
 
-  it("calculates storage hashes as blake2 of the value", async () => {
+  it('calculates storage hashes as blake2 of the value', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
     const keyEncoder = (addr: string) => (ctx: RuntimeContext) =>
-      ctx.dynamicBuilder.buildStorage("System", "Account").keys.enc(addr)
+      ctx.dynamicBuilder.buildStorage('System', 'Account').keys.enc(addr)
 
     // With an existing value it returns the SCALE-encoded value.
     const account = await firstValueFrom(
-      chainHead.storage$(null, "value", keyEncoder("2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH"))
+      chainHead.storage$(null, 'value', keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH')),
     )
     expect(account).not.toBe(null)
     const hash = await firstValueFrom(
-      chainHead.storage$(null, "hash", keyEncoder("2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH"))
+      chainHead.storage$(null, 'hash', keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH')),
     )
     expect(hash).toEqual(blake2AsHex(account!))
 
     chainHead.unfollow()
   })
 
-  it("runs through multiple pages of storage hashes", async () => {
+  it('runs through multiple pages of storage hashes', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
     const receivedItems = await firstValueFrom(
-      chainHead.storage$(null, "descendantsHashes", (ctx) =>
-        ctx.dynamicBuilder.buildStorage("System", "BlockHash").keys.enc()
-      )
+      chainHead.storage$(null, 'descendantsHashes', (ctx) =>
+        ctx.dynamicBuilder.buildStorage('System', 'BlockHash').keys.enc(),
+      ),
     )
 
     expect(receivedItems.length).toEqual(1201)

@@ -1,8 +1,8 @@
+import { blake2AsHex } from '@polkadot/util-crypto'
 import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
-import { blake2AsHex } from '@polkadot/util-crypto'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 
@@ -282,7 +282,7 @@ export const chainHead_v1_storage: Handler<
           const value = await block.get(sir.key)
           if (value) {
             following.get(followSubscription)?.callback({
-              event: "operationStorageItems",
+              event: 'operationStorageItems',
               operationId,
               items: [{ key: sir.key, hash: blake2AsHex(value) }],
             })
@@ -301,14 +301,14 @@ export const chainHead_v1_storage: Handler<
           return next
         }
         case 'descendantsHashes': {
-          const { items, next } = await getDescendantValues(block, { prefix: sir.key, startKey: "0x" })
+          const { items, next } = await getDescendantValues(block, { prefix: sir.key, startKey: '0x' })
 
           following.get(followSubscription)?.callback({
-            event: "operationStorageItems",
+            event: 'operationStorageItems',
             operationId,
             items: items.map(({ key, value }) => ({
               key,
-              hash: value != undefined ? blake2AsHex(value) : undefined,
+              hash: value !== undefined ? blake2AsHex(value) : undefined,
             })),
           })
 
@@ -424,12 +424,12 @@ export const chainHead_v1_continue: Handler<[string, HexString], null> = async (
       const { items, next } = await getDescendantValues(block, params)
 
       follower.callback({
-        event: "operationStorageItems",
+        event: 'operationStorageItems',
         operationId,
         items: params.isDescendantHashes
           ? items.map(({ key, value }) => ({
               key,
-              hash: value != undefined ? blake2AsHex(value) : value,
+              hash: value !== undefined ? blake2AsHex(value) : value,
             }))
           : items,
       })
