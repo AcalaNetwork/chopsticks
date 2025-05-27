@@ -2,12 +2,14 @@ import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
+import { blake2AsHex } from '@polkadot/util-crypto'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 
 type DescendantValuesParams = {
   prefix: string
   startKey: string
+  isDescendantHashes?: boolean
 }
 const following = new Map<
   string,
@@ -263,7 +265,7 @@ export const chainHead_v1_storage: Handler<
       return
     }
 
-    const handleStorageItemRequest = async (sir: StorageItemRequest) => {
+    const handleStorageItemRequest = async (sir: StorageItemRequest): Promise<DescendantValuesParams | null> => {
       switch (sir.type) {
         case 'value': {
           const value = await block.get(sir.key)
@@ -272,6 +274,17 @@ export const chainHead_v1_storage: Handler<
               event: 'operationStorageItems',
               operationId,
               items: [{ key: sir.key, value }],
+            })
+          }
+          return null
+        }
+        case 'hash': {
+          const value = await block.get(sir.key)
+          if (value) {
+            following.get(followSubscription)?.callback({
+              event: "operationStorageItems",
+              operationId,
+              items: [{ key: sir.key, hash: blake2AsHex(value) }],
             })
           }
           return null
@@ -286,6 +299,20 @@ export const chainHead_v1_storage: Handler<
           })
 
           return next
+        }
+        case 'descendantsHashes': {
+          const { items, next } = await getDescendantValues(block, { prefix: sir.key, startKey: "0x" })
+
+          following.get(followSubscription)?.callback({
+            event: "operationStorageItems",
+            operationId,
+            items: items.map(({ key, value }) => ({
+              key,
+              hash: value != undefined ? blake2AsHex(value) : undefined,
+            })),
+          })
+
+          return next ? { ...next, isDescendantHashes: true } : null
         }
         case 'closestDescendantMerkleValue': {
           const followingSubscription = following.get(followSubscription)
@@ -308,10 +335,6 @@ export const chainHead_v1_storage: Handler<
 
           return null
         }
-        default:
-          // TODO
-          console.warn(`Storage type not implemented ${sir.type}`)
-          return null
       }
     }
 
@@ -401,9 +424,14 @@ export const chainHead_v1_continue: Handler<[string, HexString], null> = async (
       const { items, next } = await getDescendantValues(block, params)
 
       follower.callback({
-        event: 'operationStorageItems',
+        event: "operationStorageItems",
         operationId,
-        items,
+        items: params.isDescendantHashes
+          ? items.map(({ key, value }) => ({
+              key,
+              hash: value != undefined ? blake2AsHex(value) : value,
+            }))
+          : items,
       })
 
       return next
