@@ -11,7 +11,7 @@ exports[`HRMP > Acala handles horizonal messages > system events 1`] = `
       "success": true,
       "weightUsed": {
         "proofSize": 0,
-        "refTime": 800000000,
+        "refTime": 1000000000,
       },
     },
     "method": "Processed",
@@ -31,7 +31,7 @@ exports[`HRMP > Statemine handles horizonal messages > system events 1`] = `
       "success": true,
       "weightUsed": {
         "proofSize": "(rounded 7200)",
-        "refTime": "(rounded 330000000)",
+        "refTime": "(rounded 320000000)",
       },
     },
     "method": "Processed",
