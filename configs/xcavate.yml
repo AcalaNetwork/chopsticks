@@ -1,4 +1,4 @@
-endpoint: wss://rpc2-paseo.xcavate.io
+endpoint: wss://rpc1-polkadot.xcavate.io
 mock-signature-host: true
 block: ${env.XCAVATE_BLOCK_NUMBER}
 db: ./db.sqlite
@@ -9,7 +9,7 @@ import-storage:
     Account:
       -
         -
-          - 5DHdfcUJ1ms94Qn3F5RED4YKKHa2ewJpMTNr1J6JZzk4Xrpn
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
         - providers: 1
           data:
             free: 1000000000000000
