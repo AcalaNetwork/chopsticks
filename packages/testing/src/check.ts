@@ -179,12 +179,15 @@ export class Checker {
       return '(number)'
     }
 
-    const process = (obj: any): any => {
+    const process = (obj: any, depth: number): any => {
+      if (depth <= 0) {
+        return obj
+      }
       if (obj == null) {
         return obj
       }
       if (Array.isArray(obj)) {
-        return obj.map(process)
+        return obj.map(x => process(x, depth - 1))
       }
       if (redactNumber && typeof obj === 'number') {
         return processNumber(obj)
@@ -223,14 +226,14 @@ export class Checker {
               if (this.#redactOptions?.redactKeys?.test(k)) {
                 return [k, '(redacted)']
               }
-              return [k, process(v)]
+              return [k, process(v, depth - 1)]
             }),
         )
       }
       return obj
     }
 
-    return process(value)
+    return process(value, 50)
   }
 
   /**
