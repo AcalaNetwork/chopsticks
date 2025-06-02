@@ -187,7 +187,7 @@ export class Checker {
         return obj
       }
       if (Array.isArray(obj)) {
-        return obj.map(x => process(x, depth - 1))
+        return obj.map((x) => process(x, depth - 1))
       }
       if (redactNumber && typeof obj === 'number') {
         return processNumber(obj)
