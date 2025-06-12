@@ -10,6 +10,7 @@ __metadata:
   resolution: "@acala-network/chopsticks-core@workspace:packages/core"
   dependencies:
     "@acala-network/chopsticks-executor": "workspace:*"
+    "@polkadot-api/json-rpc-provider": "npm:^0.0.4"
     "@polkadot/rpc-provider": "npm:^15.7.1"
     "@polkadot/types": "npm:^15.7.1"
     "@polkadot/types-codec": "npm:^15.7.1"
@@ -1850,7 +1851,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot-api/json-rpc-provider@npm:0.0.4":
+"@polkadot-api/json-rpc-provider@npm:0.0.4, @polkadot-api/json-rpc-provider@npm:^0.0.4":
   version: 0.0.4
   resolution: "@polkadot-api/json-rpc-provider@npm:0.0.4"
   checksum: 10c0/5615394380bff2d8885592c8001055f1b006e3dd2f650b6a0e41ec836d61e903d78cc4ed06297827020523b0eecc9dff0af661fed7ae82523c97e294a2dc2e27
