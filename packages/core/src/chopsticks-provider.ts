@@ -5,6 +5,8 @@ import type {
   ProviderInterfaceEmitted,
 } from '@polkadot/rpc-provider/types'
 import { EventEmitter } from 'eventemitter3'
+import { JsonRpcRequest } from '@polkadot/rpc-provider/types';
+import { JsonRpcProvider } from '@polkadot-api/json-rpc-provider';
 
 import type { Blockchain } from './blockchain/index.js'
 import type { Database } from './database.js'
@@ -186,3 +188,60 @@ export class ChopsticksProvider implements ProviderInterface {
     }
   }
 }
+
+
+// A convenient Polkadot-API JSON-RPC provider.
+export function getPapiChopsticksProvider(chopsticksProvider: ChopsticksProvider): JsonRpcProvider {
+  return (onMessage: (message: string) => void) => {
+    const processResponse: (id: string | number) => ProviderInterfaceCallback = (id) => (error, result) => {
+      const response = {
+        jsonrpc: "2.0",
+        id,
+        error: undefined as any,
+        result: undefined as any,
+      };
+      if (error) {
+        response.error = {
+          message: error.message,
+        };
+        // Not sure if this is compliant, but still we'll do it.
+        response.result = {
+          success: false,
+          error: response.error,
+        };
+      } else {
+        response.result = result;
+      }
+
+      onMessage(JSON.stringify(response));
+    };
+
+    return {
+      send(message) {
+        const rpcRequest: JsonRpcRequest = JSON.parse(message);
+        const callback = processResponse(rpcRequest.id);
+        const handlerFn = providerHandlers[rpcRequest.method];
+
+        switch (handlerFn.length) {
+          case 2: {
+            // Not expecting subscription
+            return chopsticksProvider
+              .send(rpcRequest.method, rpcRequest.params)
+              .then((response) => callback(null, response))
+              .catch((error) => callback(error, null));
+          }
+          case 3:
+            return chopsticksProvider.send(rpcRequest.method, rpcRequest.params, false, {
+              callback,
+              type: rpcRequest.method,
+            });
+        }
+      },
+      async disconnect() {
+        chopsticksProvider.disconnect();
+        await chopsticksProvider.chain.close();
+      },
+    };
+  };
+}
+

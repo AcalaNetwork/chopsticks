@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
+		"@polkadot-api/json-rpc-provider": "^0.0.4",
 		"@polkadot/rpc-provider": "^15.7.1",
 		"@polkadot/types": "^15.7.1",
 		"@polkadot/types-codec": "^15.7.1",
