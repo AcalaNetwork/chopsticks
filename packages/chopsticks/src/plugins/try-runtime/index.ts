@@ -3,6 +3,7 @@ import { BuildBlockMode } from '@acala-network/chopsticks-core'
 import type { Argv } from 'yargs'
 import { z } from 'zod'
 
+import type { Weight } from '@polkadot/types/interfaces'
 import { setupContext } from '../../context.js'
 import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { overrideWasm } from '../../utils/override.js'
@@ -83,7 +84,7 @@ export const cli = (y: Argv) => {
       if (argv.outputPath) {
         writeFileSync(argv.outputPath as string, JSON.stringify(response, null, 2))
       } else {
-        const [actual, max] = registry.createType('(Weight, Weight)', response.result)
+        const [actual, max] = registry.createType('(Weight, Weight)', response.result) as any as [Weight, Weight]
         const consumedWeight = actual.refTime.toBn()
         const maxWeight = max.refTime.toBn()
 

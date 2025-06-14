@@ -14,15 +14,16 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot/util": "^13.4.3",
-		"idb": "^8.0.2",
+		"@polkadot/util": "^13.5.1",
+		"idb": "^8.0.3",
+		"reflect-metadata": "^0.2.2",
 		"sqlite3": "^5.1.7",
-		"typeorm": "^0.3.20"
+		"typeorm": "^0.3.24"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.6.0",
-		"@swc/core": "^1.11.1",
-		"typescript": "^5.7.3"
+		"@swc/cli": "0.7.7",
+		"@swc/core": "^1.12.1",
+		"typescript": "^5.8.3"
 	},
 	"files": [
 		"dist/esm/**",
