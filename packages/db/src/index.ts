@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import type { DataSource } from 'typeorm'
 
 import { BaseSqlDatabase } from './base-sql.js'

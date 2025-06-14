@@ -41,6 +41,7 @@ __metadata:
     "@swc/cli": "npm:0.7.7"
     "@swc/core": "npm:^1.12.1"
     idb: "npm:^8.0.3"
+    reflect-metadata: "npm:^0.2.2"
     sqlite3: "npm:^5.1.7"
     typeorm: "npm:^0.3.24"
     typescript: "npm:^5.8.3"
@@ -8797,6 +8798,13 @@ __metadata:
   version: 0.2.0
   resolution: "real-require@npm:0.2.0"
   checksum: 10c0/23eea5623642f0477412ef8b91acd3969015a1501ed34992ada0e3af521d3c865bb2fe4cdbfec5fe4b505f6d1ef6a03e5c3652520837a8c3b53decff7e74b6a0
+  languageName: node
+  linkType: hard
+
+"reflect-metadata@npm:^0.2.2":
+  version: 0.2.2
+  resolution: "reflect-metadata@npm:0.2.2"
+  checksum: 10c0/1cd93a15ea291e420204955544637c264c216e7aac527470e393d54b4bb075f10a17e60d8168ec96600c7e0b9fcc0cb0bb6e91c3fbf5b0d8c9056f04e6ac1ec2
   languageName: node
   linkType: hard
 
