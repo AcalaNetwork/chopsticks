@@ -32,7 +32,7 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: 18.x
+        node-version: 22.x
         cache: 'yarn'
     - run: yarn --immutable
     - run: yarn check
@@ -68,7 +68,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 22.x
           cache: 'yarn'
       - run: yarn --immutable
       - run: yarn build-wasm
@@ -107,7 +107,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: 22.x
           cache: 'yarn'
       - run: yarn --immutable
       - run: yarn build
