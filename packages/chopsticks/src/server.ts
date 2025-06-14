@@ -212,7 +212,7 @@ export const createServer = async (handler: Handler, port: number, host?: string
       },
     }
 
-    const processRequest = async (req: Zod.infer<typeof singleRequest>) => {
+    const processRequest = async (req: z.infer<typeof singleRequest>) => {
       wsLogger.trace(
         {
           id: req.id,

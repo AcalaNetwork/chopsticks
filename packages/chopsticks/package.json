@@ -29,7 +29,7 @@
 		"dotenv": "^16.5.0",
 		"global-agent": "^3.0.0",
 		"js-yaml": "^4.1.0",
-		"jsondiffpatch": "^0.7.3",
+		"jsondiffpatch": "^0.5.0",
 		"lodash": "^4.17.21",
 		"ws": "^8.18.2",
 		"yargs": "^18.0.0",
