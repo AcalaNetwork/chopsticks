@@ -8,4 +8,13 @@ export default defineConfig({
 	build: {
 		outDir: '../../dist',
 	},
+	resolve: {
+		alias: {
+			// ensure "import 'crypto'" uses Node.js built-in
+			crypto: 'node:crypto',
+		},
+	},
+	optimizeDeps: {
+		exclude: ['crypto-browserify'],
+	},
 })
