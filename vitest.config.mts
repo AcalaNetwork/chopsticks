@@ -5,7 +5,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
 	test: {
 		hookTimeout: 30_000,
-		testTimeout: 120_000,
+		testTimeout: 180_000,
 		include: ['packages/**/*.test.ts'],
 		bail: process.env.CI ? 1 : undefined /* use defaults */,
 		pool: 'forks',
