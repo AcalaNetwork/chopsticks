@@ -7,6 +7,8 @@ runtime-log-level: 5
 # wasm-override: integritee_runtime.wasm
 
 import-storage:
+#  Sudo: # even if sudo isn't present in live chain, we may want this for wasm-override scenarios
+#    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
   System:
     Account:
       -
@@ -15,6 +17,12 @@ import-storage:
         - providers: 1
           data:
             free: 1000000000000000
+  Assets:
+    Account:
+      - - # KSM
+          - '0'
+          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+        - balance: 1000000000000000
   Council:
     Members:
       - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
