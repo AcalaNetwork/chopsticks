@@ -19,10 +19,11 @@ import-storage:
             free: 1000000000000000
   Assets:
     Account:
-      - - # KSM
+      -
+        - # KSM
           - '0'
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        - balance: 1000000000000000
+        - balance: 100000000000
   Council:
     Members:
       - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
