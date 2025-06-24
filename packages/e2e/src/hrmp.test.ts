@@ -36,6 +36,7 @@ describe('HRMP', () => {
     const statemine = await setupContext({
       endpoint: 'wss://statemine-rpc-tn.dwellir.com',
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
+      blockNumber: 9_800_000,
     })
     await statemine.chain.newBlock({ horizontalMessages: statemineHRMP })
     await checkSystemEvents(statemine, 'messageQueue').toMatchSnapshot()
