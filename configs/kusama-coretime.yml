@@ -2,7 +2,6 @@ endpoint: wss://kusama-coretime-rpc.polkadot.io
 mock-signature-host: true
 block: ${env.KUSAMA_CORETIME_BLOCK_NUMBER}
 db: ./db.sqlite
-runtime-log-level: 5
 
 import-storage:
   System:
