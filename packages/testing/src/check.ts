@@ -52,6 +52,8 @@ export type RedactOptions = {
   redactKeys?: RegExp
   /** Regex pattern for keys that should be removed */
   removeKeys?: RegExp
+  /** Regex pattern for keys that should not be redacted */
+  noRedactKeys?: RegExp
 }
 
 /**
@@ -71,6 +73,7 @@ export class Checker {
   readonly #expectFn: ExpectFn
   readonly #value: any
   readonly #pipeline: Array<(value: any) => any> = []
+  readonly #extraChecks: Array<(value: any) => Promise<void> | void> = []
 
   #format: 'human' | 'hex' | 'json' = 'json'
   #message: string | undefined
@@ -223,6 +226,9 @@ export class Checker {
               return true
             })
             .map(([k, v]) => {
+              if (this.#redactOptions?.noRedactKeys?.test(k)) {
+                return [k, v]
+              }
               if (this.#redactOptions?.redactKeys?.test(k)) {
                 return [k, '(redacted)']
               }
@@ -254,6 +260,15 @@ export class Checker {
   }
 
   /**
+   * Add an extra check function to the pipeline
+   * @param fn - Extra check function
+   */
+  check(fn: (value: any) => Promise<void> | void) {
+    this.#extraChecks.push(fn)
+    return this
+  }
+
+  /**
    * Get the final processed value
    * @returns Processed value after applying all transformations
    */
@@ -277,6 +292,10 @@ export class Checker {
     }
 
     value = this.#redact(value)
+
+    for (const fn of this.#extraChecks) {
+      await fn(value)
+    }
 
     return value
   }
