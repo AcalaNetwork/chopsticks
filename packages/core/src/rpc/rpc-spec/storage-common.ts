@@ -1,4 +1,4 @@
-import type { Block } from '@acala-network/chopsticks-core/blockchain/block.js'
+import type { Block } from '../../blockchain/block.js'
 import type { HexString } from '@polkadot/util/types'
 
 export async function getDescendantValues(
@@ -45,4 +45,9 @@ export type DescendantValuesParams = {
   prefix: string
   startKey: string
   isDescendantHashes?: boolean
+}
+
+export async function afterResponse(fn: () => void) {
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  fn()
 }

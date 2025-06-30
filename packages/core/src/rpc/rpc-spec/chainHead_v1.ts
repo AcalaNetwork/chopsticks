@@ -3,7 +3,7 @@ import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
-import { type DescendantValuesParams, getDescendantValues } from './storage-common.js'
+import { type DescendantValuesParams, afterResponse, getDescendantValues } from './storage-common.js'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 
@@ -15,11 +15,6 @@ const following = new Map<
     storageDiffs: Map<HexString, number>
   }
 >()
-
-async function afterResponse(fn: () => void) {
-  await new Promise((resolve) => setTimeout(resolve, 0))
-  fn()
-}
 
 /**
  * Start a chainHead follow subscription

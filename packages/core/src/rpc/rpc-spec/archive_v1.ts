@@ -1,11 +1,11 @@
-import { randomId } from '../../blockchain/head-state.js'
-import type { Handler } from '../shared.js'
+import { afterResponse, getDescendantValues } from './storage-common.js'
 
 import { blake2AsHex } from '@polkadot/util-crypto'
 import type { HexString } from '@polkadot/util/types'
+import { randomId } from '../../blockchain/head-state.js'
+import type { Handler } from '../shared.js'
 import type { StorageItemRequest } from './chainHead_v1.js'
 import type { DescendantValuesParams } from './storage-common.js'
-import { getDescendantValues } from './storage-common.js'
 
 /**
  * Retrieve the body of a specific block
@@ -113,11 +113,6 @@ export const archive_v1_header: Handler<[HexString], HexString | null> = async (
   return block ? (await block.header).toHex() : null
 }
 
-async function afterResponse(fn: () => void) {
-  await new Promise((resolve) => setTimeout(resolve, 0))
-  fn()
-}
-
 /**
  * Contains the storage operations.
  */
@@ -154,6 +149,14 @@ export const archive_v1_storage: Handler<[HexString, StorageItemRequest[], HexSt
   { subscribe },
 ) => {
   const operationId = randomId()
+
+  const callback = subscribe('chainHead_v1_storageEvent', operationId, () => storageOperations.delete(operationId))
+  storageOperations.set(operationId, {
+    callback,
+    hash,
+    params: [],
+    storageDiffs: new Map(),
+  })
 
   afterResponse(async () => {
     const block = await context.chain.getBlock(hash)
@@ -269,14 +272,6 @@ export const archive_v1_storage: Handler<[HexString, StorageItemRequest[], HexSt
     storageOperations.get(operationId)?.callback({
       event: 'storageDone',
     })
-  })
-
-  const callback = subscribe('chainHead_v1_storageEvent', operationId, () => storageOperations.delete(operationId))
-  storageOperations.set(operationId, {
-    callback,
-    hash,
-    params: [],
-    storageDiffs: new Map(),
   })
 
   return operationId
