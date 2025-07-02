@@ -1,5 +1,5 @@
-import type { Block } from '../../blockchain/block.js'
 import type { HexString } from '@polkadot/util/types'
+import type { Block } from '../../blockchain/block.js'
 
 export async function getDescendantValues(
   block: Block,

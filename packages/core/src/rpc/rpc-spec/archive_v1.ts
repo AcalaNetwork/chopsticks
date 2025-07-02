@@ -1,12 +1,12 @@
 import { afterResponse, getDescendantValues } from './storage-common.js'
 
-import type { DescendantValuesParams } from './storage-common.js'
-import { ResponseError, type Handler } from '../shared.js'
-import type { HexString } from '@polkadot/util/types'
-import type { StorageItemRequest } from './chainHead_v1.js'
-import { archive_unstable_body, archive_unstable_call } from '../substrate/archive.js'
 import { blake2AsHex } from '@polkadot/util-crypto'
+import type { HexString } from '@polkadot/util/types'
 import { randomId } from '../../blockchain/head-state.js'
+import { type Handler, ResponseError } from '../shared.js'
+import { archive_unstable_body, archive_unstable_call } from '../substrate/archive.js'
+import type { StorageItemRequest } from './chainHead_v1.js'
+import type { DescendantValuesParams } from './storage-common.js'
 
 /**
  * Retrieve the body of a specific block
@@ -17,17 +17,20 @@ import { randomId } from '../../blockchain/head-state.js'
  * @return An array of the SCALE-encoded transactions of a block, or `null` if the block is not found.
  */
 export const archive_v1_body: Handler<[HexString], HexString[] | null> = async (...args) =>
-  archive_unstable_body.call(undefined, ...args).then(x => x, () => null);
+  archive_unstable_body.call(undefined, ...args).then(
+    (x) => x,
+    () => null,
+  )
 
 export type CallResult =
   | {
-    success: true
-    value: HexString
-  }
+      success: true
+      value: HexString
+    }
   | {
-    success: false
-    error: any
-  }
+      success: false
+      error: any
+    }
 
 /**
  * Perform a runtime call for a block
@@ -39,15 +42,14 @@ export type CallResult =
  * is not found.
  */
 function isBlockNotFound(error) {
-  return error instanceof ResponseError && error.code === 1;
+  return error instanceof ResponseError && error.code === 1
 }
 
 export const archive_v1_call: Handler<[HexString, string, HexString], CallResult | null> = async (...args) =>
-  archive_unstable_call.call(undefined, ...args)
-    .then(
-      ({ value }) => ({ success: true, value }),
-      (error) => isBlockNotFound(error) ? null : { success: false, error },
-    );
+  archive_unstable_call.call(undefined, ...args).then(
+    ({ value }) => ({ success: true, value }),
+    (error) => (isBlockNotFound(error) ? null : { success: false, error }),
+  )
 
 /**
  * Retrieve the height of the finalized block.
@@ -190,7 +192,7 @@ export const archive_v1_storage: Handler<[HexString, StorageItemRequest[], HexSt
             startKey: '0x',
           }
           do {
-            ; ({ items, next } = await getDescendantValues(block, next))
+            ;({ items, next } = await getDescendantValues(block, next))
 
             for (const { key, value } of items) {
               storageOperations.get(operationId)?.callback({
@@ -211,7 +213,7 @@ export const archive_v1_storage: Handler<[HexString, StorageItemRequest[], HexSt
             startKey: '0x',
           }
           do {
-            ; ({ items, next } = await getDescendantValues(block, next))
+            ;({ items, next } = await getDescendantValues(block, next))
 
             for (const { key, value } of items) {
               if (value === undefined) {
