@@ -17,8 +17,7 @@ import type { DescendantValuesParams } from './storage-common.js'
  * @return An array of the SCALE-encoded transactions of a block, or `null` if the block is not found.
  */
 export const archive_v1_body: Handler<[HexString], HexString[] | null> = async (...args) =>
-  archive_unstable_body.call(undefined, ...args).then(
-    (x) => x,
+  archive_unstable_body(...args).catch(
     () => null,
   )
 
