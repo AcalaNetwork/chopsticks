@@ -32,7 +32,7 @@
 		"depcheck": "yarn workspaces foreach --all -pvit run depcheck"
 	},
 	"engines": {
-		"node": ">=v20"
+		"node": ">=v22"
 	},
 	"lint-staged": {
 		"*.{js,ts}": "biome check --write --no-errors-on-unmatched"

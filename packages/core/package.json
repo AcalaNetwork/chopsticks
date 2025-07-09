@@ -5,7 +5,7 @@
 	"license": "Apache-2.0",
 	"type": "module",
 	"engines": {
-		"node": ">=v20"
+		"node": ">=v22"
 	},
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
