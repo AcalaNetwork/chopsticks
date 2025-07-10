@@ -1,6 +1,5 @@
-import { config as dotenvConfig } from 'dotenv'
-
 import { type SetupOption, setupContext } from '@acala-network/chopsticks-testing'
+import { config as dotenvConfig } from 'dotenv'
 
 dotenvConfig()
 

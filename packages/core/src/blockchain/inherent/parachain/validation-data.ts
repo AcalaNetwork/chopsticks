@@ -2,18 +2,17 @@ import { GenericExtrinsic } from '@polkadot/types'
 import type { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
 import { type BN, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
-import _ from 'lodash'
-
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
+import _ from 'lodash'
 import { compactHex, getCurrentSlot, getParaId } from '../../../utils/index.js'
 import {
-  WELL_KNOWN_KEYS,
   dmqMqcHead,
   hrmpChannels,
   hrmpEgressChannelIndex,
   hrmpIngressChannelIndex,
   paraHead,
   upgradeGoAheadSignal,
+  WELL_KNOWN_KEYS,
 } from '../../../utils/proof.js'
 import { createProof, decodeProof } from '../../../wasm-executor/index.js'
 import type { Block } from '../../block.js'

@@ -9,7 +9,7 @@ import { EventEmitter } from 'eventemitter3'
 
 import { defaultLogger, isPrefixedChildKey } from './index.js'
 import { type Genesis, genesisSchema } from './schema/index.js'
-import { type JsCallback, calculateStateRoot, emptyTaskHandler } from './wasm-executor/index.js'
+import { calculateStateRoot, emptyTaskHandler, type JsCallback } from './wasm-executor/index.js'
 
 /**
  * Provider to start a chain from genesis

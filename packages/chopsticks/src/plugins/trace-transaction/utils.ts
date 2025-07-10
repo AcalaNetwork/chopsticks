@@ -1,11 +1,11 @@
-import { Block, type Blockchain, type RuntimeVersion, pinoLogger } from '@acala-network/chopsticks-core'
-import { blake2AsHex } from '@polkadot/util-crypto'
+import { Block, type Blockchain, pinoLogger, type RuntimeVersion } from '@acala-network/chopsticks-core'
 import type { HexString } from '@polkadot/util/types'
+import { blake2AsHex } from '@polkadot/util-crypto'
 import _ from 'lodash'
 
 import { overrideWasm } from '../../utils/override.js'
 import { opName } from './table.js'
-import { type Step, type TraceOutcome, registerTypes } from './types.js'
+import { registerTypes, type Step, type TraceOutcome } from './types.js'
 
 /**
  * Fetches the runtime with tracing feature from Github releases.

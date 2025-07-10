@@ -1,8 +1,8 @@
 import './utils/tunnel.js'
 import {
   type BlockEntry,
-  GenesisProvider,
   defaultLogger,
+  GenesisProvider,
   isUrl,
   setup,
   timeTravel,

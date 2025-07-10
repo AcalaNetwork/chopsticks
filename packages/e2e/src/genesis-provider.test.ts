@@ -1,7 +1,6 @@
-import { afterAll, describe, expect, it } from 'vitest'
-
 import { BuildBlockMode } from '@acala-network/chopsticks'
 import { setupContextWithConfig } from '@acala-network/chopsticks-testing'
+import { afterAll, describe, expect, it } from 'vitest'
 import { check, testingPairs } from './helper.js'
 
 describe.each([

@@ -1,9 +1,8 @@
-import { lstatSync, readFileSync, readdirSync } from 'node:fs'
-import { type Handlers, environment } from '@acala-network/chopsticks-core'
+import { lstatSync, readdirSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { environment, type Handlers } from '@acala-network/chopsticks-core'
 import _ from 'lodash'
 import type { Argv } from 'yargs'
-
-import { resolve } from 'node:path'
 import { defaultLogger } from '../logger.js'
 
 const logger = defaultLogger.child({ name: 'plugin' })

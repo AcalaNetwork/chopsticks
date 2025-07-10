@@ -1,8 +1,7 @@
-import { compactAddLength, hexToU8a } from '@polkadot/util'
-import { blake2AsHex } from '@polkadot/util-crypto'
-import type { HexString } from '@polkadot/util/types'
-
 import { Block, newHeader, runTask, setStorage, taskHandler } from '@acala-network/chopsticks-core'
+import { compactAddLength, hexToU8a } from '@polkadot/util'
+import type { HexString } from '@polkadot/util/types'
+import { blake2AsHex } from '@polkadot/util-crypto'
 import { setupContext } from '../../context.js'
 import { defaultLogger } from '../../logger.js'
 import { generateHtmlDiffPreviewFile } from '../../utils/generate-html-diff.js'

@@ -1,5 +1,4 @@
 import type { HexString } from '@polkadot/util/types'
-import _ from 'lodash'
 import { describe, expect, it, vi } from 'vitest'
 import { Api } from '../api.js'
 import { RemoteStorageLayer, StorageLayer, type StorageValue, StorageValueKind } from './storage-layer.js'

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import type { Api } from '../api.js'
 import type { Database } from '../database.js'
 import { defaultLogger } from '../logger.js'
-import { CHILD_PREFIX_LENGTH, PREFIX_LENGTH, isPrefixedChildKey } from '../utils/index.js'
+import { CHILD_PREFIX_LENGTH, isPrefixedChildKey, PREFIX_LENGTH } from '../utils/index.js'
 import KeyCache from '../utils/key-cache.js'
 
 const logger = defaultLogger.child({ name: 'layer' })

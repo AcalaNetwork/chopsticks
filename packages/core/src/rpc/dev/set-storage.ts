@@ -1,8 +1,7 @@
 import type { HexString } from '@polkadot/util/types'
-import { type Context, ResponseError } from '../shared.js'
-
 import { defaultLogger } from '../../logger.js'
 import { type StorageValues, setStorage } from '../../utils/set-storage.js'
+import { type Context, ResponseError } from '../shared.js'
 
 /**
  * Set storage values.
