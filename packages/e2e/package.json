@@ -13,10 +13,10 @@
 		"@polkadot-api/observable-client": "^0.11.2",
 		"@polkadot-api/substrate-client": "^0.4.0",
 		"@polkadot-api/ws-provider": "^0.4.0",
-		"@polkadot/api": "^16.2.1",
-		"polkadot-api": "^1.13.1",
+		"@polkadot/api": "^16.4.1",
+		"polkadot-api": "^1.14.1",
 		"rxjs": "^7.8.2",
 		"typescript": "^5.8.3",
-		"vitest": "^3.2.3"
+		"vitest": "^3.2.4"
 	}
 }
