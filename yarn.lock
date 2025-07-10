@@ -54,8 +54,8 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
     "@acala-network/chopsticks-testing": "workspace:*"
-    "@polkadot-api/observable-client": "npm:^0.11.2"
-    "@polkadot-api/substrate-client": "npm:^0.4.0"
+    "@polkadot-api/observable-client": "npm:^0.13.0"
+    "@polkadot-api/substrate-client": "npm:^0.4.1"
     "@polkadot-api/ws-provider": "npm:^0.4.0"
     "@polkadot/api": "npm:^16.4.1"
     polkadot-api: "npm:^1.14.1"
@@ -104,8 +104,8 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks": "workspace:*"
     "@acala-network/chopsticks-core": "workspace:*"
-    "@polkadot-labs/hdkd": "npm:^0.0.17"
-    "@polkadot-labs/hdkd-helpers": "npm:^0.0.17"
+    "@polkadot-labs/hdkd": "npm:^0.0.19"
+    "@polkadot-labs/hdkd-helpers": "npm:^0.0.19"
     "@polkadot/api": "npm:^16.4.1"
     "@polkadot/api-base": "npm:^16.4.1"
     "@polkadot/keyring": "npm:^13.5.3"
@@ -1793,7 +1793,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:^1.3.0, @noble/curves@npm:^1.9.2":
+"@noble/curves@npm:^1.3.0, @noble/curves@npm:^1.9.2, @noble/curves@npm:~1.9.2":
   version: 1.9.2
   resolution: "@noble/curves@npm:1.9.2"
   dependencies:
@@ -1802,23 +1802,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:~1.8.0":
-  version: 1.8.2
-  resolution: "@noble/curves@npm:1.8.2"
-  dependencies:
-    "@noble/hashes": "npm:1.7.2"
-  checksum: 10c0/e7ef119b114681d6b7530b29a21f9bbea6fa6973bc369167da2158d05054cc6e6dbfb636ba89fad7707abacc150de30188b33192f94513911b24bdb87af50bbd
-  languageName: node
-  linkType: hard
-
-"@noble/hashes@npm:1.7.2, @noble/hashes@npm:~1.7.1":
-  version: 1.7.2
-  resolution: "@noble/hashes@npm:1.7.2"
-  checksum: 10c0/b1411eab3c0b6691d847e9394fe7f1fcd45eeb037547c8f97e7d03c5068a499b4aef188e8e717eee67389dca4fee17d69d7e0f58af6c092567b0b76359b114b2
-  languageName: node
-  linkType: hard
-
-"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.3.1, @noble/hashes@npm:^1.3.3, @noble/hashes@npm:^1.8.0":
+"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.3.1, @noble/hashes@npm:^1.3.3, @noble/hashes@npm:^1.8.0, @noble/hashes@npm:~1.8.0":
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
   checksum: 10c0/06a0b52c81a6fa7f04d67762e08b2c476a00285858150caeaaff4037356dd5e119f45b2a530f638b77a5eeca013168ec1b655db41bae3236cb2e9d511484fc77
@@ -2065,7 +2049,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot-api/observable-client@npm:0.13.0":
+"@polkadot-api/observable-client@npm:0.13.0, @polkadot-api/observable-client@npm:^0.13.0":
   version: 0.13.0
   resolution: "@polkadot-api/observable-client@npm:0.13.0"
   dependencies:
@@ -2076,20 +2060,6 @@ __metadata:
     "@polkadot-api/substrate-client": 0.4.1
     rxjs: ">=7.8.0"
   checksum: 10c0/025b35c23b7173eaa3f8c27f563c512e9ff840d293fa3ad7aaa66bdcc2ed7edf98c6e5249e55c5ee4b7a0524e290f93e07cf2dc43df96863aa2795051875fe7f
-  languageName: node
-  linkType: hard
-
-"@polkadot-api/observable-client@npm:^0.11.2":
-  version: 0.11.2
-  resolution: "@polkadot-api/observable-client@npm:0.11.2"
-  dependencies:
-    "@polkadot-api/metadata-builders": "npm:0.12.2"
-    "@polkadot-api/substrate-bindings": "npm:0.14.0"
-    "@polkadot-api/utils": "npm:0.2.0"
-  peerDependencies:
-    "@polkadot-api/substrate-client": 0.4.0
-    rxjs: ">=7.8.0"
-  checksum: 10c0/40e529a44c967c2bf49ba2ccd7912800bbfa1ce19d472db5f8b8ed926640a9e50520d2a91eec138e63148866797776e466ccfab8182a97b7e24f05305f6d50c3
   languageName: node
   linkType: hard
 
@@ -2208,7 +2178,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot-api/substrate-client@npm:0.4.1, @polkadot-api/substrate-client@npm:^0.4.0":
+"@polkadot-api/substrate-client@npm:0.4.1, @polkadot-api/substrate-client@npm:^0.4.1":
   version: 0.4.1
   resolution: "@polkadot-api/substrate-client@npm:0.4.1"
   dependencies:
@@ -2260,25 +2230,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot-labs/hdkd-helpers@npm:0.0.17, @polkadot-labs/hdkd-helpers@npm:^0.0.17":
-  version: 0.0.17
-  resolution: "@polkadot-labs/hdkd-helpers@npm:0.0.17"
+"@polkadot-labs/hdkd-helpers@npm:^0.0.19, @polkadot-labs/hdkd-helpers@npm:~0.0.19":
+  version: 0.0.19
+  resolution: "@polkadot-labs/hdkd-helpers@npm:0.0.19"
   dependencies:
     "@noble/curves": "npm:^1.9.2"
     "@noble/hashes": "npm:^1.8.0"
     "@scure/base": "npm:^1.2.6"
-    micro-sr25519: "npm:^0.1.3"
+    "@scure/sr25519": "npm:^0.2.0"
     scale-ts: "npm:^1.6.1"
-  checksum: 10c0/a428bc7983bdb941d8e5bba8dadd15f4ec7ff055f40aedd717795ed3ef9033ebea99053ee4ac77a9bbfe7d043244cc570b299ca63fd59590d985d57ff49bdb00
+  checksum: 10c0/e3b081c849cb35783f3d64608e75447d1857749eaa0320080137c51de28e4ca6c199aeb070c201e2cea9aed06a80bfb9c24bbd334531bcfc1e7e554bcea2aabb
   languageName: node
   linkType: hard
 
-"@polkadot-labs/hdkd@npm:^0.0.17":
-  version: 0.0.17
-  resolution: "@polkadot-labs/hdkd@npm:0.0.17"
+"@polkadot-labs/hdkd@npm:^0.0.19":
+  version: 0.0.19
+  resolution: "@polkadot-labs/hdkd@npm:0.0.19"
   dependencies:
-    "@polkadot-labs/hdkd-helpers": "npm:0.0.17"
-  checksum: 10c0/4212382f3a13160286a8ffb0658b1718cc2f7e3537f93061e026d868674d8cd2c9767c5719d5f3bf89599aac2c3a2ada16bc81cee66d92f733d6aea9a5449703
+    "@polkadot-labs/hdkd-helpers": "npm:~0.0.19"
+  checksum: 10c0/67ecfee83f5c2fff677d03f2010e4a789d439a78f5bb5281ea4b0c2f36d111c7d61296d2b3997136f90eb9d0e9f29b6409919c75061a7fdaf54e38db5567ed8a
   languageName: node
   linkType: hard
 
@@ -2875,6 +2845,16 @@ __metadata:
   version: 1.2.6
   resolution: "@scure/base@npm:1.2.6"
   checksum: 10c0/49bd5293371c4e062cb6ba689c8fe3ea3981b7bb9c000400dc4eafa29f56814cdcdd27c04311c2fec34de26bc373c593a1d6ca6d754398a488d587943b7c128a
+  languageName: node
+  linkType: hard
+
+"@scure/sr25519@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@scure/sr25519@npm:0.2.0"
+  dependencies:
+    "@noble/curves": "npm:~1.9.2"
+    "@noble/hashes": "npm:~1.8.0"
+  checksum: 10c0/7836a7ea9e50c3c36c19f14408b52fc57d255e5b82a19e1ccb05bc3e369b20ee64d00683930b7171a1a728b4ed8f8fbb8f28194f1d51eb380991e0be2f44daef
   languageName: node
   linkType: hard
 
@@ -7272,16 +7252,6 @@ __metadata:
   version: 2.0.0
   resolution: "merge-stream@npm:2.0.0"
   checksum: 10c0/867fdbb30a6d58b011449b8885601ec1690c3e41c759ecd5a9d609094f7aed0096c37823ff4a7190ef0b8f22cc86beb7049196ff68c016e3b3c671d0dac91ce5
-  languageName: node
-  linkType: hard
-
-"micro-sr25519@npm:^0.1.3":
-  version: 0.1.3
-  resolution: "micro-sr25519@npm:0.1.3"
-  dependencies:
-    "@noble/curves": "npm:~1.8.0"
-    "@noble/hashes": "npm:~1.7.1"
-  checksum: 10c0/ae429e4e1ff6471a13f599cf3d2623b7fbeec00e98ee0490e967f9930178f4c69cdd9a6150ea28d042fe7bd60e6d3363ec9ac7c3163ca9cba56401c8ada2a3ed
   languageName: node
   linkType: hard
 

@@ -10,8 +10,8 @@
 	"devDependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-testing": "workspace:*",
-		"@polkadot-api/observable-client": "^0.11.2",
-		"@polkadot-api/substrate-client": "^0.4.0",
+		"@polkadot-api/observable-client": "^0.13.0",
+		"@polkadot-api/substrate-client": "^0.4.1",
 		"@polkadot-api/ws-provider": "^0.4.0",
 		"@polkadot/api": "^16.4.1",
 		"polkadot-api": "^1.14.1",
