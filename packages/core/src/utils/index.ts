@@ -2,14 +2,13 @@ import type { StorageKey } from '@polkadot/types'
 import { type BN, compactStripLength, u8aToHex } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 import type { HexString } from '@polkadot/util/types'
-import { getAuraSlotDuration } from '../wasm-executor/index.js'
-
 import type { Block } from '../blockchain/block.js'
 import type { Blockchain } from '../blockchain/index.js'
+import { getAuraSlotDuration } from '../wasm-executor/index.js'
 
+export * from './decoder.js'
 export * from './set-storage.js'
 export * from './time-travel.js'
-export * from './decoder.js'
 
 export type GetKeys = (startKey?: string) => Promise<StorageKey<any>[]>
 

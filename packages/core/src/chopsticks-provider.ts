@@ -9,7 +9,7 @@ import { EventEmitter } from 'eventemitter3'
 import type { Blockchain } from './blockchain/index.js'
 import type { Database } from './database.js'
 import { defaultLogger } from './logger.js'
-import { type Handlers, allHandlers } from './rpc/index.js'
+import { allHandlers, type Handlers } from './rpc/index.js'
 import { setup } from './setup.js'
 
 const providerHandlers: Handlers = {

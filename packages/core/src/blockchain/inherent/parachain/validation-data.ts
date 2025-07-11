@@ -2,18 +2,17 @@ import { GenericExtrinsic } from '@polkadot/types'
 import type { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
 import { type BN, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
-import _ from 'lodash'
-
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
+import _ from 'lodash'
 import { compactHex, getCurrentSlot, getParaId } from '../../../utils/index.js'
 import {
-  WELL_KNOWN_KEYS,
   dmqMqcHead,
   hrmpChannels,
   hrmpEgressChannelIndex,
   hrmpIngressChannelIndex,
   paraHead,
   upgradeGoAheadSignal,
+  WELL_KNOWN_KEYS,
 } from '../../../utils/proof.js'
 import { createProof, decodeProof } from '../../../wasm-executor/index.js'
 import type { Block } from '../../block.js'
@@ -280,22 +279,72 @@ export class SetValidationData implements InherentProvider {
 
     const { trieRootHash, nodes } = await createProof(extrinsic.relayChainState.trieNodes, newEntries)
 
-    const newData = {
-      ...extrinsic,
-      downwardMessages,
-      horizontalMessages,
-      validationData: {
-        ...extrinsic.validationData,
-        relayParentStorageRoot: trieRootHash,
-        relayParentNumber: params.relayParentNumber ?? extrinsic.validationData.relayParentNumber + relaySlotIncrease,
-      },
-      relayChainState: {
-        trieNodes: nodes,
-      },
-    } satisfies ValidationData
+    const argsLengh = meta.tx.parachainSystem.setValidationData.meta.args.length
 
-    const inherent = new GenericExtrinsic(meta.registry, meta.tx.parachainSystem.setValidationData(newData))
+    if (argsLengh === 1) {
+      // old version
 
-    return [inherent.toHex()]
+      const newData = {
+        ...extrinsic,
+        downwardMessages,
+        horizontalMessages,
+        validationData: {
+          ...extrinsic.validationData,
+          relayParentStorageRoot: trieRootHash,
+          relayParentNumber: params.relayParentNumber ?? extrinsic.validationData.relayParentNumber + relaySlotIncrease,
+        },
+        relayChainState: {
+          trieNodes: nodes,
+        },
+      } satisfies ValidationData
+
+      const inherent = new GenericExtrinsic(meta.registry, meta.tx.parachainSystem.setValidationData(newData))
+
+      return [inherent.toHex()]
+    } else if (argsLengh === 2) {
+      // new version
+
+      const newData = {
+        ...extrinsic,
+        validationData: {
+          ...extrinsic.validationData,
+          relayParentStorageRoot: trieRootHash,
+          relayParentNumber: params.relayParentNumber ?? extrinsic.validationData.relayParentNumber + relaySlotIncrease,
+        },
+        relayChainState: {
+          trieNodes: nodes,
+        },
+      } satisfies ValidationData
+
+      const horizontalMessagesArray = Object.entries(horizontalMessages).flatMap(([sender, messages]) =>
+        messages.map((msg) => [sender, msg] as const),
+      )
+
+      const inboundMessagesData = {
+        downwardMessages: {
+          full_messages: downwardMessages,
+          hashed_messages: downwardMessages.map((msg) => ({
+            sendAt: msg.sentAt,
+            msgHash: blake2AsHex(msg.msg, 256),
+          })),
+        },
+        horizontalMessages: {
+          full_messages: horizontalMessagesArray,
+          hashed_messages: horizontalMessagesArray.map(([sender, message]) => ({
+            sendAt: message.sentAt,
+            msgHash: [sender, blake2AsHex(message.data, 256)],
+          })),
+        },
+      }
+
+      const inherent = new GenericExtrinsic(
+        meta.registry,
+        meta.tx.parachainSystem.setValidationData(newData, inboundMessagesData),
+      )
+
+      return [inherent.toHex()]
+    } else {
+      throw new Error('Unsupported setValidationData')
+    }
   }
 }

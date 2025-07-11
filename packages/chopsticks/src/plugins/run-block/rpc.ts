@@ -1,19 +1,17 @@
+import {
+  Block,
+  type Context,
+  compactHex,
+  decodeKeyValue,
+  type RuntimeLog,
+  runTask,
+  taskHandler,
+} from '@acala-network/chopsticks-core'
 import type { GenericExtrinsic, Vec } from '@polkadot/types'
 import type { EventRecord, Header } from '@polkadot/types/interfaces'
 import { u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
-import _ from 'lodash'
 import { z } from 'zod'
-
-import {
-  Block,
-  type Context,
-  type RuntimeLog,
-  compactHex,
-  decodeKeyValue,
-  runTask,
-  taskHandler,
-} from '@acala-network/chopsticks-core'
 import { zHash, zHex } from '../../schema/index.js'
 
 const schema = z.object({
@@ -239,7 +237,7 @@ export const rpc = async ({ chain }: Context, [params]: [RunBlockParams]): Promi
     const timestamp = await newBlock.read('u64', meta.query.timestamp.now)
     const events = (await newBlock.read('Vec<EventRecord>', meta.query.system.events)) as Vec<EventRecord> | undefined
     const parsedEvents = events?.map((event) => {
-      let argObj: any = undefined
+      let argObj: any
       const len = event.event.data.names?.length ?? 0
       if (len > 0) {
         argObj = {}

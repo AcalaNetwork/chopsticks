@@ -1,23 +1,24 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
 	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": [
-			"*.json",
-			"*.txt",
-			"*.snap",
-			"*.wasm",
-			"*.html",
-			"*.md",
-			"*.gitignore",
-			"*.yml",
-			"*.tsbuildinfo",
-			"**/executor/**",
-			"**/vendor/**",
-			"**/dist/**",
-			"**/node_modules/**",
-			"packages/e2e/src/rpc-methods-test-scripts.js"
+		"includes": [
+			"**",
+			"!**/*.json",
+			"!**/*.txt",
+			"!**/*.snap",
+			"!**/*.wasm",
+			"!**/*.html",
+			"!**/*.md",
+			"!**/*.gitignore",
+			"!**/*.yml",
+			"!**/*.tsbuildinfo",
+			"!**/executor/**",
+			"!**/vendor/**",
+			"!**/dist/**",
+			"!**/node_modules/**",
+			"!**/packages/e2e/src/rpc-methods-test-scripts.js"
 		]
 	},
 	"formatter": {
@@ -30,29 +31,30 @@
 		"lineWidth": 120,
 		"attributePosition": "auto",
 		"bracketSpacing": true,
-		"ignore": [
-			"**/tsconfig.tsbuildinfo",
-			"**/.gitignore",
-			"**/.yarn",
-			"**/*.yml",
-			"**/*.md",
-			"**/executor/**",
-			"**/vendor/**",
-			"**/.pnp.cjs",
-			"**/.pnp.loader.mjs",
-			"**/lib/**",
-			"**/dist/**",
-			"**/node_modules/**",
-			"**/preview/",
-			"**/packages/core/scripts/",
-			"packages/core/src/wasm-executor/browser-wasm-executor.js",
-			"packages/core/src/wasm-executor/node-wasm-executor.js",
-			"packages/e2e/src/rpc-methods-test-scripts.js",
-			"packages/e2e/blobs/**",
-			"packages/web-test/playwright-report/**"
+		"includes": [
+			"**",
+			"!**/tsconfig.tsbuildinfo",
+			"!**/.gitignore",
+			"!**/.yarn",
+			"!**/*.yml",
+			"!**/*.md",
+			"!**/executor/**",
+			"!**/vendor/**",
+			"!**/.pnp.cjs",
+			"!**/.pnp.loader.mjs",
+			"!**/lib/**",
+			"!**/dist/**",
+			"!**/node_modules/**",
+			"!**/preview/",
+			"!**/packages/core/scripts/",
+			"!**/packages/core/src/wasm-executor/browser-wasm-executor.js",
+			"!**/packages/core/src/wasm-executor/node-wasm-executor.js",
+			"!**/packages/e2e/src/rpc-methods-test-scripts.js",
+			"!**/packages/e2e/blobs/**",
+			"!**/packages/web-test/playwright-report/**"
 		]
 	},
-	"organizeImports": { "enabled": true },
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
 		"enabled": true,
 		"rules": {
@@ -71,17 +73,18 @@
 				"useLiteralKeys": "off"
 			}
 		},
-		"ignore": [
-			"**/node_modules/",
-			"**/executor/",
-			"**/vendor/",
-			"**/lib/",
-			"**/dist/",
-			"packages/core/scripts/",
-			"**/chopsticks.js",
-			"packages/core/src/wasm-executor/browser-wasm-executor.js",
-			"packages/core/src/wasm-executor/node-wasm-executor.js",
-			"packages/web-test/playwright-report"
+		"includes": [
+			"**",
+			"!**/node_modules/",
+			"!**/executor/",
+			"!**/vendor/",
+			"!**/lib/",
+			"!**/dist/",
+			"!**/packages/core/scripts/",
+			"!**/chopsticks.js",
+			"!**/packages/core/src/wasm-executor/browser-wasm-executor.js",
+			"!**/packages/core/src/wasm-executor/node-wasm-executor.js",
+			"!**/packages/web-test/playwright-report"
 		]
 	},
 	"javascript": {
@@ -99,7 +102,7 @@
 	},
 	"overrides": [
 		{
-			"include": ["**/*.test.ts", "packages/web-test"],
+			"includes": ["**/*.test.ts", "**/packages/web-test/**"],
 			"linter": {
 				"rules": {
 					"style": {

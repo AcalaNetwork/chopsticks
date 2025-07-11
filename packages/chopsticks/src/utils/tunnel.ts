@@ -1,5 +1,7 @@
 import { bootstrap } from 'global-agent'
+
 bootstrap()
+
 import { environment } from '@acala-network/chopsticks-core'
 import npmConf from '@pnpm/npm-conf'
 

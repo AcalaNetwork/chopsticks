@@ -1,12 +1,11 @@
-import type { RuntimeContext } from '@polkadot-api/observable-client'
 import { blake2AsHex } from '@polkadot/util-crypto'
-import { describe, expect, it } from 'vitest'
+import type { RuntimeContext } from '@polkadot-api/observable-client'
+import { Binary } from 'polkadot-api'
 
 import { getPolkadotSigner } from 'polkadot-api/signer'
 import { firstValueFrom } from 'rxjs'
+import { describe, expect, it } from 'vitest'
 import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
-
-import { Binary } from 'polkadot-api'
 
 const testApi = await setupPolkadotApi(env.acalaV15)
 

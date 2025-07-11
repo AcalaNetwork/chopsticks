@@ -7,8 +7,8 @@ import { hexToU8a, stringToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 
 import { compactHex } from '../utils/index.js'
-import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor/index.js'
 import type { RuntimeVersion, TaskCallResponse } from '../wasm-executor/index.js'
+import { getRuntimeVersion, runTask, taskHandler } from '../wasm-executor/index.js'
 import type { Blockchain } from './index.js'
 import {
   RemoteStorageLayer,

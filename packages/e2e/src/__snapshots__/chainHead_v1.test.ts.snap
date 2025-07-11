@@ -80,19 +80,16 @@ exports[`chainHead_v1 rpc > reports the chain state 1`] = `
 
 exports[`chainHead_v1 rpc > resolves storage queries 1`] = `
 {
-  "mapped": {
-    "consumers": 0,
-    "data": {
-      "flags": 0n,
-      "free": 213800847850000n,
-      "frozen": 0n,
-      "reserved": 0n,
-    },
-    "nonce": 0,
-    "providers": 1,
-    "sufficients": 0,
+  "consumers": 0,
+  "data": {
+    "flags": 0n,
+    "free": 213800847850000n,
+    "frozen": 0n,
+    "reserved": 0n,
   },
-  "raw": "0x0000000000000000010000000000000010ba966373c200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "nonce": 0,
+  "providers": 1,
+  "sufficients": 0,
 }
 `;
 

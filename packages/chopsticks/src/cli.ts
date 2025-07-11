@@ -1,11 +1,10 @@
+import { type Blockchain, connectParachains, connectVertical, environment } from '@acala-network/chopsticks-core'
 import { config as dotenvConfig } from 'dotenv'
 import _ from 'lodash'
-import yargs from 'yargs'
 import type { MiddlewareFunction } from 'yargs'
+import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { z } from 'zod'
-
-import { type Blockchain, connectParachains, connectVertical, environment } from '@acala-network/chopsticks-core'
 import { setupWithServer } from './index.js'
 import { loadRpcMethodsByScripts, pluginExtendCli } from './plugins/index.js'
 import { configSchema, fetchConfig, getYargsOptions } from './schema/index.js'

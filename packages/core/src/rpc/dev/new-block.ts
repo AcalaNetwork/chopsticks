@@ -1,8 +1,7 @@
 import type { HexString } from '@polkadot/util/types'
 import { z } from 'zod'
-import { type Context, ResponseError, zHex } from '../shared.js'
-
 import { defaultLogger } from '../../logger.js'
+import { type Context, ResponseError, zHex } from '../shared.js'
 
 const schema = z.object({
   count: z.number().optional(),

@@ -1,5 +1,5 @@
-import { blake2AsHex } from '@polkadot/util-crypto'
 import type { HexString } from '@polkadot/util/types'
+import { blake2AsHex } from '@polkadot/util-crypto'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
