@@ -37,10 +37,8 @@ describe('transaction_v1', async () => {
     expect(
       await firstValueFrom(chainHead.storage$(null, 'value', keyEncoder(bob.address), null, resultDecoder)),
     ).toMatchObject({
-      mapped: {
-        data: {
-          free: INITIAL_ACCOUNT_VALUE + TRANSFERRED_VALUE,
-        },
+      data: {
+        free: INITIAL_ACCOUNT_VALUE + TRANSFERRED_VALUE,
       },
     })
 
