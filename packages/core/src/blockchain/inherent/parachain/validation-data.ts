@@ -317,7 +317,7 @@ export class SetValidationData implements InherentProvider {
       } satisfies ValidationData
 
       const horizontalMessagesArray = Object.entries(horizontalMessages).flatMap(([sender, messages]) =>
-        messages.map((msg) => [sender, msg] as const)
+        messages.map((msg) => [sender, msg] as const),
       )
 
       const inboundMessagesData = {
@@ -325,19 +325,22 @@ export class SetValidationData implements InherentProvider {
           full_messages: downwardMessages,
           hashed_messages: downwardMessages.map((msg) => ({
             sendAt: msg.sentAt,
-            msgHash: blake2AsHex(msg.msg, 256)
-          }))
+            msgHash: blake2AsHex(msg.msg, 256),
+          })),
         },
         horizontalMessages: {
           full_messages: horizontalMessagesArray,
           hashed_messages: horizontalMessagesArray.map(([sender, message]) => ({
             sendAt: message.sentAt,
-            msgHash: [sender, blake2AsHex(message.data, 256)]
-          }))
-        }
+            msgHash: [sender, blake2AsHex(message.data, 256)],
+          })),
+        },
       }
 
-      const inherent = new GenericExtrinsic(meta.registry, meta.tx.parachainSystem.setValidationData(newData, inboundMessagesData))
+      const inherent = new GenericExtrinsic(
+        meta.registry,
+        meta.tx.parachainSystem.setValidationData(newData, inboundMessagesData),
+      )
 
       return [inherent.toHex()]
     } else {
