@@ -323,17 +323,11 @@ export class SetValidationData implements InherentProvider {
       const inboundMessagesData = {
         downwardMessages: {
           full_messages: downwardMessages,
-          hashed_messages: downwardMessages.map((msg) => ({
-            sendAt: msg.sentAt,
-            msgHash: blake2AsHex(msg.msg, 256),
-          })),
+          hashed_messages: [],
         },
         horizontalMessages: {
           full_messages: horizontalMessagesArray,
-          hashed_messages: horizontalMessagesArray.map(([sender, message]) => ({
-            sendAt: message.sentAt,
-            msgHash: [sender, blake2AsHex(message.data, 256)],
-          })),
+          hashed_messages: [],
         },
       }
 
