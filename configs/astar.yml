@@ -18,6 +18,19 @@ import-storage:
         - providers: 1
           data:
             free: '100000000000000000000000'
+      -
+        -
+          - ZAP5o2BjWAo5uoKDE6b6Xkk4Ju7k6bDu24LNjgZbfM3iyiR
+        - providers: 1
+          data:
+            free: '100000000000000000000000'
+      -
+        -
+          - ZD39yAE4W4RiXCyk1gv6CD2tSaVjQU5KoKfujyft4Xa2GAz
+        - providers: 1
+          data:
+            free: '100000000000000000000000'
+
   # Sample list of available assetIds: https://github.com/AstarNetwork/astar-apps/blob/main/src/modules/xcm/tokens/index.ts
   Assets:
     Account:
@@ -33,3 +46,18 @@ import-storage:
           - '4294969280'
           - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
         - balance: 100000000000
+  Council:
+    Members:
+      - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
+      - ZAP5o2BjWAo5uoKDE6b6Xkk4Ju7k6bDu24LNjgZbfM3iyiR # Bob
+      - ZD39yAE4W4RiXCyk1gv6CD2tSaVjQU5KoKfujyft4Xa2GAz # Charlie
+  TechnicalCommittee:
+    Members:
+      - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - ZAP5o2BjWAo5uoKDE6b6Xkk4Ju7k6bDu24LNjgZbfM3iyiR
+      - ZD39yAE4W4RiXCyk1gv6CD2tSaVjQU5KoKfujyft4Xa2GAz
+  CommunityCouncil:
+    Members:
+      - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
+      - ZAP5o2BjWAo5uoKDE6b6Xkk4Ju7k6bDu24LNjgZbfM3iyiR
+      - ZD39yAE4W4RiXCyk1gv6CD2tSaVjQU5KoKfujyft4Xa2GAz
