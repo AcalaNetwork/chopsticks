@@ -1,12 +1,12 @@
-import { afterResponse, getDescendantValues } from './storage-common.js'
+import type { HexString } from '@polkadot/util/types'
 
 import { blake2AsHex } from '@polkadot/util-crypto'
-import type { HexString } from '@polkadot/util/types'
 import { randomId } from '../../blockchain/head-state.js'
 import { type Handler, ResponseError } from '../shared.js'
 import { archive_unstable_body, archive_unstable_call } from '../substrate/archive.js'
 import type { StorageItemRequest } from './chainHead_v1.js'
 import type { DescendantValuesParams } from './storage-common.js'
+import { afterResponse, getDescendantValues } from './storage-common.js'
 
 /**
  * Retrieve the body of a specific block
@@ -17,9 +17,7 @@ import type { DescendantValuesParams } from './storage-common.js'
  * @return An array of the SCALE-encoded transactions of a block, or `null` if the block is not found.
  */
 export const archive_v1_body: Handler<[HexString], HexString[] | null> = async (...args) =>
-  archive_unstable_body(...args).catch(
-    () => null,
-  )
+  archive_unstable_body(...args).catch(() => null)
 
 export type CallResult =
   | {

@@ -3,7 +3,7 @@ import { blake2AsHex } from '@polkadot/util-crypto'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
-import { type DescendantValuesParams, afterResponse, getDescendantValues } from './storage-common.js'
+import { afterResponse, type DescendantValuesParams, getDescendantValues } from './storage-common.js'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 
