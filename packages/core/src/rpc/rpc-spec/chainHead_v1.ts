@@ -3,14 +3,10 @@ import { blake2AsHex } from '@polkadot/util-crypto'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
+import { afterResponse, type DescendantValuesParams, getDescendantValues } from './storage-common.js'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 
-type DescendantValuesParams = {
-  prefix: string
-  startKey: string
-  isDescendantHashes?: boolean
-}
 const following = new Map<
   string,
   {
@@ -19,11 +15,6 @@ const following = new Map<
     storageDiffs: Map<HexString, number>
   }
 >()
-
-async function afterResponse(fn: () => void) {
-  await new Promise((resolve) => setTimeout(resolve, 0))
-  fn()
-}
 
 /**
  * Start a chainHead follow subscription
@@ -188,47 +179,6 @@ export type StorageStarted = OperationStarted & { discardedItems: number }
 export interface StorageItemRequest {
   key: HexString
   type: 'value' | 'hash' | 'closestDescendantMerkleValue' | 'descendantsValues' | 'descendantsHashes'
-}
-
-const PAGE_SIZE = 1000
-async function getDescendantValues(
-  block: Block,
-  params: DescendantValuesParams,
-): Promise<{
-  items: Array<{
-    key: string
-    value?: HexString
-  }>
-  next: DescendantValuesParams | null
-}> {
-  const keys = await block.getKeysPaged({
-    ...params,
-    pageSize: PAGE_SIZE,
-  })
-
-  const items = await Promise.all(
-    keys.map((key) =>
-      block.get(key).then((value) => ({
-        key,
-        value,
-      })),
-    ),
-  )
-
-  if (keys.length < PAGE_SIZE) {
-    return {
-      items,
-      next: null,
-    }
-  }
-
-  return {
-    items,
-    next: {
-      ...params,
-      startKey: keys[PAGE_SIZE - 1],
-    },
-  }
 }
 
 /**
