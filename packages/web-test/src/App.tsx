@@ -1,6 +1,6 @@
 import '@polkadot/api-augment'
-import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import type { SetupOptions } from '@acala-network/chopsticks-core'
+import { ChopsticksProvider, setStorage, setup } from '@acala-network/chopsticks-core'
 import { IdbDatabase } from '@acala-network/chopsticks-db/browser.js'
 import {
 	Alert,

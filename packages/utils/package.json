@@ -1,11 +1,11 @@
 {
 	"name": "@acala-network/chopsticks-utils",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
 	"engines": {
-		"node": ">=v20"
+		"node": ">=v22"
 	},
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
@@ -15,18 +15,18 @@
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot-labs/hdkd": "^0.0.17",
-		"@polkadot-labs/hdkd-helpers": "^0.0.17",
-		"@polkadot/api": "^16.2.1",
-		"@polkadot/api-base": "^16.2.1",
-		"@polkadot/keyring": "^13.5.1",
-		"@polkadot/types": "^16.2.1",
-		"@polkadot/util": "^13.5.1",
-		"polkadot-api": "^1.13.1"
+		"@polkadot-labs/hdkd": "^0.0.19",
+		"@polkadot-labs/hdkd-helpers": "^0.0.19",
+		"@polkadot/api": "^16.4.1",
+		"@polkadot/api-base": "^16.4.1",
+		"@polkadot/keyring": "^13.5.3",
+		"@polkadot/types": "^16.4.1",
+		"@polkadot/util": "^13.5.3",
+		"polkadot-api": "^1.14.1"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.7.7",
-		"@swc/core": "^1.12.1",
+		"@swc/cli": "0.7.8",
+		"@swc/core": "^1.12.14",
 		"typescript": "^5.8.3"
 	},
 	"files": [

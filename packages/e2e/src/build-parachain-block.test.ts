@@ -1,8 +1,7 @@
-import { describe, expect, it } from 'vitest'
-
 import { decodeProof } from '@acala-network/chopsticks-core'
 import { upgradeRestrictionSignal } from '@acala-network/chopsticks-core/utils/proof.js'
 import { TypeRegistry } from '@polkadot/types'
+import { describe, expect, it } from 'vitest'
 import networks from './networks.js'
 
 describe('override-relay-state-proof', async () => {

@@ -1,11 +1,11 @@
 {
 	"name": "@acala-network/chopsticks-db",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
 	"engines": {
-		"node": ">=v20"
+		"node": ">=v22"
 	},
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
@@ -14,15 +14,15 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot/util": "^13.5.1",
+		"@polkadot/util": "^13.5.3",
 		"idb": "^8.0.3",
 		"reflect-metadata": "^0.2.2",
 		"sqlite3": "^5.1.7",
-		"typeorm": "^0.3.24"
+		"typeorm": "^0.3.25"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.7.7",
-		"@swc/core": "^1.12.1",
+		"@swc/cli": "0.7.8",
+		"@swc/core": "^1.12.14",
 		"typescript": "^5.8.3"
 	},
 	"files": [

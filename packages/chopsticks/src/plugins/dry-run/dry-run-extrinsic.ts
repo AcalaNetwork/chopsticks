@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs'
-import { blake2AsHex } from '@polkadot/util-crypto'
 import type { HexString } from '@polkadot/util/types'
+import { blake2AsHex } from '@polkadot/util-crypto'
 
 import { setupContext } from '../../context.js'
 import { defaultLogger } from '../../logger.js'

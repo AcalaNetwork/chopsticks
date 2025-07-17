@@ -1,6 +1,5 @@
 import { writeFileSync } from 'node:fs'
 import { pinoLogger } from '@acala-network/chopsticks-core'
-import _ from 'lodash'
 import type { Argv } from 'yargs'
 import { z } from 'zod'
 

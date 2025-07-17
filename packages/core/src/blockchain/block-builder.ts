@@ -10,8 +10,8 @@ import type {
   TransactionValidityError,
 } from '@polkadot/types/interfaces'
 import { compactAddLength, hexToU8a, stringToHex, u8aConcat } from '@polkadot/util'
-import { blake2AsU8a } from '@polkadot/util-crypto'
 import type { HexString } from '@polkadot/util/types'
+import { blake2AsU8a } from '@polkadot/util-crypto'
 import { defaultLogger, truncate } from '../logger.js'
 import { compactHex, getCurrentSlot } from '../utils/index.js'
 import type { TaskCallResponse } from '../wasm-executor/index.js'

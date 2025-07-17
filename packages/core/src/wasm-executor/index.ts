@@ -1,14 +1,12 @@
+import type { JsCallback } from '@acala-network/chopsticks-executor'
 import { hexToString, hexToU8a, u8aToBn } from '@polkadot/util'
-import { randomAsHex } from '@polkadot/util-crypto'
 import type { HexString } from '@polkadot/util/types'
+import { randomAsHex } from '@polkadot/util-crypto'
 import * as Comlink from 'comlink'
 import _ from 'lodash'
-
 import type { Block } from '../blockchain/block.js'
 import { defaultLogger, truncate } from '../logger.js'
 import { PREFIX_LENGTH, stripChildPrefix } from '../utils/index.js'
-
-import type { JsCallback } from '@acala-network/chopsticks-executor'
 export type { JsCallback }
 
 export type RuntimeVersion = {

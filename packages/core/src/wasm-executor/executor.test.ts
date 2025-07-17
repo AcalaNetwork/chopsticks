@@ -6,7 +6,7 @@ import * as Comlink from 'comlink'
 import _ from 'lodash'
 import { describe, expect, it } from 'vitest'
 
-import { WELL_KNOWN_KEYS, upgradeGoAheadSignal } from '../utils/proof.js'
+import { upgradeGoAheadSignal, WELL_KNOWN_KEYS } from '../utils/proof.js'
 import {
   calculateStateRoot,
   createProof,

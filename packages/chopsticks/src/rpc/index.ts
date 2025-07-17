@@ -1,10 +1,10 @@
 import {
   type Context,
+  allHandlers as coreHandlers,
+  defaultLogger,
   type Handlers,
   ResponseError,
   type SubscriptionManager,
-  allHandlers as coreHandlers,
-  defaultLogger,
 } from '@acala-network/chopsticks-core'
 
 import { getRpcExtensionMethods, loadRpcExtensionMethod } from '../plugins/index.js'

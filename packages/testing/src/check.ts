@@ -39,22 +39,31 @@ export type EventFilter = string | { method: string; section: string }
 /**
  * Configuration options for data redaction
  */
-export type RedactOptions = {
-  /** Redact numbers with optional precision */
-  number?: boolean | number
-  /** Redact 32-byte hex values */
-  hash?: boolean
-  /** Redact any hex values with 0x prefix */
-  hex?: boolean
-  /** Redact base58 addresses */
-  address?: boolean
-  /** Regex pattern for keys whose values should be redacted */
-  redactKeys?: RegExp
-  /** Regex pattern for keys that should be removed */
-  removeKeys?: RegExp
-  /** Regex pattern for keys that should not be redacted */
-  noRedactKeys?: RegExp
-}
+export type RedactOptions =
+  | {
+      /** Redact numbers with optional precision */
+      number?: boolean | number
+      /** Redact 32-byte hex values */
+      hash?: boolean
+      /** Redact any hex values with 0x prefix */
+      hex?: boolean
+      /** Redact base58 addresses */
+      address?: boolean
+      /** Regex pattern for keys whose values should be redacted */
+      redactKeys?: RegExp
+      /** Regex pattern for keys that should be removed */
+      removeKeys?: RegExp
+      /** Regex pattern for keys that should not be redacted */
+      noRedactKeys?: RegExp
+      /** Redact options for specific keys */
+      overrides?: Record<string, RedactOptions>
+
+      noRedact?: false
+    }
+  | {
+      /** Do not redact any values */
+      noRedact: true
+    }
 
 /**
  * Function type for test assertions
@@ -149,9 +158,13 @@ export class Checker {
    * @param options - Redaction options
    */
   redact(options: RedactOptions = { number: 2, hash: true }) {
-    this.#redactOptions = {
-      ...this.#redactOptions,
-      ...options,
+    if (options.noRedact) {
+      this.#redactOptions = undefined
+    } else {
+      this.#redactOptions = {
+        ...this.#redactOptions,
+        ...options,
+      }
     }
     return this
   }
@@ -160,16 +173,25 @@ export class Checker {
     if (!this.#redactOptions) {
       return value
     }
+    return this.#_redact(value, this.#redactOptions, 50)
+  }
 
-    const redactNumber = this.#redactOptions.number === true || typeof this.#redactOptions.number === 'number'
-    const precision = redactNumber
-      ? typeof this.#redactOptions.number === 'number'
-        ? this.#redactOptions.number
-        : 0
-      : 0
-    const redactHash = this.#redactOptions.hash === true
-    const redactHex = this.#redactOptions.hex === true
-    const redactAddress = this.#redactOptions.address === true
+  #_redact(obj: any, options: RedactOptions, depth: number): any {
+    if (depth <= 0) {
+      return obj
+    }
+    if (obj == null) {
+      return obj
+    }
+    if (options.noRedact) {
+      return obj
+    }
+
+    const redactNumber = options.number === true || typeof options.number === 'number'
+    const precision = redactNumber ? (typeof options.number === 'number' ? options.number : 0) : 0
+    const redactHash = options.hash === true
+    const redactHex = options.hex === true
+    const redactAddress = options.address === true
 
     const processNumber = (value: number) => {
       if (precision > 0) {
@@ -182,64 +204,57 @@ export class Checker {
       return '(number)'
     }
 
-    const process = (obj: any, depth: number): any => {
-      if (depth <= 0) {
-        return obj
+    if (Array.isArray(obj)) {
+      return obj.map((x) => this.#_redact(x, options, depth - 1))
+    }
+    if (redactNumber && typeof obj === 'number') {
+      return processNumber(obj)
+    }
+    if (typeof obj === 'string') {
+      if (redactNumber && obj.match(/0x000000[0-9a-f]{26}/)) {
+        // this is very likely u128 encoded in hex
+        const num = Number.parseInt(obj)
+        return processNumber(num)
       }
-      if (obj == null) {
-        return obj
+      if (redactHash && obj.match(/0x[0-9a-f]{64}/)) {
+        return '(hash)'
       }
-      if (Array.isArray(obj)) {
-        return obj.map((x) => process(x, depth - 1))
+      if (redactHex && obj.match(/0x[0-9a-f]+/)) {
+        return '(hex)'
       }
-      if (redactNumber && typeof obj === 'number') {
-        return processNumber(obj)
+      if (redactAddress && obj.match(/^[1-9A-HJ-NP-Za-km-z]{46,48}$/)) {
+        return '(address)'
       }
-      if (typeof obj === 'string') {
-        if (redactNumber && obj.match(/0x000000[0-9a-f]{26}/)) {
-          // this is very likely u128 encoded in hex
-          const num = Number.parseInt(obj)
-          return processNumber(num)
-        }
-        if (redactHash && obj.match(/0x[0-9a-f]{64}/)) {
-          return '(hash)'
-        }
-        if (redactHex && obj.match(/0x[0-9a-f]+/)) {
-          return '(hex)'
-        }
-        if (redactAddress && obj.match(/^[1-9A-HJ-NP-Za-km-z]{46,48}$/)) {
-          return '(address)'
-        }
-        if (redactNumber && obj.match(/^-?[\d,]+$/)) {
-          const num = Number.parseInt(obj.replace(/,/g, ''))
-          return processNumber(num)
-        }
-        return obj
-      }
-      if (typeof obj === 'object') {
-        return Object.fromEntries(
-          Object.entries(obj)
-            .filter(([k]) => {
-              if (this.#redactOptions?.removeKeys?.test(k)) {
-                return false
-              }
-              return true
-            })
-            .map(([k, v]) => {
-              if (this.#redactOptions?.noRedactKeys?.test(k)) {
-                return [k, v]
-              }
-              if (this.#redactOptions?.redactKeys?.test(k)) {
-                return [k, '(redacted)']
-              }
-              return [k, process(v, depth - 1)]
-            }),
-        )
+      if (redactNumber && obj.match(/^-?[\d,]+$/)) {
+        const num = Number.parseInt(obj.replace(/,/g, ''))
+        return processNumber(num)
       }
       return obj
     }
-
-    return process(value, 50)
+    if (typeof obj === 'object') {
+      return Object.fromEntries(
+        Object.entries(obj)
+          .filter(([k]) => {
+            if (options.removeKeys?.test(k)) {
+              return false
+            }
+            return true
+          })
+          .map(([k, v]) => {
+            if (options.noRedactKeys?.test(k)) {
+              return [k, v]
+            }
+            if (options.overrides?.[k]) {
+              return [k, this.#_redact(v, options.overrides[k], depth - 1)]
+            }
+            if (options.redactKeys?.test(k)) {
+              return [k, '(redacted)']
+            }
+            return [k, this.#_redact(v, options, depth - 1)]
+          }),
+      )
+    }
+    return obj
   }
 
   /**
@@ -328,24 +343,41 @@ export class Checker {
 }
 
 /**
- * Creates a set of checking utilities with a provided assertion function
- * @param expectFn - Function for making test assertions
+ * Creates a set of checking utilities with provided options
+ * @param options - Options for setting up checks
  * @returns Object containing various checking utilities
  */
-export const withExpect = (expectFn: ExpectFn) => {
+export const setupCheck = (options: {
+  expectFn: ExpectFn
+  redactOptions?: RedactOptions
+  extraCheck?: (value: any) => Promise<void> | void
+}) => {
+  const { expectFn, redactOptions, extraCheck } = options
   /**
    * Create a new Checker instance
    * @param value - Value to check
    * @param msg - Optional message for assertions
    */
   const check = (value: any, msg?: string) => {
+    let checker: Checker
     if (value instanceof Checker) {
+      checker = value
       if (msg) {
-        return value.message(msg)
+        checker = checker.message(msg)
       }
-      return value
+    } else {
+      checker = new Checker(expectFn, value, msg)
     }
-    return new Checker(expectFn, value, msg)
+
+    if (redactOptions) {
+      checker = checker.redact(redactOptions)
+    }
+
+    if (extraCheck) {
+      checker = checker.check(extraCheck)
+    }
+
+    return checker
   }
 
   type Api = { api: ApiPromise }
@@ -406,4 +438,13 @@ export const withExpect = (expectFn: ExpectFn) => {
     checkHrmp,
     checkHex,
   }
+}
+
+/**
+ * Creates a set of checking utilities with a provided assertion function
+ * @param expectFn - Function for making test assertions
+ * @returns Object containing various checking utilities
+ */
+export const withExpect = (expectFn: ExpectFn) => {
+  return setupCheck({ expectFn })
 }
