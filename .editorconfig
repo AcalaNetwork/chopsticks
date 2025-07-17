@@ -15,6 +15,6 @@ indent_size=2
 tab_width=8
 end_of_line=lf
 
-[*.{js,ts}]
+[*.{js,ts,mjs}]
 indent_style=space
 tab_width=2
