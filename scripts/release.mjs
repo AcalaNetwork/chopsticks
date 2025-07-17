@@ -66,8 +66,6 @@ const main = async () => {
 
   const packageJsonPaths = await getPackageJsonPaths()
 
-  const workspacePackageNames = packageJsonPaths.map((p) => JSON.parse(fs.readFileSync(p, 'utf-8')).name)
-
   // Update versions in all package.json files
   const allPackagePaths = [...packageJsonPaths, 'package.json']
   for (const packageJsonPath of allPackagePaths) {
@@ -77,20 +75,8 @@ const main = async () => {
     // update package version, if it has one
     if (packageJson.version) {
       packageJson.version = newVersion
+      fs.writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, '\t')}\n`)
     }
-
-    // update dependencies
-    for (const depType of ['dependencies', 'devDependencies', 'peerDependencies']) {
-      if (packageJson[depType]) {
-        for (const depName in packageJson[depType]) {
-          if (workspacePackageNames.includes(depName)) {
-            packageJson[depType][depName] = newVersion
-          }
-        }
-      }
-    }
-
-    fs.writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, '\t')}\n`)
   }
 
   // Git operations
