@@ -161,6 +161,21 @@ export class Block {
     }
   }
 
+  /**
+   * Get the block storage by key.
+   */
+  async getMany(key: string[]): Promise<Array<HexString | undefined>> {
+    const vals = await this.storage.getMany(key, true)
+    return vals.map(val => {
+      switch (val) {
+        case StorageValueKind.Deleted:
+          return undefined
+        default:
+          return val as HexString
+      }
+    })
+  }
+
   async read<T extends string>(type: T, query: StorageEntry, ...args: any[]) {
     const key = compactHex(query(...args))
     const value = await this.get(key)
