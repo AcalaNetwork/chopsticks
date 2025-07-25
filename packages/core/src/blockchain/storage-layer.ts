@@ -26,7 +26,7 @@ export interface StorageLayerProvider {
   /**
    * Get the value of many storage keys.
    */
-  getMany(key: string[], _cache: boolean): Promise<StorageValue[]>
+  getMany(keys: string[], _cache: boolean): Promise<StorageValue[]>
   /**
    * Get paged storage keys.
    */
@@ -63,9 +63,9 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     return data ?? undefined
   }
 
-  async getMany(key: string[], _cache: boolean): Promise<StorageValue[]> {
+  async getMany(keys: string[], _cache: boolean): Promise<StorageValue[]> {
     const result: StorageValue[] = [];
-    let pending = key.map((key, idx) => ({ key, idx }));
+    let pending = keys.map((key, idx) => ({ key, idx }));
 
     if (this.#db) {
       const results = await Promise.all(
@@ -84,7 +84,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     }
 
     if (pending.length) {
-      logger.trace({ at: this.#at, key }, "RemoteStorageLayer get");
+      logger.trace({ at: this.#at, keys }, "RemoteStorageLayer getMany");
       const data = await this.#api.getStorageBatch(
         "0x",
         pending.map(({ key }) => key as HexString),

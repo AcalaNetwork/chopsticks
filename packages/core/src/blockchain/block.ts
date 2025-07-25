@@ -164,8 +164,8 @@ export class Block {
   /**
    * Get the block storage by key.
    */
-  async getMany(key: string[]): Promise<Array<HexString | undefined>> {
-    const vals = await this.storage.getMany(key, true)
+  async getMany(keys: string[]): Promise<Array<HexString | undefined>> {
+    const vals = await this.storage.getMany(keys, true)
     return vals.map((val) => {
       switch (val) {
         case StorageValueKind.Deleted:
