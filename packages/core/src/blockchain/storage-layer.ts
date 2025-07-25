@@ -208,7 +208,10 @@ export class StorageLayer implements StorageLayerProvider {
     }
   }
 
-  #isDeleted(key: string): boolean {
+  async #isDeleted(key: string): Promise<boolean> {
+    if (this.#store.has(key)) {
+      return await this.#store.get(key) === StorageValueKind.Deleted
+    }
     return this.#deletedPrefix.some((dp) => key.startsWith(dp));
   }
 
@@ -217,7 +220,7 @@ export class StorageLayer implements StorageLayerProvider {
       return this.#store.get(key)
     }
 
-    if (this.#isDeleted(key)) {
+    if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
       return StorageValueKind.Deleted
     }
 
@@ -326,7 +329,7 @@ export class StorageLayer implements StorageLayerProvider {
       const next = await this.findNextKey(prefix, startKey, undefined)
       if (!next) break
       startKey = next
-      if (this.#isDeleted(next)) continue
+      if (await this.#isDeleted(next)) continue
       keys.push(next)
     }
     return keys
