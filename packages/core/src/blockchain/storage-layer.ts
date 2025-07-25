@@ -208,13 +208,6 @@ export class StorageLayer implements StorageLayerProvider {
     }
   }
 
-  async #isDeleted(key: string): Promise<boolean> {
-    if (this.#store.has(key)) {
-      return await this.#store.get(key) === StorageValueKind.Deleted
-    }
-    return this.#deletedPrefix.some((dp) => key.startsWith(dp));
-  }
-
   async get(key: string, cache: boolean): Promise<StorageValue | undefined> {
     if (this.#store.has(key)) {
       return this.#store.get(key)
@@ -329,10 +322,13 @@ export class StorageLayer implements StorageLayerProvider {
       const next = await this.findNextKey(prefix, startKey, undefined)
       if (!next) break
       startKey = next
-      if (await this.#isDeleted(next)) continue
       keys.push(next)
     }
-    return keys
+
+    // value could be deleted on #parent and we have to exclude that. We have to load the values to check it
+    const values = await this.getMany(keys, false);
+
+    return keys.filter((_, i) => values[i] != StorageValueKind.Deleted)
   }
 
   /**
