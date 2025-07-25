@@ -16,14 +16,11 @@ export async function getDescendantValues(
     pageSize: PAGE_SIZE,
   })
 
-  const items = await Promise.all(
-    keys.map((key) =>
-      block.get(key).then((value) => ({
-        key,
-        value,
-      })),
-    ),
-  )
+  const items = (await block.getMany(keys))
+    .map((value, idx) => ({
+      key: keys[idx],
+      value
+    }))
 
   if (keys.length < PAGE_SIZE) {
     return {

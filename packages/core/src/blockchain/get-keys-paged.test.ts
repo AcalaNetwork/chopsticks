@@ -29,6 +29,7 @@ describe('getKeysPaged', () => {
   Api.prototype.getStorage = vi.fn(async (_key, _at) => {
     return '0x1' as any
   })
+  Api.prototype.getStorageBatch = vi.fn(async (_prefix, keys, _at) => keys.map(() => '0x1'))
   const mockApi = new Api(undefined!)
 
   const remoteLayer = new RemoteStorageLayer(mockApi, hash, undefined)
