@@ -64,44 +64,44 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   }
 
   async getMany(keys: string[], _cache: boolean): Promise<StorageValue[]> {
-    const result: StorageValue[] = [];
-    let pending = keys.map((key, idx) => ({ key, idx }));
+    const result: StorageValue[] = []
+    let pending = keys.map((key, idx) => ({ key, idx }))
 
     if (this.#db) {
       const results = await Promise.all(
-        pending.map(({ key }) => this.#db!.queryStorage(this.#at as HexString, key as HexString))
-      );
+        pending.map(({ key }) => this.#db!.queryStorage(this.#at as HexString, key as HexString)),
+      )
 
-      const oldPending = pending;
-      pending = [];
+      const oldPending = pending
+      pending = []
       results.forEach((res, idx) => {
         if (res) {
-          result[idx] = res.value ?? undefined;
+          result[idx] = res.value ?? undefined
         } else {
-          pending.push({ key: oldPending[idx].key, idx });
+          pending.push({ key: oldPending[idx].key, idx })
         }
-      });
+      })
     }
 
     if (pending.length) {
-      logger.trace({ at: this.#at, keys }, "RemoteStorageLayer getMany");
+      logger.trace({ at: this.#at, keys }, 'RemoteStorageLayer getMany')
       const data = await this.#api.getStorageBatch(
-        "0x",
+        '0x',
         pending.map(({ key }) => key as HexString),
-        this.#at
-      );
+        this.#at,
+      )
       data.forEach(([, res], idx) => {
-        result[pending[idx].idx] = res ?? undefined;
-      });
+        result[pending[idx].idx] = res ?? undefined
+      })
 
       if (this.#db?.saveStorageBatch) {
-        this.#db?.saveStorageBatch(data.map(([key, value]) => ({ key, value, blockHash: this.#at })));
+        this.#db?.saveStorageBatch(data.map(([key, value]) => ({ key, value, blockHash: this.#at })))
       } else if (this.#db) {
-        data.forEach(([key, value]) => this.#db?.saveStorage(this.#at, key, value));
+        data.forEach(([key, value]) => this.#db?.saveStorage(this.#at, key, value))
       }
     }
 
-    return result;
+    return result
   }
 
   async findNextKey(prefix: string, startKey: string, _knownBest?: string): Promise<string | undefined> {
@@ -230,7 +230,7 @@ export class StorageLayer implements StorageLayerProvider {
 
   async getMany(keys: string[], cache: boolean): Promise<StorageValue[]> {
     const result: StorageValue[] = []
-    const pending: Array<{ key: string, idx: number }> = []
+    const pending: Array<{ key: string; idx: number }> = []
 
     const preloadedPromises = keys.map(async (key, idx) => {
       if (this.#store.has(key)) {
@@ -243,7 +243,10 @@ export class StorageLayer implements StorageLayerProvider {
     })
 
     if (pending.length && this.#parent) {
-      const vals = await this.#parent.getMany(pending.map(p => p.key), false)
+      const vals = await this.#parent.getMany(
+        pending.map((p) => p.key),
+        false,
+      )
       vals.forEach((val, idx) => {
         if (cache) {
           this.#store.set(pending[idx].key, val)
@@ -326,9 +329,9 @@ export class StorageLayer implements StorageLayerProvider {
     }
 
     // value could be deleted on #parent and we have to exclude that. We have to load the values to check it
-    const values = await this.getMany(keys, false);
+    const values = await this.getMany(keys, false)
 
-    return keys.filter((_, i) => values[i] != StorageValueKind.Deleted)
+    return keys.filter((_, i) => values[i] !== StorageValueKind.Deleted)
   }
 
   /**
