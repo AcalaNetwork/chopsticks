@@ -315,6 +315,22 @@ export class StorageLayer implements StorageLayerProvider {
     return knownBest
   }
 
+  private async isDeleted(key: string) {
+    if (!(this.#parent instanceof RemoteStorageLayer)) {
+      return (await this.get(key, false)) === StorageValueKind.Deleted
+    }
+
+    if (this.#store.has(key)) {
+      return this.#store.get(key) === StorageValueKind.Deleted
+    }
+
+    if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
+      return true
+    }
+
+    return false
+  }
+
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     if (!startKey || startKey === '0x') {
       startKey = prefix
@@ -325,13 +341,10 @@ export class StorageLayer implements StorageLayerProvider {
       const next = await this.findNextKey(prefix, startKey, undefined)
       if (!next) break
       startKey = next
+      if (await this.isDeleted(next)) continue
       keys.push(next)
     }
-
-    // value could be deleted on #parent and we have to exclude that. We have to load the values to check it
-    const values = await this.getMany(keys, false)
-
-    return keys.filter((_, i) => values[i] !== StorageValueKind.Deleted)
+    return keys
   }
 
   /**
