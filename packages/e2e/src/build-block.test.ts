@@ -26,7 +26,7 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).concurrent.each([
   { chain: 'Kusama Asset Hub', endpoint: 'wss://kusama-asset-hub-rpc.polkadot.io' },
   {
     chain: 'Karura',
-    endpoint: 'wss://karura-rpc.aca-api.network',
+    endpoint: ['wss://karura-rpc.aca-api.network', 'wss://karura-rpc.n.dwellir.com'],
   },
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
   { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
