@@ -20,6 +20,10 @@ export type StorageValue = string | StorageValueKind | undefined
 
 export interface StorageLayerProvider {
   /**
+   * Returns true if key is deleted
+   */
+  deleted(key: string): boolean
+  /**
    * Get the value of a storage key.
    */
   get(key: string, cache: boolean): Promise<StorageValue>
@@ -48,6 +52,10 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     this.#api = api
     this.#at = at
     this.#db = db
+  }
+
+  deleted(_key: string): boolean {
+    return false
   }
 
   async get(key: string, _cache: boolean): Promise<StorageValue> {
@@ -208,6 +216,22 @@ export class StorageLayer implements StorageLayerProvider {
     }
   }
 
+  deleted(key: string): boolean {
+    if (this.#store.has(key)) {
+      return this.#store.get(key) === StorageValueKind.Deleted
+    }
+
+    if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
+      return true
+    }
+
+    if (this.#parent) {
+      return this.#parent.deleted(key)
+    }
+
+    return false
+  }
+
   async get(key: string, cache: boolean): Promise<StorageValue | undefined> {
     if (this.#store.has(key)) {
       return this.#store.get(key)
@@ -315,22 +339,6 @@ export class StorageLayer implements StorageLayerProvider {
     return knownBest
   }
 
-  private async isDeleted(key: string) {
-    if (!(this.#parent instanceof RemoteStorageLayer)) {
-      return (await this.get(key, false)) === StorageValueKind.Deleted
-    }
-
-    if (this.#store.has(key)) {
-      return this.#store.get(key) === StorageValueKind.Deleted
-    }
-
-    if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
-      return true
-    }
-
-    return false
-  }
-
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
     if (!startKey || startKey === '0x') {
       startKey = prefix
@@ -341,7 +349,7 @@ export class StorageLayer implements StorageLayerProvider {
       const next = await this.findNextKey(prefix, startKey, undefined)
       if (!next) break
       startKey = next
-      if (await this.isDeleted(next)) continue
+      if (this.deleted(next)) continue
       keys.push(next)
     }
     return keys
