@@ -7,9 +7,9 @@ import { firstValueFrom } from 'rxjs'
 import { describe, expect, it } from 'vitest'
 import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
 
-const testApi = await setupPolkadotApi(env.acalaV15)
+describe('chainHead_v1 rpc', async () => {
+  const testApi = await setupPolkadotApi(env.acalaV15)
 
-describe('chainHead_v1 rpc', () => {
   it('reports the chain state', async () => {
     const chainHead = testApi.observableClient.chainHead$()
     const { next, error, subscription, nextValue } = observe(chainHead.follow$)
