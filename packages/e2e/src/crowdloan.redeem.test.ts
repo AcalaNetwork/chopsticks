@@ -78,7 +78,7 @@ describe('Polkadot Crowdloan Refund', async () => {
         )
       }
     },
-    { timeout: 400_000 },
+    400_000,
   )
 
   it('withdraw funds from crowdloan', async () => {

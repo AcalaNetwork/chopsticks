@@ -27,13 +27,9 @@ setupApi({
 })
 
 describe.runIf(process.env.CI || process.env.RUN_ALL)('storage-migrate', async () => {
-  it(
-    'no empty keys',
-    async () => {
-      await dev.newBlock()
-      const metadatas = await api.query.assetRegistry.metadata.entries()
-      expect(metadatas.some(([_, v]) => v.isEmpty)).toBeFalsy()
-    },
-    { timeout: 300_000 },
-  )
+  it('no empty keys', async () => {
+    await dev.newBlock()
+    const metadatas = await api.query.assetRegistry.metadata.entries()
+    expect(metadatas.some(([_, v]) => v.isEmpty)).toBeFalsy()
+  }, 300_000)
 })

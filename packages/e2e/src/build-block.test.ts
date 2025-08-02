@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { setupAll } from './helper.js'
 
@@ -12,10 +12,10 @@ const KUSAMA_STORAGE = {
   },
 }
 
-describe.runIf(process.env.CI || process.env.RUN_ALL).each([
+describe.runIf(process.env.CI || process.env.RUN_ALL).concurrent.each([
   { chain: 'Polkadot', endpoint: ['wss://rpc.ibp.network/polkadot', 'wss://polkadot-rpc.dwellir.com'] },
   { chain: 'Polkadot Asset Hub', endpoint: 'wss://asset-hub-polkadot-rpc.dwellir.com' },
-  { chain: 'Polkadot Collectives', endpoint: 'wss://sys.ibp.network/collectives-polkadot' },
+  { chain: 'Polkadot Collectives', endpoint: 'wss://polkadot-collectives-rpc.polkadot.io' },
   { chain: 'Acala', endpoint: ['wss://acala-rpc.aca-api.network', 'wss://acala-rpc.n.dwellir.com'] },
 
   {
@@ -29,17 +29,11 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
     endpoint: ['wss://karura-rpc.aca-api.network', 'wss://karura-rpc.n.dwellir.com'],
   },
   { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
-  // recent vitest fails to run more than 8 cases
-  // { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
-  // { chain: 'Westend Collectives', endpoint: 'wss://sys.ibp.network/collectives-westend' },
+  { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
+  { chain: 'Westend Collectives', endpoint: 'wss://westend-collectives-rpc.polkadot.io' },
 ])('Latest $chain can build blocks', async ({ endpoint, storage }) => {
-  const { setupPjs, teardownAll } = await setupAll({ endpoint })
-
-  afterAll(async () => {
-    await teardownAll()
-  })
-
   it('build blocks', { timeout: 300_000, retry: 1 }, async () => {
+    const { setupPjs, teardownAll } = await setupAll({ endpoint })
     const { chain, ws, teardown } = await setupPjs()
     if (storage) {
       await ws.send('dev_setStorage', [storage])
@@ -48,9 +42,11 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
     await ws.send('dev_newBlock', [{ count: 2 }])
     expect(chain.head.number).eq(blockNumber + 2)
     await teardown()
+    await teardownAll()
   })
 
   it('build block using unsafeBlockHeight', async () => {
+    const { setupPjs, teardownAll } = await setupAll({ endpoint })
     const { chain, ws, teardown } = await setupPjs()
     if (storage) {
       await ws.send('dev_setStorage', [storage])
@@ -69,5 +65,6 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).each([
     expect(chain.head.number).eq(unsafeBlockHeight + 1)
 
     await teardown()
+    await teardownAll()
   })
 })
