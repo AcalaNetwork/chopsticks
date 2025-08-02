@@ -140,9 +140,9 @@ export const setupAll = async ({
       }
     },
     async setupPolkadotApi(): Promise<TestPolkadotApi> {
-      const { chain, port, ws, teardown } = await setup()
+      const { chain, ws, teardown } = await setup()
 
-      const provider = getWsProvider(`ws://localhost:${port}`)
+      const provider = getWsProvider(ws.endpoint)
       const client = createClient(provider)
       const substrateClient = createSubstrateClient(provider)
       const observableClient = getObservableClient(substrateClient)

@@ -62,6 +62,6 @@ describe('Migration', async () => {
         )
       }
     },
-    { timeout: 400_000 },
+    400_000,
   )
 })
