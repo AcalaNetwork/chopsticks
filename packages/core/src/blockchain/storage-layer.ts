@@ -28,6 +28,10 @@ export interface StorageLayerProvider {
    */
   get(key: string, cache: boolean): Promise<StorageValue>
   /**
+   * Get the value of many storage keys.
+   */
+  getMany(keys: string[], _cache: boolean): Promise<StorageValue[]>
+  /**
    * Get paged storage keys.
    */
   getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]>
@@ -65,6 +69,47 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     const data = await this.#api.getStorage(key, this.#at)
     this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
     return data ?? undefined
+  }
+
+  async getMany(keys: string[], _cache: boolean): Promise<StorageValue[]> {
+    const result: StorageValue[] = []
+    let pending = keys.map((key, idx) => ({ key, idx }))
+
+    if (this.#db) {
+      const results = await Promise.all(
+        pending.map(({ key }) => this.#db!.queryStorage(this.#at as HexString, key as HexString)),
+      )
+
+      const oldPending = pending
+      pending = []
+      results.forEach((res, idx) => {
+        if (res) {
+          result[idx] = res.value ?? undefined
+        } else {
+          pending.push({ key: oldPending[idx].key, idx })
+        }
+      })
+    }
+
+    if (pending.length) {
+      logger.trace({ at: this.#at, keys }, 'RemoteStorageLayer getMany')
+      const data = await this.#api.getStorageBatch(
+        '0x',
+        pending.map(({ key }) => key as HexString),
+        this.#at,
+      )
+      data.forEach(([, res], idx) => {
+        result[pending[idx].idx] = res ?? undefined
+      })
+
+      if (this.#db?.saveStorageBatch) {
+        this.#db?.saveStorageBatch(data.map(([key, value]) => ({ key, value, blockHash: this.#at })))
+      } else if (this.#db) {
+        data.forEach(([key, value]) => this.#db?.saveStorage(this.#at, key, value))
+      }
+    }
+
+    return result
   }
 
   async findNextKey(prefix: string, startKey: string, _knownBest?: string): Promise<string | undefined> {
@@ -205,6 +250,37 @@ export class StorageLayer implements StorageLayerProvider {
     }
 
     return undefined
+  }
+
+  async getMany(keys: string[], cache: boolean): Promise<StorageValue[]> {
+    const result: StorageValue[] = []
+    const pending: Array<{ key: string; idx: number }> = []
+
+    const preloadedPromises = keys.map(async (key, idx) => {
+      if (this.#store.has(key)) {
+        result[idx] = await this.#store.get(key)
+      } else if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
+        result[idx] = StorageValueKind.Deleted
+      } else {
+        pending.push({ key, idx })
+      }
+    })
+
+    if (pending.length && this.#parent) {
+      const vals = await this.#parent.getMany(
+        pending.map((p) => p.key),
+        false,
+      )
+      vals.forEach((val, idx) => {
+        if (cache) {
+          this.#store.set(pending[idx].key, val)
+        }
+        result[pending[idx].idx] = val
+      })
+    }
+
+    await Promise.all(preloadedPromises)
+    return result
   }
 
   set(key: string, value: StorageValue): void {
