@@ -1,4 +1,8 @@
-endpoint: wss://hydradx-rpc.dwellir.com
+endpoint: 
+  - wss://hydration-rpc.n.dwellir.com
+  - wss://hydration.ibp.network
+  - wss://rpc.helikon.io/hydradx
+  - wss://hydration.dotters.network
 mock-signature-host: true
 block: ${env.HYDRADX_BLOCK_NUMBER}
 db: ./hydradx.db.sqlite
@@ -212,6 +216,4 @@ import-storage:
           - 1000099 # Acala (ACA)
         - free: '100000000000000000000000'  
   TechnicalCommittee:
-    Members: ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"]
-  Council:
     Members: ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"]
