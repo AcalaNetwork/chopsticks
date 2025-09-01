@@ -4,6 +4,7 @@ import { type BN, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
 import _ from 'lodash'
+import { defaultLogger } from '../../../logger.js'
 import { compactHex, getCurrentSlot, getParaId } from '../../../utils/index.js'
 import {
   dmqMqcHead,
@@ -18,6 +19,8 @@ import { createProof, decodeProof } from '../../../wasm-executor/index.js'
 import type { Block } from '../../block.js'
 import type { BuildBlockParams, DownwardMessage, HorizontalMessage } from '../../txpool.js'
 import type { InherentProvider } from '../index.js'
+
+const logger = defaultLogger.child({ name: 'parachain-validation-data' })
 
 const MOCK_VALIDATION_DATA = {
   validationData: {
@@ -59,7 +62,7 @@ export type ValidationData = {
   }
 }
 
-const getValidationData = async (parent: Block) => {
+const getValidationData = async (parent: Block, fallback = true): Promise<ValidationData> => {
   const meta = await parent.meta
   if (parent.number === 0) {
     const { trieRootHash, nodes } = await createProof(MOCK_VALIDATION_DATA.relayChainState.trieNodes, [])
@@ -72,17 +75,42 @@ const getValidationData = async (parent: Block) => {
       },
     }
   }
-  const extrinsics = await parent.extrinsics
-  const validationDataExtrinsic = extrinsics.find((extrinsic) => {
-    const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
-    return firstArg && 'validationData' in firstArg
-  })
-  if (!validationDataExtrinsic) {
-    throw new Error('Missing validation data from block')
+  try {
+    const extrinsics = await parent.extrinsics
+    const validationDataExtrinsic = extrinsics.find((extrinsic) => {
+      const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
+      return firstArg && 'validationData' in firstArg
+    })
+    if (!validationDataExtrinsic) {
+      throw new Error('Missing validation data from block')
+    }
+    return meta.registry
+      .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
+      .args[0].toJSON() as any as ValidationData
+  } catch (e) {
+    logger.warn('Failed to get validation data from block %d %s', parent.number, e)
+
+    if (fallback) {
+      // this could fail due to wasm override that breaks the validation data format
+      // so we will try parent's parent
+      const grandParent = await parent.parentBlock
+      if (grandParent) {
+        const data = await getValidationData(grandParent, false)
+        return {
+          ...data,
+          validationData: {
+            ...data.validationData,
+            relayParentNumber: data.validationData.relayParentNumber + 2,
+          }
+        }
+      } else {
+        throw e
+      }
+    } else {
+      // fallback failed, throw error
+      throw e
+    }
   }
-  return meta.registry
-    .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
-    .args[0].toJSON() as any as ValidationData
 }
 
 export class SetValidationData implements InherentProvider {
@@ -129,7 +157,8 @@ export class SetValidationData implements InherentProvider {
         const relayCurrentSlot = decoded[key]
           ? meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
           : (await getCurrentSlot(parent)) * relaySlotIncrease
-        const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + relaySlotIncrease)
+        const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + relaySlotIncrease + 1) // +1 to be safe
+        logger.debug({ relayCurrentSlot, newSlot: newSlot.toNumber() }, 'Updating relay current slot')
         newEntries.push([key, u8aToHex(newSlot.toU8a())])
       } else {
         newEntries.push([key, decoded[key]])
