@@ -101,7 +101,7 @@ const getValidationData = async (parent: Block, fallback = true): Promise<Valida
           validationData: {
             ...data.validationData,
             relayParentNumber: data.validationData.relayParentNumber + 2,
-          }
+          },
         }
       } else {
         throw e
