@@ -35,11 +35,11 @@ describe('block', async () => {
 
     const head = chain.head
     const newBlock = await chain.newBlock()
-    expect(newBlock.hash).toMatchInlineSnapshot(`"0xfca2b29b2ef3e018b87ce56dfa6200d973201222cbb67dde3aca6db905b440cc"`)
+    expect(newBlock.hash).toMatchInlineSnapshot(`"0xb20b7e701f6a6e9e700a8f81849d59241f7ae51e08260491292f34bc9d06b2ba"`)
 
     await chain.setHead(head)
     await api.tx.system.remark('test').signAndSend(alice)
     const newBlock2 = await chain.newBlock()
-    expect(newBlock2.hash).toMatchInlineSnapshot(`"0xbf570d4c473241efbc4ffe08145e074e3f22b1f40dc2fac8108912bec8ac845e"`)
+    expect(newBlock2.hash).toMatchInlineSnapshot(`"0x9f8ec5d13ff39c5ab53fd8dc3bf2ce3f65bf5ddf86865eb8e9fea904c0bff45d"`)
   })
 })
