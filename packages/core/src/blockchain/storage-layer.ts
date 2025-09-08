@@ -93,9 +93,10 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 
     if (pending.length) {
       logger.trace({ at: this.#at, keys }, 'RemoteStorageLayer getMany')
-      const data = await this.getStorageBatch(
+      const data = await this.#api.getStorageBatch(
         '0x',
         pending.map(({ key }) => key as HexString),
+        this.#at,
       )
       data.forEach(([, res], idx) => {
         result[pending[idx].idx] = res ?? undefined
@@ -176,7 +177,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 
         if (newBatch.length > 0) {
           // batch fetch storage values and save to db, they may be used later
-          this.getStorageBatch(prefix as HexString, newBatch).then((storage) => {
+          this.#api.getStorageBatch(prefix as HexString, newBatch, this.#at).then((storage) => {
             for (const [key, value] of storage) {
               this.#db?.saveStorage(this.#at, key, value)
             }
@@ -185,29 +186,6 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
     }
     return keysPaged
-  }
-
-  private async getStorageBatch(prefix: HexString, keys: HexString[]) {
-    const BATCH_QUERY_SIZE = 300
-
-    // Split keys into batches of roughly the same size, but maximum BATCH_QUERY_SIZE
-    const batchCount = Math.ceil(keys.length / BATCH_QUERY_SIZE)
-    const batchSize = Math.floor(keys.length / batchCount)
-    const remainder = keys.length % batchCount
-
-    const batches: Array<Array<HexString>> = []
-    let included = 0
-    for (let i = 0; i < batchCount; i++) {
-      const size = batchSize + (i < remainder ? 1 : 0)
-
-      batches.push(keys.slice(included, included + size))
-      included += size
-    }
-
-    const batchResults = await Promise.all(
-      batches.map((batch): Promise<[HexString, any][]> => this.#api.getStorageBatch(prefix, batch, this.#at)),
-    )
-    return batchResults.flat()
   }
 }
 
