@@ -4,7 +4,7 @@ import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../blockchain/block.js'
 import type { Blockchain } from '../blockchain/index.js'
-import { getAuraSlotDuration } from '../wasm-executor/index.js'
+import { getAuraSlotDuration, getSpinSlotDuration } from '../wasm-executor/index.js'
 
 export * from './decoder.js'
 export * from './set-storage.js'
@@ -130,5 +130,20 @@ export const getSlotDuration = async (head: Block) => {
   let slotDuration: number
   slotDuration ??= (meta.consts.babe?.expectedBlockTime as any as BN)?.toNumber()
   slotDuration ??= (meta.consts.asyncBacking?.expectedBlockTime as any as BN)?.toNumber()
-  return slotDuration || getAuraSlotDuration(await head.wasm).catch(() => 12_000)
+
+  if (slotDuration) {
+    return slotDuration
+  }
+
+  const wasm = await head.wasm
+
+  try {
+    return await getAuraSlotDuration(wasm)
+  } catch {}
+
+  try {
+    return await getSpinSlotDuration(wasm)
+  } catch {}
+
+  return 12_000
 }

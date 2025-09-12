@@ -90,7 +90,7 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
 
   let newLogs = !head.number ? await genesisDigestLogs(head) : parentHeader.digest.logs.toArray()
   const consensus = getConsensus(parentHeader)
-  if (consensus?.consensusEngine.isAura) {
+  if (consensus?.consensusEngine.isAura || consensus?.consensusEngine?.toString() === 'spin') {
     const slot = await getCurrentSlot(head)
     const newSlot = compactAddLength(meta.registry.createType('Slot', slot + 1).toU8a())
     newLogs = [

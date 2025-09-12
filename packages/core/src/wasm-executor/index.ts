@@ -206,6 +206,19 @@ export const getAuraSlotDuration = _.memoize(async (wasm: HexString): Promise<nu
   return u8aToBn(hexToU8a(result.Call.result).subarray(0, 8 /* u64: 8 bytes */)).toNumber()
 })
 
+export const getSpinSlotDuration = _.memoize(async (wasm: HexString): Promise<number> => {
+  const result = await runTask({
+    wasm,
+    calls: [['SpinApi_slot_duration', []]],
+    mockSignatureHost: false,
+    allowUnresolvedImports: false,
+    runtimeLogLevel: 0,
+  })
+
+  if ('Error' in result) throw new Error(result.Error)
+  return u8aToBn(hexToU8a(result.Call.result).subarray(0, 8 /* u64: 8 bytes */)).toNumber()
+})
+
 export const destroyWorker = async () => {
   if (!__executor_worker) return
   const executor = await __executor_worker
