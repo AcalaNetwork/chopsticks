@@ -1,3 +1,4 @@
+import RpcError from '@polkadot/rpc-provider/coder/error'
 import type { ProviderInterface, ProviderInterfaceCallback } from '@polkadot/rpc-provider/types'
 import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { HexString } from '@polkadot/util/types'
@@ -146,6 +147,20 @@ export class Api {
   }
 
   async getStorageBatch(prefix: HexString, keys: HexString[], hash?: HexString) {
+    // On response limit error, retry with a smaller batch size
+    const retryOnError = async (ex: unknown) => {
+      if (ex instanceof RpcError && (ex.code === -32008 || ex.message === 'Response is too big')) {
+        // Can't split beyond key size = 2
+        if (keys.length < 2) throw ex
+
+        const mid = Math.floor(keys.length / 2)
+        const batches = [keys.slice(0, mid), keys.slice(mid)]
+        const results = await Promise.all(batches.map((batch) => this.getStorageBatch(prefix, batch, hash)))
+        return results.flat()
+      }
+      throw ex
+    }
+
     const [child] = splitChildKey(prefix)
     if (child) {
       // child storage key, use childstate_getStorageEntries
@@ -155,6 +170,7 @@ export class Api {
       return this.#provider
         .send<HexString[]>('childstate_getStorageEntries', params, !!hash)
         .then((values) => _.zip(keys, values) as [HexString, HexString | null][])
+        .catch(retryOnError)
     }
     // main storage key, use state_getStorageAt
     const params: any[] = [keys]
@@ -162,6 +178,7 @@ export class Api {
     return this.#provider
       .send<HexString[]>('state_queryStorageAt', params, !!hash)
       .then((result) => (result[0]?.['changes'] as [HexString, HexString | null][]) || [])
+      .catch(retryOnError)
   }
 
   async subscribeRemoteNewHeads(cb: ProviderInterfaceCallback) {
