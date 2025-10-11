@@ -1,11 +1,11 @@
 import { GenericExtrinsic } from '@polkadot/types'
 import type { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
-import { type BN, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
+import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
 import _ from 'lodash'
 import { defaultLogger } from '../../../logger.js'
-import { compactHex, getCurrentSlot, getParaId } from '../../../utils/index.js'
+import { compactHex, getCurrentSlot, getParaId, getSlotDuration } from '../../../utils/index.js'
 import {
   dmqMqcHead,
   hrmpChannels,
@@ -22,6 +22,7 @@ import type { InherentProvider } from '../index.js'
 
 const logger = defaultLogger.child({ name: 'parachain-validation-data' })
 
+const RELAY_CHAIN_SLOT_DURATION_MILLIS: number = 6_000
 const MOCK_VALIDATION_DATA = {
   validationData: {
     relayParentNumber: 1000,
@@ -140,16 +141,8 @@ export class SetValidationData implements InherentProvider {
       extrinsic.relayChainState.trieNodes,
     )
 
-    const relaySlotIncrease = Math.max(
-      1, // min
-      (meta.consts.timestamp?.minimumPeriod as any as BN) // legacy
-        ?.divn(3000) // relaychain min period
-        ?.toNumber() ||
-        (meta.consts.aura?.slotDuration as any as BN) // async backing
-          ?.divn(6000) // relaychain block time
-          ?.toNumber() ||
-        1,
-    )
+    const slotDuration = await getSlotDuration(newBlock)
+    const relaySlotIncrease = Math.trunc(slotDuration / RELAY_CHAIN_SLOT_DURATION_MILLIS) || 1 // at least increase by 1
 
     for (const key of Object.values(WELL_KNOWN_KEYS)) {
       if (key === WELL_KNOWN_KEYS.CURRENT_SLOT) {
@@ -157,7 +150,7 @@ export class SetValidationData implements InherentProvider {
         const relayCurrentSlot = decoded[key]
           ? meta.registry.createType<Slot>('Slot', hexToU8a(decoded[key])).toNumber()
           : (await getCurrentSlot(parent)) * relaySlotIncrease
-        const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + relaySlotIncrease + 1) // +1 to be safe
+        const newSlot = meta.registry.createType<Slot>('Slot', relayCurrentSlot + relaySlotIncrease)
         logger.debug({ relayCurrentSlot, newSlot: newSlot.toNumber() }, 'Updating relay current slot')
         newEntries.push([key, u8aToHex(newSlot.toU8a())])
       } else {

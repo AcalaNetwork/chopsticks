@@ -74,7 +74,7 @@ describe('storage', () => {
 
     tick = next()
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      `"0xd93ac4e1814b874c059e647b9726f38c7f42ec673e171572d8e38992f6072b77"`,
+      `"0x3ee18ba950984f5ed8c6c6d407784c551aea7471ba1000f74998ebd5a3fbc9bf"`,
     )
     await tick
 
@@ -84,7 +84,7 @@ describe('storage', () => {
     unsub()
 
     expect(await dev.newBlock()).toMatchInlineSnapshot(
-      `"0xf9c6e17a227e188f64338f72626f44a84a55c3b959d9305db309bbed05f76de1"`,
+      `"0x1950829c5687d921d786c184dae9eb20ae55d2020b07adafcb1cfb1a5be4212f"`,
     )
 
     await delay(100)
