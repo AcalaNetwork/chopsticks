@@ -35,7 +35,7 @@ test.describe('index', () => {
       })
       return block.result.hash
     })
-    expect(savedHash).toBe('0x64809750cb08df1076b3470ce42a0d1e1d45984d59bcfc876ce2d3424fd5416d')
+    expect(savedHash).toBe('0x7403a6c53702bfbace9737a5b3cc84fd02d5f8b30259e718455738ae841d992b')
   })
 
   test('dry run extrinsic', async ({ page }) => {
@@ -63,14 +63,14 @@ test.describe('index', () => {
     expect(hightestBlock).toEqual(
       expect.objectContaining({
         number: 4_000_002,
-        hash: '0xe8657fc0154874e9412aea2c3567743d257384795d99719b900d628763ffb760',
+        hash: '0x9db1dc9525d7574ad6aed6b4302c9fb5069c5cd35288d97ebc78a58782f57b0d',
       }),
     )
     const blockByNumber = await page.evaluate(() => globalThis.chain.db?.queryBlockByNumber(4_000_001))
     expect(blockByNumber).toEqual(
       expect.objectContaining({
         number: 4_000_001,
-        hash: '0x64809750cb08df1076b3470ce42a0d1e1d45984d59bcfc876ce2d3424fd5416d',
+        hash: '0x7403a6c53702bfbace9737a5b3cc84fd02d5f8b30259e718455738ae841d992b',
       }),
     )
     const blocksCount = await page.evaluate(() => globalThis.chain.db?.blocksCount())
@@ -87,7 +87,7 @@ test.describe('index', () => {
       expect(hightestBlock).toEqual(
         expect.objectContaining({
           number: 4_000_001,
-          hash: '0x64809750cb08df1076b3470ce42a0d1e1d45984d59bcfc876ce2d3424fd5416d',
+          hash: '0x7403a6c53702bfbace9737a5b3cc84fd02d5f8b30259e718455738ae841d992b',
         }),
       )
     }
