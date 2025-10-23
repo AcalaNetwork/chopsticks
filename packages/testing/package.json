@@ -14,13 +14,13 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-utils": "workspace:*",
-		"@polkadot/api": "^16.4.1",
-		"@polkadot/types": "^16.4.1"
+		"@polkadot/api": "^16.4.9",
+		"@polkadot/types": "^16.4.9"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.7.8",
-		"@swc/core": "^1.12.14",
-		"typescript": "^5.8.3"
+		"@swc/core": "1.13.5",
+		"typescript": "^5.9.3"
 	},
 	"files": [
 		"dist/esm/**",

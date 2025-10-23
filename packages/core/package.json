@@ -15,27 +15,27 @@
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
-		"@polkadot/rpc-provider": "^16.4.1",
-		"@polkadot/types": "^16.4.1",
-		"@polkadot/types-codec": "^16.4.1",
-		"@polkadot/types-known": "^16.4.1",
-		"@polkadot/util": "^13.5.3",
-		"@polkadot/util-crypto": "^13.5.3",
+		"@polkadot/rpc-provider": "^16.4.9",
+		"@polkadot/types": "^16.4.9",
+		"@polkadot/types-codec": "^16.4.9",
+		"@polkadot/types-known": "^16.4.9",
+		"@polkadot/util": "^13.5.7",
+		"@polkadot/util-crypto": "^13.5.7",
 		"comlink": "^4.4.2",
 		"eventemitter3": "^5.0.1",
 		"lodash": "^4.17.21",
-		"lru-cache": "^11.1.0",
-		"pino": "^9.7.0",
-		"pino-pretty": "^13.0.0",
+		"lru-cache": "^11.2.2",
+		"pino": "^10.1.0",
+		"pino-pretty": "^13.1.2",
 		"rxjs": "^7.8.2",
-		"zod": "^3.25.76"
+		"zod": "^4.1.12"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.7.8",
-		"@swc/core": "^1.12.14",
+		"@swc/core": "1.13.5",
 		"@types/lodash": "^4.17.20",
-		"typescript": "^5.8.3",
-		"vitest": "^3.2.4"
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.2"
 	},
 	"files": [
 		"dist/esm/**",
