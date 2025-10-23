@@ -88,6 +88,10 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
       finalizedBlockHashes: [context.chain.head.hash],
       finalizedBlockRuntime: withRuntime ? await context.chain.head.runtimeVersion : null,
     })
+    callback({
+      event: 'bestBlockChanged',
+      bestBlockHash: context.chain.head.hash,
+    })
   })
 
   return id
