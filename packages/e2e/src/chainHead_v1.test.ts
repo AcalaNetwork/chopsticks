@@ -17,9 +17,15 @@ describe('chainHead_v1 rpc', async () => {
     const initialized = await nextValue()
     expect(initialized).toMatchSnapshot()
 
+    const [[firstBest]] = next.mock.calls.slice(1)
+    expect(firstBest).toEqual({
+      type: 'bestBlockChanged',
+      bestBlockHash: '0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145',
+    })
+
     const blockHash = await dev.newBlock()
 
-    const [[newBlock], [bestBlock], [finalized]] = next.mock.calls.slice(1)
+    const [[newBlock], [bestBlock], [finalized]] = next.mock.calls.slice(2)
 
     expect(newBlock).toEqual({
       type: 'newBlock',
