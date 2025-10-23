@@ -7,40 +7,15 @@ import { dryRunPreimage } from './dry-run-preimage.js'
 const schema = z.object({
   ...configSchema.shape,
   extrinsic: z
-    .string({
-      description: 'Extrinsic or call to dry run. If you pass call here then address is required to fake signature',
-    })
+    .string()
+    .describe('Extrinsic or call to dry run. If you pass call here then address is required to fake signature')
     .optional(),
-  address: z
-    .string({
-      description: 'Address to fake sign extrinsic',
-    })
-    .optional(),
-  preimage: z
-    .string({
-      description: 'Preimage to dry run',
-    })
-    .optional(),
-  at: z
-    .string({
-      description: 'Block hash to dry run',
-    })
-    .optional(),
-  'output-path': z
-    .string({
-      description: 'File path to print output',
-    })
-    .optional(),
-  html: z
-    .boolean({
-      description: 'Generate html with storage diff',
-    })
-    .optional(),
-  open: z
-    .boolean({
-      description: 'Open generated html',
-    })
-    .optional(),
+  address: z.string().describe('Address to fake sign extrinsic').optional(),
+  preimage: z.string().describe('Preimage to dry run').optional(),
+  at: z.string().describe('Block hash to dry run').optional(),
+  'output-path': z.string().describe('File path to print output').optional(),
+  html: z.boolean().describe('Generate html with storage diff').optional(),
+  open: z.boolean().describe('Open generated html').optional(),
 })
 
 export const cli = (y: Argv) => {
