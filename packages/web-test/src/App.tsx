@@ -18,7 +18,7 @@ import { styled } from '@mui/system'
 import { ApiPromise } from '@polkadot/api'
 import { createTestPairs } from '@polkadot/keyring'
 import type { HexString } from '@polkadot/util/types'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 
 const { alice, bob } = createTestPairs()
 
@@ -92,6 +92,11 @@ function App() {
 	const [blocks, setBlocks] = useState<{ number: number; hash: HexString }[]>([])
 	const [bobBalance, setBobBalance] = useState('')
 	const [transferDisabled, setTransferDisabled] = useState(false)
+	const blockInputId = useId()
+	const endpointInputId = useId()
+	const blocksSectionId = useId()
+	const extrinsicSectionId = useId()
+	const providerSectionId = useId()
 
 	const resetState = useCallback(() => {
 		setBlocks([])
@@ -208,22 +213,22 @@ function App() {
 					Configuration
 				</Typography>
 				<FormControl variant="standard" sx={{ width: '100%', mt: 1 }}>
-					<InputLabel shrink htmlFor="block-input">
+					<InputLabel shrink htmlFor={blockInputId}>
 						Block Number or Hash
 					</InputLabel>
 					<Input
-						id="block-input"
+						id={blockInputId}
 						placeholder="4000000"
 						value={config.block}
 						onChange={(e) => setConfig({ ...config, block: e.target.value })}
 					/>
 				</FormControl>
 				<FormControl variant="standard" sx={{ width: '100%', mt: 1 }}>
-					<InputLabel shrink htmlFor="endpoint-input">
+					<InputLabel shrink htmlFor={endpointInputId}>
 						API Url
 					</InputLabel>
 					<Input
-						id="endpoint-input"
+						id={endpointInputId}
 						placeholder="wss://acala-rpc.aca-api.network"
 						value={config.endpoint}
 						onChange={(e) => setConfig({ ...config, endpoint: e.target.value })}
@@ -244,7 +249,7 @@ function App() {
 				</Button>
 			</Section>
 
-			<Section id="blocks-section">
+			<Section id={blocksSectionId}>
 				<Typography variant="h5" component="h2">
 					Blocks
 				</Typography>
@@ -270,7 +275,7 @@ function App() {
 				</Button>
 			</Section>
 
-			<Section id="extrinsic-section">
+			<Section id={extrinsicSectionId}>
 				<Typography variant="h5" component="h2">
 					Dry Run
 				</Typography>
@@ -296,7 +301,7 @@ function App() {
 				{dryRunResult && <Pre sx={{ fontSize: 13 }}>{dryRunResult}</Pre>}
 				{dryRunLoading && <Pre>Loading dry run result...</Pre>}
 			</Section>
-			<Section id="chopsticks-provider">
+			<Section id={providerSectionId}>
 				<Button
 					variant="outlined"
 					onClick={testChopsticksProvider}

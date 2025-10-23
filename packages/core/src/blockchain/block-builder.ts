@@ -192,7 +192,8 @@ const initNewBlock = async (
       inherents.push(...extrinsics)
       callback?.onPhaseApplied?.(layers.length - 1, resp)
     } catch (e) {
-      logger.warn('Failed to apply inherents %o %s', e, e)
+      const err = e instanceof Error ? e : new Error(String(e))
+      logger.warn({ err }, 'Failed to apply inherents')
       throw new Error('Failed to apply inherents')
     }
   }
@@ -327,7 +328,8 @@ export const buildBlock = async (
 
       callbacks?.onPhaseApplied?.(includedExtrinsic.length - 1, resp)
     } catch (e) {
-      logger.info('Failed to apply extrinsic %o %s', e, e)
+      const err = e instanceof Error ? e : new Error(String(e))
+      logger.info({ err, extrinsic: truncate(extrinsic) }, 'Failed to apply extrinsic')
       pendingExtrinsics.push(extrinsic)
     }
   }

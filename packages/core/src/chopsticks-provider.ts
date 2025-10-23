@@ -104,7 +104,7 @@ export class ChopsticksProvider implements ProviderInterface {
       }
 
       return (data: any) => {
-        logger.debug('subscribe-callback', method, subid, data)
+        logger.debug({ method, subid, data }, 'subscribe-callback')
         const sub = this.#subscriptions[subid]
         if (sub) {
           sub.callback(null, data)
@@ -114,7 +114,7 @@ export class ChopsticksProvider implements ProviderInterface {
       }
     },
     unsubscribe: (subid: string) => {
-      logger.debug('unsubscribe-callback', subid)
+      logger.debug({ subid }, 'unsubscribe-callback')
       const sub = this.#subscriptions[subid]
       if (sub) {
         sub.onCancel?.()
@@ -132,7 +132,7 @@ export class ChopsticksProvider implements ProviderInterface {
     subscription?: SubscriptionHandler,
   ): Promise<T> => {
     try {
-      logger.debug('send', { method, params })
+      logger.debug({ method, params }, 'send')
 
       const rpcHandler = providerHandlers[method]
       if (!rpcHandler) {
@@ -141,7 +141,7 @@ export class ChopsticksProvider implements ProviderInterface {
       }
 
       if (subscription) {
-        logger.debug('subscribe', { method, params })
+        logger.debug({ method, params }, 'subscribe')
         const subid = await rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
         if (!subid) {
           throw new Error(`Unable to subscribe=${method}`)
@@ -156,11 +156,12 @@ export class ChopsticksProvider implements ProviderInterface {
 
         return subid
       }
-      logger.debug('call', { method, params })
+      logger.debug({ method, params }, 'call')
       return rpcHandler({ chain: this.chain }, params, this.subscriptionManager)
     } catch (e) {
-      logger.error('send error.', e)
-      throw e
+      const err = e instanceof Error ? e : new Error(String(e))
+      logger.error({ err, method, params }, 'send error')
+      throw err
     }
   }
 
