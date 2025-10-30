@@ -22,7 +22,7 @@ import type { BuildBlockParams } from './txpool.js'
 
 const logger = defaultLogger.child({ name: 'block-builder' })
 
-export const genesisDigestLogs = async (head: Block) => {
+const genesisDigestLogs = async (head: Block) => {
   const meta = await head.meta
   const currentSlot = await getCurrentSlot(head)
   if (meta.consts.babe) {
@@ -48,12 +48,6 @@ export const genesisDigestLogs = async (head: Block) => {
     PreRuntime: [consensusEngine, compactAddLength(newSlot.toU8a())],
   })
   return [digest]
-}
-
-const getConsensus = (header: Header) => {
-  if (header.digest.logs.length === 0) return
-  const [consensusEngine, preDigest] = header.digest.logs[0].asPreRuntime
-  return { consensusEngine, preDigest, rest: header.digest.logs.slice(1) }
 }
 
 const babePreDigestSetSlot = (digest: RawBabePreDigest, slotNumber: number) => {
@@ -89,45 +83,44 @@ export const newHeader = async (head: Block, unsafeBlockHeight?: number) => {
   const parentHeader = await head.header
 
   let newLogs = !head.number ? await genesisDigestLogs(head) : parentHeader.digest.logs.toArray()
-  const consensus = getConsensus(parentHeader)
-  if (consensus?.consensusEngine.isAura) {
-    const slot = await getCurrentSlot(head)
-    const newSlot = compactAddLength(meta.registry.createType('Slot', slot + 1).toU8a())
-    newLogs = [
-      meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensus.consensusEngine, newSlot] }),
-      ...consensus.rest,
-    ]
-  } else if (consensus?.consensusEngine.isBabe) {
-    const slot = await getCurrentSlot(head)
-    const digest = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', consensus.preDigest)
-    const newSlot = compactAddLength(
-      meta.registry.createType('RawBabePreDigest', babePreDigestSetSlot(digest, slot + 1)).toU8a(),
-    )
-    newLogs = [
-      meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensus.consensusEngine, newSlot] }),
-      ...consensus.rest,
-    ]
-  } else if (consensus?.consensusEngine?.toString() === 'nmbs') {
-    const nmbsKey = stringToHex('nmbs')
-    newLogs = [
-      meta.registry.createType<DigestItem>('DigestItem', {
-        // Using previous block author
-        PreRuntime: [
-          consensus.consensusEngine,
-          parentHeader.digest.logs
-            .find((log) => log.isPreRuntime && log.asPreRuntime[0].toHex() === nmbsKey)
-            ?.asPreRuntime[1].toHex(),
-        ],
-      }),
-      ...consensus.rest,
-    ]
+  newLogs = await Promise.all(
+    newLogs.map(async (item) => {
+      if (item.isPreRuntime) {
+        const [consensusEngine, preDigest] = item.asPreRuntime
+        if (consensusEngine.isAura) {
+          const slot = await getCurrentSlot(head)
+          const newSlot = compactAddLength(meta.registry.createType('Slot', slot + 1).toU8a())
+          return meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensusEngine, newSlot] })
+        } else if (consensusEngine.isBabe) {
+          const slot = await getCurrentSlot(head)
+          const digest = meta.registry.createType<RawBabePreDigest>('RawBabePreDigest', preDigest)
+          const newSlot = compactAddLength(
+            meta.registry.createType('RawBabePreDigest', babePreDigestSetSlot(digest, slot + 1)).toU8a(),
+          )
+          return meta.registry.createType<DigestItem>('DigestItem', { PreRuntime: [consensusEngine, newSlot] })
+        } else if (consensusEngine?.toString() === 'nmbs') {
+          const nmbsKey = stringToHex('nmbs')
 
-    if (meta.query.randomness?.notFirstBlock) {
-      // TODO: shouldn't modify existing head
-      // reset notFirstBlock so randomness will skip validation
-      head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
-    }
-  }
+          if (meta.query.randomness?.notFirstBlock) {
+            // TODO: shouldn't modify existing head
+            // reset notFirstBlock so randomness will skip validation
+            head.pushStorageLayer().set(compactHex(meta.query.randomness.notFirstBlock()), StorageValueKind.Deleted)
+          }
+
+          return meta.registry.createType<DigestItem>('DigestItem', {
+            // Using previous block author
+            PreRuntime: [
+              consensusEngine,
+              parentHeader.digest.logs
+                .find((log) => log.isPreRuntime && log.asPreRuntime[0].toHex() === nmbsKey)
+                ?.asPreRuntime[1].toHex(),
+            ],
+          })
+        }
+      }
+      return item
+    }),
+  )
 
   const header = meta.registry.createType<Header>('Header', {
     parentHash: head.hash,
@@ -185,7 +178,10 @@ const initNewBlock = async (
       if (extrinsics.length === 0) {
         continue
       }
-      const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsics)
+      // bypass signature check during inherent extrinsics
+      // this is needed to allow cumulus to accept fake relay block digests
+      // this should be safe because there are no valid use of invalid signatures in inherents
+      const resp = await newBlock.call('BlockBuilder_apply_extrinsic', extrinsics, true)
       const layer = newBlock.pushStorageLayer()
       layer.setAll(resp.storageDiff)
       layers.push(layer)

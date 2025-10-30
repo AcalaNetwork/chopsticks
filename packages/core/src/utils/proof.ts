@@ -11,6 +11,7 @@ export const WELL_KNOWN_KEYS = {
   TWO_EPOCHS_AGO_RANDOMNESS: '0x1cb6f36e027abb2091cfb5110ab5087f7a414cb008e0e61e46722aa60abdd672' as HexString,
   CURRENT_SLOT: '0x1cb6f36e027abb2091cfb5110ab5087f06155b3cd9a8c9e5e9a23fd5dc13a5ed' as HexString,
   ACTIVE_CONFIG: '0x06de3d8a54d27e44a9d5ce189618f22db4b49d95320d9021994c850f25b8e385' as HexString,
+  AUTHORITIES: '0x1cb6f36e027abb2091cfb5110ab5087f5e0621c4869aa60c02be9adcc98a0d1d' as HexString,
 }
 
 const hash = (prefix: HexString, suffix: Uint8Array) => {

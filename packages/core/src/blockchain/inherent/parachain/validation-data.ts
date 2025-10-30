@@ -1,5 +1,5 @@
 import { GenericExtrinsic } from '@polkadot/types'
-import type { AbridgedHrmpChannel, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
+import type { AbridgedHrmpChannel, Header, HrmpChannelId, Slot } from '@polkadot/types/interfaces'
 import { hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import { blake2AsHex, blake2AsU8a } from '@polkadot/util-crypto'
@@ -61,6 +61,7 @@ export type ValidationData = {
   relayChainState: {
     trieNodes: HexString[]
   }
+  relayParentDescendants?: any[] // Vec<RelayHeader>
 }
 
 const getValidationData = async (parent: Block, fallback = true): Promise<ValidationData> => {
@@ -303,6 +304,8 @@ export class SetValidationData implements InherentProvider {
 
     const argsLengh = meta.tx.parachainSystem.setValidationData.meta.args.length
 
+    const relayParentNumber = params.relayParentNumber ?? extrinsic.validationData.relayParentNumber + relaySlotIncrease
+
     if (argsLengh === 1) {
       // old version
 
@@ -313,7 +316,7 @@ export class SetValidationData implements InherentProvider {
         validationData: {
           ...extrinsic.validationData,
           relayParentStorageRoot: trieRootHash,
-          relayParentNumber: params.relayParentNumber ?? extrinsic.validationData.relayParentNumber + relaySlotIncrease,
+          relayParentNumber,
         },
         relayChainState: {
           trieNodes: nodes,
@@ -326,16 +329,38 @@ export class SetValidationData implements InherentProvider {
     } else if (argsLengh === 2) {
       // new version
 
+      let relayParentDescendants = extrinsic.relayParentDescendants
+      if (relayParentDescendants) {
+        let fakeParentHeader = relayParentDescendants[0]
+        if (fakeParentHeader) {
+          fakeParentHeader = {
+            ...fakeParentHeader, // let's hope this is ok
+            number: relayParentNumber,
+            stateRoot: trieRootHash,
+          }
+          relayParentDescendants = [fakeParentHeader, ...relayParentDescendants.slice(1)]
+          let lastHeader: Header | undefined
+          for (const descendant of relayParentDescendants) {
+            if (lastHeader) {
+              descendant.parentHash = lastHeader.hash
+              descendant.number = lastHeader.number.toNumber() + 1
+            }
+            lastHeader = meta.registry.createType('Header', descendant) as Header
+          }
+        }
+      }
+
       const newData = {
         ...extrinsic,
         validationData: {
           ...extrinsic.validationData,
           relayParentStorageRoot: trieRootHash,
-          relayParentNumber: params.relayParentNumber ?? extrinsic.validationData.relayParentNumber + relaySlotIncrease,
+          relayParentNumber,
         },
         relayChainState: {
           trieNodes: nodes,
         },
+        relayParentDescendants,
       } satisfies ValidationData
 
       const horizontalMessagesArray = Object.entries(horizontalMessages).flatMap(([sender, messages]) =>
