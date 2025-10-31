@@ -59,7 +59,7 @@ export interface WasmExecutor {
     task: {
       wasm: HexString
       calls: [string, HexString[]][]
-      mockSignatureHost: boolean
+      mockSignatureHost: number // 0 - no mock, 1 - require magic signature, 2 - always valid
       allowUnresolvedImports: boolean
       runtimeLogLevel: number
     },
@@ -122,12 +122,17 @@ export const createProof = async (nodes: HexString[], updates: [HexString, HexSt
 
 let nextTaskId = 0
 
-export const runTask = async (task: TaskCall, callback: JsCallback = emptyTaskHandler) => {
+export const runTask = async (
+  task: TaskCall,
+  callback: JsCallback = emptyTaskHandler,
+  overrideMockSignatureHost = false,
+) => {
   const taskId = nextTaskId++
   const task2 = {
     ...task,
     id: taskId,
     storageProofSize: task.storageProofSize ?? 0,
+    mockSignatureHost: overrideMockSignatureHost ? 2 : task.mockSignatureHost ? 1 : 0,
   }
   const worker = await getWorker()
   logger.trace(truncate(task2), `runTask #${taskId}`)

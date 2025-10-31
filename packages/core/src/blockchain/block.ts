@@ -298,7 +298,7 @@ export class Block {
   /**
    * Call a runtime method.
    */
-  async call(method: string, args: HexString[]): Promise<TaskCallResponse> {
+  async call(method: string, args: HexString[], mockSigantureHostOverride = false): Promise<TaskCallResponse> {
     const wasm = await this.wasm
     const response = await runTask(
       {
@@ -309,6 +309,7 @@ export class Block {
         runtimeLogLevel: this.#chain.runtimeLogLevel,
       },
       taskHandler(this),
+      mockSigantureHostOverride,
     )
     if ('Call' in response) {
       if (this.chain.offchainWorker) {

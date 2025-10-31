@@ -64,10 +64,10 @@ impl RuntimeVersion {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct TaskCall {
-	id: u32,
+    id: u32,
     wasm: HexString,
     calls: Vec<(String, Vec<HexString>)>,
-    mock_signature_host: bool,
+    mock_signature_host: u8, // 0: no mock, 1: require magic signature, 2: always valid
     allow_unresolved_imports: bool,
     runtime_log_level: u32,
     storage_proof_size: u64,
@@ -247,12 +247,24 @@ pub async fn run_task(task: TaskCall, js: crate::JsCallback) -> Result<TaskRespo
                 }
 
                 RuntimeCall::SignatureVerification(req) => {
-                    let bypass =
-                        task.mock_signature_host && is_magic_signature(req.signature().as_ref());
-                    if bypass {
-                        req.resume_success()
-                    } else {
-                        req.verify_and_resume()
+                    match task.mock_signature_host {
+                        1 => {
+                            // require magic signature
+                            let bypass = is_magic_signature(req.signature().as_ref());
+                            if bypass {
+                                req.resume_success()
+                            } else {
+                                req.verify_and_resume()
+                            }
+                        }
+                        2 => {
+                            // always valid
+                            req.resume_success()
+                        }
+                        0 | _ => {
+                            // no mock
+                            req.verify_and_resume()
+                        }
                     }
                 }
 
