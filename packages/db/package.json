@@ -18,7 +18,7 @@
 		"idb": "^8.0.3",
 		"reflect-metadata": "^0.2.2",
 		"sqlite3": "^5.1.7",
-		"typeorm": "^0.3.25"
+		"typeorm": "^0.3.26"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.7.8",
