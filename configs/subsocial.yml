@@ -1,4 +1,4 @@
-endpoint: wss://subsocial-rpc.dwellir.com/
+endpoint: wss://subsocial-rpc.n.dwellir.com/
 mock-signature-host: true
 block: ${env.SUBSOCIAL_BLOCK_NUMBER}
 db: ./subsocial.db.sqlite

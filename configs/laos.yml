@@ -1,6 +1,6 @@
 endpoint:
   - wss://rpc.laos.laosfoundation.io
-  - wss://laos-rpc.dwellir.com
+  - wss://laos-rpc.n.dwellir.com
 db: ./db.sqlite
 runtime-log-level: 5
 

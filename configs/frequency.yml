@@ -1,4 +1,4 @@
-endpoint: wss://frequency-rpc.dwellir.com/
+endpoint: wss://frequency-rpc.n.dwellir.com/
 mock-signature-host: true
 block: ${env.FREQUENCY_BLOCK_NUMBER}
 db: ./frequency.db.sqlite

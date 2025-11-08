@@ -1,4 +1,4 @@
-endpoint: wss://invarch-rpc.dwellir.com/
+endpoint: wss://invarch-rpc.n.dwellir.com/
 mock-signature-host: true
 block: ${env.INVARCH_BLOCK_NUMBER}
 db: ./invarch.db.sqlite

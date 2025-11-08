@@ -1,6 +1,6 @@
 endpoint:
   - wss://rpc.shibuya.astar.network
-  - wss://shibuya-rpc.dwellir.com
+  - wss://shibuya-rpc.n.dwellir.com
 mock-signature-host: true
 block: ${env.SHIBUYA_BLOCK_NUMBER}
 db: ./db.sqlite

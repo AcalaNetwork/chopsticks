@@ -7,7 +7,7 @@ describe('Migration', async () => {
   const { api, dev, teardown } = await setupContext({
     wasmOverride: new URL('../blobs/shibuya-118.wasm', import.meta.url).pathname,
     blockNumber: 5335600,
-    endpoint: ['wss://shibuya-rpc.dwellir.com', 'wss://rpc.shibuya.astar.network'],
+    endpoint: ['wss://shibuya-rpc.n.dwellir.com', 'wss://rpc.shibuya.astar.network'],
     db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     timeout: 400_000,
   })

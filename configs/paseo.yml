@@ -1,4 +1,4 @@
-endpoint: wss://paseo-rpc.dwellir.com
+endpoint: wss://paseo-rpc.n.dwellir.com
 mock-signature-host: true
 block: ${env.PASEO_BLOCK_NUMBER}
 db: ./db.sqlite

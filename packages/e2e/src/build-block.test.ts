@@ -13,14 +13,14 @@ const KUSAMA_STORAGE = {
 }
 
 describe.runIf(process.env.CI || process.env.RUN_ALL).concurrent.each([
-  { chain: 'Polkadot', endpoint: ['wss://rpc.ibp.network/polkadot', 'wss://polkadot-rpc.dwellir.com'] },
-  { chain: 'Polkadot Asset Hub', endpoint: 'wss://asset-hub-polkadot-rpc.dwellir.com' },
+  { chain: 'Polkadot', endpoint: ['wss://rpc.ibp.network/polkadot', 'wss://polkadot-rpc.n.dwellir.com'] },
+  { chain: 'Polkadot Asset Hub', endpoint: 'wss://asset-hub-polkadot-rpc.n.dwellir.com' },
   { chain: 'Polkadot Collectives', endpoint: 'wss://polkadot-collectives-rpc.polkadot.io' },
   { chain: 'Acala', endpoint: ['wss://acala-rpc.aca-api.network', 'wss://acala-rpc.n.dwellir.com'] },
 
   {
     chain: 'Kusama',
-    endpoint: ['wss://kusama-rpc.dwellir.com', 'wss://rpc.ibp.network/kusama', 'wss://kusama-rpc.polkadot.io'],
+    endpoint: ['wss://kusama-rpc.n.dwellir.com', 'wss://rpc.ibp.network/kusama', 'wss://kusama-rpc.polkadot.io'],
     storage: KUSAMA_STORAGE,
   },
   { chain: 'Kusama Asset Hub', endpoint: 'wss://kusama-asset-hub-rpc.polkadot.io' },

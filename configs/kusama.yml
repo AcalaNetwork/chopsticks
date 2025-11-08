@@ -1,5 +1,5 @@
 endpoint:
-  - wss://kusama-rpc.dwellir.com
+  - wss://kusama-rpc.n.dwellir.com
   - wss://rpc.ibp.network/kusama
   - wss://kusama-rpc.polkadot.io
 mock-signature-host: true

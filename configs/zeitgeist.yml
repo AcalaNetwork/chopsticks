@@ -1,6 +1,6 @@
-endpoint: 
+endpoint:
   - wss://main.rpc.zeitgeist.pm/ws
-  - wss://zeitgeist-rpc.dwellir.com
+  - wss://zeitgeist-rpc.n.dwellir.com
   - wss://zeitgeist.api.onfinality.io/public-ws
 mock-signature-host: true
 block: ${env.ZEITGEIST_BLOCK_NUMBER}

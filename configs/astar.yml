@@ -1,6 +1,6 @@
 endpoint:
   - wss://rpc.astar.network
-  - wss://astar-rpc.dwellir.com
+  - wss://astar-rpc.n.dwellir.com
   - wss://astar.api.onfinality.io/public-ws
 mock-signature-host: true
 block: ${env.ASTAR_BLOCK_NUMBER}

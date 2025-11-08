@@ -1,4 +1,4 @@
-endpoint: wss://darwinia-rpc.dwellir.com
+endpoint: wss://darwinia-rpc.n.dwellir.com
 mock-signature-host: true
 block: ${env.DARWINIA_BLOCK_NUMBER}
 db: ./darwinia.db.sqlite

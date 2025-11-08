@@ -1,4 +1,4 @@
-endpoint: wss://tinkernet-rpc.dwellir.com
+endpoint: wss://tinkernet-rpc.n.dwellir.com
 mock-signature-host: true
 block: ${env.TINKERNET_BLOCK_NUMBER}
 db: ./tinkernet.db.sqlite

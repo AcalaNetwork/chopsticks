@@ -1,4 +1,4 @@
-endpoint: wss://basilisk-rpc.dwellir.com
+endpoint: wss://basilisk-rpc.n.dwellir.com
 mock-signature-host: true
 block: ${env.BASILISK_BLOCK_NUMBER}
 db: ./db.sqlite

@@ -1,4 +1,4 @@
-endpoint: wss://asset-hub-polkadot-rpc.dwellir.com
+endpoint: wss://asset-hub-polkadot-rpc.n.dwellir.com
 mock-signature-host: true
 block: ${env.STATEMINT_BLOCK_NUMBER}
 db: ./db.sqlite

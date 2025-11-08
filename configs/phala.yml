@@ -1,6 +1,6 @@
 
 endpoint:
-  - wss://phala-rpc.dwellir.com
+  - wss://phala-rpc.n.dwellir.com
   - wss://phala.api.onfinality.io/public-ws
 mock-signature-host: true
 block: ${env.PHALA_BLOCK_NUMBER}
