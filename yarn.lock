@@ -124,6 +124,7 @@ __metadata:
   dependencies:
     "@acala-network/chopsticks-core": "workspace:*"
     "@acala-network/chopsticks-db": "workspace:*"
+    "@dmsnell/diff-match-patch": "npm:^1.1.0"
     "@pnpm/npm-conf": "npm:^3.0.0"
     "@polkadot/api": "npm:^16.4.1"
     "@polkadot/api-augment": "npm:^16.4.1"
