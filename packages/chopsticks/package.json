@@ -17,6 +17,7 @@
 	"dependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
 		"@acala-network/chopsticks-db": "workspace:*",
+		"@dmsnell/diff-match-patch": "^1.1.0",
 		"@pnpm/npm-conf": "^3.0.0",
 		"@polkadot/api": "^16.4.1",
 		"@polkadot/api-augment": "^16.4.1",
@@ -29,7 +30,7 @@
 		"dotenv": "^16.6.1",
 		"global-agent": "^3.0.0",
 		"js-yaml": "^4.1.1",
-		"jsondiffpatch": "^0.5.0",
+		"jsondiffpatch": "^0.7.3",
 		"lodash": "^4.17.21",
 		"ws": "^8.18.3",
 		"yargs": "^18.0.0",
