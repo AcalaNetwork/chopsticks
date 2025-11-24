@@ -1,6 +1,6 @@
 {
 	"name": "@acala-network/chopsticks-db",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
