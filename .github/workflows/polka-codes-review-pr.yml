@@ -39,7 +39,7 @@ jobs:
           review: true
         env:
           POLKA_API_PROVIDER: google-vertex
-          POLKA_MODEL: gemini-2.5-pro
+          POLKA_MODEL: gemini-3-pro-preview
           GITHUB_TOKEN: ${{ github.token }}
           GOOGLE_VERTEX_LOCATION: us-central1
           GOOGLE_VERTEX_PROJECT: ${{ secrets.GOOGLE_VERTEX_PROJECT }}
