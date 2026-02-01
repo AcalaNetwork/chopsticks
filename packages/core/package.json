@@ -19,8 +19,8 @@
 		"@polkadot/types": "^16.4.1",
 		"@polkadot/types-codec": "^16.4.1",
 		"@polkadot/types-known": "^16.4.1",
-		"@polkadot/util": "^13.5.3",
-		"@polkadot/util-crypto": "^13.5.3",
+		"@polkadot/util": "^14.0.1",
+		"@polkadot/util-crypto": "^14.0.1",
 		"comlink": "^4.4.2",
 		"eventemitter3": "^5.0.1",
 		"lodash": "^4.17.21",
@@ -31,11 +31,11 @@
 		"zod": "^3.25.76"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.7.8",
+		"@swc/cli": "0.7.10",
 		"@swc/core": "^1.12.14",
 		"@types/lodash": "^4.17.20",
 		"typescript": "^5.8.3",
-		"vitest": "^3.2.4"
+		"vitest": "^4.0.18"
 	},
 	"files": [
 		"dist/esm/**",
