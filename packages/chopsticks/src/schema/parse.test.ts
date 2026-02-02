@@ -17,13 +17,12 @@ function getAllFiles(dirPath: string) {
 
 describe('Existing configs', async () => {
   const configPaths = getAllFiles(path.join(__dirname, '../../../../configs'))
-  it.each(configPaths.map((p) => ({ name: _.last(p.split('/')), path: p })))(
-    '$name config parsing is correct',
-    async ({ path }) => {
-      const config = await fetchConfig(path)
-      expect(() => configSchema.parse(config)).not.toThrow()
-    },
-  )
+  it.each(configPaths.map((p) => ({ name: _.last(p.split('/')), path: p })))('$name config parsing is correct', async ({
+    path,
+  }) => {
+    const config = await fetchConfig(path)
+    expect(() => configSchema.parse(config)).not.toThrow()
+  })
 })
 
 describe('Parsed options', () => {
@@ -61,6 +60,7 @@ describe('Parsed options', () => {
 
     expect(() =>
       configSchema.parse({
+        // biome-ignore lint/correctness/noPrecisionLoss: Intentionally testing large hex number
         block: 0xb10f03bbc183da4d26e27528d28f6a73ddaf182fb6400ca363b77d2411ea5b0c,
       }),
     ).toThrowError(/you are using a hex string/)

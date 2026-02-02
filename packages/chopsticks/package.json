@@ -23,8 +23,8 @@
 		"@polkadot/api-augment": "^16.4.1",
 		"@polkadot/rpc-provider": "^16.4.1",
 		"@polkadot/types": "^16.4.1",
-		"@polkadot/util": "^13.5.3",
-		"@polkadot/util-crypto": "^13.5.3",
+		"@polkadot/util": "^14.0.1",
+		"@polkadot/util-crypto": "^14.0.1",
 		"axios": "^1.12.0",
 		"comlink": "^4.4.2",
 		"dotenv": "^16.6.1",
@@ -37,7 +37,7 @@
 		"zod": "^3.25.76"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.7.8",
+		"@swc/cli": "0.7.10",
 		"@swc/core": "^1.12.14",
 		"@types/global-agent": "^3.0.0",
 		"@types/js-yaml": "^4.0.9",

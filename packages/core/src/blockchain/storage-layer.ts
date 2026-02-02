@@ -105,7 +105,9 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       if (this.#db?.saveStorageBatch) {
         this.#db?.saveStorageBatch(data.map(([key, value]) => ({ key, value, blockHash: this.#at })))
       } else if (this.#db) {
-        data.forEach(([key, value]) => this.#db?.saveStorage(this.#at, key, value))
+        data.forEach(([key, value]) => {
+          this.#db?.saveStorage(this.#at, key, value)
+        })
       }
     }
 
