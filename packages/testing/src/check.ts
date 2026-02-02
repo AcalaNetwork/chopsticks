@@ -145,6 +145,7 @@ export class Checker {
               const { section, method } = filter
               return evt.section === section && evt.method === method
             }
+            return false
           })
         })
       }
@@ -213,7 +214,7 @@ export class Checker {
     if (typeof obj === 'string') {
       if (redactNumber && obj.match(/0x000000[0-9a-f]{26}/)) {
         // this is very likely u128 encoded in hex
-        const num = Number.parseInt(obj)
+        const num = Number.parseInt(obj, 16)
         return processNumber(num)
       }
       if (redactHash && obj.match(/0x[0-9a-f]{64}/)) {
@@ -226,7 +227,7 @@ export class Checker {
         return '(address)'
       }
       if (redactNumber && obj.match(/^-?[\d,]+$/)) {
-        const num = Number.parseInt(obj.replace(/,/g, ''))
+        const num = Number.parseInt(obj.replace(/,/g, ''), 10)
         return processNumber(num)
       }
       return obj

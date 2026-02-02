@@ -156,7 +156,7 @@ export const createServer = async (handler: Handler, port: number, host?: string
       continue
     }
     const preferPort = port ? port + i : undefined
-    wsLogger.debug('Try starting on port %d', preferPort)
+    wsLogger.debug({ port: preferPort }, 'Try starting on port')
     await new Promise<void>((resolve, reject) => {
       const onError = (e: Error) => {
         server.close()
@@ -237,7 +237,7 @@ export const createServer = async (handler: Handler, port: number, host?: string
           result: resp ?? null,
         }
       } catch (e) {
-        wsLogger.error('Error handling request: %o', (e as Error).stack)
+        wsLogger.error({ err: e }, 'Error handling request')
         return {
           id: req.id,
           jsonrpc: '2.0',
