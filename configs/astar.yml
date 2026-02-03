@@ -8,8 +8,6 @@ db: ./db.sqlite
 runtime-log-level: 5
 
 import-storage:
-  Sudo:
-    Key: 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY # Alice
   System:
     Account:
       -
