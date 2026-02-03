@@ -5,6 +5,10 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -42,42 +46,28 @@ jobs:
         if npm pkg get version --workspace @acala-network/chopsticks | jq '."@acala-network/chopsticks"' | grep '-'; then TAG='--tag beta'; fi
         echo "NPM_TAG=$TAG" >> $GITHUB_ENV
 
-    # Writes token to .yarnrc.yml. If written directly in .yarnrc.yml, it will cause an error
-    - run: |
-        echo npmAuthToken: "\${NPM_AUTH_TOKEN}" >> ./.yarnrc.yml
+    # Note: Using OIDC (Trusted Publishing) - no NPM_AUTH_TOKEN needed for publish
+    # Configure trusted publisher at: https://www.npmjs.com/settings/<org-or-user>/packages
 
+    # Note: OIDC authentication is used automatically via Trusted Publishing
+    # No NPM_AUTH_TOKEN needed - npm CLI detects OIDC environment and uses it
     - name: Publish @acala-network/chopsticks-executor
-      run: yarn workspace @acala-network/chopsticks-executor npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      run: yarn workspace @acala-network/chopsticks-executor npm publish --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-core
-      run: yarn workspace @acala-network/chopsticks-core npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      run: yarn workspace @acala-network/chopsticks-core npm publish --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-db
-      run: yarn workspace @acala-network/chopsticks-db npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      run: yarn workspace @acala-network/chopsticks-db npm publish --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks
-      run: yarn workspace @acala-network/chopsticks npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      run: yarn workspace @acala-network/chopsticks npm publish --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-testing
-      run: yarn workspace @acala-network/chopsticks-testing npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+      run: yarn workspace @acala-network/chopsticks-testing npm publish --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-utils
-      run: yarn workspace @acala-network/chopsticks-utils npm publish --tolerate-republish --access public ${{ env.NPM_TAG }}
-      env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
-    - run: |
-        git checkout ./.yarnrc.yml
+      run: yarn workspace @acala-network/chopsticks-utils npm publish --access public ${{ env.NPM_TAG }}
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3
