@@ -25,7 +25,7 @@
 		"@polkadot/types": "^16.4.1",
 		"@polkadot/util": "^14.0.1",
 		"@polkadot/util-crypto": "^14.0.1",
-		"axios": "^1.12.0",
+		"axios": "^1.13.5",
 		"comlink": "^4.4.2",
 		"dotenv": "^16.6.1",
 		"global-agent": "^3.0.0",
