@@ -20,7 +20,7 @@ import { base64Decode, unzlibSync } from '@polkadot/wasm-util';
 const WASM_BYTES = unzlibSync(base64Decode(BYTES, new Uint8Array(LEN_IN)), new Uint8Array(LEN_OUT));
 
 import { initSync } from "./chopsticks_executor.js";
-initSync(new WebAssembly.Module(WASM_BYTES));
+initSync({ module: new WebAssembly.Module(WASM_BYTES) });
 
 export * from "./chopsticks_executor.js";
 `);
