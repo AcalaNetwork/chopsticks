@@ -16,7 +16,7 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).concurrent.each([
   { chain: 'Polkadot', endpoint: ['wss://rpc.ibp.network/polkadot', 'wss://polkadot-rpc.n.dwellir.com'] },
   { chain: 'Polkadot Asset Hub', endpoint: 'wss://asset-hub-polkadot-rpc.n.dwellir.com' },
   { chain: 'Polkadot Collectives', endpoint: 'wss://polkadot-collectives-rpc.polkadot.io' },
-  { chain: 'Acala', endpoint: ['wss://acala-rpc.aca-api.network', 'wss://acala-rpc.n.dwellir.com'] },
+  { chain: 'Acala', endpoint: ['wss://acala-rpc.aca-api.network', 'wss://acala.ibp.network'] },
 
   {
     chain: 'Kusama',
