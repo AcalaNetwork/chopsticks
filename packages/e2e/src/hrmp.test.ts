@@ -33,7 +33,7 @@ const acalaHRMP: Record<number, HorizontalMessage[]> = {
 describe('HRMP', () => {
   it('Statemine handles horizonal messages', async () => {
     const statemine = await setupContext({
-      endpoint: 'wss://statemine-rpc-tn.dwellir.com',
+      endpoint: 'wss://kusama-asset-hub-rpc.polkadot.io',
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
       blockNumber: 9_800_000,
     })
@@ -54,7 +54,7 @@ describe('HRMP', () => {
 
   it('Statemine handles horizonal messages block#5,800,000', async () => {
     const statemine = await setupContext({
-      endpoint: 'wss://statemine-rpc-tn.dwellir.com',
+      endpoint: 'wss://kusama-asset-hub-rpc.polkadot.io',
       blockNumber: 5_800_000,
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     })
