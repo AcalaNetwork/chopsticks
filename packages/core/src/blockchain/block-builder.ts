@@ -160,10 +160,7 @@ const initNewBlock = async (
     if (unsafeBlockHeight !== undefined && blockNumber > head.number + 1) {
       const meta = await head.meta
       const value = meta.registry.createType('BlockNumber', blockNumber - 1).toU8a()
-      newBlock.pushStorageLayer().set(
-        compactHex(meta.query.system.number()),
-        u8aToHex(value),
-      )
+      newBlock.pushStorageLayer().set(compactHex(meta.query.system.number()), u8aToHex(value))
     }
 
     // initialize block
