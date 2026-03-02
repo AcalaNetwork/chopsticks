@@ -9,7 +9,7 @@ import type {
   RawBabePreDigest,
   TransactionValidityError,
 } from '@polkadot/types/interfaces'
-import { compactAddLength, hexToU8a, stringToHex, u8aConcat } from '@polkadot/util'
+import { compactAddLength, hexToU8a, stringToHex, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import { blake2AsU8a } from '@polkadot/util-crypto'
 import { defaultLogger, truncate } from '../logger.js'
@@ -144,6 +144,7 @@ const initNewBlock = async (
   callback?: BuildBlockCallbacks,
 ) => {
   const blockNumber = header.number.toNumber()
+  const { unsafeBlockHeight } = params
   const hash: HexString = `0x${Math.round(Math.random() * 100000000)
     .toString(16)
     .padEnd(64, '0')}`
@@ -154,6 +155,14 @@ const initNewBlock = async (
   })
 
   {
+    // override block number in storage when using unsafeBlockHeight
+    // this is needed because the runtime validates that block numbers are strictly increasing
+    if (unsafeBlockHeight !== undefined && blockNumber > head.number + 1) {
+      const meta = await head.meta
+      const value = meta.registry.createType('BlockNumber', blockNumber - 1).toU8a()
+      newBlock.pushStorageLayer().set(compactHex(meta.query.system.number()), u8aToHex(value))
+    }
+
     // initialize block
     const resp = await newBlock.call('Core_initialize_block', [header.toHex()])
     newBlock.pushStorageLayer().setAll(resp.storageDiff)
