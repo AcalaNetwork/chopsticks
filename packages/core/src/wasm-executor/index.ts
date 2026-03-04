@@ -1,7 +1,7 @@
 import type { JsCallback } from '@acala-network/chopsticks-executor'
 import { hexToString, hexToU8a, u8aToBn } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
-import { randomAsHex } from '@polkadot/util-crypto'
+import { randomAsHex, xxhashAsHex } from '@polkadot/util-crypto'
 import * as Comlink from 'comlink'
 import _ from 'lodash'
 import type { Block } from '../blockchain/block.js'
@@ -54,10 +54,12 @@ export interface WasmExecutor {
   getRuntimeVersion: (code: HexString) => Promise<RuntimeVersion>
   calculateStateRoot: (entries: [HexString, HexString][], trie_version: number) => Promise<HexString>
   createProof: (nodes: HexString[], updates: [HexString, HexString | null][]) => Promise<[HexString, HexString[]]>
+  createProofFromEntries: (entries: [HexString, HexString][]) => Promise<[HexString, HexString[]]>
   decodeProof: (trieRootHash: HexString, nodes: HexString[]) => Promise<[[HexString, HexString]]>
   runTask: (
     task: {
-      wasm: HexString
+      wasm?: HexString
+      wasmHash?: string
       calls: [string, HexString[]][]
       mockSignatureHost: number // 0 - no mock, 1 - require magic signature, 2 - always valid
       allowUnresolvedImports: boolean
@@ -65,6 +67,7 @@ export interface WasmExecutor {
     },
     callback?: JsCallback,
   ) => Promise<TaskResponse>
+  registerWasm: (hash: string, wasm: HexString) => Promise<void>
   testing: (callback: JsCallback, key: any) => Promise<any>
 }
 
@@ -84,14 +87,32 @@ export const getWorker = async () => {
   return __executor_worker
 }
 
-export const getRuntimeVersion = _.memoize(async (code: HexString): Promise<RuntimeVersion> => {
-  const worker = await getWorker()
-  return worker.remote.getRuntimeVersion(code).then((version) => {
-    version.specName = hexToString(version.specName)
-    version.implName = hexToString(version.implName)
-    return version
-  })
-})
+// Track which WASMs have been registered in the worker to avoid resending
+const registeredWasms = new Set<string>()
+
+const hashWasm = (wasm: HexString): string => xxhashAsHex(wasm, 256)
+
+const ensureWasmRegistered = async (wasm: HexString): Promise<string> => {
+  const hash = hashWasm(wasm)
+  if (!registeredWasms.has(hash)) {
+    const worker = await getWorker()
+    await worker.remote.registerWasm(hash, wasm)
+    registeredWasms.add(hash)
+  }
+  return hash
+}
+
+export const getRuntimeVersion = _.memoize(
+  async (code: HexString): Promise<RuntimeVersion> => {
+    const worker = await getWorker()
+    return worker.remote.getRuntimeVersion(code).then((version) => {
+      version.specName = hexToString(version.specName)
+      version.implName = hexToString(version.implName)
+      return version
+    })
+  },
+  (code) => hashWasm(code),
+)
 
 // trie_version: 0 for old trie, 1 for new trie
 export const calculateStateRoot = async (
@@ -120,6 +141,12 @@ export const createProof = async (nodes: HexString[], updates: [HexString, HexSt
   return { trieRootHash, nodes: newNodes }
 }
 
+export const createProofFromEntries = async (entries: [HexString, HexString][]) => {
+  const worker = await getWorker()
+  const [trieRootHash, newNodes] = await worker.remote.createProofFromEntries(entries)
+  return { trieRootHash, nodes: newNodes }
+}
+
 let nextTaskId = 0
 
 export const runTask = async (
@@ -128,8 +155,13 @@ export const runTask = async (
   overrideMockSignatureHost = false,
 ) => {
   const taskId = nextTaskId++
+  const wasmHash = await ensureWasmRegistered(task.wasm)
+
+  // Send wasmHash instead of wasm to avoid structured clone of the full WASM blob
+  const { wasm: _wasm, ...taskWithoutWasm } = task
   const task2 = {
-    ...task,
+    ...taskWithoutWasm,
+    wasmHash,
     id: taskId,
     storageProofSize: task.storageProofSize ?? 0,
     mockSignatureHost: overrideMockSignatureHost ? 2 : task.mockSignatureHost ? 1 : 0,
@@ -198,18 +230,21 @@ export const emptyTaskHandler = {
   },
 }
 
-export const getAuraSlotDuration = _.memoize(async (wasm: HexString): Promise<number> => {
-  const result = await runTask({
-    wasm,
-    calls: [['AuraApi_slot_duration', []]],
-    mockSignatureHost: false,
-    allowUnresolvedImports: false,
-    runtimeLogLevel: 0,
-  })
+export const getAuraSlotDuration = _.memoize(
+  async (wasm: HexString): Promise<number> => {
+    const result = await runTask({
+      wasm,
+      calls: [['AuraApi_slot_duration', []]],
+      mockSignatureHost: false,
+      allowUnresolvedImports: false,
+      runtimeLogLevel: 0,
+    })
 
-  if ('Error' in result) throw new Error(result.Error)
-  return u8aToBn(hexToU8a(result.Call.result).subarray(0, 8 /* u64: 8 bytes */)).toNumber()
-})
+    if ('Error' in result) throw new Error(result.Error)
+    return u8aToBn(hexToU8a(result.Call.result).subarray(0, 8 /* u64: 8 bytes */)).toNumber()
+  },
+  (wasm) => hashWasm(wasm),
+)
 
 export const destroyWorker = async () => {
   if (!__executor_worker) return
@@ -218,4 +253,5 @@ export const destroyWorker = async () => {
   await new Promise((resolve) => setTimeout(resolve, 50))
   await executor.terminate()
   __executor_worker = undefined
+  registeredWasms.clear()
 }

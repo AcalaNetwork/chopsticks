@@ -158,6 +158,19 @@ pub async fn create_proof(nodes: JsValue, updates: JsValue) -> Result<JsValue, J
 }
 
 #[wasm_bindgen]
+pub async fn create_proof_from_entries(entries: JsValue) -> Result<JsValue, JsError> {
+    setup_console(None);
+
+    let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
+    let entries = entries.into_iter().map(|(k, v)| (k.0, v.0)).collect();
+    let proof = proof::create_proof_from_entries(entries)
+        .map_err(|e| JsError::new(e.as_str()))?;
+    let result = serde_wasm_bindgen::to_value(&proof)?;
+
+    Ok(result)
+}
+
+#[wasm_bindgen]
 pub async fn run_task(task: JsValue, js: JsCallback) -> Result<JsValue, JsValue> {
     let task = serde_wasm_bindgen::from_value::<task::TaskCall>(task)?;
     setup_console(task.log_level());

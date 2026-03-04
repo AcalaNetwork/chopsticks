@@ -154,6 +154,97 @@ pub fn create_proof(
     Ok((HashHexString(trie_root_hash), nodes))
 }
 
+/// Create a trie proof from a flat list of key-value entries.
+///
+/// Unlike `create_proof` which modifies an existing proof, this builds a trie from scratch
+/// using the provided entries and returns the root hash and proof nodes.
+///
+/// This is useful for generating storage proofs in test environments (e.g. Chopsticks)
+/// where no existing trie structure is available.
+pub fn create_proof_from_entries(
+    entries: Vec<(Vec<u8>, Vec<u8>)>,
+) -> Result<(HashHexString, Vec<HexString>), String> {
+    let mut proof_builder = ProofBuilder::new();
+    let mut trie = trie_structure::TrieStructure::new();
+
+    for (key, value) in &entries {
+        match trie.node(bytes_to_nibbles(key.iter().cloned())) {
+            trie_structure::Entry::Vacant(vacant) => {
+                vacant.insert_storage_value().insert(value.clone(), vec![]);
+            }
+            trie_structure::Entry::Occupied(_) => {
+                return Err(format!("Duplicate key in entries"));
+            }
+        }
+    }
+
+    for node_index in trie.clone().iter_unordered() {
+        let key = trie
+            .node_full_key_by_index(node_index)
+            .unwrap()
+            .collect::<Vec<_>>();
+
+        let has_storage_value = trie.node_by_index(node_index).unwrap().has_storage_value();
+        let storage_value = if has_storage_value {
+            trie.node_by_index(node_index)
+                .unwrap()
+                .into_storage()
+                .unwrap()
+                .user_data()
+                .clone()
+        } else {
+            vec![]
+        };
+
+        let decoded = trie_node::Decoded {
+            children: std::array::from_fn(|nibble| {
+                let nibble = Nibble::try_from(u8::try_from(nibble).unwrap()).unwrap();
+                if trie
+                    .node_by_index(node_index)
+                    .unwrap()
+                    .child_user_data(nibble)
+                    .is_some()
+                {
+                    Some(&[][..])
+                } else {
+                    None
+                }
+            }),
+            partial_key: trie
+                .node_by_index(node_index)
+                .unwrap()
+                .partial_key()
+                .collect::<Vec<_>>()
+                .into_iter(),
+            storage_value: if has_storage_value {
+                trie_node::StorageValue::Unhashed(&storage_value[..])
+            } else {
+                trie_node::StorageValue::None
+            },
+        };
+
+        let node_value = trie_node::encode_to_vec(decoded)
+            .map_err(|e| format!("Failed to encode node proof {:?}", e.to_string()))?;
+
+        proof_builder.set_node_value(&key, &node_value, None)
+    }
+
+    assert!(proof_builder.missing_node_values().next().is_none());
+    proof_builder.make_coherent();
+    let trie_root_hash = proof_builder.trie_root_hash().unwrap();
+
+    let nodes = proof_builder
+        .build()
+        .map(|x| HexString(x.as_ref().to_vec()))
+        .skip(1) // length of nodes
+        .enumerate()
+        .filter(|(i, _)| i % 2 != 0) // length of each nodes
+        .map(|(_, v)| v) // node itself
+        .collect::<Vec<_>>();
+
+    Ok((HashHexString(trie_root_hash), nodes))
+}
+
 fn encode_proofs(nodes: Vec<Vec<u8>>) -> Vec<u8> {
     let mut proof = encode_scale_compact_usize(nodes.len()).as_ref().to_vec();
     for mut node in nodes {
@@ -275,6 +366,53 @@ fn decode_proof_works() {
     ));
     let result = decode_proof(root, get_nodes()).unwrap();
     println!("{:#?}", result);
+}
+
+#[test]
+fn create_proof_from_entries_works() {
+    let entries = vec![
+        (b"key1".to_vec(), b"value1".to_vec()),
+        (b"key2".to_vec(), b"value2".to_vec()),
+        (b"another_key".to_vec(), b"another_value".to_vec()),
+    ];
+
+    let (hash, nodes) = create_proof_from_entries(entries.clone()).unwrap();
+
+    // Decode the proof and verify all entries are present
+    let decoded = decode_proof(hash, nodes.iter().map(|x| x.0.clone()).collect()).unwrap();
+    assert_eq!(decoded.len(), 3);
+
+    for (key, value) in &entries {
+        let found = decoded
+            .iter()
+            .find(|(k, _)| k.0 == *key)
+            .expect(&format!("Key {:?} not found in decoded proof", key));
+        assert_eq!(found.1 .0, *value);
+    }
+}
+
+#[test]
+fn create_proof_from_entries_single_entry() {
+    let entries = vec![(b"only_key".to_vec(), b"only_value".to_vec())];
+
+    let (hash, nodes) = create_proof_from_entries(entries).unwrap();
+
+    let decoded = decode_proof(hash, nodes.iter().map(|x| x.0.clone()).collect()).unwrap();
+    assert_eq!(decoded.len(), 1);
+    assert_eq!(decoded[0].0 .0, b"only_key".to_vec());
+    assert_eq!(decoded[0].1 .0, b"only_value".to_vec());
+}
+
+#[test]
+fn create_proof_from_entries_duplicate_key_fails() {
+    let entries = vec![
+        (b"same_key".to_vec(), b"value1".to_vec()),
+        (b"same_key".to_vec(), b"value2".to_vec()),
+    ];
+
+    let result = create_proof_from_entries(entries);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Duplicate key"));
 }
 
 #[cfg(test)]
