@@ -46,6 +46,7 @@ export class Block {
   #metadata?: Promise<HexString>
   #registry?: Promise<TypeRegistry>
   #meta?: Promise<DecoratedMeta>
+  #extrinsicMeta?: Promise<DecoratedMeta>
 
   #baseStorage: StorageLayerProvider
   #storages: StorageLayer[]
@@ -77,6 +78,7 @@ export class Block {
     this.#metadata = parentBlock?.metadata
     this.#registry = parentBlock?.registry
     this.#meta = parentBlock?.meta
+    this.#extrinsicMeta = parentBlock?.meta
 
     const storageDiff = block?.storageDiff
 
@@ -88,6 +90,9 @@ export class Block {
         this.#metadata = undefined
         this.#registry = undefined
         this.#meta = undefined
+        // #extrinsicMeta intentionally NOT reset: the block's extrinsics were
+        // encoded with the pre-upgrade runtime (parent's metadata), so we
+        // preserve it for correct extrinsic decoding after a runtime upgrade.
       }
 
       this.pushStorageLayer().setAll(storageDiff)
@@ -293,6 +298,24 @@ export class Block {
       })
     }
     return this.#meta
+  }
+
+  /**
+   * Get the metadata used to encode this block's extrinsics.
+   *
+   * A block's extrinsics are encoded with the runtime that was active *before*
+   * the block executed (i.e. the parent block's post-execution metadata).
+   * After a runtime upgrade, this differs from {@link meta} which reflects the
+   * new runtime. For blocks without an upgrade the two are identical.
+   */
+  get extrinsicMeta(): Promise<DecoratedMeta> {
+    if (!this.#extrinsicMeta) {
+      this.#extrinsicMeta = (async () => {
+        const parent = await this.parentBlock
+        return parent ? parent.meta : this.meta
+      })()
+    }
+    return this.#extrinsicMeta
   }
 
   /**

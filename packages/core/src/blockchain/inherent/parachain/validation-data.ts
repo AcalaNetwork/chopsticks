@@ -65,7 +65,6 @@ export type ValidationData = {
 }
 
 const getValidationData = async (parent: Block, fallback = true): Promise<ValidationData> => {
-  const meta = await parent.meta
   if (parent.number === 0) {
     const { trieRootHash, nodes } = await createProof(MOCK_VALIDATION_DATA.relayChainState.trieNodes, [])
     return {
@@ -79,6 +78,9 @@ const getValidationData = async (parent: Block, fallback = true): Promise<Valida
   }
   try {
     const extrinsics = await parent.extrinsics
+    // Use extrinsicMeta because the block's extrinsics were encoded with the
+    // pre-execution runtime, which may differ from parent.meta after a runtime upgrade.
+    const meta = await parent.extrinsicMeta
     const validationDataExtrinsic = extrinsics.find((extrinsic) => {
       const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
       return firstArg && 'validationData' in firstArg
