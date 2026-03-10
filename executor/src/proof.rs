@@ -156,20 +156,31 @@ pub fn create_proof(
 
 /// Create a trie proof from a flat list of key-value entries.
 ///
-/// Unlike `create_proof` which modifies an existing proof, this builds a trie from scratch
-/// using the provided entries and returns the root hash and proof nodes.
+/// Unlike `create_proof` which modifies an existing proof, this builds a complete
+/// trie from scratch and returns its root hash along with the encoded proof nodes.
 ///
-/// This is useful for generating storage proofs in test environments (e.g. Chopsticks)
-/// where no existing trie structure is available.
+/// The resulting proof is verifiable via `sp_trie::read_trie_value` against the
+/// returned root hash. This is useful for generating synthetic storage proofs in
+/// environments where no trie backend exists (e.g. Chopsticks forks, which store
+/// state as a flat KV store).
+///
+/// Note: the root hash corresponds to a trie containing *only* the provided entries,
+/// not the full chain state. For use with on-chain proof verification (e.g.
+/// `pallet-remote-proxy`), the root hash must be injected into the verifying
+/// pallet's storage (e.g. `BlockToRoot`) to match.
 pub fn create_proof_from_entries(
     entries: Vec<(Vec<u8>, Vec<u8>)>,
 ) -> Result<(HashHexString, Vec<HexString>), String> {
     let mut proof_builder = ProofBuilder::new();
     let mut trie = trie_structure::TrieStructure::new();
 
+    // Phase 1: Insert all entries into the in-memory trie structure.
+    // Keys are converted to nibbles (half-bytes) as required by the trie.
     for (key, value) in &entries {
         match trie.node(bytes_to_nibbles(key.iter().cloned())) {
             trie_structure::Entry::Vacant(vacant) => {
+                // `insert_storage_value()` marks this as a storage node (not just a branch),
+                // then `insert()` sets the value and empty user data for child nodes.
                 vacant.insert_storage_value().insert(value.clone(), vec![]);
             }
             trie_structure::Entry::Occupied(_) => {
@@ -178,7 +189,11 @@ pub fn create_proof_from_entries(
         }
     }
 
+    // Phase 2: Encode each trie node and feed it to the proof builder.
+    // This iterates all nodes (including internal branch nodes created by the trie
+    // structure), not just the leaf nodes with storage values.
     for node_index in trie.clone().iter_unordered() {
+        // Full key in nibbles, used to identify the node's position in the proof builder.
         let key = trie
             .node_full_key_by_index(node_index)
             .unwrap()
@@ -196,7 +211,12 @@ pub fn create_proof_from_entries(
             vec![]
         };
 
+        // Build the trie node encoding: children bitmap, partial key, and storage value.
+        // This follows the same pattern as `create_proof` for consistency.
         let decoded = trie_node::Decoded {
+            // For each of the 16 possible nibble children, check if this node has a child
+            // at that position. `Some(&[][..])` means "child exists but hash not yet known"
+            // (the proof builder will compute it).
             children: std::array::from_fn(|nibble| {
                 let nibble = Nibble::try_from(u8::try_from(nibble).unwrap()).unwrap();
                 if trie
@@ -210,12 +230,15 @@ pub fn create_proof_from_entries(
                     None
                 }
             }),
+            // The partial key is the portion of the key that's unique to this node
+            // (not shared with ancestors).
             partial_key: trie
                 .node_by_index(node_index)
                 .unwrap()
                 .partial_key()
                 .collect::<Vec<_>>()
                 .into_iter(),
+            // Unhashed means the value is stored inline in the node, not behind a hash.
             storage_value: if has_storage_value {
                 trie_node::StorageValue::Unhashed(&storage_value[..])
             } else {
@@ -229,17 +252,22 @@ pub fn create_proof_from_entries(
         proof_builder.set_node_value(&key, &node_value, None)
     }
 
+    // Phase 3: Finalize the proof.
+    // `make_coherent` computes all internal hashes and ensures the trie is valid.
     assert!(proof_builder.missing_node_values().next().is_none());
     proof_builder.make_coherent();
     let trie_root_hash = proof_builder.trie_root_hash().unwrap();
 
+    // The proof builder's `build()` output is a SCALE-encoded sequence:
+    //   compact(num_nodes), then for each node: compact(node_len), node_bytes
+    // We skip the outer length and the per-node lengths, keeping only the raw node bytes.
     let nodes = proof_builder
         .build()
         .map(|x| HexString(x.as_ref().to_vec()))
-        .skip(1) // length of nodes
+        .skip(1) // skip the outer compact(num_nodes)
         .enumerate()
-        .filter(|(i, _)| i % 2 != 0) // length of each nodes
-        .map(|(_, v)| v) // node itself
+        .filter(|(i, _)| i % 2 != 0) // skip compact(node_len) entries (even indices)
+        .map(|(_, v)| v) // keep the node bytes (odd indices)
         .collect::<Vec<_>>();
 
     Ok((HashHexString(trie_root_hash), nodes))
@@ -368,6 +396,8 @@ fn decode_proof_works() {
     println!("{:#?}", result);
 }
 
+// Roundtrip test: create a proof from multiple entries, decode it back,
+// and verify every original entry is present with the correct value.
 #[test]
 fn create_proof_from_entries_works() {
     let entries = vec![
@@ -378,7 +408,6 @@ fn create_proof_from_entries_works() {
 
     let (hash, nodes) = create_proof_from_entries(entries.clone()).unwrap();
 
-    // Decode the proof and verify all entries are present
     let decoded = decode_proof(hash, nodes.iter().map(|x| x.0.clone()).collect()).unwrap();
     assert_eq!(decoded.len(), 3);
 
@@ -391,6 +420,7 @@ fn create_proof_from_entries_works() {
     }
 }
 
+// Edge case: a trie with exactly one entry produces a single root node.
 #[test]
 fn create_proof_from_entries_single_entry() {
     let entries = vec![(b"only_key".to_vec(), b"only_value".to_vec())];
@@ -403,6 +433,7 @@ fn create_proof_from_entries_single_entry() {
     assert_eq!(decoded[0].1 .0, b"only_value".to_vec());
 }
 
+// Duplicate keys should fail rather than silently overwriting.
 #[test]
 fn create_proof_from_entries_duplicate_key_fails() {
     let entries = vec![

@@ -87,7 +87,9 @@ export const getWorker = async () => {
   return __executor_worker
 }
 
-// Track which WASMs have been registered in the worker to avoid resending
+// WASM caching: avoids sending the full WASM blob to the worker on every task.
+// The first time a WASM is used, it's registered in the worker's cache keyed by
+// its xxhash256. Subsequent calls send only the hash, and the worker looks it up.
 const registeredWasms = new Set<string>()
 
 const hashWasm = (wasm: HexString): string => xxhashAsHex(wasm, 256)
@@ -141,6 +143,16 @@ export const createProof = async (nodes: HexString[], updates: [HexString, HexSt
   return { trieRootHash, nodes: newNodes }
 }
 
+/**
+ * Build a Merkle trie proof from flat key-value pairs.
+ *
+ * Returns `{ trieRootHash, nodes }` where `trieRootHash` is the root of a trie
+ * containing *only* the provided entries, and `nodes` are the encoded trie nodes
+ * that constitute a valid proof against that root.
+ *
+ * The proof can be verified with `sp_trie::read_trie_value` or round-tripped
+ * through `decodeProof(trieRootHash, nodes)`.
+ */
 export const createProofFromEntries = async (entries: [HexString, HexString][]) => {
   const worker = await getWorker()
   const [trieRootHash, newNodes] = await worker.remote.createProofFromEntries(entries)

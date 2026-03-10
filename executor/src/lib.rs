@@ -157,10 +157,16 @@ pub async fn create_proof(nodes: JsValue, updates: JsValue) -> Result<JsValue, J
     Ok(result)
 }
 
+/// WASM binding for `proof::create_proof_from_entries`.
+///
+/// Accepts a JS array of `[HexString, HexString]` pairs (storage key, storage value).
+/// Returns `[rootHash, proofNodes[]]` where rootHash is the trie root and proofNodes
+/// are the encoded trie nodes that constitute a valid Merkle proof.
 #[wasm_bindgen]
 pub async fn create_proof_from_entries(entries: JsValue) -> Result<JsValue, JsError> {
     setup_console(None);
 
+    // Deserialize hex-encoded entries from JS, strip the hex wrappers for the Rust side.
     let entries = serde_wasm_bindgen::from_value::<Vec<(HexString, HexString)>>(entries)?;
     let entries = entries.into_iter().map(|(k, v)| (k.0, v.0)).collect();
     let proof = proof::create_proof_from_entries(entries)
