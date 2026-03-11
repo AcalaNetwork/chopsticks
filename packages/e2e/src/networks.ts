@@ -6,7 +6,6 @@ dotenvConfig()
 const endpoints = {
   polkadot: ['wss://rpc.ibp.network/polkadot'],
   acala: ['wss://acala.ibp.network'],
-  moonbase: ['wss://wss.api.moonbase.moonbeam.network'],
 }
 
 export type Network = Awaited<ReturnType<typeof setupContext>>
@@ -24,14 +23,6 @@ export default {
       blockNumber: 3000000,
       endpoint: endpoints.acala,
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
-      ...options,
-    }),
-  moonbase: (options?: Partial<SetupOption>) =>
-    setupContext({
-      blockNumber: 15_521_300,
-      endpoint: endpoints.moonbase,
-      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
-      timeout: 300_000, // runtime upgrade blocks can take >60s to build
       ...options,
     }),
 }
