@@ -331,6 +331,7 @@ export class SetValidationData implements InherentProvider {
       }
 
       const newData = {
+        ...extrinsic,
         validationData: {
           ...extrinsic.validationData,
           relayParentStorageRoot: trieRootHash,
