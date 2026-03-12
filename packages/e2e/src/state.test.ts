@@ -109,7 +109,7 @@ describe('state rpc', () => {
 
     const runtime = readFileSync(path.join(__dirname, '../blobs/acala-runtime-2101.txt')).toString().trim()
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
-    await dev.newBlock({ count: 3 })
+    await dev.newBlock({ count: 2 })
 
     expect(await newVersion).toMatchInlineSnapshot(`
       [

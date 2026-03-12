@@ -34,12 +34,12 @@ export type SetupOption = {
 
 export const env = {
   acala: {
-    endpoint: 'wss://acala-rpc.aca-api.network',
+    endpoint: ['wss://acala-rpc.aca-api.network', 'wss://acala-rpc.n.dwellir.com'],
     // 3,800,000
     blockHash: '0x0df086f32a9c3399f7fa158d3d77a1790830bd309134c5853718141c969299c7' as HexString,
   },
   acalaV15: {
-    endpoint: 'wss://acala-rpc.aca-api.network',
+    endpoint: ['wss://acala-rpc.aca-api.network', 'wss://acala-rpc.n.dwellir.com'],
     // 6,800,000
     blockHash: '0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145' as HexString,
   },
@@ -104,7 +104,7 @@ export const setupAll = async ({
       await chain.newBlock()
     }
 
-    const { addr, port, close } = await createServer(handler({ chain }), 0, 'localhost')
+    const { addr, port, close } = await createServer(handler({ chain }), 0, '127.0.0.1')
     const ws = new WsProvider(`ws://${addr}`, 3_000, undefined, 300_000)
 
     return {

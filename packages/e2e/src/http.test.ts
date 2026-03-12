@@ -13,7 +13,7 @@ describe('http.server', () => {
     }
 
     {
-      const res = await fetch(`http://localhost:${port}`, {
+      const res = await fetch(`http://127.0.0.1:${port}`, {
         method: 'POST',
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'chain_getBlockHash', params: [] }),
       })
@@ -29,7 +29,7 @@ describe('http.server', () => {
     }
 
     {
-      const res = await fetch(`http://localhost:${port}`, {
+      const res = await fetch(`http://127.0.0.1:${port}`, {
         method: 'POST',
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'system_health', params: [] }),
       })
@@ -47,7 +47,7 @@ describe('http.server', () => {
     }
 
     {
-      const res = await fetch(`http://localhost:${port}`, {
+      const res = await fetch(`http://127.0.0.1:${port}`, {
         method: 'POST',
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'system_invalid', params: [] }),
       })
@@ -65,7 +65,7 @@ describe('http.server', () => {
     }
 
     {
-      const res = await fetch(`http://localhost:${port}`, {
+      const res = await fetch(`http://127.0.0.1:${port}`, {
         method: 'POST',
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'chain_subscribeNewHeads', params: [] }),
       })
@@ -87,7 +87,7 @@ describe('http.server', () => {
       request(
         {
           method: 'GET',
-          host: 'localhost',
+          host: '127.0.0.1',
           port: port,
           headers: {
             'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ describe('http.server', () => {
     {
       // Accepts string ids
       const id = 'lorem ipsum dolor sit amet'
-      const res = await fetch(`http://localhost:${port}`, {
+      const res = await fetch(`http://127.0.0.1:${port}`, {
         method: 'POST',
         body: JSON.stringify({ id, jsonrpc: '2.0', method: 'chain_getBlockHash', params: [] }),
       })

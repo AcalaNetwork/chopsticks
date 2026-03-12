@@ -28,7 +28,7 @@ describe('rpc methods load by scripts', () => {
     }
 
     {
-      const res = await fetch(`http://localhost:${port}`, {
+      const res = await fetch(`http://127.0.0.1:${port}`, {
         method: 'POST',
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'testdev_testRpcMethod1', params: [] }),
       })
@@ -46,7 +46,7 @@ describe('rpc methods load by scripts', () => {
       )
     }
     {
-      const res = await fetch(`http://localhost:${port}`, {
+      const res = await fetch(`http://127.0.0.1:${port}`, {
         method: 'POST',
         body: JSON.stringify({ id: 1, jsonrpc: '2.0', method: 'testdev_testRpcMethod2', params: [2] }),
       })
