@@ -12,7 +12,7 @@ describe.each([
   ['Asset Hub Kusama', new URL('../blobs/asset-hub-kusama.json', import.meta.url).pathname],
 ])(`genesis provider works %s`, async (name, genesis) => {
   const { chain, dev, api, teardown } = await setupContextWithConfig({
-    host: 'localhost',
+    host: '127.0.0.1',
     port: 1234,
     genesis,
     'build-block-mode': BuildBlockMode.Manual,

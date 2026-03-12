@@ -51,8 +51,8 @@ const MOCK_VALIDATION_DATA = {
 } satisfies ValidationData
 
 export type ValidationData = {
-  downwardMessages: DownwardMessage[]
-  horizontalMessages: Record<number, HorizontalMessage[]>
+  downwardMessages?: DownwardMessage[]
+  horizontalMessages?: Record<number, HorizontalMessage[]>
   validationData: {
     relayParentNumber: number
     relayParentStorageRoot: HexString
@@ -64,8 +64,7 @@ export type ValidationData = {
   relayParentDescendants?: any[] // Vec<RelayHeader>
 }
 
-const getValidationData = async (parent: Block, fallback = true): Promise<ValidationData> => {
-  const meta = await parent.meta
+const getValidationData = async (parent: Block): Promise<ValidationData> => {
   if (parent.number === 0) {
     const { trieRootHash, nodes } = await createProof(MOCK_VALIDATION_DATA.relayChainState.trieNodes, [])
     return {
@@ -77,42 +76,23 @@ const getValidationData = async (parent: Block, fallback = true): Promise<Valida
       },
     }
   }
-  try {
-    const extrinsics = await parent.extrinsics
-    const validationDataExtrinsic = extrinsics.find((extrinsic) => {
-      const firstArg = meta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
-      return firstArg && 'validationData' in firstArg
-    })
-    if (!validationDataExtrinsic) {
-      throw new Error('Missing validation data from block')
-    }
-    return meta.registry
-      .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
-      .args[0].toJSON() as any as ValidationData
-  } catch (e) {
-    logger.warn('Failed to get validation data from block %d %s', parent.number, e)
 
-    if (fallback) {
-      // this could fail due to wasm override that breaks the validation data format
-      // so we will try parent's parent
-      const grandParent = await parent.parentBlock
-      if (grandParent) {
-        const data = await getValidationData(grandParent, false)
-        return {
-          ...data,
-          validationData: {
-            ...data.validationData,
-            relayParentNumber: data.validationData.relayParentNumber + 2,
-          },
-        }
-      } else {
-        throw e
-      }
-    } else {
-      // fallback failed, throw error
-      throw e
-    }
+  // Parent extrinsics are encoded by grand parent meata and new block extrinsics are encoded with parent meta.
+  const grandParent = await parent.parentBlock
+  if (!grandParent) throw new Error('grand parent block not found')
+  const grandMeta = await grandParent.meta
+
+  const extrinsics = await parent.extrinsics
+  const validationDataExtrinsic = extrinsics.find((extrinsic) => {
+    const firstArg = grandMeta.registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)?.args?.[0]
+    return firstArg && 'validationData' in firstArg
+  })
+  if (!validationDataExtrinsic) {
+    throw new Error('Missing validation data from block')
   }
+  return grandMeta.registry
+    .createType<GenericExtrinsic>('GenericExtrinsic', validationDataExtrinsic)
+    .args[0].toJSON() as any as ValidationData
 }
 
 export class SetValidationData implements InherentProvider {
@@ -351,7 +331,6 @@ export class SetValidationData implements InherentProvider {
       }
 
       const newData = {
-        ...extrinsic,
         validationData: {
           ...extrinsic.validationData,
           relayParentStorageRoot: trieRootHash,

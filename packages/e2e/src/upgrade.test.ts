@@ -30,8 +30,9 @@ describe('upgrade', async () => {
 
     expect(await chain.head.runtimeVersion).toEqual(expect.objectContaining({ specVersion: 2096 }))
     await api.tx.sudo.sudoUncheckedWeight(api.tx.system.setCode(runtime), '0').signAndSend(alice)
-    await dev.newBlock({ count: 3 })
+    await dev.newBlock({ count: 2 })
     expect(await chain.head.runtimeVersion).toEqual(expect.objectContaining({ specVersion: 2101 }))
+    await new Promise((r) => setTimeout(r, 1000)) // give some time for api to detect runtime change
     expect(api.runtimeVersion.specVersion).toMatchInlineSnapshot(`2101`)
 
     await api.tx.balances.transfer(bob.address, 1e12).signAndSend(alice)
