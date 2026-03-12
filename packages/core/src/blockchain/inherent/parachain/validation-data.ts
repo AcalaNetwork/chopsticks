@@ -77,7 +77,7 @@ const getValidationData = async (parent: Block): Promise<ValidationData> => {
     }
   }
 
-  // Parent extrinsics are encoded by grand parent meata and new block extrinsics are encoded with parent meta.
+  // Parent extrinsics are encoded by grand parent meta and new block extrinsics are encoded with parent meta.
   const grandParent = await parent.parentBlock
   if (!grandParent) throw new Error('grand parent block not found')
   const grandMeta = await grandParent.meta
