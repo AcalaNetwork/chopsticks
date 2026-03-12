@@ -56,9 +56,8 @@ describe('upgrade new validation data', async () => {
   afterAll(async () => {
     await teardown()
   })
-  it('upgrade to validation data', async () => {
-    await dev.setStorage({})
 
+  it('upgrade to new validation data', async () => {
     const runtime = readFileSync(path.join(__dirname, '../blobs/moonbase-runtime-4300.txt')).toString().trim()
     const codeHash = api.registry.hash(hexToU8a(runtime))
     await dev.setStorage({
@@ -66,7 +65,7 @@ describe('upgrade new validation data', async () => {
         Account: [[[alith.address], { providers: 1, data: { free: '0xff0000000000000000' } }]],
         AuthorizedUpgrade: {
           code_hash: codeHash,
-          check_version: false,
+          check_version: true,
         },
       },
     })
