@@ -1,9 +1,12 @@
 import type { HexString } from '@polkadot/util/types'
 
+import { hexToU8a } from '@polkadot/util'
+
 import type { Block } from '../../blockchain/block.js'
 import type { Blockchain } from '../../blockchain/index.js'
 import type { Context } from '../shared.js'
 import { ResponseError } from '../shared.js'
+import { registry } from './frontier-types.js'
 
 /**
  * Convert a bigint to a minimal Ethereum hex quantity string (no leading zeros).
@@ -22,205 +25,87 @@ export function fromEthQuantity(hex: string): bigint {
 }
 
 /**
- * Encode a 20-byte Ethereum address as a hex string (no length prefix).
+ * Encode a 20-byte Ethereum address as SCALE-encoded H160.
  */
 export function encodeH160(address: string): HexString {
-  const clean = address.toLowerCase().replace(/^0x/, '')
-  if (clean.length !== 40) {
-    throw new ResponseError(-32602, `Invalid address: expected 20 bytes, got ${clean.length / 2}`)
-  }
-  return ('0x' + clean) as HexString
+  return registry.createType('H160', address).toHex()
 }
 
 /**
- * Encode a 32-byte hash/slot as a hex string (no length prefix).
+ * Encode a 32-byte hash/slot as SCALE-encoded H256.
  */
 export function encodeH256(value: string): HexString {
-  const clean = value.toLowerCase().replace(/^0x/, '')
-  if (clean.length !== 64) {
-    throw new ResponseError(-32602, `Invalid H256: expected 32 bytes, got ${clean.length / 2}`)
-  }
-  return ('0x' + clean) as HexString
+  return registry.createType('H256', value).toHex()
 }
 
 /**
- * Encode a bigint as a 32-byte little-endian U256 hex string.
- */
-export function encodeU256(value: bigint): HexString {
-  const bytes = new Uint8Array(32)
-  let v = value
-  for (let i = 0; i < 32; i++) {
-    bytes[i] = Number(v & 0xffn)
-    v >>= 8n
-  }
-  return ('0x' + Buffer.from(bytes).toString('hex')) as HexString
-}
-
-/**
- * Decode 8 bytes little-endian to a bigint (u64).
- */
-export function decodeU64LE(hex: HexString): bigint {
-  const clean = hex.replace(/^0x/, '')
-  let result = 0n
-  const len = Math.min(clean.length, 16)
-  for (let i = 0; i < len; i += 2) {
-    const byte = BigInt(parseInt(clean.slice(i, i + 2), 16))
-    result |= byte << (BigInt(i / 2) * 8n)
-  }
-  return result
-}
-
-/**
- * Decode 32 bytes little-endian to a bigint (U256).
- */
-export function decodeU256LE(hex: string, offset = 0): bigint {
-  const clean = hex.replace(/^0x/, '')
-  const start = offset * 2
-  let result = 0n
-  for (let i = 0; i < 64; i += 2) {
-    const byte = BigInt(parseInt(clean.slice(start + i, start + i + 2), 16))
-    result |= byte << (BigInt(i / 2) * 8n)
-  }
-  return result
-}
-
-/**
- * Decode AccountBasic struct: first 32 bytes = nonce (U256 LE), next 32 bytes = balance (U256 LE).
+ * Decode AccountBasic struct: { nonce: U256, balance: U256 }.
  */
 export function decodeAccountBasic(hex: HexString): { nonce: bigint; balance: bigint } {
-  const clean = hex.replace(/^0x/, '')
-  const nonce = decodeU256LE(clean, 0)
-  const balance = decodeU256LE(clean, 32)
-  return { nonce, balance }
-}
-
-/**
- * Decode a SCALE-encoded Vec<u8> at a given byte offset.
- * Returns the data as a hex string and the total number of bytes consumed.
- */
-export function decodeVec(hex: string, byteOffset = 0): { data: string; bytesRead: number } {
-  const clean = hex.replace(/^0x/, '')
-  let pos = byteOffset * 2
-
-  // Decode SCALE compact length
-  const firstByte = parseInt(clean.slice(pos, pos + 2), 16)
-  const mode = firstByte & 0x03
-  let length: number
-  let headerSize: number
-
-  if (mode === 0) {
-    length = firstByte >> 2
-    headerSize = 1
-  } else if (mode === 1) {
-    const secondByte = parseInt(clean.slice(pos + 2, pos + 4), 16)
-    length = ((secondByte << 8) | firstByte) >> 2
-    headerSize = 2
-  } else if (mode === 2) {
-    let val = 0
-    for (let i = 0; i < 4; i++) {
-      val |= parseInt(clean.slice(pos + i * 2, pos + i * 2 + 2), 16) << (i * 8)
-    }
-    length = val >> 2
-    headerSize = 4
-  } else {
-    const upperBits = firstByte >> 2
-    const bytesNeeded = upperBits + 4
-    let val = 0n
-    for (let i = 0; i < bytesNeeded; i++) {
-      val |= BigInt(parseInt(clean.slice(pos + 2 + i * 2, pos + 4 + i * 2), 16)) << (BigInt(i) * 8n)
-    }
-    length = Number(val)
-    headerSize = 1 + bytesNeeded
+  const decoded = registry.createType('EvmAccountBasic', hexToU8a(hex))
+  return {
+    nonce: (decoded as any).nonce.toBigInt(),
+    balance: (decoded as any).balance.toBigInt(),
   }
-
-  pos += headerSize * 2
-  const data = clean.slice(pos, pos + length * 2)
-  return { data, bytesRead: headerSize + length }
 }
 
 /**
- * SCALE-encode a Vec<u8> from raw bytes (hex without 0x prefix).
+ * Decode a u64 from SCALE-encoded little-endian bytes.
  */
-export function encodeVec(hexBytes: string): string {
-  const length = hexBytes.length / 2
-  return encodeCompact(length) + hexBytes
+export function decodeU64LE(hex: HexString): bigint {
+  return registry.createType('u64', hexToU8a(hex)).toBigInt()
 }
 
 /**
- * SCALE compact encoding of a non-negative integer.
+ * Decode a U256 from SCALE-encoded little-endian bytes.
  */
-export function encodeCompact(value: number): string {
-  if (value < 64) {
-    return (value << 2).toString(16).padStart(2, '0')
-  } else if (value < 16384) {
-    const v = (value << 2) | 1
-    return v.toString(16).padStart(4, '0').match(/../g)!.reverse().join('')
-  } else if (value < 1073741824) {
-    const v = (value << 2) | 2
-    return v.toString(16).padStart(8, '0').match(/../g)!.reverse().join('')
-  } else {
-    throw new ResponseError(-32603, 'Compact encoding for values >= 2^30 not implemented')
-  }
+export function decodeU256LE(hex: string): bigint {
+  const input = hex.startsWith('0x') ? hex : '0x' + hex
+  return registry.createType('u256', hexToU8a(input)).toBigInt()
+}
+
+/**
+ * Decode a SCALE-encoded Vec<u8> and return the data as a hex string.
+ */
+export function decodeVec(hex: string): { data: string } {
+  const input = hex.startsWith('0x') ? hex : '0x' + hex
+  const decoded = registry.createType('Bytes', hexToU8a(input))
+  return { data: decoded.toHex().replace(/^0x/, '') }
 }
 
 /**
  * Decode a call result from EthereumRuntimeRPCApi_call (Frontier API v6).
  *
- * Returns Result<ExecutionInfoV2<Vec<u8>>, DispatchError>
- *
- * ExecutionInfoV2<Vec<u8>> = {
- *   exit_reason: ExitReason,   // enum: 0=Succeed, 1=Error, 2=Revert, 3=Fatal; each wraps a sub-enum (1 byte)
- *   value: Vec<u8>,            // return data
- *   used_gas: UsedGas,         // { standard: U256, effective: U256 }
- *   weight_info: Option<WeightInfo>,
- *   logs: Vec<Log>,
- * }
+ * The response is Result<ExecutionInfoV2<Vec<u8>>, DispatchError>.
+ * We manually check the Result variant byte, then decode ExecutionInfoV2.
  */
 export function decodeCallResult(hex: HexString): {
   success: boolean
   returnData: string
   gasUsed: bigint
 } {
-  const clean = hex.replace(/^0x/, '')
+  const bytes = hexToU8a(hex)
 
   // Result enum: 0x00 = Ok, 0x01 = Err
-  const resultVariant = parseInt(clean.slice(0, 2), 16)
-  if (resultVariant !== 0) {
+  if (bytes[0] !== 0) {
     throw new ResponseError(-32603, 'Runtime call failed: dispatch error')
   }
 
-  // ExitReason: 1 byte category + 1 byte sub-reason
-  const exitCategory = parseInt(clean.slice(2, 4), 16)
-  // skip sub-reason byte
-  let byteOffset = 3
+  // Decode ExecutionInfoV2 from the bytes after the Result variant byte
+  const info = registry.createType('EvmExecutionInfoV2', bytes.subarray(1))
 
-  // Decode return data Vec<u8>
-  const vec = decodeVec(clean, byteOffset)
-  byteOffset += vec.bytesRead
-
-  // UsedGas: { standard: U256 (32 bytes LE), effective: U256 (32 bytes LE) }
-  // Skip standard gas
-  byteOffset += 32
-  const effectiveGas = decodeU256LE(clean, byteOffset)
-
-  // ExitReason category 0 = Succeed
-  const success = exitCategory === 0
+  const exitReason = (info as any).exitReason
+  const success = exitReason.isSucceed
 
   return {
     success,
-    returnData: '0x' + vec.data,
-    gasUsed: effectiveGas,
+    returnData: (info as any).value.toHex(),
+    gasUsed: (info as any).usedGas.effective.toBigInt(),
   }
 }
 
 /**
  * Encode parameters for EthereumRuntimeRPCApi_call (Frontier API v6).
- *
- * fn call(from: H160, to: H160, data: Vec<u8>, value: U256, gas_limit: U256,
- *         max_fee_per_gas: Option<U256>, max_priority_fee_per_gas: Option<U256>,
- *         nonce: Option<u32>, estimate: bool,
- *         access_list: Option<Vec<(H160, Vec<H256>)>>,
- *         authorization_list: Option<AuthorizationList>)
  */
 export function encodeCallParams(params: {
   from?: string
@@ -232,60 +117,25 @@ export function encodeCallParams(params: {
   accessList?: Array<{ address: string; storageKeys: string[] }>
   estimate?: boolean
 }): HexString {
-  let encoded = ''
+  const accessList = params.accessList
+    ? params.accessList.map((entry) => [entry.address, entry.storageKeys])
+    : undefined
 
-  // from: H160 (20 bytes)
-  const from = params.from ? params.from.replace(/^0x/, '').padStart(40, '0') : '0'.repeat(40)
-  encoded += from
+  const encoded = registry.createType('EvmCallParams', {
+    from: params.from ?? '0x' + '00'.repeat(20),
+    to: params.to,
+    data: params.data ?? '0x',
+    value: params.value ?? 0n,
+    gasLimit: params.gasLimit ?? 25000000n,
+    maxFeePerGas: params.maxFeePerGas,
+    maxPriorityFeePerGas: undefined,
+    nonce: undefined,
+    estimate: params.estimate ?? false,
+    accessList: accessList,
+    authorizationList: undefined,
+  })
 
-  // to: H160 (20 bytes)
-  encoded += params.to.replace(/^0x/, '').padStart(40, '0')
-
-  // data: Vec<u8>
-  const data = params.data ? params.data.replace(/^0x/, '') : ''
-  encoded += encodeVec(data)
-
-  // value: U256 LE (32 bytes)
-  encoded += encodeU256(params.value ?? 0n).replace(/^0x/, '')
-
-  // gas_limit: U256 LE (32 bytes)
-  encoded += encodeU256(params.gasLimit ?? 25000000n).replace(/^0x/, '')
-
-  // max_fee_per_gas: Option<U256> - None
-  if (params.maxFeePerGas !== undefined) {
-    encoded += '01' + encodeU256(params.maxFeePerGas).replace(/^0x/, '')
-  } else {
-    encoded += '00'
-  }
-
-  // max_priority_fee_per_gas: Option<U256> - None
-  encoded += '00'
-
-  // nonce: Option<u32> - None (v6 uses u32, not U256)
-  encoded += '00'
-
-  // estimate: bool
-  encoded += params.estimate ? '01' : '00'
-
-  // access_list: Option<Vec<(H160, Vec<H256>)>>
-  if (params.accessList && params.accessList.length > 0) {
-    encoded += '01'
-    encoded += encodeCompact(params.accessList.length)
-    for (const entry of params.accessList) {
-      encoded += entry.address.replace(/^0x/, '').padStart(40, '0')
-      encoded += encodeCompact(entry.storageKeys.length)
-      for (const key of entry.storageKeys) {
-        encoded += key.replace(/^0x/, '').padStart(64, '0')
-      }
-    }
-  } else {
-    encoded += '00'
-  }
-
-  // authorization_list: Option<AuthorizationList> - None (v6 addition)
-  encoded += '00'
-
-  return ('0x' + encoded) as HexString
+  return encoded.toHex()
 }
 
 /**
