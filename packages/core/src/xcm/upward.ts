@@ -9,18 +9,15 @@ import { xcmLogger } from './index.js'
 // Only messages before the separator are XCM; everything after is signals for the relay
 // chain validators. This mirrors `skip_ump_signals` in polkadot-sdk primitives.
 // See: polkadot-sdk polkadot/primitives/src/v9/mod.rs
-// Bytes.toHex() returns '0x' for an empty Vec<u8>.
-const UMP_SEPARATOR = '0x'
 
-/** Filter out UMP signals, keeping only XCM messages before the separator. */
-export function filterXcmMessages(hexMessages: string[]): string[] {
-  const separatorIndex = hexMessages.indexOf(UMP_SEPARATOR)
-  if (separatorIndex === -1) return hexMessages
+/** Filter out UMP signals, keeping only XCM messages before the empty separator. */
+export function filterXcmMessages<T extends { length: number }>(messages: T[]): T[] {
+  const separatorIndex = messages.findIndex((m) => m.length === 0)
+  if (separatorIndex === -1) return messages
 
-  const xcm = hexMessages.slice(0, separatorIndex)
-  const signalCount = hexMessages.length - separatorIndex - 1
-  xcmLogger.debug({ xcmCount: xcm.length, signalCount }, 'Filtered UMP signals from upward messages')
-  return xcm
+  const signalCount = messages.length - separatorIndex - 1
+  xcmLogger.debug({ xcmCount: separatorIndex, signalCount }, 'Filtered UMP signals from upward messages')
+  return messages.slice(0, separatorIndex)
 }
 
 export const connectUpward = async (parachain: Blockchain, relaychain: Blockchain) => {
@@ -37,9 +34,12 @@ export const connectUpward = async (parachain: Blockchain, relaychain: Blockchai
     const upwardMessages = meta.registry.createType('Vec<Bytes>', hexToU8a(value))
     if (upwardMessages.length === 0) return
 
-    const xcmMessages = filterXcmMessages(upwardMessages.map((x) => x.toHex()))
+    const xcmMessages = filterXcmMessages(upwardMessages)
     if (xcmMessages.length === 0) return
 
-    relaychain.submitUpwardMessages(paraId, xcmMessages)
+    relaychain.submitUpwardMessages(
+      paraId,
+      xcmMessages.map((x) => x.toHex()),
+    )
   })
 }

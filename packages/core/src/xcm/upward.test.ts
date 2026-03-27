@@ -4,17 +4,17 @@ import { filterXcmMessages } from './upward.js'
 
 describe('filterXcmMessages', () => {
   it('returns all messages when no separator present', () => {
-    const messages = ['0xdeadbeef', '0xcafebabe']
-    expect(filterXcmMessages(messages)).toEqual(['0xdeadbeef', '0xcafebabe'])
+    const messages = ['xcm1', 'xcm2']
+    expect(filterXcmMessages(messages)).toEqual(['xcm1', 'xcm2'])
   })
 
   it('returns only messages before the separator', () => {
-    const messages = ['0xdeadbeef', '0xcafebabe', '0x', '0x01020304', '0xaabbccdd']
-    expect(filterXcmMessages(messages)).toEqual(['0xdeadbeef', '0xcafebabe'])
+    const messages = ['xcm1', 'xcm2', '', 'sig1', 'sig2']
+    expect(filterXcmMessages(messages)).toEqual(['xcm1', 'xcm2'])
   })
 
   it('returns empty array when separator is first', () => {
-    const messages = ['0x', '0x01020304', '0xaabbccdd']
+    const messages = ['', 'sig1', 'sig2']
     expect(filterXcmMessages(messages)).toEqual([])
   })
 
@@ -22,8 +22,8 @@ describe('filterXcmMessages', () => {
     expect(filterXcmMessages([])).toEqual([])
   })
 
-  it('returns all messages when separator is last (no signals after it)', () => {
-    const messages = ['0xdeadbeef', '0x']
-    expect(filterXcmMessages(messages)).toEqual(['0xdeadbeef'])
+  it('returns messages before separator when separator is last', () => {
+    const messages = ['xcm1', '']
+    expect(filterXcmMessages(messages)).toEqual(['xcm1'])
   })
 })
