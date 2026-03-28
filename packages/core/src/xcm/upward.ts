@@ -34,7 +34,7 @@ export const connectUpward = async (parachain: Blockchain, relaychain: Blockchai
     const upwardMessages = meta.registry.createType('Vec<Bytes>', hexToU8a(value))
     if (upwardMessages.length === 0) return
 
-    const xcmMessages = filterXcmMessages(upwardMessages)
+    const xcmMessages = filterXcmMessages(upwardMessages.toArray())
     if (xcmMessages.length === 0) return
 
     relaychain.submitUpwardMessages(
