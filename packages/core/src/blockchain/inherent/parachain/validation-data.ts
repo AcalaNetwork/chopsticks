@@ -289,6 +289,27 @@ export class SetValidationData implements InherentProvider {
     if (argsLengh === 1) {
       // old version
 
+      let relayParentDescendants = extrinsic.relayParentDescendants
+      if (relayParentDescendants) {
+        let fakeParentHeader = relayParentDescendants[0]
+        if (fakeParentHeader) {
+          fakeParentHeader = {
+            ...fakeParentHeader,
+            number: relayParentNumber,
+            stateRoot: trieRootHash,
+          }
+          relayParentDescendants = [fakeParentHeader, ...relayParentDescendants.slice(1)]
+          let lastHeader: Header | undefined
+          for (const descendant of relayParentDescendants) {
+            if (lastHeader) {
+              descendant.parentHash = lastHeader.hash
+              descendant.number = lastHeader.number.toNumber() + 1
+            }
+            lastHeader = meta.registry.createType('Header', descendant) as Header
+          }
+        }
+      }
+
       const newData = {
         ...extrinsic,
         downwardMessages,
@@ -301,6 +322,7 @@ export class SetValidationData implements InherentProvider {
         relayChainState: {
           trieNodes: nodes,
         },
+        relayParentDescendants,
       } satisfies ValidationData
 
       const inherent = new GenericExtrinsic(meta.registry, meta.tx.parachainSystem.setValidationData(newData))
