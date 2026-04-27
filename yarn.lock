@@ -43,7 +43,7 @@ __metadata:
     idb: "npm:^8.0.3"
     reflect-metadata: "npm:^0.2.2"
     sqlite3: "npm:^6.0.1"
-    typeorm: "npm:^0.3.26"
+    typeorm: "npm:^0.3.28"
     typescript: "npm:^5.8.3"
   languageName: unknown
   linkType: soft
@@ -9875,7 +9875,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typeorm@npm:^0.3.26":
+"typeorm@npm:^0.3.28":
   version: 0.3.28
   resolution: "typeorm@npm:0.3.28"
   dependencies:
