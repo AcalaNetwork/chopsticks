@@ -126,8 +126,14 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     const isChild = isPrefixedChildKey(prefix as HexString)
     const minPrefixLen = isChild ? CHILD_PREFIX_LENGTH : PREFIX_LENGTH
 
-    // can't handle keyCache without prefix
-    if (prefix === startKey || prefix.length < minPrefixLen || startKey.length < minPrefixLen) {
+    // KeyCache groups by the first `minPrefixLen` chars; it cannot correctly answer queries
+    // whose prefix is longer than that grouping width, so proxy directly to upstream.
+    if (
+      prefix.length < minPrefixLen ||
+      startKey.length < minPrefixLen ||
+      prefix.length > minPrefixLen ||
+      startKey.length > minPrefixLen
+    ) {
       return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
