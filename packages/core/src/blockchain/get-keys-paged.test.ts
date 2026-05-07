@@ -153,6 +153,19 @@ describe('getKeysPaged', () => {
     ])
   })
 
+  it('storage layer enforces the remote page size limit', async () => {
+    const layer = new StorageLayer(storageLayer)
+    layer.setAll([['0x1111111111111111111111111111111111111111111111111111111111111111_00', '0x00']])
+
+    await expect(
+      layer.getKeysPaged(
+        '0x1111111111111111111111111111111111111111111111111111111111111111',
+        1001,
+        '0x1111111111111111111111111111111111111111111111111111111111111111',
+      ),
+    ).rejects.toThrow('pageSize must be less or equal to 1000')
+  })
+
   it('updated values', async () => {
     const layer2 = new StorageLayer(storageLayer)
     layer2.setAll([['0x1111111111111111111111111111111111111111111111111111111111111111_04', '0x04']])
