@@ -240,13 +240,19 @@ export function defer<T>() {
 export const sendTransaction = async (tx: Promise<SubmittableExtrinsic<'promise'>>) => {
   const signed = await tx
   const deferred = defer<Codec[]>()
-  await signed.send((status) => {
+  // Swallow rejections that arrive after the deferred has already settled (the
+  // subscription continues to fire callbacks after isInBlock/isFinalized).
+  deferred.promise.catch(() => {})
+  let unsub: (() => void) | undefined
+  unsub = await signed.send((status) => {
     logger.debug({ status: status.status.toHuman() }, 'Transaction status')
     if (status.isInBlock || status.isFinalized) {
       deferred.resolve(status.events)
+      if (unsub) unsub()
     }
     if (status.isError) {
       deferred.reject(status.status)
+      if (unsub) unsub()
     }
   })
 
