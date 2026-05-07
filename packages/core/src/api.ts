@@ -4,8 +4,11 @@ import type { ExtDef } from '@polkadot/types/extrinsic/signedExtensions/types'
 import type { HexString } from '@polkadot/util/types'
 import _ from 'lodash'
 
+import type { Database } from './database.js'
 import type { ChainProperties, Header, SignedBlock } from './index.js'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
+
+const CACHEABLE_METHODS = new Set(['system_chain', 'system_properties', 'system_name', 'chain_getBlockHash', 'chain_getHeader'])
 
 /**
  * API class. Calls provider to get on-chain data.
@@ -24,6 +27,8 @@ export class Api {
   #ready: Promise<void> | undefined
   #chain: Promise<string> | undefined
   #chainProperties: Promise<ChainProperties> | undefined
+  #db?: Database
+  #scope?: string
 
   readonly signedExtensions: ExtDef
 
@@ -34,6 +39,25 @@ export class Api {
   constructor(provider: ProviderInterface, signedExtensions?: ExtDef) {
     this.#provider = provider
     this.signedExtensions = signedExtensions || {}
+  }
+
+  setDb(db: Database, scope: string) {
+    this.#db = db
+    this.#scope = scope
+  }
+
+  async #cachedSend<T>(method: string, params: unknown[], isCacheable?: boolean): Promise<T> {
+    if (this.#db?.queryRpcCall && this.#scope && CACHEABLE_METHODS.has(method)) {
+      const key = JSON.stringify(params)
+      const cached = await this.#db.queryRpcCall(this.#scope, method, key)
+      if (cached !== null) return JSON.parse(cached) as T
+      this.#apiHooks?.fetching?.()
+      const result = await this.#provider.send<T>(method, params, isCacheable)
+      await this.#db.saveRpcCall?.(this.#scope, method, key, JSON.stringify(result))
+      return result
+    }
+    this.#apiHooks?.fetching?.()
+    return this.#provider.send(method, params, isCacheable)
   }
 
   async disconnect() {
@@ -84,19 +108,19 @@ export class Api {
   }
 
   async getSystemName() {
-    return this.send<string>('system_name', [])
+    return this.#cachedSend<string>('system_name', [])
   }
 
   async getSystemProperties() {
-    return this.send<ChainProperties>('system_properties', [])
+    return this.#cachedSend<ChainProperties>('system_properties', [])
   }
 
   async getSystemChain() {
-    return this.send<string>('system_chain', [])
+    return this.#cachedSend<string>('system_chain', [])
   }
 
   async getBlockHash(blockNumber?: number) {
-    return this.send<HexString | null>(
+    return this.#cachedSend<HexString | null>(
       'chain_getBlockHash',
       Number.isInteger(blockNumber) ? [blockNumber] : [],
       !!blockNumber,
@@ -104,7 +128,7 @@ export class Api {
   }
 
   async getHeader(hash?: string) {
-    return this.send<Header | null>('chain_getHeader', hash ? [hash] : [], !!hash)
+    return this.#cachedSend<Header | null>('chain_getHeader', hash ? [hash] : [], !!hash)
   }
 
   async getFinalizedHead() {

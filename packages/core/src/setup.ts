@@ -51,6 +51,11 @@ export const processOptions = async (options: SetupOptions) => {
   // setup api hooks
   api.onFetching(options.hooks?.apiFetching)
 
+  if (options.db) {
+    const scope = typeof options.endpoint === 'string' ? options.endpoint : JSON.stringify(options.endpoint ?? '')
+    api.setDb(options.db, scope)
+  }
+
   await api.isReady
 
   let blockHash: string
