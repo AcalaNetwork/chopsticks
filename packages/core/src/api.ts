@@ -8,7 +8,13 @@ import type { Database } from './database.js'
 import type { ChainProperties, Header, SignedBlock } from './index.js'
 import { prefixedChildKey, splitChildKey, stripChildPrefix } from './utils/index.js'
 
-const CACHEABLE_METHODS = new Set(['system_chain', 'system_properties', 'system_name', 'chain_getBlockHash', 'chain_getHeader'])
+const CACHEABLE_METHODS = new Set([
+  'system_chain',
+  'system_properties',
+  'system_name',
+  'chain_getBlockHash',
+  'chain_getHeader',
+])
 
 /**
  * API class. Calls provider to get on-chain data.
