@@ -47,6 +47,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   readonly #db: Database | undefined
   readonly #keyCache = new KeyCache(PREFIX_LENGTH)
   readonly #defaultChildKeyCache = new KeyCache(CHILD_PREFIX_LENGTH)
+  readonly #inflight = new Map<string, Promise<StorageValue>>()
 
   constructor(api: Api, at: HexString, db: Database | undefined) {
     this.#api = api
@@ -65,10 +66,22 @@ export class RemoteStorageLayer implements StorageLayerProvider {
         return res.value ?? undefined
       }
     }
+
+    const inflight = this.#inflight.get(key)
+    if (inflight) return inflight
+
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
-    const data = await this.#api.getStorage(key, this.#at)
-    this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
-    return data ?? undefined
+    const fetch = this.#api
+      .getStorage(key, this.#at)
+      .then((data) => {
+        this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
+        return data ?? undefined
+      })
+      .finally(() => {
+        this.#inflight.delete(key)
+      })
+    this.#inflight.set(key, fetch)
+    return fetch
   }
 
   async getMany(keys: string[], _cache: boolean): Promise<StorageValue[]> {
