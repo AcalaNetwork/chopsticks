@@ -342,6 +342,8 @@ export class StorageLayer implements StorageLayerProvider {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
+    if (pageSize > BATCH_SIZE) throw new Error(`pageSize must be less or equal to ${BATCH_SIZE}`)
+
     if (!startKey || startKey === '0x') {
       startKey = prefix
     }
