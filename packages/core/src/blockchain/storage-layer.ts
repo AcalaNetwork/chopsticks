@@ -137,8 +137,19 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
+    const startKeyEqualsPrefix = startKey === prefix
+    if (this.#db?.queryPagedKeys && startKeyEqualsPrefix) {
+      const cached = await this.#db.queryPagedKeys(this.#at, prefix as HexString)
+      if (cached) {
+        isChild
+          ? this.#defaultChildKeyCache.feed([startKey, ...cached] as HexString[])
+          : this.#keyCache.feed([startKey, ...cached] as HexString[])
+      }
+    }
+
     let batchComplete = false
     const keysPaged: string[] = []
+    const allFetchedKeys: HexString[] = []
     while (keysPaged.length < pageSize) {
       const nextKey = isChild
         ? await this.#defaultChildKeyCache.next(startKey as HexString)
@@ -172,16 +183,9 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
 
       if (this.#db) {
-        // filter out keys that are not in the db]
-        const newBatch: HexString[] = []
-
-        for (const key of batch) {
-          const res = await this.#db.queryStorage(this.#at, key)
-          if (res) {
-            continue
-          }
-          newBatch.push(key)
-        }
+        const newBatch: HexString[] = await Promise.all(
+          batch.map((key) => this.#db!.queryStorage(this.#at, key).then((r) => (r ? null : key))),
+        ).then((rs) => rs.filter((k): k is HexString => k !== null))
 
         if (newBatch.length > 0) {
           // batch fetch storage values and save to db, they may be used later
@@ -191,8 +195,17 @@ export class RemoteStorageLayer implements StorageLayerProvider {
             }
           })
         }
+
+        if (startKeyEqualsPrefix) {
+          allFetchedKeys.push(...(batch as HexString[]))
+        }
       }
     }
+
+    if (this.#db?.savePagedKeys && startKeyEqualsPrefix && allFetchedKeys.length > 0) {
+      await this.#db.savePagedKeys(this.#at, prefix as HexString, allFetchedKeys)
+    }
+
     return keysPaged
   }
 }
