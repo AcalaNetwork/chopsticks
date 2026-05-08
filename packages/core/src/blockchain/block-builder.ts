@@ -384,6 +384,41 @@ export const buildBlock = async (
   return [finalBlock, pendingExtrinsics]
 }
 
+export type DryRunResult = {
+  outcome: ApplyExtrinsicResult
+  storageDiff: [HexString, HexString | null][]
+}
+
+/**
+ * Dry-run a batch of extrinsics against the same initialized block.
+ *
+ * Core_initialize_block and the inherents are executed once. Each extrinsic
+ * is then applied on a temporary storage layer that is pushed before the call
+ * and popped after, so no extrinsic side-effects leak into the next.
+ *
+ * Caveat: because account nonces revert with each pop, all extrinsics must be
+ * pre-signed with the same base nonce.
+ */
+export const dryRunExtrinsicsAmortized = async (
+  head: Block,
+  inherentProviders: InherentProvider[],
+  extrinsics: HexString[],
+  params: BuildBlockParams,
+): Promise<DryRunResult[]> => {
+  const registry = await head.registry
+  const header = await newHeader(head)
+  const { block: newBlock } = await initNewBlock(head, header, inherentProviders, params)
+  const results: DryRunResult[] = []
+  for (const extrinsic of extrinsics) {
+    newBlock.pushStorageLayer()
+    const resp = await newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
+    const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', resp.result)
+    results.push({ outcome, storageDiff: resp.storageDiff })
+    newBlock.popStorageLayer()
+  }
+  return results
+}
+
 export const dryRunExtrinsic = async (
   head: Block,
   inherentProviders: InherentProvider[],
