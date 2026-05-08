@@ -151,9 +151,11 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     }
 
     const startKeyEqualsPrefix = startKey === prefix
+    let cachedKeys: HexString[] | undefined
     if (this.#db?.queryPagedKeys && startKeyEqualsPrefix) {
       const cached = await this.#db.queryPagedKeys(this.#at, prefix as HexString)
       if (cached) {
+        cachedKeys = cached
         isChild
           ? this.#defaultChildKeyCache.feed([startKey, ...cached] as HexString[])
           : this.#keyCache.feed([startKey, ...cached] as HexString[])
@@ -161,8 +163,10 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     }
 
     let batchComplete = false
+    let fetchedNewKeys = false
     const keysPaged: string[] = []
-    const allFetchedKeys: HexString[] = []
+    // Seed with cached keys so a cache-hit-then-extend doesn't truncate the persisted set.
+    const allFetchedKeys: HexString[] = cachedKeys ? [...cachedKeys] : []
     while (keysPaged.length < pageSize) {
       const nextKey = isChild
         ? await this.#defaultChildKeyCache.next(startKey as HexString)
@@ -211,11 +215,12 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 
         if (startKeyEqualsPrefix) {
           allFetchedKeys.push(...(batch as HexString[]))
+          fetchedNewKeys = true
         }
       }
     }
 
-    if (this.#db?.savePagedKeys && startKeyEqualsPrefix && allFetchedKeys.length > 0) {
+    if (this.#db?.savePagedKeys && startKeyEqualsPrefix && fetchedNewKeys) {
       await this.#db.savePagedKeys(this.#at, prefix as HexString, allFetchedKeys)
     }
 
