@@ -215,6 +215,22 @@ export class Block {
   }
 
   /**
+   * Truncate the storage layer stack back to a target depth.
+   *
+   * Used by snapshot-restore mechanisms to undo accumulated dev.setStorage
+   * calls when reverting to a previously captured state, without losing the
+   * underlying block.
+   */
+  resetStorageLayers(targetCount: number): void {
+    while (this.#storages.length > targetCount) this.#storages.pop()
+  }
+
+  /** The current depth of the storage layer stack. */
+  get storageLayerCount(): number {
+    return this.#storages.length
+  }
+
+  /**
    * Get storage diff.
    */
   async storageDiff(): Promise<Record<HexString, HexString | null>> {
