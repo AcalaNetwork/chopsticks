@@ -21,6 +21,8 @@ import { getPolkadotSigner } from 'polkadot-api/signer'
 
 const logger = defaultLogger.child({ name: 'utils' })
 
+// Re-exported from `@acala-network/chopsticks` (lives there because the CLI needs it).
+export { type BridgeHandle, type ConnectBridgeHubsConfig, connectBridgeHubs } from '@acala-network/chopsticks'
 export * from './signFake.js'
 
 /**

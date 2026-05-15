@@ -36,6 +36,7 @@ export type SignedBlock = {
 
 export * from './api.js'
 export * from './blockchain/block.js'
+export * from './bridge/index.js'
 export * from './blockchain/block-builder.js'
 export * from './blockchain/head-state.js'
 export * from './blockchain/index.js'

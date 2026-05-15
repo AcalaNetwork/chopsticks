@@ -200,4 +200,34 @@ describe('state rpc', () => {
     )
     expect(result).toMatchObject({ Error: 'Function to start was not found.' })
   })
+
+  it('state_getReadProof returns a proof whose root reflects local overrides', async () => {
+    const { api, dev, teardown } = await networks.acala({ blockNumber: 2000000 })
+
+    try {
+      // Twox128('System') || Twox128('Number') — exists on every substrate chain.
+      const SYSTEM_NUMBER_KEY = '0x26aa394eea5630e07c48ae0c9558cef702a5c1b19ab7a04f536c519aca4983ac' as HexString
+
+      const proofA = await api.rpc.state.getReadProof([SYSTEM_NUMBER_KEY])
+      expect(proofA.proof.length).toBeGreaterThan(0)
+      expect(proofA.at.toHex()).toMatch(/^0x[0-9a-f]+$/)
+
+      await dev.setStorage([[SYSTEM_NUMBER_KEY, '0xdeadbeef']])
+
+      const proofB = await api.rpc.state.getReadProof([SYSTEM_NUMBER_KEY])
+      expect(proofB.proof.length).toBeGreaterThan(0)
+      expect(proofA.proof.map((n) => n.toHex()).join(',')).not.toBe(proofB.proof.map((n) => n.toHex()).join(','))
+    } finally {
+      await teardown()
+    }
+  })
+
+  it('state_getReadProof rejects child-storage keys', async () => {
+    const childKey = '0x3a6368696c645f73746f726167653a64656661756c743a000000000000000000' as HexString
+    await expect(api.rpc.state.getReadProof([childKey])).rejects.toThrow()
+  })
+
+  it('state_getReadProof rejects empty key list', async () => {
+    await expect(api.rpc.state.getReadProof([])).rejects.toThrow()
+  })
 })

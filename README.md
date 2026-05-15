@@ -146,6 +146,15 @@ npx @acala-network/chopsticks@latest dry-run --config=configs/mandala.yml --prei
 npx @acala-network/chopsticks@latest xcm -r kusama -p karura -p statemine
 ```
 
+- Setup bridged-XCM between two ecosystems
+**_NOTE:_** One parachain on each side must host `pallet_bridge_messages`; both directions are wired automatically.
+
+```bash
+npx @acala-network/chopsticks@latest bridge \
+  -r polkadot -p polkadot-bridge-hub -p polkadot-asset-hub \
+  -R kusama   -P kusama-bridge-hub   -P kusama-asset-hub
+```
+
 ## Proxy
 
 Chopsticks respect `http_proxy` and `https_proxy` environment variables.
@@ -275,6 +284,33 @@ await checkHrmp(api)
   .redact()
   .toMatchSnapshot('horizontal messages');
 ```
+
+### Bridged-XCM Testing
+
+Wire two bridge hubs and let outbound bridge messages flow automatically. The connector
+subscribes to source's `OutboundLanes`, fetches storage proofs, writes the destination's
+`pallet_bridge_parachains` state, and submits `receive_messages_proof` — same role
+`substrate-relay` plays in production. The signer must hold a balance on `destination`
+to pay the delivery fee.
+
+```typescript
+import { connectBridgeHubs, setupContext } from '@acala-network/chopsticks-testing';
+import { Keyring } from '@polkadot/keyring';
+
+const bhp = await setupContext({ endpoint: 'wss://polkadot-bridge-hub-rpc.polkadot.io' });
+const bhk = await setupContext({ endpoint: 'wss://kusama-bridge-hub-rpc.polkadot.io' });
+
+const signer = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
+const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer });
+
+// ... drive source-side blocks; deliveries fire automatically ...
+
+await handle.disconnect();
+```
+
+For the reverse direction, call `connectBridgeHubs(bhk.api, bhp.api, { signer })`. Pallet
+names + para id are auto-detected from runtime metadata; override via config only for
+runtimes with multiple `pallet_bridge_messages` instances.
 
 ### Data Format Conversion
 

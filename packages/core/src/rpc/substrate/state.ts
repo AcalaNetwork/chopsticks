@@ -4,7 +4,7 @@ import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '../../utils/index.js'
-import type { RuntimeVersion } from '../../wasm-executor/index.js'
+import { createProof, type RuntimeVersion } from '../../wasm-executor/index.js'
 import { type Handler, ResponseError } from '../shared.js'
 
 const logger = defaultLogger.child({ name: 'rpc-state' })
@@ -104,6 +104,67 @@ export const state_call: Handler<[HexString, HexString, HexString], HexString> =
   }
   const resp = await block.call(method, [data])
   return resp.result
+}
+
+/**
+ * @param context
+ * @param params - [`keys`, `blockhash?`]
+ *
+ * @return `{ at, proof }` — proof is a list of SCALE-encoded trie nodes.
+ *
+ * Chopsticks keeps no trie of its own: fetches a base proof from upstream and re-applies
+ * chopsticks-side values via `createProof`. Falls back to upstream head for chopsticks-only
+ * blocks. Verifiers should derive the expected state_root from the proof itself, not from
+ * `chain_getHeader(at).state_root`, since they diverge once local overrides are applied.
+ * Child-storage keys are rejected — use `state_getChildReadProof`.
+ */
+export const state_getReadProof: Handler<
+  [HexString[], HexString | undefined],
+  { at: HexString; proof: HexString[] }
+> = async (context, [keys, hash]) => {
+  if (keys.length === 0) {
+    throw new ResponseError(-32602, 'state_getReadProof requires a non-empty array of keys')
+  }
+  for (const key of keys) {
+    if (isPrefixedChildKey(key)) {
+      throw new ResponseError(
+        -32601,
+        `state_getReadProof does not support child-storage keys (got ${key}); use state_getChildReadProof`,
+      )
+    }
+  }
+
+  const block = await context.chain.getBlock(hash)
+  if (!block) {
+    throw new ResponseError(1, `Block ${hash ?? 'head'} not found`)
+  }
+
+  const updates = await Promise.all(
+    keys.map(async (key) => [key, (await block.get(key)) ?? null] as [HexString, HexString | null]),
+  )
+
+  // Upstream rejects chopsticks-only blocks with UnknownBlock; fall back to upstream
+  // head whose trie is guaranteed available.
+  let upstreamProof: { at: HexString; proof: HexString[] }
+  try {
+    upstreamProof = await context.chain.api.getReadProof(keys, block.hash as HexString)
+  } catch (err) {
+    logger.debug(
+      { err: (err as Error).message, blockHash: block.hash },
+      'getReadProof at block failed; retrying at head',
+    )
+    try {
+      upstreamProof = await context.chain.api.getReadProof(keys)
+    } catch (err2) {
+      throw new ResponseError(
+        -32603,
+        `state_getReadProof: upstream rejected at block ${block.hash} and at head (${(err2 as Error).message})`,
+      )
+    }
+  }
+
+  const { nodes } = await createProof(upstreamProof.proof, updates)
+  return { at: block.hash as HexString, proof: nodes }
 }
 
 /**
