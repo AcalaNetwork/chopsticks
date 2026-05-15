@@ -1,15 +1,77 @@
 import { type Blockchain, connectParachains, connectVertical, environment } from '@acala-network/chopsticks-core'
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api'
+import { cryptoWaitReady } from '@polkadot/util-crypto'
 import { config as dotenvConfig } from 'dotenv'
 import _ from 'lodash'
 import type { MiddlewareFunction } from 'yargs'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { z } from 'zod'
+import { connectBridgeHubs } from './bridge.js'
 import { setupWithServer } from './index.js'
 import { loadRpcMethodsByScripts, pluginExtendCli } from './plugins/index.js'
 import { configSchema, fetchConfig, getYargsOptions } from './schema/index.js'
 
 dotenvConfig()
+
+interface BridgeSideChain {
+  chain: Blockchain
+  api: ApiPromise
+  url: string
+  configRef: string
+}
+
+/** One side of a bridged setup: relay (optional) + parachains, wired with UMP/DMP/HRMP. */
+const setupBridgeSide = async (
+  relayConfigRef: string | undefined,
+  parachainConfigRefs: string[],
+): Promise<BridgeSideChain[]> => {
+  const sideChains: BridgeSideChain[] = []
+  for (const configRef of parachainConfigRefs) {
+    const { chain, addr } = await setupWithServer(await fetchConfig(configRef))
+    const url = `ws://${addr}`
+    const api = await ApiPromise.create({ provider: new WsProvider(url, 3_000), noInitWarn: true })
+    sideChains.push({ chain, api, url, configRef })
+  }
+
+  if (sideChains.length > 1) {
+    await connectParachains(
+      sideChains.map((c) => c.chain),
+      environment.DISABLE_AUTO_HRMP,
+    )
+  }
+
+  if (relayConfigRef) {
+    const { chain: relay } = await setupWithServer(await fetchConfig(relayConfigRef))
+    for (const c of sideChains) await connectVertical(relay, c.chain)
+  }
+
+  return sideChains
+}
+
+/** Pick the parachain whose runtime registers `pallet_bridge_messages`. */
+const findBridgeHub = (side: BridgeSideChain[], label: 'left' | 'right'): BridgeSideChain => {
+  const candidates = side.filter((c) =>
+    Object.keys(c.api.query).some((p) => {
+      const pallet = (c.api.query as any)[p]
+      return pallet?.outboundLanes && pallet?.outboundMessages
+    }),
+  )
+  if (candidates.length === 0) {
+    throw new Error(
+      `chopsticks bridge: no ${label}-side parachain hosts pallet_bridge_messages. ` +
+        `Provided: ${side.map((c) => c.configRef).join(', ')}. Include a bridge-hub config.`,
+    )
+  }
+  if (candidates.length > 1) {
+    throw new Error(
+      `chopsticks bridge: multiple ${label}-side parachains host pallet_bridge_messages (${candidates
+        .map((c) => c.configRef)
+        .join(', ')}). Cannot disambiguate — provide only one bridge hub per side.`,
+    )
+  }
+  return candidates[0]
+}
 
 const processArgv: MiddlewareFunction<{ config?: string; port?: number; unsafeRpcMethods?: string }> = async (argv) => {
   try {
@@ -85,6 +147,60 @@ const commands = yargs(hideBin(process.argv))
           await connectVertical(relaychain, parachain)
         }
       }
+    },
+  )
+  .command(
+    'bridge',
+    'Bridged-XCM setup: two ecosystems wired with pallet_bridge_messages in both directions',
+    (yargs) =>
+      yargs
+        .options({
+          'left-relaychain': {
+            desc: 'Left-side relaychain config (named or path). Example: westend',
+            string: true,
+          },
+          'left-parachain': {
+            desc: 'Left-side parachain config(s). One of them must host pallet_bridge_messages.',
+            type: 'array',
+            string: true,
+            required: true,
+          },
+          'right-relaychain': {
+            desc: 'Right-side relaychain config (named or path). Example: rococo',
+            string: true,
+          },
+          'right-parachain': {
+            desc: 'Right-side parachain config(s). One of them must host pallet_bridge_messages.',
+            type: 'array',
+            string: true,
+            required: true,
+          },
+          'bridge-signer-uri': {
+            desc: 'URI for the relayer keypair that submits receive_messages_proof on each side',
+            string: true,
+            default: '//Alice',
+          },
+        })
+        .alias('left-relaychain', 'r')
+        .alias('left-parachain', 'p')
+        .alias('right-relaychain', 'R')
+        .alias('right-parachain', 'P'),
+    async (argv) => {
+      await cryptoWaitReady()
+      const left = await setupBridgeSide(argv['left-relaychain'], argv['left-parachain'])
+      const right = await setupBridgeSide(argv['right-relaychain'], argv['right-parachain'])
+
+      const leftBh = findBridgeHub(left, 'left')
+      const rightBh = findBridgeHub(right, 'right')
+
+      const signer = new Keyring({ type: 'sr25519' }).addFromUri(argv['bridge-signer-uri'])
+
+      await connectBridgeHubs(leftBh.api, rightBh.api, { signer })
+      await connectBridgeHubs(rightBh.api, leftBh.api, { signer })
+
+      console.log(
+        `Bridge connected:\n  left  bridge-hub @ ${leftBh.url}\n  right bridge-hub @ ${rightBh.url}\nBoth directions are live.`,
+      )
     },
   )
   .strict()
