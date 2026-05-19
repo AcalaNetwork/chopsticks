@@ -77,7 +77,11 @@ export const connectBridgeHubs = async (
 
     let lanes: [HexString, LaneState][]
     try {
-      const entries = await source.query[camel(sourceMessagesPallet)].outboundLanes.entries()
+      // Read at `sourceHeader.hash` not the live head: newer blocks may have arrived
+      // while this pump is queued, and a proof built against `sourceHeader` against
+      // newer-head state would attest non-existence for not-yet-extant nonces.
+      const apiAt = await source.at(sourceHashHex)
+      const entries = await apiAt.query[camel(sourceMessagesPallet)].outboundLanes.entries()
       lanes = entries.map(([key, valueCodec]) => {
         const laneHex = (key.args[0] as any).toHex() as HexString
         const v = valueCodec.toJSON() as {

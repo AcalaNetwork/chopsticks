@@ -4,7 +4,7 @@ import { Keyring } from '@polkadot/keyring'
 import { compactToU8a, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import { cryptoWaitReady } from '@polkadot/util-crypto'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 const LANE_ID: HexString = '0x00000001'
 const SOURCE_MESSAGES_PALLET = 'BridgeKusamaMessages'
@@ -83,6 +83,82 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
       await waitForBhkEvent(bhk.api, 'bridgePolkadotMessages', 'MessagesReceived', 60_000)
 
       await handle.disconnect()
+    } finally {
+      await bhp.teardown()
+      await bhk.teardown()
+    }
+  }, 240_000)
+
+  it('rapid-fire source blocks: both nonces reach destination without deadlock', async () => {
+    await cryptoWaitReady()
+
+    const bhp = await setupContext({
+      endpoint: 'wss://polkadot-bridge-hub-rpc.polkadot.io',
+      db: process.env.RUN_TESTS_WITHOUT_DB ? undefined : 'bridge-bhp-tests.sqlite',
+    })
+    const bhk = await setupContext({
+      endpoint: 'wss://kusama-bridge-hub-rpc.polkadot.io',
+      db: process.env.RUN_TESTS_WITHOUT_DB ? undefined : 'bridge-bhk-tests.sqlite',
+    })
+
+    try {
+      const alice = new Keyring({ type: 'sr25519' }).addFromUri('//Alice')
+      await bhk.dev.setStorage({
+        System: { Account: [[[alice.address], { providers: 1, data: { free: 1_000_000_000_000_000n } }]] },
+      })
+
+      const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer: alice })
+
+      const laneBytes = hexToU8a(LANE_ID)
+      const currentOutbound = (await bhp.api.query.bridgeKusamaMessages.outboundLanes(LANE_ID)).toJSON() as {
+        latestGeneratedNonce?: number | string
+      } | null
+      const baselineNonce = BigInt(currentOutbound?.latestGeneratedNonce ?? 0)
+      const nonceA = baselineNonce + 1n
+      const nonceB = baselineNonce + 2n
+
+      await bhp.dev.newBlock() // baseline
+
+      // Two source blocks back-to-back, no awaiting the connector between them.
+      // Exercises the `source.at(sourceHash)` path: pumps run after both BHP
+      // blocks are built, so the implicit-latest read would have caught the wrong
+      // state. With the fix, deliveries succeed; without it, BHK would reject
+      // proofs whose nonce range exceeds the per-block reality.
+      await bhp.dev.setStorage([
+        [
+          outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceA),
+          encodeStoredMessagePayload(new Uint8Array([0xaa])),
+        ],
+        [outboundLanesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes), encodeOutboundLaneData(nonceA)],
+      ])
+      await bhp.dev.newBlock()
+      await bhp.dev.setStorage([
+        [
+          outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceB),
+          encodeStoredMessagePayload(new Uint8Array([0xbb])),
+        ],
+        [outboundLanesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes), encodeOutboundLaneData(nonceB)],
+      ])
+      await bhp.dev.newBlock()
+
+      // Wait for BHK's `InboundLanes.last_delivered_nonce` (encoded inside the
+      // VecDeque<UnrewardedRelayer>) to reach `nonceB`. The runtime advances this
+      // synchronously inside `receive_messages_proof` dispatch.
+      const deadline = Date.now() + 90_000
+      let lastDelivered = 0n
+      while (Date.now() < deadline && lastDelivered < nonceB) {
+        const inbound = (await bhk.api.query.bridgePolkadotMessages.inboundLanes(LANE_ID)).toJSON() as
+          | { relayers?: { messages?: { end?: number | string } }[] }
+          | null
+        const last = inbound?.relayers?.[inbound.relayers.length - 1]?.messages?.end
+        if (last != null) lastDelivered = BigInt(last)
+        if (lastDelivered >= nonceB) break
+        await new Promise((r) => setTimeout(r, 500))
+      }
+
+      await handle.disconnect()
+
+      expect(lastDelivered).toBeGreaterThanOrEqual(nonceB)
     } finally {
       await bhp.teardown()
       await bhk.teardown()
