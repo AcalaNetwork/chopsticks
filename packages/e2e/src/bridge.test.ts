@@ -147,9 +147,9 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
       const deadline = Date.now() + 90_000
       let lastDelivered = 0n
       while (Date.now() < deadline && lastDelivered < nonceB) {
-        const inbound = (await bhk.api.query.bridgePolkadotMessages.inboundLanes(LANE_ID)).toJSON() as
-          | { relayers?: { messages?: { end?: number | string } }[] }
-          | null
+        const inbound = (await bhk.api.query.bridgePolkadotMessages.inboundLanes(LANE_ID)).toJSON() as {
+          relayers?: { messages?: { end?: number | string } }[]
+        } | null
         const last = inbound?.relayers?.[inbound.relayers.length - 1]?.messages?.end
         if (last != null) lastDelivered = BigInt(last)
         if (lastDelivered >= nonceB) break
