@@ -21,6 +21,7 @@
 		"@pnpm/npm-conf": "^3.0.0",
 		"@polkadot/api": "^16.4.1",
 		"@polkadot/api-augment": "^16.4.1",
+		"@polkadot/api-base": "^16.4.1",
 		"@polkadot/rpc-provider": "^16.4.1",
 		"@polkadot/types": "^16.4.1",
 		"@polkadot/util": "^14.0.1",
