@@ -39,8 +39,10 @@ export type SetupOption = {
   wasmOverride?: string
   /** Path to database file */
   db?: string
-  /** Connection timeout in milliseconds */
+  /** Timeout (ms) for the test-side WsProvider connecting to the in-process chopsticks server */
   timeout?: number
+  /** Timeout (ms) for chopsticks' own upstream RPC client (chopsticks → upstream/proxy). Forwarded as `rpc-timeout` in the chopsticks config */
+  rpcTimeout?: number
   /** Host address to bind the server to */
   host?: string
   /** Port number to bind the server to */
@@ -79,6 +81,7 @@ export const createConfig = ({
   wasmOverride,
   db,
   timeout,
+  rpcTimeout,
   host,
   port,
   maxMemoryBlockCount,
@@ -102,6 +105,7 @@ export const createConfig = ({
     db,
     'wasm-override': wasmOverride,
     timeout,
+    'rpc-timeout': rpcTimeout,
     resume: resume ?? false,
     'allow-unresolved-imports': allowUnresolvedImports,
     'process-queued-messages': processQueuedMessages,
