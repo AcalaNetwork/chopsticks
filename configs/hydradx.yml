@@ -217,3 +217,11 @@ import-storage:
         - free: '100000000000000000000000'  
   TechnicalCommittee:
     Members: ["5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"]
+  # Skip the cumulus relay-parent-descendants verification by toggling
+  # Hydration's `RelayParentOffsetOverride` parameter to true. Without this,
+  # chopsticks panics with `InvalidStateRoot`/`InvalidSignature` in
+  # cumulus/pallets/parachain-system/src/lib.rs:657 when finalizing a block
+  # because the mocked descendant relay headers don't match what the runtime
+  # expects under async backing. See pallet-parameters in hydration-node.
+  Parameters:
+    RelayParentOffsetOverride: true
