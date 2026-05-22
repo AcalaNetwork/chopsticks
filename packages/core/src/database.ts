@@ -27,4 +27,8 @@ export declare class Database {
   saveStorage: (blockHash: HexString, key: HexString, value: HexString | null) => Promise<void>
   saveStorageBatch?: (entries: KeyValueEntry[]) => Promise<void>
   queryStorage: (blockHash: HexString, key: HexString) => Promise<KeyValueEntry | null>
+  queryPagedKeys?: (blockHash: HexString, prefix: HexString) => Promise<HexString[] | null>
+  savePagedKeys?: (blockHash: HexString, prefix: HexString, keys: HexString[]) => Promise<void>
+  queryRpcCall?: (scope: string, method: string, params: string) => Promise<string | null>
+  saveRpcCall?: (scope: string, method: string, params: string, result: string) => Promise<void>
 }

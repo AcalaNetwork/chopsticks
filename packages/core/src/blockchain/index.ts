@@ -16,7 +16,7 @@ import { OffchainWorker } from '../offchain.js'
 import { compactHex } from '../utils/index.js'
 import type { RuntimeVersion } from '../wasm-executor/index.js'
 import { Block } from './block.js'
-import { dryRunExtrinsic, dryRunInherents } from './block-builder.js'
+import { dryRunExtrinsic, dryRunExtrinsicsAmortized, dryRunInherents } from './block-builder.js'
 import { HeadState } from './head-state.js'
 import type { InherentProvider } from './inherent/index.js'
 import type { StorageValue } from './storage-layer.js'
@@ -453,6 +453,29 @@ export class Blockchain {
     const { result, storageDiff } = await dryRunExtrinsic(head, this.#inherentProviders, extrinsic, params)
     const outcome = registry.createType<ApplyExtrinsicResult>('ApplyExtrinsicResult', result)
     return { outcome, storageDiff }
+  }
+
+  /**
+   * Dry-run a batch of extrinsics in block `at`, amortizing block initialization
+   * across the whole batch. Each extrinsic is applied independently — its storage
+   * changes do not accumulate into subsequent extrinsics.
+   */
+  async dryRunExtrinsicsAmortized(
+    extrinsics: HexString[],
+    at?: HexString,
+  ): Promise<{ outcome: ApplyExtrinsicResult; storageDiff: [HexString, HexString | null][] }[]> {
+    await this.api.isReady
+    const head = at ? await this.getBlock(at) : this.head
+    if (!head) {
+      throw new Error(`Cannot find block ${at}`)
+    }
+    const params = {
+      transactions: [],
+      downwardMessages: [],
+      upwardMessages: [],
+      horizontalMessages: {},
+    }
+    return dryRunExtrinsicsAmortized(head, this.#inherentProviders, extrinsics, params)
   }
 
   /**

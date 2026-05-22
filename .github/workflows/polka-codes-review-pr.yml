@@ -24,11 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v2.1.10
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 

@@ -56,17 +56,36 @@ export class HeadState {
 
     const diff = await this.#head.storageDiff()
 
+    const newValues: Record<string, string | null> = { ...diff }
+    const watchedKeys = new Set<string>()
+    for (const [keys] of Object.values(this.#storageListeners)) {
+      for (const key of keys) watchedKeys.add(key)
+    }
+    for (const key of watchedKeys) {
+      if (newValues[key] === undefined && this.#oldValues[key] !== undefined) {
+        newValues[key] = (await head.get(key)) ?? null
+      }
+    }
+
     for (const [keys, cb] of Object.values(this.#storageListeners)) {
-      const changed = keys.filter((key) => diff[key]).map((key) => [key, diff[key]] as [string, string | null])
-      if (changed.length > 0) {
+      const changes: [string, string | null][] = []
+      for (const key of keys) {
+        if (newValues[key] === undefined) continue
+        if (newValues[key] !== this.#oldValues[key]) {
+          changes.push([key, newValues[key]])
+        }
+      }
+      if (changes.length > 0) {
         try {
-          await cb(head, changed)
+          await cb(head, changes)
         } catch (error) {
           logger.error(error, 'setHead storage diff callback error')
         }
       }
     }
 
-    Object.assign(this.#oldValues, diff)
+    for (const [key, value] of Object.entries(newValues)) {
+      this.#oldValues[key] = value
+    }
   }
 }

@@ -47,6 +47,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
   readonly #db: Database | undefined
   readonly #keyCache = new KeyCache(PREFIX_LENGTH)
   readonly #defaultChildKeyCache = new KeyCache(CHILD_PREFIX_LENGTH)
+  readonly #inflight = new Map<string, Promise<StorageValue>>()
 
   constructor(api: Api, at: HexString, db: Database | undefined) {
     this.#api = api
@@ -65,10 +66,22 @@ export class RemoteStorageLayer implements StorageLayerProvider {
         return res.value ?? undefined
       }
     }
+
+    const inflight = this.#inflight.get(key)
+    if (inflight) return inflight
+
     logger.trace({ at: this.#at, key }, 'RemoteStorageLayer get')
-    const data = await this.#api.getStorage(key, this.#at)
-    this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
-    return data ?? undefined
+    const fetch = this.#api
+      .getStorage(key, this.#at)
+      .then((data) => {
+        this.#db?.saveStorage(this.#at as HexString, key as HexString, data)
+        return data ?? undefined
+      })
+      .finally(() => {
+        this.#inflight.delete(key)
+      })
+    this.#inflight.set(key, fetch)
+    return fetch
   }
 
   async getMany(keys: string[], _cache: boolean): Promise<StorageValue[]> {
@@ -126,13 +139,34 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     const isChild = isPrefixedChildKey(prefix as HexString)
     const minPrefixLen = isChild ? CHILD_PREFIX_LENGTH : PREFIX_LENGTH
 
-    // can't handle keyCache without prefix
-    if (prefix === startKey || prefix.length < minPrefixLen || startKey.length < minPrefixLen) {
+    // KeyCache groups by the first `minPrefixLen` chars; it cannot correctly answer queries
+    // whose prefix is longer than that grouping width, so proxy directly to upstream.
+    if (
+      prefix.length < minPrefixLen ||
+      startKey.length < minPrefixLen ||
+      prefix.length > minPrefixLen ||
+      startKey.length > minPrefixLen
+    ) {
       return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
+    const startKeyEqualsPrefix = startKey === prefix
+    let cachedKeys: HexString[] | undefined
+    if (this.#db?.queryPagedKeys && startKeyEqualsPrefix) {
+      const cached = await this.#db.queryPagedKeys(this.#at, prefix as HexString)
+      if (cached) {
+        cachedKeys = cached
+        isChild
+          ? this.#defaultChildKeyCache.feed([startKey, ...cached] as HexString[])
+          : this.#keyCache.feed([startKey, ...cached] as HexString[])
+      }
+    }
+
     let batchComplete = false
+    let fetchedNewKeys = false
     const keysPaged: string[] = []
+    // Seed with cached keys so a cache-hit-then-extend doesn't truncate the persisted set.
+    const allFetchedKeys: HexString[] = cachedKeys ? [...cachedKeys] : []
     while (keysPaged.length < pageSize) {
       const nextKey = isChild
         ? await this.#defaultChildKeyCache.next(startKey as HexString)
@@ -166,16 +200,9 @@ export class RemoteStorageLayer implements StorageLayerProvider {
       }
 
       if (this.#db) {
-        // filter out keys that are not in the db]
-        const newBatch: HexString[] = []
-
-        for (const key of batch) {
-          const res = await this.#db.queryStorage(this.#at, key)
-          if (res) {
-            continue
-          }
-          newBatch.push(key)
-        }
+        const newBatch: HexString[] = await Promise.all(
+          batch.map((key) => this.#db!.queryStorage(this.#at, key).then((r) => (r ? null : key))),
+        ).then((rs) => rs.filter((k): k is HexString => k !== null))
 
         if (newBatch.length > 0) {
           // batch fetch storage values and save to db, they may be used later
@@ -185,8 +212,18 @@ export class RemoteStorageLayer implements StorageLayerProvider {
             }
           })
         }
+
+        if (startKeyEqualsPrefix) {
+          allFetchedKeys.push(...(batch as HexString[]))
+          fetchedNewKeys = true
+        }
       }
     }
+
+    if (this.#db?.savePagedKeys && startKeyEqualsPrefix && fetchedNewKeys) {
+      await this.#db.savePagedKeys(this.#at, prefix as HexString, allFetchedKeys)
+    }
+
     return keysPaged
   }
 }
@@ -342,6 +379,8 @@ export class StorageLayer implements StorageLayerProvider {
   }
 
   async getKeysPaged(prefix: string, pageSize: number, startKey: string): Promise<string[]> {
+    if (pageSize > BATCH_SIZE) throw new Error(`pageSize must be less or equal to ${BATCH_SIZE}`)
+
     if (!startKey || startKey === '0x') {
       startKey = prefix
     }

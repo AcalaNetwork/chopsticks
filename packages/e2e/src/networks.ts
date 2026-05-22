@@ -5,7 +5,7 @@ dotenvConfig()
 
 const endpoints = {
   polkadot: ['wss://rpc.ibp.network/polkadot'],
-  acala: ['wss://acala.ibp.network'],
+  acala: ['wss://acala-rpc.aca-api.network'],
 }
 
 export type Network = Awaited<ReturnType<typeof setupContext>>

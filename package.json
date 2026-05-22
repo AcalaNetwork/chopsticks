@@ -57,6 +57,6 @@
 		"vite-tsconfig-paths": "^6.0.5",
 		"vitepress": "^1.6.3",
 		"vitest": "^4.0.18",
-		"wasm-pack": "^0.14.0"
+		"wasm-pack": "^0.15.0"
 	}
 }
