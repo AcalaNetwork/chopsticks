@@ -6,6 +6,7 @@ import { SetBabeRandomness } from './parachain/babe-randomness.js'
 import { SetNimbusAuthorInherent } from './parachain/nimbus-author-inherent.js'
 import { SetValidationData } from './parachain/validation-data.js'
 import { SetTimestamp } from './timestamp.js'
+import { SetTransactionStorageProof } from './transaction-storage.js'
 
 export interface InherentProvider {
   createInherents(newBlock: Block, params: BuildBlockParams): Promise<HexString[]>
@@ -17,4 +18,5 @@ export const inherentProviders = [
   new ParaInherentEnter(),
   new SetNimbusAuthorInherent(),
   new SetBabeRandomness(),
+  new SetTransactionStorageProof(),
 ]
