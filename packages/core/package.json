@@ -35,7 +35,7 @@
 		"@swc/core": "^1.12.14",
 		"@types/lodash": "^4.17.20",
 		"typescript": "^5.8.3",
-		"vitest": "^4.0.18"
+		"vitest": "^4.1.0"
 	},
 	"files": [
 		"dist/esm/**",
