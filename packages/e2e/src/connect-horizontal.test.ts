@@ -13,21 +13,23 @@ describe('connectHorizontal', () => {
         Account: [[[alice.address], { providers: 1, data: { free: 1000e12 } }]],
       },
     })
-    const zeitgeist = await setupContext({
-      endpoint: ['wss://zeitgeist.api.onfinality.io/public-ws'],
-      blockNumber: 5084336,
+
+    // Use a second parachain (Polkadot Asset Hub)
+    const assetHub = await setupContext({
+      endpoint: 'wss://asset-hub-polkadot-rpc.n.dwellir.com',
+      blockNumber: 1000000,
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     })
 
     await connectHorizontal({
       2000: acala.chain,
-      2092: zeitgeist.chain,
+      1000: assetHub.chain,
     })
 
     await acala.dev.newBlock()
-    await zeitgeist.dev.newBlock()
+    await assetHub.dev.newBlock()
 
-    // This tx will be sent to Zeitgeist and fail but it's fine for this test as we only want to test the connection
+    // This tx will be sent to Asset Hub and fail but it's fine for this test as we only want to test the connection
     await acala.api.tx.xTokens
       .transfer(
         {
@@ -40,7 +42,7 @@ describe('connectHorizontal', () => {
             interior: {
               X2: [
                 {
-                  Parachain: 2092,
+                  Parachain: 1000,
                 },
                 {
                   AccountId32: {
@@ -60,10 +62,10 @@ describe('connectHorizontal', () => {
     await acala.dev.newBlock()
     await checkSystemEvents(acala, 'xcmpQueue', 'XcmpMessageSent').toMatchSnapshot()
 
-    await zeitgeist.dev.newBlock()
-    await checkSystemEvents(zeitgeist, 'xcmpQueue', 'Fail').toMatchSnapshot()
+    await assetHub.dev.newBlock()
+    await checkSystemEvents(assetHub, 'xcmpQueue', 'Fail').toMatchSnapshot()
 
     await acala.teardown()
-    await zeitgeist.teardown()
+    await assetHub.teardown()
   })
 })
