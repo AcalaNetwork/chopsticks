@@ -23,41 +23,44 @@ const encodeOutboundLaneData = (latestGenerated: bigint): HexString => {
 const encodeStoredMessagePayload = (bodyBytes: Uint8Array): HexString =>
   u8aToHex(u8aConcat(compactToU8a(bodyBytes.length), bodyBytes))
 
+const dbFile = (name: string) => (process.env.RUN_TESTS_WITHOUT_DB ? undefined : name)
+
+/**
+ * Fork BHP + BHK, fund Alice on BHK, wire the bridge connector, and read the source's
+ * current `latest_generated_nonce`. Returns the contexts (for the caller's `finally`
+ * teardown) plus the next two free nonces to inject. BHK's `is_obsolete` signed
+ * extension rejects nonces <= last_delivered_nonce, so messages must be injected above
+ * the live baseline (mirroring how real sends advance the nonce monotonically).
+ */
+const setupBridge = async () => {
+  await cryptoWaitReady()
+  const bhp = await setupContext({
+    endpoint: 'wss://polkadot-bridge-hub-rpc.polkadot.io',
+    db: dbFile('bridge-bhp-tests.sqlite'),
+  })
+  const bhk = await setupContext({
+    endpoint: 'wss://kusama-bridge-hub-rpc.polkadot.io',
+    db: dbFile('bridge-bhk-tests.sqlite'),
+  })
+  const alice = new Keyring({ type: 'sr25519' }).addFromUri('//Alice')
+  // Real bridge-hub forks don't have Alice funded.
+  await bhk.dev.setStorage({
+    System: { Account: [[[alice.address], { providers: 1, data: { free: 1_000_000_000_000_000n } }]] },
+  })
+  const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer: alice })
+  const laneBytes = hexToU8a(LANE_ID)
+  const current = (await bhp.api.query.bridgeKusamaMessages.outboundLanes(LANE_ID)).toJSON() as {
+    latestGeneratedNonce?: number | string
+  } | null
+  const baselineNonce = BigInt(current?.latestGeneratedNonce ?? 0)
+  return { bhp, bhk, handle, laneBytes, nonceA: baselineNonce + 1n, nonceB: baselineNonce + 2n }
+}
+
 describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector', () => {
   it('delivers outbound messages continuously as source progresses', async () => {
-    await cryptoWaitReady()
-
-    const bhp = await setupContext({
-      endpoint: 'wss://polkadot-bridge-hub-rpc.polkadot.io',
-      db: process.env.RUN_TESTS_WITHOUT_DB ? undefined : 'bridge-bhp-tests.sqlite',
-    })
-    const bhk = await setupContext({
-      endpoint: 'wss://kusama-bridge-hub-rpc.polkadot.io',
-      db: process.env.RUN_TESTS_WITHOUT_DB ? undefined : 'bridge-bhk-tests.sqlite',
-    })
+    const { bhp, bhk, handle, laneBytes, nonceA, nonceB } = await setupBridge()
 
     try {
-      const alice = new Keyring({ type: 'sr25519' }).addFromUri('//Alice')
-
-      // Real bridge-hub forks don't have Alice funded.
-      await bhk.dev.setStorage({
-        System: { Account: [[[alice.address], { providers: 1, data: { free: 1_000_000_000_000_000n } }]] },
-      })
-
-      const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer: alice })
-
-      // BHK's `is_obsolete` signed extension rejects any proof whose noncesEnd
-      // <= last_delivered_nonce. Real bridge-hub state is far past 0, so inject
-      // above the source's current latest_generated_nonce (mirrors how real
-      // user sends advance the nonce monotonically).
-      const laneBytes = hexToU8a(LANE_ID)
-      const currentOutbound = (await bhp.api.query.bridgeKusamaMessages.outboundLanes(LANE_ID)).toJSON() as {
-        latestGeneratedNonce?: number | string
-      } | null
-      const baselineNonce = BigInt(currentOutbound?.latestGeneratedNonce ?? 0)
-      const nonceA = baselineNonce + 1n
-      const nonceB = baselineNonce + 2n
-
       // First block records the connector's baseline so historical nonces don't replay.
       await bhp.dev.newBlock()
 
@@ -90,33 +93,9 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
   }, 240_000)
 
   it('rapid-fire source blocks: both nonces reach destination without deadlock', async () => {
-    await cryptoWaitReady()
-
-    const bhp = await setupContext({
-      endpoint: 'wss://polkadot-bridge-hub-rpc.polkadot.io',
-      db: process.env.RUN_TESTS_WITHOUT_DB ? undefined : 'bridge-bhp-tests.sqlite',
-    })
-    const bhk = await setupContext({
-      endpoint: 'wss://kusama-bridge-hub-rpc.polkadot.io',
-      db: process.env.RUN_TESTS_WITHOUT_DB ? undefined : 'bridge-bhk-tests.sqlite',
-    })
+    const { bhp, bhk, handle, laneBytes, nonceA, nonceB } = await setupBridge()
 
     try {
-      const alice = new Keyring({ type: 'sr25519' }).addFromUri('//Alice')
-      await bhk.dev.setStorage({
-        System: { Account: [[[alice.address], { providers: 1, data: { free: 1_000_000_000_000_000n } }]] },
-      })
-
-      const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer: alice })
-
-      const laneBytes = hexToU8a(LANE_ID)
-      const currentOutbound = (await bhp.api.query.bridgeKusamaMessages.outboundLanes(LANE_ID)).toJSON() as {
-        latestGeneratedNonce?: number | string
-      } | null
-      const baselineNonce = BigInt(currentOutbound?.latestGeneratedNonce ?? 0)
-      const nonceA = baselineNonce + 1n
-      const nonceB = baselineNonce + 2n
-
       await bhp.dev.newBlock() // baseline
 
       // Two source blocks back-to-back, no awaiting the connector between them.

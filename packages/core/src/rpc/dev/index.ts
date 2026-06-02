@@ -1,3 +1,4 @@
+import { dev_getReadProof } from './get-read-proof.js'
 import { dev_newBlock } from './new-block.js'
 import { dev_setBlockBuildMode } from './set-block-build-mode.js'
 import { dev_setHead } from './set-head.js'
@@ -6,6 +7,7 @@ import { dev_setStorage } from './set-storage.js'
 import { dev_timeTravel } from './time-travel.js'
 
 const handlers = {
+  dev_getReadProof,
   dev_newBlock,
   dev_setBlockBuildMode,
   dev_setHead,
@@ -16,6 +18,7 @@ const handlers = {
 
 export default handlers
 
+export * from './get-read-proof.js'
 export * from './new-block.js'
 export * from './set-block-build-mode.js'
 export * from './set-head.js'

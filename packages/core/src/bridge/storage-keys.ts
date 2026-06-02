@@ -2,21 +2,12 @@
 // Pallet names are parameters because each runtime instantiates them under different names
 // (e.g. `BridgeKusamaMessages` on BHP, `BridgePolkadotMessages` on BHK).
 
-import { compactToU8a, stringToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
+import { compactToU8a, nToU8a, stringToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import { blake2AsU8a, xxhashAsU8a } from '@polkadot/util-crypto'
 
-const u32LE = (v: number): Uint8Array => {
-  const buf = new Uint8Array(4)
-  new DataView(buf.buffer).setUint32(0, v >>> 0, true)
-  return buf
-}
-
-const u64LE = (v: bigint): Uint8Array => {
-  const buf = new Uint8Array(8)
-  new DataView(buf.buffer).setBigUint64(0, v, true)
-  return buf
-}
+const u32LE = (v: number): Uint8Array => nToU8a(v, { bitLength: 32, isLe: true })
+const u64LE = (v: bigint): Uint8Array => nToU8a(v, { bitLength: 64, isLe: true })
 
 const palletPrefix = (palletName: string, itemName: string): Uint8Array =>
   u8aConcat(xxhashAsU8a(stringToU8a(palletName), 128), xxhashAsU8a(stringToU8a(itemName), 128))

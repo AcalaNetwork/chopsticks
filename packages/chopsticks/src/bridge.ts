@@ -11,9 +11,9 @@ import {
 import type { ApiPromise } from '@polkadot/api'
 import type { AddressOrPair, SubmittableExtrinsic } from '@polkadot/api-base/types'
 import type { Header } from '@polkadot/types/interfaces'
-import { hexToU8a } from '@polkadot/util'
+import type { IKeyringPair } from '@polkadot/types/types'
+import { hexToU8a, stringCamelCase, stringPascalCase } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
-import { blake2AsU8a } from '@polkadot/util-crypto'
 
 export interface ConnectBridgeHubsConfig {
   /** Submits `receive_messages_proof` on destination. Must hold a balance there. */
@@ -34,11 +34,6 @@ export interface ConnectBridgeHubsConfig {
 
 export interface BridgeHandle {
   disconnect: () => Promise<void>
-}
-
-interface LaneState {
-  latestGeneratedNonce: bigint
-  latestReceivedNonce: bigint
 }
 
 const DEFAULT_DISPATCH_WEIGHT = { refTime: 5_000_000_000n, proofSize: 65_536n }
@@ -66,74 +61,123 @@ export const connectBridgeHubs = async (
   const buildDestBlock = config.buildDestBlock ?? true
   const dispatchWeight = config.dispatchWeightPerMessage ?? DEFAULT_DISPATCH_WEIGHT
   const relayerIdAtSource =
-    config.relayerIdAtSource ?? (typeof config.signer === 'string' ? config.signer : (config.signer as any).address)
+    config.relayerIdAtSource ??
+    (typeof config.signer === 'string' ? config.signer : (config.signer as IKeyringPair).address)
 
-  const seen = new Map<HexString, LaneState>()
+  // lane -> highest generated nonce already delivered (or baselined).
+  const seen = new Map<HexString, bigint>()
   let pumpInFlight: Promise<void> = Promise.resolve()
+
+  // Deliver one lane's new nonce range to `destination`. Captures the per-connector
+  // config; only the per-delivery coordinates vary.
+  const deliver = async (
+    sourceHashHex: HexString,
+    sourceBlockNumber: number,
+    laneHex: HexString,
+    noncesStart: bigint,
+    noncesEnd: bigint,
+  ): Promise<void> => {
+    const laneBytes = hexToU8a(laneHex)
+    const headHashBytes = hexToU8a(sourceHashHex)
+
+    const keys: HexString[] = []
+    for (let n = noncesStart; n <= noncesEnd; n++) {
+      keys.push(outboundMessagesStorageKey(sourceMessagesPallet, laneBytes, n))
+    }
+
+    // chopsticks's `dev_getReadProof` returns `stateRoot` alongside the proof — the
+    // recomputed root, which diverges from `header.state_root` once local overrides are
+    // applied. That's the value the verifier checks against. (The spec `state_getReadProof`
+    // omits it, hence the raw call to the chopsticks-specific dev method.)
+    const proof = await rawRpc<{ at: HexString; proof: HexString[]; stateRoot: HexString }>(
+      source,
+      'dev_getReadProof',
+      [keys, sourceHashHex],
+    )
+    const proofNodes = proof.proof
+    const proofStateRoot = hexToU8a(proof.stateRoot)
+
+    const setStoragePayload: [HexString, HexString][] = [
+      [parasInfoStorageKey(destParachainsPallet, sourceParaId), encodeParaInfo(sourceBlockNumber, headHashBytes, 1)],
+      [
+        importedParaHeadsStorageKey(destParachainsPallet, sourceParaId, headHashBytes),
+        encodeParaStoredHeaderData(sourceBlockNumber, proofStateRoot),
+      ],
+      [importedParaHashesStorageKey(destParachainsPallet, sourceParaId, 0), encodeHash32(headHashBytes)],
+    ]
+    await rawRpc(destination, 'dev_setStorage', [setStoragePayload])
+
+    const messagesCount = Number(noncesEnd - noncesStart + 1n)
+    const totalWeight = {
+      refTime: dispatchWeight.refTime * BigInt(messagesCount),
+      proofSize: dispatchWeight.proofSize * BigInt(messagesCount),
+    }
+
+    const tx: SubmittableExtrinsic<'promise'> = destination.tx[
+      stringCamelCase(destMessagesPallet)
+    ].receiveMessagesProof(
+      relayerIdAtSource,
+      { bridgedHeaderHash: sourceHashHex, storageProof: proofNodes, lane: laneHex, noncesStart, noncesEnd },
+      messagesCount,
+      totalWeight,
+    )
+
+    // No-callback form resolves on pool submission; the callback form waits for
+    // `isInBlock` and deadlocks against the manual `dev_newBlock` below.
+    await tx.signAndSend(config.signer, { era: 0 })
+
+    bridgeLogger.info(
+      {
+        lane: laneHex,
+        range: `${noncesStart}..=${noncesEnd}`,
+        sourceBlock: sourceBlockNumber,
+        proofNodes: proofNodes.length,
+      },
+      'delivered bridge messages',
+    )
+
+    if (buildDestBlock) {
+      await rawRpc(destination, 'dev_newBlock', [])
+    }
+  }
 
   const pump = async (sourceHeader: Header) => {
     const sourceHashHex = sourceHeader.hash.toHex() as HexString
     const sourceBlockNumber = sourceHeader.number.toNumber()
 
-    let lanes: [HexString, LaneState][]
+    let lanes: [HexString, bigint][]
     try {
       // Read at `sourceHeader.hash` not the live head: newer blocks may have arrived
       // while this pump is queued, and a proof built against `sourceHeader` against
       // newer-head state would attest non-existence for not-yet-extant nonces.
       const apiAt = await source.at(sourceHashHex)
-      const entries = await apiAt.query[camel(sourceMessagesPallet)].outboundLanes.entries()
+      const entries = await apiAt.query[stringCamelCase(sourceMessagesPallet)].outboundLanes.entries()
       lanes = entries.map(([key, valueCodec]) => {
         const laneHex = (key.args[0] as any).toHex() as HexString
-        const v = valueCodec.toJSON() as {
-          latestGeneratedNonce?: number | string
-          latestReceivedNonce?: number | string
-        } | null
-        return [
-          laneHex,
-          {
-            latestGeneratedNonce: BigInt(v?.latestGeneratedNonce ?? 0),
-            latestReceivedNonce: BigInt(v?.latestReceivedNonce ?? 0),
-          },
-        ]
+        const v = valueCodec.toJSON() as { latestGeneratedNonce?: number | string } | null
+        return [laneHex, BigInt(v?.latestGeneratedNonce ?? 0)] as [HexString, bigint]
       })
     } catch (err) {
       bridgeLogger.warn({ err: (err as Error).message, sourceHash: sourceHashHex }, 'outboundLanes enumeration failed')
       return
     }
 
-    for (const [laneHex, current] of lanes) {
+    for (const [laneHex, latestGenerated] of lanes) {
       const prev = seen.get(laneHex)
-      if (!prev) {
-        seen.set(laneHex, current)
+      if (prev === undefined) {
+        seen.set(laneHex, latestGenerated)
         continue
       }
-      if (current.latestGeneratedNonce <= prev.latestGeneratedNonce) continue
+      if (latestGenerated <= prev) continue
 
-      const noncesStart = prev.latestGeneratedNonce + 1n
-      const noncesEnd = current.latestGeneratedNonce
+      const noncesStart = prev + 1n
       try {
-        await deliver({
-          source,
-          destination,
-          sourceMessagesPallet,
-          destParachainsPallet,
-          destMessagesPallet,
-          sourceParaId,
-          signer: config.signer,
-          relayerIdAtSource,
-          dispatchWeight,
-          buildDestBlock,
-          sourceHashHex,
-          sourceBlockNumber,
-          laneHex,
-          noncesStart,
-          noncesEnd,
-        })
-        seen.set(laneHex, current)
+        await deliver(sourceHashHex, sourceBlockNumber, laneHex, noncesStart, latestGenerated)
+        seen.set(laneHex, latestGenerated)
       } catch (err) {
         // Leave `seen` un-advanced so the next source head retries this range.
         bridgeLogger.warn(
-          { err: (err as Error).message, lane: laneHex, range: `${noncesStart}..=${noncesEnd}` },
+          { err: (err as Error).message, lane: laneHex, range: `${noncesStart}..=${latestGenerated}` },
           'delivery failed; will retry',
         )
       }
@@ -162,93 +206,6 @@ export const connectBridgeHubs = async (
   }
 }
 
-interface DeliverParams {
-  source: ApiPromise
-  destination: ApiPromise
-  sourceMessagesPallet: string
-  destParachainsPallet: string
-  destMessagesPallet: string
-  sourceParaId: number
-  signer: AddressOrPair
-  relayerIdAtSource: string
-  dispatchWeight: { refTime: bigint; proofSize: bigint }
-  buildDestBlock: boolean
-  sourceHashHex: HexString
-  sourceBlockNumber: number
-  laneHex: HexString
-  noncesStart: bigint
-  noncesEnd: bigint
-}
-
-const deliver = async (p: DeliverParams): Promise<void> => {
-  const laneBytes = hexToU8a(p.laneHex)
-  const headHashBytes = hexToU8a(p.sourceHashHex)
-
-  const keys: HexString[] = []
-  for (let n = p.noncesStart; n <= p.noncesEnd; n++) {
-    keys.push(outboundMessagesStorageKey(p.sourceMessagesPallet, laneBytes, n))
-  }
-
-  const proof = await p.source.rpc.state.getReadProof(keys, p.sourceHashHex)
-  const proofNodes = proof.proof.map((b) => b.toHex() as HexString)
-
-  // Use the proof's own root, not `source.header.state_root`: chopsticks's
-  // `state_getReadProof` may fall back to upstream-head for chopsticks-only blocks,
-  // so the proof verifies against a recomputed composite root that diverges from
-  // `header.state_root` once local overrides are applied.
-  const proofStateRoot = findTrieRoot(proofNodes.map((n) => hexToU8a(n)))
-
-  const setStoragePayload: [HexString, HexString][] = [
-    [
-      parasInfoStorageKey(p.destParachainsPallet, p.sourceParaId),
-      encodeParaInfo(p.sourceBlockNumber, headHashBytes, 1),
-    ],
-    [
-      importedParaHeadsStorageKey(p.destParachainsPallet, p.sourceParaId, headHashBytes),
-      encodeParaStoredHeaderData(p.sourceBlockNumber, proofStateRoot),
-    ],
-    [importedParaHashesStorageKey(p.destParachainsPallet, p.sourceParaId, 0), encodeHash32(headHashBytes)],
-  ]
-  await rawRpc(p.destination, 'dev_setStorage', [setStoragePayload])
-
-  const messagesCount = Number(p.noncesEnd - p.noncesStart + 1n)
-  const totalWeight = {
-    refTime: p.dispatchWeight.refTime * BigInt(messagesCount),
-    proofSize: p.dispatchWeight.proofSize * BigInt(messagesCount),
-  }
-
-  const tx: SubmittableExtrinsic<'promise'> = p.destination.tx[camel(p.destMessagesPallet)].receiveMessagesProof(
-    p.relayerIdAtSource,
-    {
-      bridgedHeaderHash: p.sourceHashHex,
-      storageProof: proofNodes,
-      lane: p.laneHex,
-      noncesStart: p.noncesStart,
-      noncesEnd: p.noncesEnd,
-    },
-    messagesCount,
-    totalWeight,
-  )
-
-  // No-callback form resolves on pool submission; the callback form waits for
-  // `isInBlock` and deadlocks against the manual `dev_newBlock` below.
-  await tx.signAndSend(p.signer as any, { era: 0 })
-
-  bridgeLogger.info(
-    {
-      lane: p.laneHex,
-      range: `${p.noncesStart}..=${p.noncesEnd}`,
-      sourceBlock: p.sourceBlockNumber,
-      proofNodes: proofNodes.length,
-    },
-    'delivered bridge messages',
-  )
-
-  if (p.buildDestBlock) {
-    await rawRpc(p.destination, 'dev_newBlock', [])
-  }
-}
-
 const rawRpc = async <T>(api: ApiPromise, method: string, params: unknown[]): Promise<T> => {
   const provider = (api as any)._rpcCore?.provider
   if (!provider?.send) throw new Error(`connectBridgeHubs: cannot access provider for ${method}`)
@@ -256,88 +213,38 @@ const rawRpc = async <T>(api: ApiPromise, method: string, params: unknown[]): Pr
 }
 
 /**
- * Extract the trie root from a Merkle proof's node bytes.
- *
- * `state_getReadProof` returns `{ at, proof }` per spec; the proof's recomputed root is
- * needed when writing `ImportedParaHeads` so the verifier can re-check against it. The
- * root is the unique node whose blake2_256 hash is not referenced as a 32-byte
- * sub-sequence inside any other node.
+ * Find the unique pallet in `namespace` matching `predicate`, returning its PascalCase
+ * name. Throws a remediation-pointing error on zero or multiple matches.
  */
-const findTrieRoot = (nodes: Uint8Array[]): Uint8Array => {
-  if (nodes.length === 0) throw new Error('findTrieRoot: empty proof')
-  const hashes = nodes.map((n) => blake2AsU8a(n, 256))
-  if (nodes.length === 1) return hashes[0]
-
-  const referenced = new Set<string>()
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = 0; j < nodes.length; j++) {
-      if (i === j) continue
-      const hHex = u8aHex(hashes[j])
-      if (referenced.has(hHex)) continue
-      if (containsBytes(nodes[i], hashes[j])) referenced.add(hHex)
-    }
-  }
-
-  const unreferenced = hashes.filter((h) => !referenced.has(u8aHex(h)))
-  if (unreferenced.length === 0) throw new Error('findTrieRoot: cyclic proof')
-  if (unreferenced.length > 1) throw new Error(`findTrieRoot: ${unreferenced.length} disjoint roots`)
-  return unreferenced[0]
+const detectPallet = (
+  namespace: Record<string, any>,
+  predicate: (pallet: any) => boolean,
+  describe: { none: string; many: (names: string) => string },
+): string => {
+  const matches = Object.keys(namespace).filter((key) => predicate(namespace[key]))
+  if (matches.length === 0) throw new Error(describe.none)
+  if (matches.length > 1) throw new Error(describe.many(matches.map(stringPascalCase).join(', ')))
+  return stringPascalCase(matches[0])
 }
-
-const containsBytes = (haystack: Uint8Array, needle: Uint8Array): boolean => {
-  outer: for (let i = 0; i + needle.length <= haystack.length; i++) {
-    for (let j = 0; j < needle.length; j++) {
-      if (haystack[i + j] !== needle[j]) continue outer
-    }
-    return true
-  }
-  return false
-}
-
-const u8aHex = (b: Uint8Array): string => {
-  let s = ''
-  for (const x of b) s += (x < 16 ? '0' : '') + x.toString(16)
-  return s
-}
-
-const camel = (p: string): string => (p.length === 0 ? p : p[0].toLowerCase() + p.slice(1))
 
 const detectBridgeMessagesPallet = (api: ApiPromise, side: 'query' | 'tx', label: 'source' | 'destination'): string => {
-  const namespace = side === 'query' ? api.query : api.tx
-  const matches: string[] = []
-  for (const key of Object.keys(namespace)) {
-    const pallet = (namespace as any)[key]
-    const hit = side === 'query' ? pallet?.outboundLanes && pallet?.outboundMessages : pallet?.receiveMessagesProof
-    if (hit) matches.push(key)
-  }
-  if (matches.length === 0) {
-    throw new Error(`connectBridgeHubs: no pallet_bridge_messages instance on ${label}`)
-  }
-  if (matches.length > 1) {
-    const names = matches.map((m) => m[0].toUpperCase() + m.slice(1)).join(', ')
-    const field = side === 'query' ? 'sourceMessagesPallet' : 'destMessagesPallet'
-    throw new Error(`connectBridgeHubs: ${label} has multiple bridge-messages instances (${names}); set ${field}`)
-  }
-  return matches[0][0].toUpperCase() + matches[0].slice(1)
+  const field = side === 'query' ? 'sourceMessagesPallet' : 'destMessagesPallet'
+  return detectPallet(
+    side === 'query' ? api.query : api.tx,
+    (p) => (side === 'query' ? p?.outboundLanes && p?.outboundMessages : p?.receiveMessagesProof),
+    {
+      none: `connectBridgeHubs: no pallet_bridge_messages instance on ${label}`,
+      many: (names) => `connectBridgeHubs: ${label} has multiple bridge-messages instances (${names}); set ${field}`,
+    },
+  )
 }
 
-const detectBridgeParachainsPallet = (api: ApiPromise): string => {
-  const matches: string[] = []
-  for (const key of Object.keys(api.query)) {
-    const pallet = (api.query as any)[key]
-    if (pallet?.parasInfo && pallet?.importedParaHeads) matches.push(key)
-  }
-  if (matches.length === 0) {
-    throw new Error('connectBridgeHubs: no pallet_bridge_parachains instance on destination')
-  }
-  if (matches.length > 1) {
-    const names = matches.map((m) => m[0].toUpperCase() + m.slice(1)).join(', ')
-    throw new Error(
+const detectBridgeParachainsPallet = (api: ApiPromise): string =>
+  detectPallet(api.query, (p) => p?.parasInfo && p?.importedParaHeads, {
+    none: 'connectBridgeHubs: no pallet_bridge_parachains instance on destination',
+    many: (names) =>
       `connectBridgeHubs: destination has multiple bridge-parachains instances (${names}); set destParachainsPallet`,
-    )
-  }
-  return matches[0][0].toUpperCase() + matches[0].slice(1)
-}
+  })
 
 const detectSourceParaId = async (api: ApiPromise): Promise<number> => {
   const idCodec = await (api.query.parachainInfo as any)?.parachainId?.()
