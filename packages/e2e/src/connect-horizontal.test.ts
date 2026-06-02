@@ -17,7 +17,7 @@ describe('connectHorizontal', () => {
     // Use a second parachain (Polkadot Asset Hub)
     const assetHub = await setupContext({
       endpoint: 'wss://asset-hub-polkadot-rpc.n.dwellir.com',
-      blockNumber: 1000000,
+      blockNumber: 16540000,
       db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
     })
 
@@ -63,7 +63,7 @@ describe('connectHorizontal', () => {
     await checkSystemEvents(acala, 'xcmpQueue', 'XcmpMessageSent').toMatchSnapshot()
 
     await assetHub.dev.newBlock()
-    await checkSystemEvents(assetHub, 'xcmpQueue', 'Fail').toMatchSnapshot()
+    await checkSystemEvents(assetHub, 'messageQueue').toMatchSnapshot()
 
     await acala.teardown()
     await assetHub.teardown()

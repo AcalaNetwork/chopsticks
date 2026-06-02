@@ -12,4 +12,22 @@ exports[`connectHorizontal > connectHorizontal opens channel > system events 1`]
 ]
 `;
 
-exports[`connectHorizontal > connectHorizontal opens channel > system events 2`] = `[]`;
+exports[`connectHorizontal > connectHorizontal opens channel > system events 2`] = `
+[
+  {
+    "data": {
+      "id": "(hash)",
+      "origin": {
+        "Sibling": 2000,
+      },
+      "success": false,
+      "weightUsed": {
+        "proofSize": "(rounded 7100)",
+        "refTime": "(rounded 94000000)",
+      },
+    },
+    "method": "Processed",
+    "section": "messageQueue",
+  },
+]
+`;
