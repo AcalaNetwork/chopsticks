@@ -16,15 +16,18 @@ exports[`connectHorizontal > connectHorizontal opens channel > system events 2`]
 [
   {
     "data": {
-      "error": "TooExpensive",
-      "messageHash": "(hash)",
-      "weight": {
-        "proofSize": 0,
-        "refTime": 600000000,
+      "id": "(hash)",
+      "origin": {
+        "Sibling": 2000,
+      },
+      "success": false,
+      "weightUsed": {
+        "proofSize": "(rounded 7100)",
+        "refTime": "(rounded 94000000)",
       },
     },
-    "method": "Fail",
-    "section": "xcmpQueue",
+    "method": "Processed",
+    "section": "messageQueue",
   },
 ]
 `;
