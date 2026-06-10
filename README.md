@@ -287,11 +287,19 @@ await checkHrmp(api)
 
 ### Bridged-XCM Testing
 
-Wire two bridge hubs and let outbound bridge messages flow automatically. The connector
-subscribes to source's `OutboundLanes`, fetches storage proofs, writes the destination's
-`pallet_bridge_parachains` state, and submits `receive_messages_proof` — same role
-`substrate-relay` plays in production. The signer must hold a balance on `destination`
-to pay the delivery fee.
+Relay bridge messages between two forked bridge hubs. The connector never builds blocks — it reads
+state, builds storage proofs, writes `ImportedParaHeads` directly, and pushes extrinsics to pools,
+then reacts to the heads produced by whatever builds blocks (`Instant`/`Batch` auto-build, or a host
+driving `dev_newBlock` under `Manual`). It runs two reactive loops:
+
+- **deliver**: pushes `receive_messages_proof` for `[last_delivered+1 .. latest_generated]` (chunked)
+  to the destination pool. Starting at the live `last_delivered+1` re-delivers nothing; an in-flight
+  chunk blocks the next push until a head shows it applied.
+- **confirm**: proves the destination's `InboundLanes` and pushes `receive_messages_delivery_proof`
+  to the source pool, advancing `latest_received_nonce` so the destination prunes its relayer queue.
+
+The signer must hold a balance on **both** hubs. Finality isn't forged (`ImportedParaHeads` is
+written directly), so only the messages pallet runs through verification.
 
 ```typescript
 import { connectBridgeHubs, setupContext } from '@acala-network/chopsticks-testing';
@@ -303,14 +311,14 @@ const bhk = await setupContext({ endpoint: 'wss://kusama-bridge-hub-rpc.polkadot
 const signer = new Keyring({ type: 'sr25519' }).addFromUri('//Alice');
 const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer });
 
-// ... drive source-side blocks; deliveries fire automatically ...
+// drive blocks on both hubs (or run them in Instant/Batch mode); the connector relays as heads advance.
 
 await handle.disconnect();
 ```
 
-For the reverse direction, call `connectBridgeHubs(bhk.api, bhp.api, { signer })`. Pallet
-names + para id are auto-detected from runtime metadata; override via config only for
-runtimes with multiple `pallet_bridge_messages` instances.
+Call `connectBridgeHubs(bhk.api, bhp.api, { signer })` for the reverse direction. Pallet names and
+para id are auto-detected from runtime metadata; override via config only for runtimes with multiple
+`pallet_bridge_messages` instances.
 
 ### Data Format Conversion
 

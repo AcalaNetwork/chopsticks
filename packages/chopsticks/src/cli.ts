@@ -176,7 +176,7 @@ const commands = yargs(hideBin(process.argv))
             required: true,
           },
           'bridge-signer-uri': {
-            desc: 'URI for the relayer keypair that submits receive_messages_proof on each side',
+            desc: 'URI for the relayer keypair that submits receive_messages_proof / _delivery_proof on each side',
             string: true,
             default: '//Alice',
           },
@@ -193,13 +193,17 @@ const commands = yargs(hideBin(process.argv))
       const leftBh = findBridgeHub(left, 'left')
       const rightBh = findBridgeHub(right, 'right')
 
+      // One signer for both directions; the relayer only pushes to the hubs' pools, so it works
+      // under any build mode (auto-build applies the pushes; under Manual, drive blocks yourself).
       const signer = new Keyring({ type: 'sr25519' }).addFromUri(argv['bridge-signer-uri'])
 
       await connectBridgeHubs(leftBh.api, rightBh.api, { signer })
       await connectBridgeHubs(rightBh.api, leftBh.api, { signer })
 
       console.log(
-        `Bridge connected:\n  left  bridge-hub @ ${leftBh.url}\n  right bridge-hub @ ${rightBh.url}\nBoth directions are live.`,
+        `Bridge connected:\n  left  bridge-hub @ ${leftBh.url}\n  right bridge-hub @ ${rightBh.url}\n` +
+          `Relayer ${signer.address} must be funded on both hubs. The relayer pushes proofs to each ` +
+          'hub; blocks are produced by the hubs (build mode) or by you (dev_newBlock) — the relayer reacts.',
       )
     },
   )

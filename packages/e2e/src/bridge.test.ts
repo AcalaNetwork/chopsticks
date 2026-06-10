@@ -1,7 +1,7 @@
-import { outboundLanesStorageKey, outboundMessagesStorageKey } from '@acala-network/chopsticks-core'
+import { decodeProof, outboundLanesStorageKey, outboundMessagesStorageKey } from '@acala-network/chopsticks-core'
 import { connectBridgeHubs, setupContext } from '@acala-network/chopsticks-testing'
 import { Keyring } from '@polkadot/keyring'
-import { compactToU8a, hexToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
+import { compactToU8a, hexToU8a, nToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import type { HexString } from '@polkadot/util/types'
 import { cryptoWaitReady } from '@polkadot/util-crypto'
 import { describe, expect, it } from 'vitest'
@@ -9,14 +9,16 @@ import { describe, expect, it } from 'vitest'
 const LANE_ID: HexString = '0x00000001'
 const SOURCE_MESSAGES_PALLET = 'BridgeKusamaMessages'
 
-/** `OutboundLaneData { oldest_unpruned_nonce, latest_received_nonce, latest_generated_nonce, state=Opened }` */
-const encodeOutboundLaneData = (latestGenerated: bigint): HexString => {
-  const u64 = (v: bigint) => {
-    const b = new Uint8Array(8)
-    new DataView(b.buffer).setBigUint64(0, v, true)
-    return b
-  }
-  return u8aToHex(u8aConcat(u64(1n), u64(0n), u64(latestGenerated), new Uint8Array([0])))
+/**
+ * `OutboundLaneData { oldest_unpruned_nonce, latest_received_nonce, latest_generated_nonce, state=Opened }`.
+ *
+ * `latestReceived` defaults to `latestGenerated - 1` (one message in flight). Confirmation caps at
+ * the proven `total_messages`, so claiming more unconfirmed than delivered is rejected with
+ * `TryingToConfirmMoreMessagesThanExpected` — pass `latestReceived` to keep them consistent.
+ */
+const encodeOutboundLaneData = (latestGenerated: bigint, latestReceived = latestGenerated - 1n): HexString => {
+  const u64 = (v: bigint) => nToU8a(v, { bitLength: 64, isLe: true })
+  return u8aToHex(u8aConcat(u64(1n), u64(latestReceived), u64(latestGenerated), new Uint8Array([0])))
 }
 
 /** `StoredMessagePayload` = `BoundedVec<u8>`. Bytes are opaque to the proof verifier. */
@@ -26,11 +28,14 @@ const encodeStoredMessagePayload = (bodyBytes: Uint8Array): HexString =>
 const dbFile = (name: string) => (process.env.RUN_TESTS_WITHOUT_DB ? undefined : name)
 
 /**
- * Fork BHP + BHK, fund Alice on BHK, wire the bridge connector, and read the source's
+ * Fork BHP + BHK, fund Alice on both, wire the bridge connector, and read the source's
  * current `latest_generated_nonce`. Returns the contexts (for the caller's `finally`
  * teardown) plus the next two free nonces to inject. BHK's `is_obsolete` signed
  * extension rejects nonces <= last_delivered_nonce, so messages must be injected above
- * the live baseline (mirroring how real sends advance the nonce monotonically).
+ * the live baseline.
+ *
+ * The connector confirms deliveries back to BHP (`receive_messages_delivery_proof`), which
+ * submits there too, so Alice is funded on both sides.
  */
 const setupBridge = async () => {
   await cryptoWaitReady()
@@ -44,9 +49,11 @@ const setupBridge = async () => {
   })
   const alice = new Keyring({ type: 'sr25519' }).addFromUri('//Alice')
   // Real bridge-hub forks don't have Alice funded.
-  await bhk.dev.setStorage({
+  const fundAlice = {
     System: { Account: [[[alice.address], { providers: 1, data: { free: 1_000_000_000_000_000n } }]] },
-  })
+  }
+  await bhk.dev.setStorage(fundAlice)
+  await bhp.dev.setStorage(fundAlice)
   const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer: alice })
   const laneBytes = hexToU8a(LANE_ID)
   const current = (await bhp.api.query.bridgeKusamaMessages.outboundLanes(LANE_ID)).toJSON() as {
@@ -61,9 +68,7 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
     const { bhp, bhk, handle, laneBytes, nonceA, nonceB } = await setupBridge()
 
     try {
-      // First block records the connector's baseline so historical nonces don't replay.
-      await bhp.dev.newBlock()
-
+      // Message 1: a message produced right after connect is delivered (no baseline absorbs it).
       await bhp.dev.setStorage([
         [
           outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceA),
@@ -72,9 +77,9 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
         [outboundLanesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes), encodeOutboundLaneData(nonceA)],
       ])
       await bhp.dev.newBlock()
-      await waitForBhkEvent(bhk.api, 'bridgePolkadotMessages', 'MessagesReceived', 60_000)
+      expect(await waitForInboundDelivered(bhk, nonceA, 60_000)).toBeGreaterThanOrEqual(nonceA)
 
-      // Second message in a separate block exercises the continuous subscription.
+      // Message 2 in a separate block: inbound nonce advances to nonceB.
       await bhp.dev.setStorage([
         [
           outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceB),
@@ -83,7 +88,7 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
         [outboundLanesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes), encodeOutboundLaneData(nonceB)],
       ])
       await bhp.dev.newBlock()
-      await waitForBhkEvent(bhk.api, 'bridgePolkadotMessages', 'MessagesReceived', 60_000)
+      expect(await waitForInboundDelivered(bhk, nonceB, 60_000)).toBeGreaterThanOrEqual(nonceB)
 
       await handle.disconnect()
     } finally {
@@ -98,11 +103,9 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
     try {
       await bhp.dev.newBlock() // baseline
 
-      // Two source blocks back-to-back, no awaiting the connector between them.
-      // Exercises the `source.at(sourceHash)` path: pumps run after both BHP
-      // blocks are built, so the implicit-latest read would have caught the wrong
-      // state. With the fix, deliveries succeed; without it, BHK would reject
-      // proofs whose nonce range exceeds the per-block reality.
+      // Two source blocks back-to-back, no awaiting the connector between them. The connector
+      // tracks the latest generated nonce and pushes one chunk at a time (in-flight guard), so it
+      // serializes nonceA then nonceB as BHK applies each — no gapped/duplicate proof.
       await bhp.dev.setStorage([
         [
           outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceA),
@@ -120,20 +123,9 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
       ])
       await bhp.dev.newBlock()
 
-      // Wait for BHK's `InboundLanes.last_delivered_nonce` (encoded inside the
-      // VecDeque<UnrewardedRelayer>) to reach `nonceB`. The runtime advances this
-      // synchronously inside `receive_messages_proof` dispatch.
-      const deadline = Date.now() + 90_000
-      let lastDelivered = 0n
-      while (Date.now() < deadline && lastDelivered < nonceB) {
-        const inbound = (await bhk.api.query.bridgePolkadotMessages.inboundLanes(LANE_ID)).toJSON() as {
-          relayers?: { messages?: { end?: number | string } }[]
-        } | null
-        const last = inbound?.relayers?.[inbound.relayers.length - 1]?.messages?.end
-        if (last != null) lastDelivered = BigInt(last)
-        if (lastDelivered >= nonceB) break
-        await new Promise((r) => setTimeout(r, 500))
-      }
+      // Both nonces must reach BHK's inbound lane (advanced synchronously inside
+      // receive_messages_proof dispatch) — robust to the back-to-back delivery ordering.
+      const lastDelivered = await waitForInboundDelivered(bhk, nonceB, 90_000)
 
       await handle.disconnect()
 
@@ -143,22 +135,213 @@ describe.skipIf(process.env.CI && !process.env.RUN_BRIDGE_E2E)('bridge connector
       await bhk.teardown()
     }
   }, 240_000)
+
+  it('delivers a multi-nonce range proven in a single block', async () => {
+    const { bhp, bhk, handle, laneBytes, nonceA, nonceB } = await setupBridge()
+
+    try {
+      // One source block carries TWO new messages (latest_generated jumps by 2), so a single push
+      // delivers the whole [nonceA..=nonceB] range in one proof (noncesEnd > start) — exercising the
+      // per-nonce key loop and multi-message weight, which single-message blocks never reach. Both
+      // are in flight, so latest_received = nonceA - 1.
+      await bhp.dev.setStorage([
+        [
+          outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceA),
+          encodeStoredMessagePayload(new Uint8Array([0x11])),
+        ],
+        [
+          outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceB),
+          encodeStoredMessagePayload(new Uint8Array([0x22])),
+        ],
+        [outboundLanesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes), encodeOutboundLaneData(nonceB, nonceA - 1n)],
+      ])
+      await bhp.dev.newBlock()
+
+      // Both nonces must arrive; nonceA alone passing would mean the second nonce in the range
+      // was dropped (gap/off-by-one in the proof loop).
+      expect(await waitForInboundDelivered(bhk, nonceB, 90_000)).toBeGreaterThanOrEqual(nonceB)
+
+      await handle.disconnect()
+    } finally {
+      await bhp.teardown()
+      await bhk.teardown()
+    }
+  }, 240_000)
+
+  // The connector only pushes proofs to the destination pool; it never builds blocks. So delivery
+  // must work whatever produces the destination's blocks — verify all three build modes.
+  for (const mode of ['Manual', 'Instant', 'Batch'] as const) {
+    it(`delivers under ${mode} destination build mode`, async () => {
+      const { bhp, bhk, handle, laneBytes, nonceA } = await setupBridge()
+
+      try {
+        // Manual: nothing auto-builds, so the host (here, the test) drives a BHK block.
+        // Instant/Batch: submitting the proof makes BHK auto-build, so we only poll (drive=false) —
+        // proving the bridge applies deliveries hands-off, with no block driving at all.
+        await bhk.ws.send('dev_setBlockBuildMode', [mode])
+
+        await bhp.dev.setStorage([
+          [
+            outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonceA),
+            encodeStoredMessagePayload(new Uint8Array([0x5a])),
+          ],
+          [outboundLanesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes), encodeOutboundLaneData(nonceA)],
+        ])
+        await bhp.dev.newBlock() // source head → connector pushes the delivery to BHK's pool
+
+        const delivered = await waitForInboundDelivered(bhk, nonceA, 90_000, mode === 'Manual')
+        expect(delivered).toBeGreaterThanOrEqual(nonceA)
+
+        await handle.disconnect()
+      } finally {
+        await bhp.teardown()
+        await bhk.teardown()
+      }
+    }, 240_000)
+  }
+
+  it('relays delivery confirmations back to the source across rounds (idempotent, no double-confirm)', async () => {
+    const { bhp, bhk, handle, laneBytes, nonceA, nonceB } = await setupBridge()
+
+    const sendAndConfirm = async (nonce: bigint, body: number) => {
+      await bhp.dev.setStorage([
+        [
+          outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes, nonce),
+          encodeStoredMessagePayload(new Uint8Array([body])),
+        ],
+        [outboundLanesStorageKey(SOURCE_MESSAGES_PALLET, laneBytes), encodeOutboundLaneData(nonce)],
+      ])
+      await bhp.dev.newBlock()
+      // Forward delivery lands on BHK first (the connector builds the BHK block)...
+      expect(await waitForInboundDelivered(bhk, nonce, 90_000)).toBeGreaterThanOrEqual(nonce)
+      // ...the connector, watching BHK heads, then submits receive_messages_delivery_proof to
+      // BHP's pool — but doesn't build source blocks, so we drive BHP blocks here. Once one
+      // includes the confirmation, the source lane's latest_received_nonce advances. Without
+      // the confirmation relay it stays at the injected baseline forever.
+      expect(await waitForSourceConfirmed(bhp, nonce, 90_000)).toBeGreaterThanOrEqual(nonce)
+    }
+
+    try {
+      await sendAndConfirm(nonceA, 0xc0)
+      // A second round drives confirmation again: the connector's `confirmed` map must not
+      // re-confirm nonceA, and the idempotency guard (source latest_received already covers it)
+      // must let nonceB's confirmation through cleanly while building extra BHP blocks that
+      // re-fire pumpConfirm against the already-confirmed lane.
+      await sendAndConfirm(nonceB, 0xde)
+
+      await handle.disconnect()
+    } finally {
+      await bhp.teardown()
+      await bhk.teardown()
+    }
+  }, 240_000)
+
+  it('dev_getReadProof produces a valid absence proof for a non-existent key', async () => {
+    const bhp = await setupContext({
+      endpoint: 'wss://polkadot-bridge-hub-rpc.polkadot.io',
+      db: dbFile('bridge-bhp-tests.sqlite'),
+    })
+
+    try {
+      // An OutboundMessages nonce that definitely doesn't exist on the lane.
+      const absentKey = outboundMessagesStorageKey(SOURCE_MESSAGES_PALLET, hexToU8a(LANE_ID), 999_999_999n)
+      const { proof, stateRoot } = (await bhp.ws.send('dev_getReadProof', [[absentKey]])) as {
+        proof: HexString[]
+        stateRoot: HexString
+      }
+
+      expect(proof.length).toBeGreaterThan(0)
+      // decodeProof verifies the nodes against the recomputed root and returns the present
+      // keys: a valid absence proof decodes without throwing and omits the absent key.
+      const decoded = await decodeProof(stateRoot, proof)
+      expect(decoded[absentKey]).toBeUndefined()
+    } finally {
+      await bhp.teardown()
+    }
+  }, 120_000)
+
+  it('dev_getReadProof binds the proof to its state root (a wrong root yields no value)', async () => {
+    const bhp = await setupContext({
+      endpoint: 'wss://polkadot-bridge-hub-rpc.polkadot.io',
+      db: dbFile('bridge-bhp-tests.sqlite'),
+    })
+
+    try {
+      // System.Number is always present, so this proves the *presence* path (not just absence).
+      const presentKey = bhp.api.query.system.number.key() as HexString
+      const { proof, stateRoot } = (await bhp.ws.send('dev_getReadProof', [[presentKey]])) as {
+        proof: HexString[]
+        stateRoot: HexString
+      }
+
+      // Under the correct (recomputed) root the key decodes to a value...
+      const decoded = await decodeProof(stateRoot, proof)
+      expect(decoded[presentKey]).toBeDefined()
+
+      // ...but the proof is bound to that root: verifying the same nodes against a tampered root
+      // must not yield the value. This is the property the whole relay trust model rests on —
+      // the destination only trusts a proof that recomputes to the imported state root.
+      const tampered = (stateRoot.slice(0, -2) + (stateRoot.endsWith('00') ? '11' : '00')) as HexString
+      const decodedWrong = await decodeProof(tampered, proof).catch(() => ({}) as Record<string, HexString>)
+      expect(decodedWrong[presentKey]).toBeUndefined()
+    } finally {
+      await bhp.teardown()
+    }
+  }, 120_000)
 })
 
-const waitForBhkEvent = async (
-  api: { query: any; rpc: any },
-  palletCamel: string,
-  method: string,
+/**
+ * Wait until BHK's `BridgePolkadotMessages.InboundLanes[lane].last_delivered_nonce` reaches
+ * `target`. The connector pushes `receive_messages_proof` to BHK's pool but builds no blocks, so
+ * who applies it depends on BHK's build mode: under `Manual` we drive blocks here (`drive: true`);
+ * under `Instant`/`Batch` the chain auto-applies, so we only poll (`drive: false`). Each built block
+ * also lets the connector react (on the resulting head) and push the next chunk. `last_delivered`
+ * = last relayer entry's `messages.end`, or `last_confirmed_nonce` when empty — monotonic.
+ */
+const waitForInboundDelivered = async (
+  ctx: { api: { query: any }; dev: { newBlock: () => Promise<unknown> } },
+  target: bigint,
   timeoutMs: number,
-): Promise<void> => {
+  drive = true,
+): Promise<bigint> => {
   const deadline = Date.now() + timeoutMs
+  let lastDelivered = 0n
   while (Date.now() < deadline) {
-    const events = (await api.query.system.events()) as any
-    for (const record of events) {
-      const ev = record.event
-      if (ev.section === palletCamel && ev.method === method) return
-    }
+    if (drive) await ctx.dev.newBlock()
+    const inbound = (await ctx.api.query.bridgePolkadotMessages.inboundLanes(LANE_ID)).toJSON() as {
+      relayers?: { messages?: { end?: number | string } }[]
+      lastConfirmedNonce?: number | string
+    } | null
+    const last = inbound?.relayers?.length
+      ? inbound.relayers[inbound.relayers.length - 1]?.messages?.end
+      : inbound?.lastConfirmedNonce
+    if (last != null) lastDelivered = BigInt(last)
+    if (lastDelivered >= target) return lastDelivered
     await new Promise((r) => setTimeout(r, 500))
   }
-  throw new Error(`timeout waiting for ${palletCamel}.${method} on destination`)
+  return lastDelivered
+}
+
+/**
+ * Drive BHP blocks until its source `BridgeKusamaMessages.OutboundLanes[lane].latest_received_nonce`
+ * reaches `target`. The connector submits `receive_messages_delivery_proof` to BHP's pool but
+ * leaves block production to the (here, test) driver, so each poll builds a block to include it.
+ */
+const waitForSourceConfirmed = async (
+  ctx: { api: { query: any }; dev: { newBlock: () => Promise<unknown> } },
+  target: bigint,
+  timeoutMs: number,
+): Promise<bigint> => {
+  const deadline = Date.now() + timeoutMs
+  let latestReceived = 0n
+  while (Date.now() < deadline) {
+    await ctx.dev.newBlock()
+    const outbound = (await ctx.api.query.bridgeKusamaMessages.outboundLanes(LANE_ID)).toJSON() as {
+      latestReceivedNonce?: number | string
+    } | null
+    if (outbound?.latestReceivedNonce != null) latestReceived = BigInt(outbound.latestReceivedNonce)
+    if (latestReceived >= target) return latestReceived
+    await new Promise((r) => setTimeout(r, 500))
+  }
+  return latestReceived
 }

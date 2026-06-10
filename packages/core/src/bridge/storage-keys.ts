@@ -49,6 +49,9 @@ export const importedParaHashesStorageKey = (palletName: string, paraId: number,
 export const outboundLanesStorageKey = (palletName: string, lane: Uint8Array): HexString =>
   u8aToHex(u8aConcat(palletPrefix(palletName, 'OutboundLanes'), blake2_128Concat(lane)))
 
+export const inboundLanesStorageKey = (palletName: string, lane: Uint8Array): HexString =>
+  u8aToHex(u8aConcat(palletPrefix(palletName, 'InboundLanes'), blake2_128Concat(lane)))
+
 export const outboundLanesPrefix = (palletName: string): HexString =>
   u8aToHex(palletPrefix(palletName, 'OutboundLanes'))
 
