@@ -37,29 +37,32 @@ export const buildReadProof = async (
     throw new ResponseError(1, `Block ${hash ?? 'head'} not found`)
   }
 
-  const updates = await Promise.all(
-    keys.map(async (key) => [key, (await block.get(key)) ?? null] as [HexString, HexString | null]),
-  )
-
   // Upstream rejects chopsticks-only blocks with UnknownBlock; fall back to upstream
   // head whose trie is guaranteed available.
-  let upstreamProof: { at: HexString; proof: HexString[] }
-  try {
-    upstreamProof = await context.chain.api.getReadProof(keys, block.hash as HexString)
-  } catch (err) {
-    logger.debug(
-      { err: (err as Error).message, blockHash: block.hash },
-      'getReadProof at block failed; retrying at head',
-    )
+  const fetchUpstreamProof = async (): Promise<{ at: HexString; proof: HexString[] }> => {
     try {
-      upstreamProof = await context.chain.api.getReadProof(keys)
-    } catch (err2) {
-      throw new ResponseError(
-        -32603,
-        `getReadProof: upstream rejected at block ${block.hash} and at head (${(err2 as Error).message})`,
+      return await context.chain.api.getReadProof(keys, block.hash as HexString)
+    } catch (err) {
+      logger.debug(
+        { err: (err as Error).message, blockHash: block.hash },
+        'getReadProof at block failed; retrying at head',
       )
+      try {
+        return await context.chain.api.getReadProof(keys)
+      } catch (err2) {
+        throw new ResponseError(
+          -32603,
+          `getReadProof: upstream rejected at block ${block.hash} and at head (${(err2 as Error).message})`,
+        )
+      }
     }
   }
+
+  // The local reads and the upstream proof are independent — overlap their round trips.
+  const [updates, upstreamProof] = await Promise.all([
+    Promise.all(keys.map(async (key) => [key, (await block.get(key)) ?? null] as [HexString, HexString | null])),
+    fetchUpstreamProof(),
+  ])
 
   const { trieRootHash, nodes } = await createProof(upstreamProof.proof, updates)
   return { at: block.hash as HexString, proof: nodes, stateRoot: trieRootHash }

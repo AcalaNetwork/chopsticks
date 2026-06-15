@@ -7,12 +7,18 @@ import type { MiddlewareFunction } from 'yargs'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { z } from 'zod'
-import { connectBridgeHubs } from './bridge.js'
+import { connectBridgeHubs, hasBridgeMessagesPallet } from './bridge.js'
 import { setupWithServer } from './index.js'
 import { loadRpcMethodsByScripts, pluginExtendCli } from './plugins/index.js'
 import { configSchema, fetchConfig, getYargsOptions } from './schema/index.js'
 
 dotenvConfig()
+
+interface NetworkChain {
+  chain: Blockchain
+  addr: string
+  configRef: string
+}
 
 interface BridgeSideChain {
   chain: Blockchain
@@ -21,42 +27,50 @@ interface BridgeSideChain {
   configRef: string
 }
 
-/** One side of a bridged setup: relay (optional) + parachains, wired with UMP/DMP/HRMP. */
-const setupBridgeSide = async (
+/** Fork relay (optional) + parachains and wire them with UMP/DMP/HRMP — the `xcm` command's core. */
+const setupNetwork = async (
   relayConfigRef: string | undefined,
   parachainConfigRefs: string[],
-): Promise<BridgeSideChain[]> => {
-  const sideChains: BridgeSideChain[] = []
+): Promise<NetworkChain[]> => {
+  const parachains: NetworkChain[] = []
   for (const configRef of parachainConfigRefs) {
     const { chain, addr } = await setupWithServer(await fetchConfig(configRef))
-    const url = `ws://${addr}`
-    const api = await ApiPromise.create({ provider: new WsProvider(url, 3_000), noInitWarn: true })
-    sideChains.push({ chain, api, url, configRef })
+    parachains.push({ chain, addr, configRef })
   }
 
-  if (sideChains.length > 1) {
+  if (parachains.length > 1) {
     await connectParachains(
-      sideChains.map((c) => c.chain),
+      parachains.map((c) => c.chain),
       environment.DISABLE_AUTO_HRMP,
     )
   }
 
   if (relayConfigRef) {
     const { chain: relay } = await setupWithServer(await fetchConfig(relayConfigRef))
-    for (const c of sideChains) await connectVertical(relay, c.chain)
+    for (const c of parachains) await connectVertical(relay, c.chain)
   }
 
-  return sideChains
+  return parachains
+}
+
+/** One side of a bridged setup: an xcm network plus an `ApiPromise` per parachain. */
+const setupBridgeSide = async (
+  relayConfigRef: string | undefined,
+  parachainConfigRefs: string[],
+): Promise<BridgeSideChain[]> => {
+  const parachains = await setupNetwork(relayConfigRef, parachainConfigRefs)
+  return Promise.all(
+    parachains.map(async ({ chain, addr, configRef }) => {
+      const url = `ws://${addr}`
+      const api = await ApiPromise.create({ provider: new WsProvider(url, 3_000), noInitWarn: true })
+      return { chain, api, url, configRef }
+    }),
+  )
 }
 
 /** Pick the parachain whose runtime registers `pallet_bridge_messages`. */
 const findBridgeHub = (side: BridgeSideChain[], label: 'left' | 'right'): BridgeSideChain => {
-  const candidates = side.filter((c) =>
-    Object.keys(c.api.query).some((p) => {
-      const pallet = (c.api.query as any)[p]
-      return pallet?.outboundLanes && pallet?.outboundMessages
-    }),
-  )
+  const candidates = side.filter((c) => hasBridgeMessagesPallet(c.api))
   if (candidates.length === 0) {
     throw new Error(
       `chopsticks bridge: no ${label}-side parachain hosts pallet_bridge_messages. ` +
@@ -131,22 +145,7 @@ const commands = yargs(hideBin(process.argv))
         .alias('relaychain', 'r')
         .alias('parachain', 'p'),
     async (argv) => {
-      const parachains: Blockchain[] = []
-      for (const config of argv.parachain) {
-        const { chain } = await setupWithServer(await fetchConfig(config))
-        parachains.push(chain)
-      }
-
-      if (parachains.length > 1) {
-        await connectParachains(parachains, environment.DISABLE_AUTO_HRMP)
-      }
-
-      if (argv.relaychain) {
-        const { chain: relaychain } = await setupWithServer(await fetchConfig(argv.relaychain))
-        for (const parachain of parachains) {
-          await connectVertical(relaychain, parachain)
-        }
-      }
+      await setupNetwork(argv.relaychain, argv.parachain)
     },
   )
   .command(
@@ -197,8 +196,10 @@ const commands = yargs(hideBin(process.argv))
       // under any build mode (auto-build applies the pushes; under Manual, drive blocks yourself).
       const signer = new Keyring({ type: 'sr25519' }).addFromUri(argv['bridge-signer-uri'])
 
-      await connectBridgeHubs(leftBh.api, rightBh.api, { signer })
-      await connectBridgeHubs(rightBh.api, leftBh.api, { signer })
+      await Promise.all([
+        connectBridgeHubs(leftBh.api, rightBh.api, { signer }),
+        connectBridgeHubs(rightBh.api, leftBh.api, { signer }),
+      ])
 
       console.log(
         `Bridge connected:\n  left  bridge-hub @ ${leftBh.url}\n  right bridge-hub @ ${rightBh.url}\n` +

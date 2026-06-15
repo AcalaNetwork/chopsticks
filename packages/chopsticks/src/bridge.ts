@@ -1,18 +1,6 @@
-import {
-  bridgeLogger,
-  encodeHash32,
-  encodeParaInfo,
-  encodeParaStoredHeaderData,
-  importedParaHashesStorageKey,
-  importedParaHeadsStorageKey,
-  inboundLanesStorageKey,
-  outboundLanesStorageKey,
-  outboundMessagesStorageKey,
-  parasInfoStorageKey,
-} from '@acala-network/chopsticks-core'
+import { bridgeLogger, encodeParaInfo, encodeParaStoredHeaderData } from '@acala-network/chopsticks-core'
 import type { ApiPromise } from '@polkadot/api'
-import type { ApiDecoration } from '@polkadot/api/types'
-import type { AddressOrPair, SubmittableExtrinsic } from '@polkadot/api-base/types'
+import type { AddressOrPair, ApiDecoration, SubmittableExtrinsic } from '@polkadot/api/types'
 import type { Header } from '@polkadot/types/interfaces'
 import type { IKeyringPair } from '@polkadot/types/types'
 import { hexToU8a, stringCamelCase, stringPascalCase } from '@polkadot/util'
@@ -79,24 +67,36 @@ const laneHexFromKey = (key: { args: unknown[] }): HexString => (key.args[0] as 
 
 // The three `pallet_bridge_parachains` writes that import a bridged head, so a proof taken at that
 // head verifies against it. Used both ways: deliver imports the source head on the destination,
-// confirm imports the destination head on the source.
+// confirm imports the destination head on the source. Keys are derived from `api`'s metadata
+// (hashers and key codecs included); only the values are hand-encoded.
 const importParaHead = (
-  pallet: string,
+  api: ApiPromise,
+  pallet: string, // camelCase, for `api.query` lookup
   paraId: number,
+  headHashHex: HexString,
   blockNumber: number,
-  headBytes: Uint8Array,
   stateRoot: Uint8Array,
-): [HexString, HexString][] => [
-  [parasInfoStorageKey(pallet, paraId), encodeParaInfo(blockNumber, headBytes, 1)],
-  [importedParaHeadsStorageKey(pallet, paraId, headBytes), encodeParaStoredHeaderData(blockNumber, stateRoot)],
-  [importedParaHashesStorageKey(pallet, paraId, 0), encodeHash32(headBytes)],
-]
+): [HexString, HexString][] => {
+  const query = api.query[pallet]
+  const headBytes = hexToU8a(headHashHex)
+  return [
+    [query.parasInfo.key(paraId) as HexString, encodeParaInfo(blockNumber, headBytes, 1)],
+    [query.importedParaHeads.key(paraId, headHashHex) as HexString, encodeParaStoredHeaderData(blockNumber, stateRoot)],
+    [query.importedParaHashes.key(paraId, 0) as HexString, headHashHex],
+  ]
+}
+
+/** One relayer entry's `DeliveredMessages` range. */
+type RelayerEntry = { messages?: { begin?: number | string; end?: number | string } }
 
 /** Raw `InboundLaneData` JSON for one lane. */
 type InboundLaneJson = {
-  relayers?: { messages?: { begin?: number | string; end?: number | string } }[]
+  relayers?: RelayerEntry[]
   lastConfirmedNonce?: number | string
 } | null
+
+/** `{ at, proof, stateRoot }` shape returned by `dev_getReadProof`. */
+type ReadProof = { at: HexString; proof: HexString[]; stateRoot: HexString }
 
 /** `last_delivered_nonce` derived as the pallet does: last relayer entry's `messages.end`, or
  * `last_confirmed_nonce` when the relayer queue is empty. */
@@ -105,8 +105,12 @@ export const lastDeliveredFromInbound = (v: InboundLaneJson): bigint => {
   return relayers.length ? BigInt(relayers[relayers.length - 1].messages?.end ?? 0) : BigInt(v?.lastConfirmedNonce ?? 0)
 }
 
-/** One relayer entry's `DeliveredMessages` range. */
-type RelayerEntry = { messages?: { begin?: number | string; end?: number | string } }
+export interface UnrewardedRelayersState {
+  unrewardedRelayerEntries: number
+  messagesInOldestEntry: bigint
+  totalMessages: bigint
+  lastDeliveredNonce: bigint
+}
 
 /** `UnrewardedRelayersState` derived from an inbound lane's relayer queue exactly as the pallet's
  * `impl From<&InboundLaneData>` does (the dispatch rejects any mismatch with
@@ -120,12 +124,7 @@ type RelayerEntry = { messages?: { begin?: number | string; end?: number | strin
 export const deriveUnrewardedRelayersState = (
   relayers: RelayerEntry[],
   lastDelivered: bigint,
-): {
-  unrewardedRelayerEntries: number
-  messagesInOldestEntry: bigint
-  totalMessages: bigint
-  lastDeliveredNonce: bigint
-} => {
+): UnrewardedRelayersState => {
   if (relayers.length === 0) {
     return {
       unrewardedRelayerEntries: 0,
@@ -164,22 +163,27 @@ export const connectBridgeHubs = async (
   destination: ApiPromise,
   config: ConnectBridgeHubsConfig,
 ): Promise<BridgeHandle> => {
-  const sourceMessagesPallet = config.sourceMessagesPallet ?? detectBridgeMessagesPallet(source, 'query', 'source')
+  const sourceMessagesPallet = config.sourceMessagesPallet ?? detectSourceMessagesPallet(source)
   const destParachainsPallet = config.destParachainsPallet ?? detectBridgeParachainsPallet(destination, 'destination')
-  const destMessagesPallet = config.destMessagesPallet ?? detectBridgeMessagesPallet(destination, 'tx', 'destination')
-  const sourceParaId = config.sourceParaId ?? (await detectParaId(source, 'source'))
+  const destMessagesPallet = config.destMessagesPallet ?? detectDestMessagesPallet(destination)
   const dispatchWeight = config.dispatchWeightPerMessage ?? DEFAULT_DISPATCH_WEIGHT
   const signerAddress = typeof config.signer === 'string' ? config.signer : (config.signer as IKeyringPair).address
   const relayerIdAtSource = config.relayerIdAtSource ?? signerAddress
 
+  const [sourceParaId, destParaId] = await Promise.all([
+    config.sourceParaId ?? detectParaId(source, 'source'),
+    config.destParaId ?? detectParaId(destination, 'destination'),
+  ])
+
   // Confirm proves the destination's inbound lane on the source, so it needs the source-side
   // bridge-parachains pallet and the destination's para id (deliver's deps, reversed).
   const sourceParachainsPallet = config.sourceParachainsPallet ?? detectBridgeParachainsPallet(source, 'source')
-  const destParaId = config.destParaId ?? (await detectParaId(destination, 'destination'))
 
   // camelCase pallet names for `api.query`/`api.tx` lookups.
   const sourceMessages = stringCamelCase(sourceMessagesPallet)
   const destMessages = stringCamelCase(destMessagesPallet)
+  const sourceParachains = stringCamelCase(sourceParachainsPallet)
+  const destParachains = stringCamelCase(destParachainsPallet)
 
   // lane -> source `latest_generated_nonce` observed on source heads (deliver up to this).
   const generated = new Map<HexString, bigint>()
@@ -187,34 +191,39 @@ export const connectBridgeHubs = async (
   const inFlight = new Map<HexString, bigint>()
   // lane -> highest destination `last_delivered_nonce` already confirmed back to source.
   const confirmed = new Map<HexString, bigint>()
+  // lane -> highest destination `last_delivered_nonce` observed by the deliver loop. It's
+  // monotonic, so it lets idle heads skip the per-lane inbound query.
+  const deliveredCache = new Map<HexString, bigint>()
   // Latest observed source head; outbound messages are proven against it (they exist there, since
   // `latest_generated >= to`). Set on connect and refreshed on every source head.
   let latestSourceHash: HexString | undefined
   let latestSourceNumber = 0
 
-  // Push one chunk `[from..=to]` to the destination pool, proven against the latest source head
+  // Push one chunk `[from..=to]` to the destination pool, proven against the given source head
   // (the messages exist there since `latest_generated >= to`). Outbound lane state proven alongside.
-  const deliverRange = async (laneHex: HexString, from: bigint, to: bigint): Promise<void> => {
-    const laneBytes = hexToU8a(laneHex)
-    const headHashBytes = hexToU8a(latestSourceHash as HexString)
-
-    const keys: HexString[] = [outboundLanesStorageKey(sourceMessagesPallet, laneBytes)]
+  const deliverRange = async (
+    laneHex: HexString,
+    from: bigint,
+    to: bigint,
+    sourceHash: HexString,
+    sourceNumber: number,
+  ): Promise<void> => {
+    // `OutboundMessages` is keyed by `MessageKey { lane_id, nonce }`, passed as one struct arg.
+    const outboundMessages = source.query[sourceMessages].outboundMessages
+    const keys: HexString[] = [source.query[sourceMessages].outboundLanes.key(laneHex) as HexString]
     for (let n = from; n <= to; n++) {
-      keys.push(outboundMessagesStorageKey(sourceMessagesPallet, laneBytes, n))
+      keys.push(outboundMessages.key({ laneId: laneHex, nonce: n }) as HexString)
     }
     // `dev_getReadProof` (not spec `state_getReadProof`) returns the recomputed `stateRoot` that the
     // verifier checks against — it diverges from `header.state_root` once local overrides are applied.
-    const proof = await rawRpc<{ at: HexString; proof: HexString[]; stateRoot: HexString }>(
-      source,
-      'dev_getReadProof',
-      [keys, latestSourceHash],
-    )
+    const proof = await rawRpc<ReadProof>(source, 'dev_getReadProof', [keys, sourceHash])
 
     const setStoragePayload = importParaHead(
-      destParachainsPallet,
+      destination,
+      destParachains,
       sourceParaId,
-      latestSourceNumber,
-      headHashBytes,
+      sourceHash,
+      sourceNumber,
       hexToU8a(proof.stateRoot),
     )
     await rawRpc(destination, 'dev_setStorage', [setStoragePayload])
@@ -223,7 +232,7 @@ export const connectBridgeHubs = async (
     const tx: SubmittableExtrinsic<'promise'> = destination.tx[destMessages].receiveMessagesProof(
       relayerIdAtSource,
       {
-        bridgedHeaderHash: latestSourceHash,
+        bridgedHeaderHash: sourceHash,
         storageProof: proof.proof,
         lane: laneHex,
         noncesStart: from,
@@ -233,21 +242,24 @@ export const connectBridgeHubs = async (
       { refTime: dispatchWeight.refTime * BigInt(count), proofSize: dispatchWeight.proofSize * BigInt(count) },
     )
     await submitTx(destination, tx, config.signer)
-    bridgeLogger.info(
-      { lane: laneHex, range: `${from}..=${to}`, sourceBlock: latestSourceNumber },
-      'pushed bridge delivery',
-    )
+    bridgeLogger.info({ lane: laneHex, range: `${from}..=${to}`, sourceBlock: sourceNumber }, 'pushed bridge delivery')
   }
 
   // Push the next chunk for a lane if ready. Reads the live `last_delivered_nonce` so the proof
   // starts at `last_delivered+1` (is_obsolete contiguity); an in-flight chunk blocks further pushes
   // until a destination head shows it applied.
   const tryDeliverLane = async (laneHex: HexString): Promise<void> => {
-    if (latestSourceHash === undefined) return
+    const sourceHash = latestSourceHash
+    const sourceNumber = latestSourceNumber
+    if (sourceHash === undefined) return
     const generatedNonce = generated.get(laneHex) ?? 0n
+    // Idle short-circuit: `last_delivered_nonce` is monotonic, so when the cached value already
+    // covers everything generated and nothing is in flight, skip the inbound query entirely.
+    if (generatedNonce <= (deliveredCache.get(laneHex) ?? 0n) && !inFlight.has(laneHex)) return
     const delivered = lastDeliveredFromInbound(
       (await destination.query[destMessages].inboundLanes(laneHex)).toJSON() as InboundLaneJson,
     )
+    deliveredCache.set(laneHex, delivered)
     const pending = inFlight.get(laneHex)
     if (pending !== undefined) {
       if (delivered >= pending) inFlight.delete(laneHex)
@@ -257,7 +269,7 @@ export const connectBridgeHubs = async (
     const from = delivered + 1n
     const lastInChunk = from + MAX_MESSAGES_PER_PROOF - 1n
     const to = lastInChunk < generatedNonce ? lastInChunk : generatedNonce
-    await deliverRange(laneHex, from, to)
+    await deliverRange(laneHex, from, to, sourceHash, sourceNumber)
     inFlight.set(laneHex, to)
   }
 
@@ -284,8 +296,6 @@ export const connectBridgeHubs = async (
   // advancing the source's `latest_received_nonce`. Mirror of deliver.
   const confirm = async (destHashHex: HexString, destBlockNumber: number, lane: InboundLane): Promise<void> => {
     const { laneHex, relayers, lastDelivered } = lane
-    const laneBytes = hexToU8a(laneHex)
-    const destHeadBytes = hexToU8a(destHashHex)
 
     // Idempotency guard: skip if the source already covers `lastDelivered` (else `is_obsolete`
     // rejects the re-submit as stale).
@@ -300,17 +310,17 @@ export const connectBridgeHubs = async (
 
     const relayersState = deriveUnrewardedRelayersState(relayers, lastDelivered)
 
-    const proof = await rawRpc<{ at: HexString; proof: HexString[]; stateRoot: HexString }>(
-      destination,
-      'dev_getReadProof',
-      [[inboundLanesStorageKey(destMessagesPallet, laneBytes)], destHashHex],
-    )
+    const proof = await rawRpc<ReadProof>(destination, 'dev_getReadProof', [
+      [destination.query[destMessages].inboundLanes.key(laneHex) as HexString],
+      destHashHex,
+    ])
 
     const setStoragePayload = importParaHead(
-      sourceParachainsPallet,
+      source,
+      sourceParachains,
       destParaId,
+      destHashHex,
       destBlockNumber,
-      destHeadBytes,
       hexToU8a(proof.stateRoot),
     )
     await rawRpc(source, 'dev_setStorage', [setStoragePayload])
@@ -448,7 +458,7 @@ export const connectBridgeHubs = async (
 /** Parsed `InboundLaneData` for one lane: the relayer queue and derived `last_delivered_nonce`. */
 interface InboundLane {
   laneHex: HexString
-  relayers: { messages?: { begin?: number | string; end?: number | string } }[]
+  relayers: RelayerEntry[]
   lastDelivered: bigint
 }
 
@@ -458,6 +468,13 @@ const rawRpc = async <T>(api: ApiPromise, method: string, params: unknown[]): Pr
   return provider.send(method, params)
 }
 
+/** Storage-shape predicate for a `pallet_bridge_messages` instance. */
+const isBridgeMessagesPallet = (pallet: any): boolean => !!(pallet?.outboundLanes && pallet?.outboundMessages)
+
+/** Whether `api`'s runtime registers a `pallet_bridge_messages` instance. */
+export const hasBridgeMessagesPallet = (api: ApiPromise): boolean =>
+  Object.values(api.query).some(isBridgeMessagesPallet)
+
 /**
  * Find the unique pallet in `namespace` matching `predicate`, returning its PascalCase
  * name. Throws a remediation-pointing error on zero or multiple matches.
@@ -465,33 +482,35 @@ const rawRpc = async <T>(api: ApiPromise, method: string, params: unknown[]): Pr
 const detectPallet = (
   namespace: Record<string, any>,
   predicate: (pallet: any) => boolean,
-  describe: { none: string; many: (names: string) => string },
+  kind: 'messages' | 'parachains',
+  label: 'source' | 'destination',
+  overrideField: string,
 ): string => {
   const matches = Object.keys(namespace).filter((key) => predicate(namespace[key]))
-  if (matches.length === 0) throw new Error(describe.none)
-  if (matches.length > 1) throw new Error(describe.many(matches.map(stringPascalCase).join(', ')))
+  if (matches.length === 0) throw new Error(`connectBridgeHubs: no pallet_bridge_${kind} instance on ${label}`)
+  if (matches.length > 1) {
+    const names = matches.map(stringPascalCase).join(', ')
+    throw new Error(
+      `connectBridgeHubs: ${label} has multiple bridge-${kind} instances (${names}); set ${overrideField}`,
+    )
+  }
   return stringPascalCase(matches[0])
 }
 
-const detectBridgeMessagesPallet = (api: ApiPromise, side: 'query' | 'tx', label: 'source' | 'destination'): string => {
-  const field = side === 'query' ? 'sourceMessagesPallet' : 'destMessagesPallet'
-  return detectPallet(
-    side === 'query' ? api.query : api.tx,
-    (p) => (side === 'query' ? p?.outboundLanes && p?.outboundMessages : p?.receiveMessagesProof),
-    {
-      none: `connectBridgeHubs: no pallet_bridge_messages instance on ${label}`,
-      many: (names) => `connectBridgeHubs: ${label} has multiple bridge-messages instances (${names}); set ${field}`,
-    },
-  )
-}
+const detectSourceMessagesPallet = (api: ApiPromise): string =>
+  detectPallet(api.query, isBridgeMessagesPallet, 'messages', 'source', 'sourceMessagesPallet')
 
-const detectBridgeParachainsPallet = (api: ApiPromise, label: 'source' | 'destination'): string => {
-  const field = label === 'source' ? 'sourceParachainsPallet' : 'destParachainsPallet'
-  return detectPallet(api.query, (p) => p?.parasInfo && p?.importedParaHeads, {
-    none: `connectBridgeHubs: no pallet_bridge_parachains instance on ${label}`,
-    many: (names) => `connectBridgeHubs: ${label} has multiple bridge-parachains instances (${names}); set ${field}`,
-  })
-}
+const detectDestMessagesPallet = (api: ApiPromise): string =>
+  detectPallet(api.tx, (p) => p?.receiveMessagesProof, 'messages', 'destination', 'destMessagesPallet')
+
+const detectBridgeParachainsPallet = (api: ApiPromise, label: 'source' | 'destination'): string =>
+  detectPallet(
+    api.query,
+    (p) => p?.parasInfo && p?.importedParaHeads,
+    'parachains',
+    label,
+    label === 'source' ? 'sourceParachainsPallet' : 'destParachainsPallet',
+  )
 
 const detectParaId = async (api: ApiPromise, label: 'source' | 'destination'): Promise<number> => {
   const idCodec = await (api.query.parachainInfo as any)?.parachainId?.()
