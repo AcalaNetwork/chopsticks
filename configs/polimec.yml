@@ -1,4 +1,4 @@
-endpoint: wss://polimec.ibp.network/
+endpoint: wss://rpc.polimec.org
 mock-signature-host: true
 block: ${env.POLIMEC_BLOCK_NUMBER}
 db: ./polimec.db.sqlite

@@ -325,7 +325,7 @@ db: ./db-acala.sqlite  # Specify custom database path
 
 Or with a specific block:
 ```yaml
-endpoint: wss://rpc.ibp.network/polkadot
+endpoint: wss://polkadot-rpc.n.dwellir.com
 db: ./db-polkadot.sqlite # Must be a different path from other networks
 ```
 

@@ -1,4 +1,4 @@
-endpoint: wss://ajuna.ibp.network/
+endpoint: wss://rpc-para.ajuna.network
 mock-signature-host: true
 block: ${env.AJUNA_BLOCK_NUMBER}
 db: ./ajuna.db.sqlite

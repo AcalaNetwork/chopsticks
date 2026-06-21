@@ -1,6 +1,5 @@
 endpoint: 
   - wss://hydration-rpc.n.dwellir.com
-  - wss://hydration.ibp.network
   - wss://rpc.helikon.io/hydradx
   - wss://hydration.dotters.network
 mock-signature-host: true

@@ -1,4 +1,4 @@
-endpoint: wss://kilt.ibp.network/
+endpoint: wss://kilt-rpc.dwellir.com
 mock-signature-host: true
 block: ${env.KILT_BLOCK_NUMBER}
 db: ./kilt.db.sqlite
@@ -13,4 +13,3 @@ import-storage:
         - providers: 1
           data:
             free: 1000000000000000
-

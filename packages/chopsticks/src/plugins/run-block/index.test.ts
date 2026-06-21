@@ -7,7 +7,7 @@ import { rpc } from './index.js'
 describe('run-block', () => {
   it('should work', async () => {
     const chain = await setup({
-      endpoint: 'wss://rpc.ibp.network/polkadot',
+      endpoint: 'wss://rpc.polkadot.io',
       block: 18000002,
       db: !process.env.RUN_TESTS_WITHOUT_DB ? new SqliteDatabase('e2e-tests-db.sqlite') : undefined,
     })
