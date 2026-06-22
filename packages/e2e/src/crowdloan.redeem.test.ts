@@ -19,7 +19,8 @@ describe('Polkadot Crowdloan Refund', async () => {
     })
   }, 200_000)
 
-  it.runIf(process.env.CI || process.env.RUN_ALL)(
+  // This walks 1000 contributors per refund and is too slow for regular CI.
+  it.runIf(process.env.RUN_ALL)(
     "should refund Acala's contributors",
     async () => {
       // trigger refund
