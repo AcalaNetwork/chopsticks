@@ -298,8 +298,8 @@ driving `dev_newBlock` under `Manual`). It runs two reactive loops:
 - **confirm**: proves the destination's `InboundLanes` and pushes `receive_messages_delivery_proof`
   to the source pool, advancing `latest_received_nonce` so the destination prunes its relayer queue.
 
-The signer must hold a balance on **both** hubs. Finality isn't forged (`ImportedParaHeads` is
-written directly), so only the messages pallet runs through verification.
+Each relayer signer must hold a balance on **both** hubs. Finality isn't forged (`ImportedParaHeads`
+is written directly), so only the messages pallet runs through verification.
 
 ```typescript
 import { connectBridgeHubs, setupContext } from '@acala-network/chopsticks-testing';
@@ -316,9 +316,11 @@ const handle = await connectBridgeHubs(bhp.api, bhk.api, { signer });
 await handle.disconnect();
 ```
 
-Call `connectBridgeHubs(bhk.api, bhp.api, { signer })` for the reverse direction. Pallet names and
-para id are auto-detected from runtime metadata; override via config only for runtimes with multiple
-`pallet_bridge_messages` instances.
+For the reverse direction call `connectBridgeHubs(bhk.api, bhp.api, { signer: reverseSigner })` with a
+**distinct** signer: both directions submit relayer txs to the same two hubs, so a shared account
+collides on its nonce and one direction's tx is dropped. Pallet names and para id are auto-detected
+from runtime metadata; override via config only for runtimes with multiple `pallet_bridge_messages`
+instances.
 
 ### Data Format Conversion
 
