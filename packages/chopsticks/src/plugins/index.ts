@@ -1,4 +1,4 @@
-import { lstatSync, readdirSync, readFileSync } from 'node:fs'
+import { lstatSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { environment, type Handlers } from '@acala-network/chopsticks-core'
 import _ from 'lodash'
@@ -45,9 +45,12 @@ let rpcScriptMethods: Handlers = {}
 // use cli to load rpc methods of external scripts
 export const loadRpcMethodsByScripts = async (path: string) => {
   try {
-    const scriptContent = readFileSync(resolve(path), 'utf8')
-    rpcScriptMethods = new Function(scriptContent)()
-    logger.info(`${Object.keys(rpcScriptMethods).length} extension rpc methods loaded from ${path}`)
+    const resolvedPath = resolve(path)
+    const { rpc } = await import(resolvedPath)
+    if (rpc) {
+      rpcScriptMethods = rpc
+      logger.info(`${Object.keys(rpcScriptMethods).length} extension rpc methods loaded from ${path}`)
+    }
   } catch (error) {
     console.log('Failed to load rpc extension methods', error)
   }
