@@ -44,7 +44,7 @@
 		"@types/node": "^24.0.14",
 		"@vitest/coverage-v8": "^4.0.18",
 		"@vitest/ui": "^4.0.18",
-		"esbuild": "0.27.2",
+		"esbuild": "0.28.1",
 		"glob": "^13.0.0",
 		"husky": "^9.1.7",
 		"semver": "^7.7.2",
