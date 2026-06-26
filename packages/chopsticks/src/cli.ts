@@ -1,15 +1,91 @@
 import { type Blockchain, connectParachains, connectVertical, environment } from '@acala-network/chopsticks-core'
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api'
+import { cryptoWaitReady } from '@polkadot/util-crypto'
 import { config as dotenvConfig } from 'dotenv'
 import _ from 'lodash'
 import type { MiddlewareFunction } from 'yargs'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { z } from 'zod'
+import { connectBridgeHubs, hasBridgeMessagesPallet } from './bridge.js'
 import { setupWithServer } from './index.js'
 import { loadRpcMethodsByScripts, pluginExtendCli } from './plugins/index.js'
 import { configSchema, fetchConfig, getYargsOptions } from './schema/index.js'
 
 dotenvConfig()
+
+interface NetworkChain {
+  chain: Blockchain
+  addr: string
+  configRef: string
+}
+
+interface BridgeSideChain {
+  chain: Blockchain
+  api: ApiPromise
+  url: string
+  configRef: string
+}
+
+/** Fork relay (optional) + parachains and wire them with UMP/DMP/HRMP — the `xcm` command's core. */
+const setupNetwork = async (
+  relayConfigRef: string | undefined,
+  parachainConfigRefs: string[],
+): Promise<NetworkChain[]> => {
+  const parachains: NetworkChain[] = []
+  for (const configRef of parachainConfigRefs) {
+    const { chain, addr } = await setupWithServer(await fetchConfig(configRef))
+    parachains.push({ chain, addr, configRef })
+  }
+
+  if (parachains.length > 1) {
+    await connectParachains(
+      parachains.map((c) => c.chain),
+      environment.DISABLE_AUTO_HRMP,
+    )
+  }
+
+  if (relayConfigRef) {
+    const { chain: relay } = await setupWithServer(await fetchConfig(relayConfigRef))
+    for (const c of parachains) await connectVertical(relay, c.chain)
+  }
+
+  return parachains
+}
+
+/** One side of a bridged setup: an xcm network plus an `ApiPromise` per parachain. */
+const setupBridgeSide = async (
+  relayConfigRef: string | undefined,
+  parachainConfigRefs: string[],
+): Promise<BridgeSideChain[]> => {
+  const parachains = await setupNetwork(relayConfigRef, parachainConfigRefs)
+  return Promise.all(
+    parachains.map(async ({ chain, addr, configRef }) => {
+      const url = `ws://${addr}`
+      const api = await ApiPromise.create({ provider: new WsProvider(url, 3_000), noInitWarn: true })
+      return { chain, api, url, configRef }
+    }),
+  )
+}
+
+/** Pick the parachain whose runtime registers `pallet_bridge_messages`. */
+const findBridgeHub = (side: BridgeSideChain[], label: 'left' | 'right'): BridgeSideChain => {
+  const candidates = side.filter((c) => hasBridgeMessagesPallet(c.api))
+  if (candidates.length === 0) {
+    throw new Error(
+      `chopsticks bridge: no ${label}-side parachain hosts pallet_bridge_messages. ` +
+        `Provided: ${side.map((c) => c.configRef).join(', ')}. Include a bridge-hub config.`,
+    )
+  }
+  if (candidates.length > 1) {
+    throw new Error(
+      `chopsticks bridge: multiple ${label}-side parachains host pallet_bridge_messages (${candidates
+        .map((c) => c.configRef)
+        .join(', ')}). Cannot disambiguate — provide only one bridge hub per side.`,
+    )
+  }
+  return candidates[0]
+}
 
 const processArgv: MiddlewareFunction<{ config?: string; port?: number; unsafeRpcMethods?: string }> = async (argv) => {
   try {
@@ -69,22 +145,77 @@ const commands = yargs(hideBin(process.argv))
         .alias('relaychain', 'r')
         .alias('parachain', 'p'),
     async (argv) => {
-      const parachains: Blockchain[] = []
-      for (const config of argv.parachain) {
-        const { chain } = await setupWithServer(await fetchConfig(config))
-        parachains.push(chain)
-      }
+      await setupNetwork(argv.relaychain, argv.parachain)
+    },
+  )
+  .command(
+    'bridge',
+    'Bridged-XCM setup: two ecosystems wired with pallet_bridge_messages in both directions',
+    (yargs) =>
+      yargs
+        .options({
+          'left-relaychain': {
+            desc: 'Left-side relaychain config (named or path). Example: westend',
+            string: true,
+          },
+          'left-parachain': {
+            desc: 'Left-side parachain config(s). One of them must host pallet_bridge_messages.',
+            type: 'array',
+            string: true,
+            required: true,
+          },
+          'right-relaychain': {
+            desc: 'Right-side relaychain config (named or path). Example: rococo',
+            string: true,
+          },
+          'right-parachain': {
+            desc: 'Right-side parachain config(s). One of them must host pallet_bridge_messages.',
+            type: 'array',
+            string: true,
+            required: true,
+          },
+          'bridge-signer-uri': {
+            desc: 'Relayer URI for the forward direction (left → right). Submits receive_messages_proof / _delivery_proof.',
+            string: true,
+            default: '//Alice',
+          },
+          'bridge-reverse-signer-uri': {
+            desc: 'Relayer URI for the reverse direction (right → left). Defaults to <bridge-signer-uri>//reverse. Must differ from the forward relayer so their nonces on the shared hubs do not collide.',
+            string: true,
+          },
+        })
+        .alias('left-relaychain', 'r')
+        .alias('left-parachain', 'p')
+        .alias('right-relaychain', 'R')
+        .alias('right-parachain', 'P'),
+    async (argv) => {
+      await cryptoWaitReady()
+      const left = await setupBridgeSide(argv['left-relaychain'], argv['left-parachain'])
+      const right = await setupBridgeSide(argv['right-relaychain'], argv['right-parachain'])
 
-      if (parachains.length > 1) {
-        await connectParachains(parachains, environment.DISABLE_AUTO_HRMP)
-      }
+      const leftBh = findBridgeHub(left, 'left')
+      const rightBh = findBridgeHub(right, 'right')
 
-      if (argv.relaychain) {
-        const { chain: relaychain } = await setupWithServer(await fetchConfig(argv.relaychain))
-        for (const parachain of parachains) {
-          await connectVertical(relaychain, parachain)
-        }
-      }
+      // Each direction needs its OWN relayer account. Both connectors submit relayer txs to the
+      // same two hubs (the forward direction's confirmations and the reverse direction's deliveries
+      // both land on a given hub), so a shared signer collides on its nonce and one direction's tx
+      // is silently dropped. Distinct accounts give each direction its own nonce sequence.
+      const keyring = new Keyring({ type: 'sr25519' })
+      const forwardSigner = keyring.addFromUri(argv['bridge-signer-uri'])
+      const reverseSigner = keyring.addFromUri(
+        argv['bridge-reverse-signer-uri'] ?? `${argv['bridge-signer-uri']}//reverse`,
+      )
+
+      await Promise.all([
+        connectBridgeHubs(leftBh.api, rightBh.api, { signer: forwardSigner }),
+        connectBridgeHubs(rightBh.api, leftBh.api, { signer: reverseSigner }),
+      ])
+
+      console.log(
+        `Bridge connected:\n  left  bridge-hub @ ${leftBh.url}\n  right bridge-hub @ ${rightBh.url}\n` +
+          `Relayers (fund BOTH on BOTH hubs): forward ${forwardSigner.address}, reverse ${reverseSigner.address}. ` +
+          'They push proofs to each hub; blocks are produced by the hubs (build mode) or by you (dev_newBlock).',
+      )
     },
   )
   .strict()

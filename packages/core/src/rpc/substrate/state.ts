@@ -5,6 +5,7 @@ import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import { isPrefixedChildKey, prefixedChildKey, stripChildPrefix } from '../../utils/index.js'
 import type { RuntimeVersion } from '../../wasm-executor/index.js'
+import { buildReadProof } from '../read-proof.js'
 import { type Handler, ResponseError } from '../shared.js'
 
 const logger = defaultLogger.child({ name: 'rpc-state' })
@@ -104,6 +105,25 @@ export const state_call: Handler<[HexString, HexString, HexString], HexString> =
   }
   const resp = await block.call(method, [data])
   return resp.result
+}
+
+/**
+ * @param context
+ * @param params - [`keys`, `blockhash?`]
+ *
+ * @return `{ at, proof }` — proof is a list of SCALE-encoded trie nodes.
+ *
+ * Spec-compatible response shape. The composed proof's root diverges from
+ * `chain_getHeader(at).state_root` once local overrides are applied (see `buildReadProof`);
+ * callers that need the recomputed root should use chopsticks's `dev_getReadProof`.
+ * Child-storage keys are rejected — use `state_getChildReadProof`.
+ */
+export const state_getReadProof: Handler<
+  [HexString[], HexString | undefined],
+  { at: HexString; proof: HexString[] }
+> = async (context, [keys, hash]) => {
+  const { at, proof } = await buildReadProof(context, keys, hash)
+  return { at, proof }
 }
 
 /**

@@ -211,6 +211,12 @@ export class Api {
       .catch(retryOnError)
   }
 
+  /** Upstream `state_getReadProof`. Throws if upstream doesn't expose it. */
+  async getReadProof(keys: HexString[], hash?: HexString) {
+    const params: unknown[] = hash ? [keys, hash] : [keys]
+    return this.send<{ at: HexString; proof: HexString[] }>('state_getReadProof', params, !!hash)
+  }
+
   async subscribeRemoteNewHeads(cb: ProviderInterfaceCallback) {
     if (!this.#provider.hasSubscriptions) {
       throw new Error('subscribeRemoteNewHeads only works with subscriptions')
