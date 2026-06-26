@@ -1,6 +1,6 @@
 endpoint:
-  - wss://rpc.polkadot.io
   - wss://polkadot-rpc.n.dwellir.com
+  - wss://rpc.polkadot.io
 mock-signature-host: true
 block: ${env.POLKADOT_BLOCK_NUMBER}
 db: ./db.sqlite

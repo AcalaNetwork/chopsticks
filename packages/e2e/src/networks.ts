@@ -4,7 +4,7 @@ import { config as dotenvConfig } from 'dotenv'
 dotenvConfig()
 
 const endpoints = {
-  polkadot: ['wss://rpc.polkadot.io', 'wss://polkadot.api.onfinality.io/public-ws'],
+  polkadot: ['wss://polkadot-rpc.n.dwellir.com', 'wss://rpc.polkadot.io', 'wss://polkadot.api.onfinality.io/public-ws'],
   acala: ['wss://acala-rpc.aca-api.network'],
 }
 

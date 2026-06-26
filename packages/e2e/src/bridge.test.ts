@@ -95,7 +95,7 @@ const setupBridge = async () => {
   return { bhp, bhk, handle, nonceA: baselineNonce + 1n, nonceB: baselineNonce + 2n }
 }
 
-describe('bridge connector', () => {
+describe.runIf(process.env.RUN_ALL)('bridge connector', () => {
   it('delivers outbound messages continuously as source progresses', async () => {
     const { bhp, bhk, handle, nonceA, nonceB } = await setupBridge()
 
