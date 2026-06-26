@@ -23,48 +23,51 @@ describe.runIf(process.env.CI || process.env.RUN_ALL).concurrent.each([
     endpoint: ['wss://kusama-rpc.n.dwellir.com', 'wss://kusama-rpc.polkadot.io'],
     storage: KUSAMA_STORAGE,
   },
-  { chain: 'Kusama Asset Hub', endpoint: 'wss://kusama-asset-hub-rpc.polkadot.io' },
+  {
+    chain: 'Kusama Asset Hub',
+    endpoint: ['wss://kusama-asset-hub-rpc.polkadot.io', 'wss://asset-hub-kusama-rpc.n.dwellir.com'],
+  },
   {
     chain: 'Karura',
     endpoint: ['wss://karura-rpc.aca-api.network', 'wss://karura-rpc.n.dwellir.com'],
   },
-  { chain: 'Westend', endpoint: 'wss://westend-rpc.polkadot.io' },
-  { chain: 'Westmint', endpoint: 'wss://westmint-rpc.polkadot.io' },
+  { chain: 'Westend', endpoint: ['wss://westend-rpc.n.dwellir.com', 'wss://westend-rpc.polkadot.io'] },
+  {
+    chain: 'Westend Asset Hub',
+    endpoint: [
+      'wss://asset-hub-westend-rpc.n.dwellir.com',
+      'wss://westend-asset-hub-rpc.polkadot.io',
+      'wss://westmint-rpc.polkadot.io',
+    ],
+  },
   { chain: 'Westend Collectives', endpoint: 'wss://westend-collectives-rpc.polkadot.io' },
 ])('Latest $chain can build blocks', async ({ endpoint, storage }) => {
-  it('build blocks', { timeout: 300_000, retry: 1 }, async () => {
+  it('builds blocks', { timeout: 300_000, retry: 1 }, async () => {
     const { setupPjs, teardownAll } = await setupAll({ endpoint })
-    const { chain, ws, teardown } = await setupPjs()
-    if (storage) {
-      await ws.send('dev_setStorage', [storage])
+
+    try {
+      const { chain, ws, teardown } = await setupPjs()
+      try {
+        if (storage) {
+          await ws.send('dev_setStorage', [storage])
+        }
+        const blockNumber = chain.head.number
+        await ws.send('dev_newBlock', [{ count: 2 }])
+        expect(chain.head.number).eq(blockNumber + 2)
+
+        const unsafeBlockHeight = chain.head.number + 100
+        await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight }])
+        expect(chain.head.number).eq(unsafeBlockHeight + 1)
+
+        await expect(ws.send('dev_newBlock', [{ unsafeBlockHeight: blockNumber - 1 }])).rejects.toThrowError(
+          '1: unsafeBlockHeight must be greater than current block height',
+        )
+        expect(chain.head.number).eq(unsafeBlockHeight + 1)
+      } finally {
+        await teardown()
+      }
+    } finally {
+      await teardownAll()
     }
-    const blockNumber = chain.head.number
-    await ws.send('dev_newBlock', [{ count: 2 }])
-    expect(chain.head.number).eq(blockNumber + 2)
-    await teardown()
-    await teardownAll()
-  })
-
-  it('build block using unsafeBlockHeight', async () => {
-    const { setupPjs, teardownAll } = await setupAll({ endpoint })
-    const { chain, ws, teardown } = await setupPjs()
-    if (storage) {
-      await ws.send('dev_setStorage', [storage])
-    }
-    const blockNumber = chain.head.number
-    const unsafeBlockHeight = blockNumber + 100
-
-    // unsafeBlockHeight works
-    await ws.send('dev_newBlock', [{ count: 2, unsafeBlockHeight }])
-    expect(chain.head.number).eq(unsafeBlockHeight + 1)
-
-    // unsafeBlockHeight using earlier block throw error but won't crash
-    await expect(ws.send('dev_newBlock', [{ unsafeBlockHeight: blockNumber - 1 }])).rejects.toThrowError(
-      '1: unsafeBlockHeight must be greater than current block height',
-    )
-    expect(chain.head.number).eq(unsafeBlockHeight + 1)
-
-    await teardown()
-    await teardownAll()
   })
 })
