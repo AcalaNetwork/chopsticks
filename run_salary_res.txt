@@ -1,0 +1,209 @@
+╰─➤  node ./run/run_salary.js
+
+chain @8000: Collectives
+chain @8001: Polkadot Asset Hub
+chain @8002: Polkadot
+current block: 9188028
+preimage hash: 0xaad105818f673e9a5307cb79a33d3b3bfc082d933419bccc58a804994ea48c99 len: 351
+--- decoded preimage ---
+{
+  "args": {
+    "calls": [
+      {
+        "args": {
+          "key_value": {
+            "FellowshipSalary": {
+              "SalaryConfig": [
+                null,
+                {
+                  "asset": {
+                    "V5": {
+                      "location": {
+                        "parents": "1",
+                        "interior": {
+                          "X1": [
+                            {
+                              "Parachain": "1,000"
+                            }
+                          ]
+                        }
+                      },
+                      "assetId": {
+                        "parents": "1",
+                        "interior": {
+                          "X2": [
+                            {
+                              "Parachain": "2,034"
+                            },
+                            {
+                              "GeneralIndex": "222"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "budget": "400,000,000,000,000,000,000,000"
+                }
+              ]
+            }
+          }
+        },
+        "method": "setParameter",
+        "section": "parameters"
+      },
+      {
+        "args": {
+          "partial_params": {
+            "activeSalary": [
+              "833,333,333,000,000,000,000",
+              "1,666,666,666,000,000,000,000",
+              "6,666,666,666,000,000,000,000",
+              "10,000,000,000,000,000,000,000",
+              "13,333,333,333,000,000,000,000",
+              "16,666,666,666,000,000,000,000",
+              "16,666,666,666,000,000,000,000",
+              "16,666,666,666,000,000,000,000",
+              "16,666,666,666,000,000,000,000"
+            ],
+            "passiveSalary": [
+              "416,666,666,000,000,000,000",
+              "833,333,333,000,000,000,000",
+              "3,333,333,333,000,000,000,000",
+              "5,000,000,000,000,000,000,000",
+              "6,666,666,666,000,000,000,000",
+              "8,333,333,333,000,000,000,000",
+              "8,333,333,333,000,000,000,000",
+              "8,333,333,333,000,000,000,000",
+              "8,333,333,333,000,000,000,000"
+            ],
+            "demotionPeriod": [],
+            "minPromotionPeriod": [],
+            "offboardTimeout": null
+          }
+        },
+        "method": "setPartialParams",
+        "section": "fellowshipCore"
+      }
+    ]
+  },
+  "method": "batchAll",
+  "section": "utility"
+}
+periods: registration=108000 payout=108000
+track 3: prepare=150 confirm=150 minEnactment=25
+set cycleStart so cycleEnd = 9188386 (358 blocks ahead)
+--- events (notePreimage) ---
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Upgraded {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8"}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"23,830,642"}
+  balances.Held {"reason":{"Preimage":"Preimage"},"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"4,041,500,000"}
+  preimage.Noted {"hash_":"0xaad105818f673e9a5307cb79a33d3b3bfc082d933419bccc58a804994ea48c99"}
+  balances.Deposit {"who":"13UVJyLgBASGhE2ok3TvxUfaQBGUt88JCcdYjHvUhvQkFTTx","amount":"23,830,642"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"23,830,642","tip":"0"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"968,969,348","proofSize":"0"},"class":"Normal","paysFee":"Yes"}}
+--- events (submit referendum) ---
+  balances.Transfer {"from":"13UVJyLgBASGhE2ok3TvxUfaQBGUt88JCcdYjHvUhvQkFTTx","to":"13ianMHbMJ3J1A7Ft769X2zXgppQzheRMRUFG7AQ77soJVk1","amount":"5,957,661"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"11,243,835"}
+  scheduler.Scheduled {"when":"9,238,431","index":"0"}
+  fellowshipReferenda.Submitted {"index":"567","track":"3","proposal":{"Lookup":{"hash_":"0xaad105818f673e9a5307cb79a33d3b3bfc082d933419bccc58a804994ea48c99","len":"351"}}}
+  balances.Deposit {"who":"13UVJyLgBASGhE2ok3TvxUfaQBGUt88JCcdYjHvUhvQkFTTx","amount":"11,243,835"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"11,243,835","tip":"0"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"955,083,000","proofSize":"0"},"class":"Normal","paysFee":"Yes"}}
+referendum index: 567
+--- events (decision deposit + vote) ---
+  balances.Transfer {"from":"13UVJyLgBASGhE2ok3TvxUfaQBGUt88JCcdYjHvUhvQkFTTx","to":"16WWmr2Xqgy5fna35GsNHXMU7vDBM12gzHCFGibQjSmKpAN","amount":"8,269,150"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"12,287,927"}
+  scheduler.Canceled {"when":"9,188,181","index":"0"}
+  scheduler.Scheduled {"when":"9,188,035","index":"0"}
+  fellowshipCollective.Voted {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","poll":"567","vote":{"Aye":"1"},"tally":{"bareAyes":"1","ayes":"1","nays":"0"}}
+  balances.Deposit {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"12,287,927"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"0","tip":"0"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"1,228,908,000","proofSize":"0"},"class":"Normal","paysFee":"No"}}
+[after vote] block 9188034: {"Ongoing":{"track":"3","origin":{"FellowshipOrigins":"Fellows"},"proposal":{"Lookup":{"hash_":"0xaad105818f673e9a5307cb79a33d3b3bfc082d933419bccc58a804994ea48c99","len":"351"}},"enactment":{"At":"9,188,386"},"submitted":"9,188,031","submissionDeposit":{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"0"},"decisionDeposit":{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"50,000,000,000"},"deciding":null,"tally":{"bareAyes":"1","ayes":"1","nays":"0"},"inQueue":false,"alarm":["9,188,035",["9,188,035","0"]]}}
+[after prepare period (deciding)] block 9188183: {"Ongoing":{"track":"3","origin":{"FellowshipOrigins":"Fellows"},"proposal":{"Lookup":{"hash_":"0xaad105818f673e9a5307cb79a33d3b3bfc082d933419bccc58a804994ea48c99","len":"351"}},"enactment":{"At":"9,188,386"},"submitted":"9,188,031","submissionDeposit":{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"0"},"decisionDeposit":{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"50,000,000,000"},"deciding":{"since":"9,188,181","confirming":"9,188,331"},"tally":{"bareAyes":"1","ayes":"1","nays":"0"},"inQueue":false,"alarm":["9,188,331",["9,188,331","0"]]}}
+[after confirm period (approved)] block 9188332: {"Approved":["9,188,331",{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"0"},{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"50,000,000,000"}]}
+--- events (induct (old cycle) @ block 9188333) ---
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,098,184"}
+  fellowshipSalary.Inducted {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8"}
+  balances.Deposit {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,098,184"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"0","tip":"0"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"750,191,000","proofSize":"0"},"class":"Normal","paysFee":"No"}}
+induct (old cycle): expected SUCCESS, got SUCCESS -> PASS
+[before enactment (approved, scheduled)] block 9188385: {"Approved":["9,188,331",{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"0"},{"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"50,000,000,000"}]}
+--- events (bump one block before cycleEnd @ block 9188386) ---
+  parameters.Updated {"key":{"FellowshipSalary":"SalaryConfig"},"oldValue":null,"newValue":{"FellowshipSalary":{"SalaryConfig":{"asset":{"V5":{"location":{"parents":"1","interior":{"X1":[{"Parachain":"1,000"}]}},"assetId":{"parents":"1","interior":{"X2":[{"Parachain":"2,034"},{"GeneralIndex":"222"}]}}}},"budget":"400,000,000,000,000,000,000,000"}}}}
+  utility.ItemCompleted {}
+  fellowshipCore.ParamsChanged {"params":{"activeSalary":["833,333,333,000,000,000,000","1,666,666,666,000,000,000,000","6,666,666,666,000,000,000,000","10,000,000,000,000,000,000,000","13,333,333,333,000,000,000,000","16,666,666,666,000,000,000,000","16,666,666,666,000,000,000,000","16,666,666,666,000,000,000,000","16,666,666,666,000,000,000,000"],"passiveSalary":["416,666,666,000,000,000,000","833,333,333,000,000,000,000","3,333,333,333,000,000,000,000","5,000,000,000,000,000,000,000","6,666,666,666,000,000,000,000","8,333,333,333,000,000,000,000","8,333,333,333,000,000,000,000","8,333,333,333,000,000,000,000","8,333,333,333,000,000,000,000"],"demotionPeriod":["657,450","657,450","1,314,900","1,314,900","1,314,900","1,314,900","0","0","0"],"minPromotionPeriod":["0","2,629,800","2,629,800","2,629,800","2,629,800","2,629,800","2,629,800","1,314,900","2,103,840"],"offboardTimeout":"2,629,800"}}
+  utility.ItemCompleted {}
+  utility.BatchCompleted {}
+  scheduler.Dispatched {"task":["9,188,386","0"],"id":"0x1463b5d66dc95fce98989978d19fba5e85b0ae539fd519d5fbee2062aaeeaac6","result":"Ok"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,071,543"}
+  fellowshipSalary.CycleStarted {"index":"29"}
+  balances.Deposit {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,071,543"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"0","tip":"0"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"693,941,000","proofSize":"0"},"class":"Normal","paysFee":"No"}}
+bump one block before cycleEnd: expected FAILURE, got SUCCESS -> MISMATCH
+--- events (bump at cycleEnd @ block 9188388) ---
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,071,543"}
+  balances.Deposit {"who":"13UVJyLgBASGhE2ok3TvxUfaQBGUt88JCcdYjHvUhvQkFTTx","amount":"6,071,543"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"6,071,543","tip":"0"}
+  system.ExtrinsicFailed {"dispatchError":{"Module":{"index":"64","error":"0x08000000"}},"dispatchInfo":{"weight":{"refTime":"693,941,000","proofSize":"0"},"class":"Normal","paysFee":"Yes"}}
+bump at cycleEnd: expected SUCCESS, got FAILURE -> MISMATCH
+--- events (register (new cycle) @ block 9188390) ---
+  balances.Transfer {"from":"13UVJyLgBASGhE2ok3TvxUfaQBGUt88JCcdYjHvUhvQkFTTx","to":"13TUNfEBCi6xw5ZQgxYAwbCsALSuDfqDWMfbHigZNgncuV6v","amount":"1,517,886"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,135,189"}
+  fellowshipSalary.Registered {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,666,666,666,000,000,000,000"}
+  balances.Deposit {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,135,189"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"0","tip":"0"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"854,385,000","proofSize":"0"},"class":"Normal","paysFee":"No"}}
+register (new cycle): expected SUCCESS, got SUCCESS -> PASS
+moved new cycleStart so payout opens at block 9188392
+--- events (payout @ block 9188394) ---
+  balances.Transfer {"from":"13UVJyLgBASGhE2ok3TvxUfaQBGUt88JCcdYjHvUhvQkFTTx","to":"16WWmr2Xqgy5fna35GsNHXMU7vDBM12gzHCFGibQjSmKpAN","amount":"94,868"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"280,619,000","proofSize":"1,493"},"class":"Mandatory","paysFee":"Yes"}}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"125,000,000","proofSize":"0"},"class":"Mandatory","paysFee":"Yes"}}
+  balances.Withdraw {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,365,212"}
+  xcmpQueue.XcmpMessageSent {"messageHash":"0x21be6429516f49451b304431097bc5ff60f5110f87585f20ed89e6b978cb4d21"}
+  fellowshipSalary.Paid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","beneficiary":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,666,666,666,000,000,000,000","id":"861"}
+  balances.Deposit {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","amount":"6,365,212"}
+  transactionPayment.TransactionFeePaid {"who":"14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8","actualFee":"0","tip":"0"}
+  system.ExtrinsicSuccess {"dispatchInfo":{"weight":{"refTime":"1,434,250,000","proofSize":"0"},"class":"Normal","paysFee":"No"}}
+payout: expected SUCCESS, got SUCCESS -> PASS
+================= RESULTS =================
+--- FellowshipSalary cycle ---
+old cycle: {"cycleIndex":"28","cycleStart":"8,972,386","budget":"250,000,000,000","totalRegistrations":"133,333,333,315","totalUnregisteredPaid":"0"}
+new cycle: {"cycleIndex":"29","cycleStart":"9,188,386","budget":"400,000,000,000,000,000,000,000","totalRegistrations":"0","totalUnregisteredPaid":"0"}
+--- budget ---
+old budget: 250000000000  (= 250000 @ 6 decimals)
+new budget: 400000000000000000000000  (= 400000 @ 18 decimals)
+[PASS] old budget == 250k USDT
+[PASS] new budget == 400k HOLLAR
+--- salaries (same value, 6 -> 18 decimals) ---
+old active:  833333333, 1666666666, 6666666666, 10000000000, 13333333333, 16666666666, 16666666666, 16666666666, 16666666666
+new active:  833333333000000000000, 1666666666000000000000, 6666666666000000000000, 10000000000000000000000, 13333333333000000000000, 16666666666000000000000, 16666666666000000000000, 16666666666000000000000, 16666666666000000000000
+old passive: 416666666, 833333333, 3333333333, 5000000000, 6666666666, 8333333333, 8333333333, 8333333333, 8333333333
+new passive: 416666666000000000000, 833333333000000000000, 3333333333000000000000, 5000000000000000000000, 6666666666000000000000, 8333333333000000000000, 8333333333000000000000, 8333333333000000000000, 8333333333000000000000
+[PASS] active salaries equal after 10^12 shift
+[PASS] passive salaries equal after 10^12 shift
+--- salary claimant (after payout) ---
+claimant: {"lastActive":"29","status":{"Attempted":{"registered":"6,666,666,666,000,000,000,000","id":"861","amount":"6,666,666,666,000,000,000,000"}}}
+--- HOLLAR on AssetHub ---
+source  13w7NdvSR1Af8xsQTArDtZmVvjE8XhWNdL4yed3iFHrUNCnS: 80749999999999999999998 -> 74083333333999999999998 (-6666666666000000000000)
+beneficiary 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8: 0 -> 6666666666000000000000 (6666666666000000000000)
+[PASS] beneficiary HOLLAR increased
+[PASS] source HOLLAR decreased
+[PASS] amount debited == credited

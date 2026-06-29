@@ -1,0 +1,39 @@
+endpoint: wss://polkadot-collectives-rpc.polkadot.io
+mock-signature-host: true
+port: 8000
+block: 9188028
+db: ./db-collectives.sqlite
+# wasm-override: polkadot_runtime.compact.compressed.wasm
+
+import-storage:
+  System:
+    Account:
+      - [[14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], { providers: 1, data: { free: '10000000000000000000' } }]
+
+  FellowshipCollective:
+    # Wipe all live fellowship members first, so only our injected account remains.
+    $removePrefix: [Members, MemberCount, IdToIndex, IndexToId]
+    Members:
+      - [[14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], { rank: 3 }]
+    MemberCount:
+      - [[0], 1]
+      - [[1], 1]
+      - [[2], 1]
+      - [[3], 1]
+    IdToIndex:
+      # index value must be SCALE hex: a plain `0` is falsy and would be stored as a deletion.
+      - [[0, 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], '0x00000000']
+      - [[1, 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], '0x00000000']
+      - [[2, 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], '0x00000000']
+      - [[3, 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], '0x00000000']
+    IndexToId:
+      - [[0, 0], 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8]
+      - [[1, 0], 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8]
+      - [[2, 0], 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8]
+      - [[3, 0], 14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8]
+
+  FellowshipCore:
+    # Wipe live core-fellowship members so only our inducted fellow remains.
+    $removePrefix: [Member]
+    Member:
+      - [[14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], { isActive: true, lastPromotion: 9165810, lastProof: 9165810 }]

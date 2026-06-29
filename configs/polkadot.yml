@@ -2,19 +2,15 @@ endpoint:
   - wss://polkadot-rpc.n.dwellir.com
   - wss://rpc.polkadot.io
 mock-signature-host: true
+port: 8003
 block: ${env.POLKADOT_BLOCK_NUMBER}
-db: ./db.sqlite
+db: ./db-polkadot.sqlite
 runtime-log-level: 5
 # wasm-override: polkadot_runtime.compact.compressed.wasm
 
 import-storage:
   System:
     Account:
-      -
-        -
-          - 5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
-        - providers: 1
-          data:
-            free: '10000000000000000000'
+      - [[14Md8aehwVoc1kFWfBHfjqTjMAH91R3TpZkEKvmV893fSfQ8], { providers: 1, data: { free: '10000000000000000000' } }]
   ParasDisputes:
     $removePrefix: ['disputes'] # those can makes block building super slow
