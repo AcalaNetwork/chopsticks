@@ -228,8 +228,11 @@ if ((await api.query.fellowshipSalary.claimant(FELLOW)).isNone) {
 
 // -------------------------------------------------------------------
 // Step 5: enactment at cycleEnd, with bump() probes around the boundary.
+// Anchor the head precisely with single-block steps — `dev_newBlock {to}` can overshoot
+// by a block, which would misalign the probes. Bulk-advance close, then step exactly.
 // -------------------------------------------------------------------
-await provider.send('dev_newBlock', [{ to: cycleEnd - 2 }])
+if ((await head()) < cycleEnd - 5) await provider.send('dev_newBlock', [{ to: cycleEnd - 5 }])
+while ((await head()) < cycleEnd - 2) await provider.send('dev_newBlock', [])
 await printRef('before enactment (approved, scheduled)', referendumIndex)
 
 // OLD snapshot (before the param change enacts at cycleEnd).
@@ -237,7 +240,10 @@ const oldCycle = await readCycle()
 const oldBudget = await readBudget()
 const oldSalaries = await readSalaries()
 
+// head == cycleEnd-2 -> this block is cycleEnd-1: bump must FAIL (cycle not over yet).
 await sendAndCheck(api.tx.fellowshipSalary.bump(), 'bump one block before cycleEnd', false)
+// head == cycleEnd-1 -> this block is cycleEnd: scheduler enacts our params, bump SUCCEEDS.
+while ((await head()) < cycleEnd - 1) await provider.send('dev_newBlock', [])
 await sendAndCheck(api.tx.fellowshipSalary.bump(), 'bump at cycleEnd', true)
 
 // NEW snapshot (param change enacted, new cycle started).

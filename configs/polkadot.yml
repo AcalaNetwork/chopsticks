@@ -3,7 +3,7 @@ endpoint:
   - wss://rpc.polkadot.io
 mock-signature-host: true
 port: 8003
-block: ${env.POLKADOT_BLOCK_NUMBER}
+block: 31891601
 db: ./db-polkadot.sqlite
 runtime-log-level: 5
 # wasm-override: polkadot_runtime.compact.compressed.wasm

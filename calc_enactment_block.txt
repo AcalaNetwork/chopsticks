@@ -1,0 +1,19 @@
+╰─➤  node ./run/calc_enactment_block.js 
+endpoint:           wss://polkadot-collectives-rpc.polkadot.io
+current block:      9188632
+cycleIndex:         28
+cycleStart:         9031655
+registrationPeriod: 108000
+payoutPeriod:       108000
+payoutStart (reg -> payout): 9139655
+cycleEnd   (next cycle starts / bump valid): 9247655
+current phase:      payout (59023 blocks until cycle end)
+
+================ schedule the referendum ================
+enactment moment MUST be exactly  At: 9247655   <-- the first block bump() is valid
+  - At 9247654 (one early): still the OLD cycle's payout phase -> corrupts in-flight payouts
+  - At 9247656 (one late):  new cycle already bumpable with OLD params -> misses this cycle
+track 3 timing: prepare=150 decision=50400 confirm=150 minEnactment=25
+must be APPROVED on or before block 9247630  (= target - minEnactmentPeriod), else At gets clamped past 9247655
+=> submit + place decision deposit + vote no later than ~block 9247330
+   (fastest path; deciding then has up to 50400 blocks of slack to reach the threshold — submit earlier to be safe)
