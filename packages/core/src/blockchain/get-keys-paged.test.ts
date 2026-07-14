@@ -494,3 +494,52 @@ describe('getKeysPaged', () => {
     expect(evenKeys, 'evenKeys').toEqual(allKeys.filter((x) => x.startsWith(evenPrefix)))
   })
 })
+
+describe('RemoteStorageLayer KeyCache', () => {
+  const hash = '0x1111111111111111111111111111111111111111111111111111111111111111'
+  // A prefix exactly PREFIX_LENGTH (66) chars wide — the width the KeyCache groups on.
+  const prefix = '0x2222222222222222222222222222222222222222222222222222222222222222'
+  // Two "accounts" under it, i.e. off-grid prefixes: longer than the grouping width, as a double-map's
+  // partial key (or smoldot's clear_prefix) produces.
+  const accountA = `${prefix}aaaa`
+  const accountB = `${prefix}bbbb`
+  const keys = [`${accountA}01`, `${accountA}02`, `${accountB}01`, `${accountB}02`]
+
+  const makeLayer = () => {
+    const getKeysPaged = vi.fn(async (p: string, pageSize: number, startKey: string) =>
+      keys.filter((k) => k.startsWith(p) && k > startKey).slice(0, pageSize),
+    )
+    const api = { getKeysPaged } as unknown as Api
+    return { layer: new RemoteStorageLayer(api, hash, undefined), getKeysPaged }
+  }
+
+  it('serves scan continuations from the KeyCache instead of the remote', async () => {
+    const { layer, getKeysPaged } = makeLayer()
+
+    // First page: startKey === prefix. This is the call that populates the cache.
+    expect(await layer.getKeysPaged(prefix, 1, prefix)).toEqual([keys[0]])
+    const afterFirstPage = getKeysPaged.mock.calls.length
+
+    // Continuations. Their startKey is a full-length key by construction, and the KeyCache already covers
+    // this range — so they must NOT cost an upstream round-trip.
+    expect(await layer.getKeysPaged(prefix, 1, keys[0])).toEqual([keys[1]])
+    expect(await layer.getKeysPaged(prefix, 1, keys[1])).toEqual([keys[2]])
+    expect(await layer.getKeysPaged(prefix, 1, keys[2])).toEqual([keys[3]])
+
+    expect(getKeysPaged.mock.calls.length).toBe(afterFirstPage)
+  })
+
+  it('never answers an off-grid prefix from the KeyCache', async () => {
+    const { layer } = makeLayer()
+
+    // Warm the 66-char group with a contiguous run spanning both accounts.
+    await layer.getKeysPaged(prefix, 10, prefix)
+
+    // `accountA` is longer than the grouping width. Its last key is `${accountA}02`, so the correct answer
+    // here is []. A cache that grouped only on the truncated 66-char head would hand back `${accountB}01`,
+    // which does not start with the requested prefix.
+    const got = await layer.getKeysPaged(accountA, 5, `${accountA}02`)
+    expect(got).toEqual([])
+    for (const key of got) expect(key.startsWith(accountA)).toBe(true)
+  })
+})
