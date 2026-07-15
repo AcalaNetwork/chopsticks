@@ -543,3 +543,77 @@ describe('RemoteStorageLayer KeyCache', () => {
     for (const key of got) expect(key.startsWith(accountA)).toBe(true)
   })
 })
+
+// @xlc's (maintainer, #1055) reported correctness hole: an on-grid PREFIX (exactly minPrefixLen=66)
+// combined with a startKey drawn from a DIFFERENT 66-char group. The pre-fix guard passed both of these
+// (prefix.length === 66, startKey.length >= 66), so the request reached the cache — and KeyCache.next()
+// picks its range from the first 66 chars of the *startKey*, ignoring the method's prefix, so it returned a
+// key belonging to the other group instead of []. (The `off-grid prefix` test above never covered this: it
+// uses a prefix LONGER than 66, which the guard already proxies.)
+describe('RemoteStorageLayer KeyCache — cross-prefix startKey (#1055)', () => {
+  const hash = '0x1111111111111111111111111111111111111111111111111111111111111111'
+  // Two DIFFERENT exactly-66-char (on-grid) prefixes.
+  const prefixA = '0x1111111111111111111111111111111111111111111111111111111111111111'
+  const prefixB = '0x2222222222222222222222222222222222222222222222222222222222222222'
+  const keys = [`${prefixA}01`, `${prefixA}02`, `${prefixB}01`, `${prefixB}02`]
+
+  const makeLayer = () => {
+    const getKeysPaged = vi.fn(async (p: string, pageSize: number, startKey: string) =>
+      keys.filter((k) => k.startsWith(p) && k > startKey).slice(0, pageSize),
+    )
+    const api = { getKeysPaged } as unknown as Api
+    return { layer: new RemoteStorageLayer(api, hash, undefined), getKeysPaged }
+  }
+
+  it('does not answer prefixA from a startKey that belongs to prefixB', async () => {
+    const { layer } = makeLayer()
+
+    // Warm prefixB's group.
+    await layer.getKeysPaged(prefixB, 10, prefixB)
+
+    // Ask for prefixA, but hand it a startKey from prefixB's group. No key starting with prefixA is
+    // greater than `${prefixB}01`, so the only correct answer is []. The buggy cache returns `${prefixB}02`.
+    const got = await layer.getKeysPaged(prefixA, 10, `${prefixB}01`)
+    expect(got).toEqual([])
+    for (const key of got) expect(key.startsWith(prefixA)).toBe(true)
+  })
+})
+
+// Quantifies the 1.4.0 regression this PR reverses: a single storage-map scan walked one page at a time
+// must cost a small CONSTANT of upstream round-trips (the map is fetched into the KeyCache in one batch and
+// every continuation is served from cache), NOT ~one round-trip per key.
+describe('RemoteStorageLayer KeyCache — continuation upstream call count (#1055)', () => {
+  const hash = '0x1111111111111111111111111111111111111111111111111111111111111111'
+  const prefix = '0x3333333333333333333333333333333333333333333333333333333333333333'
+  const K = 50
+  const keys = Array.from({ length: K }, (_, i) => `${prefix}${i.toString(16).padStart(4, '0')}`)
+
+  const makeLayer = () => {
+    const getKeysPaged = vi.fn(async (p: string, pageSize: number, startKey: string) =>
+      keys.filter((k) => k.startsWith(p) && k > startKey).slice(0, pageSize),
+    )
+    const api = { getKeysPaged } as unknown as Api
+    return { layer: new RemoteStorageLayer(api, hash, undefined), getKeysPaged }
+  }
+
+  it(`scans ${K} keys page-by-page (pageSize 1) with a constant number of upstream calls, not ~${K}`, async () => {
+    const { layer, getKeysPaged } = makeLayer()
+
+    // Walk the whole map one key at a time, exactly as findNextKey does.
+    const scanned: string[] = []
+    let startKey = prefix
+    for (;;) {
+      const page = await layer.getKeysPaged(prefix, 1, startKey)
+      if (page.length === 0) break
+      scanned.push(page[0]!)
+      startKey = page[0]!
+    }
+
+    // Correctness: we saw every key, in order.
+    expect(scanned).toEqual(keys)
+
+    // Perf: the K continuations add zero upstream calls; the whole scan costs a small constant independent of
+    // K. The 1.4.0/1.5.0 regression bypasses the cache on every continuation, costing ~K instead.
+    expect(getKeysPaged.mock.calls.length).toBeLessThan(K)
+  })
+})

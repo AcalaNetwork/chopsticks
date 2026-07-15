@@ -147,7 +147,14 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     // `startKey` is a different matter: every CONTINUATION of a scan carries a full-length storage key by
     // construction, and serving those from the cache is precisely what the cache is for. Bailing out on a long
     // `startKey` makes each continuation page an upstream round-trip.
-    if (prefix.length !== minPrefixLen || startKey.length < minPrefixLen) {
+    //
+    // But a long `startKey` is only cache-safe when it belongs to the SAME group as `prefix`. `KeyCache.next()`
+    // derives its range from the first `minPrefixLen` chars of the `startKey` alone and never checks the result
+    // against `prefix`, so a `startKey` from a different `minPrefixLen`-char group would be answered from that
+    // other group's range — returning a key that does not start with `prefix`. `!startKey.startsWith(prefix)`
+    // proxies those cross-group requests to upstream; genuine continuations (`startKey.startsWith(prefix)` by
+    // construction) still hit the cache. (Reported by @xlc on #1055.)
+    if (prefix.length !== minPrefixLen || startKey.length < minPrefixLen || !startKey.startsWith(prefix)) {
       return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
