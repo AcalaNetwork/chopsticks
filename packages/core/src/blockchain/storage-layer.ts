@@ -139,14 +139,22 @@ export class RemoteStorageLayer implements StorageLayerProvider {
     const isChild = isPrefixedChildKey(prefix as HexString)
     const minPrefixLen = isChild ? CHILD_PREFIX_LENGTH : PREFIX_LENGTH
 
-    // KeyCache groups by the first `minPrefixLen` chars; it cannot correctly answer queries
-    // whose prefix is longer than that grouping width, so proxy directly to upstream.
-    if (
-      prefix.length < minPrefixLen ||
-      startKey.length < minPrefixLen ||
-      prefix.length > minPrefixLen ||
-      startKey.length > minPrefixLen
-    ) {
+    // KeyCache groups by the first `minPrefixLen` chars; it cannot correctly answer queries whose PREFIX is
+    // off that grouping width, so those are proxied directly to upstream (a longer prefix would otherwise match
+    // on the truncated head and return keys that do not start with the requested prefix — smoldot's
+    // `clear_prefix` asserts `key.starts_with(prefix)`).
+    //
+    // `startKey` is a different matter: every CONTINUATION of a scan carries a full-length storage key by
+    // construction, and serving those from the cache is precisely what the cache is for. Bailing out on a long
+    // `startKey` makes each continuation page an upstream round-trip.
+    //
+    // But a long `startKey` is only cache-safe when it belongs to the SAME group as `prefix`. `KeyCache.next()`
+    // derives its range from the first `minPrefixLen` chars of the `startKey` alone and never checks the result
+    // against `prefix`, so a `startKey` from a different `minPrefixLen`-char group would be answered from that
+    // other group's range — returning a key that does not start with `prefix`. `!startKey.startsWith(prefix)`
+    // proxies those cross-group requests to upstream; genuine continuations (`startKey.startsWith(prefix)` by
+    // construction) still hit the cache. (Reported by @xlc on #1055.)
+    if (prefix.length !== minPrefixLen || startKey.length < minPrefixLen || !startKey.startsWith(prefix)) {
       return this.#api.getKeysPaged(prefix, pageSize, startKey, this.#at)
     }
 
