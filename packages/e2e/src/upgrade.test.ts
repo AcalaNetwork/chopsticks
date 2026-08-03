@@ -1,22 +1,27 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { hexToU8a } from '@polkadot/util'
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { check, setupContext, testingPairs } from './helper.js'
 
-import networks from './networks.js'
+import networks, { type Network } from './networks.js'
 
-describe('upgrade', async () => {
+describe('upgrade', () => {
   const { alice, bob } = testingPairs()
-  const { api, dev, chain, teardown } = await networks.acala({
-    blockNumber: 2000000,
-  })
+  let context: Network
+
+  beforeAll(async () => {
+    context = await networks.acala({
+      blockNumber: 2000000,
+    })
+  }, 60_000)
 
   afterAll(async () => {
-    await teardown()
+    await context?.teardown()
   })
 
   it('setCode works', async () => {
+    const { api, dev, chain } = context
     await dev.setStorage({
       Sudo: {
         Key: alice.address,
@@ -45,19 +50,24 @@ describe('upgrade', async () => {
   })
 })
 
-describe('upgrade new validation data', async () => {
+describe('upgrade new validation data', () => {
   const { alith } = testingPairs()
-  const { api, dev, chain, teardown } = await setupContext({
-    endpoint: 'wss://wss.api.moonbase.moonbeam.network',
-    blockNumber: 15521300,
-    db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
-  })
+  let context: Network
+
+  beforeAll(async () => {
+    context = await setupContext({
+      endpoint: ['wss://moonbeam-alpha.api.onfinality.io/public-ws', 'wss://moonbase.unitedbloc.com'],
+      blockNumber: 15521300,
+      db: !process.env.RUN_TESTS_WITHOUT_DB ? 'e2e-tests-db.sqlite' : undefined,
+    })
+  }, 60_000)
 
   afterAll(async () => {
-    await teardown()
+    await context?.teardown()
   })
 
   it('upgrade to new validation data', async () => {
+    const { api, dev, chain } = context
     const runtime = readFileSync(path.join(__dirname, '../blobs/moonbase-runtime-4300.txt')).toString().trim()
     const codeHash = api.registry.hash(hexToU8a(runtime))
     await dev.setStorage({

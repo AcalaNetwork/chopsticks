@@ -237,7 +237,7 @@ export class RemoteStorageLayer implements StorageLayerProvider {
 }
 
 export class StorageLayer implements StorageLayerProvider {
-  readonly #store: Map<string, StorageValue | Promise<StorageValue>> = new Map()
+  readonly #store: Map<string, StorageValue> = new Map()
   readonly #keys: string[] = []
   readonly #deletedPrefix: string[] = []
   #parent?: StorageLayerProvider
@@ -260,6 +260,12 @@ export class StorageLayer implements StorageLayerProvider {
     const key2 = this.#keys[idx]
     if (key === key2) {
       this.#keys.splice(idx, 1)
+    }
+  }
+
+  #cacheParentValue(key: string, value: StorageValue) {
+    if (!this.#store.has(key) && !this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
+      this.#store.set(key, value)
     }
   }
 
@@ -289,9 +295,9 @@ export class StorageLayer implements StorageLayerProvider {
     }
 
     if (this.#parent) {
-      const val = this.#parent.get(key, false)
+      const val = await this.#parent.get(key, false)
       if (cache) {
-        this.#store.set(key, val)
+        this.#cacheParentValue(key, val)
       }
       return val
     }
@@ -303,9 +309,9 @@ export class StorageLayer implements StorageLayerProvider {
     const result: StorageValue[] = []
     const pending: Array<{ key: string; idx: number }> = []
 
-    const preloadedPromises = keys.map(async (key, idx) => {
+    keys.forEach((key, idx) => {
       if (this.#store.has(key)) {
-        result[idx] = await this.#store.get(key)
+        result[idx] = this.#store.get(key)
       } else if (this.#deletedPrefix.some((dp) => key.startsWith(dp))) {
         result[idx] = StorageValueKind.Deleted
       } else {
@@ -320,13 +326,12 @@ export class StorageLayer implements StorageLayerProvider {
       )
       vals.forEach((val, idx) => {
         if (cache) {
-          this.#store.set(pending[idx].key, val)
+          this.#cacheParentValue(pending[idx].key, val)
         }
         result[pending[idx].idx] = val
       })
     }
 
-    await Promise.all(preloadedPromises)
     return result
   }
 
@@ -338,7 +343,7 @@ export class StorageLayer implements StorageLayerProvider {
         break
       case StorageValueKind.DeletedPrefix:
         this.#deletedPrefix.push(key)
-        for (const k of this.#keys) {
+        for (const k of this.#store.keys()) {
           if (k.startsWith(key)) {
             this.#store.set(k, StorageValueKind.Deleted)
             this.#removeKey(k)
@@ -408,8 +413,7 @@ export class StorageLayer implements StorageLayerProvider {
    * Merge the storage layer into the given object, can be used to get sotrage diff.
    */
   async mergeInto(into: Record<string, string | null>) {
-    for (const [key, maybeValue] of this.#store) {
-      const value = await maybeValue
+    for (const [key, value] of this.#store) {
       if (value === StorageValueKind.Deleted) {
         into[key] = null
       } else {
