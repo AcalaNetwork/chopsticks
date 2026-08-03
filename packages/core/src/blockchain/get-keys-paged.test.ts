@@ -448,6 +448,78 @@ describe('getKeysPaged', () => {
     ])
   })
 
+  it('keeps an inherited deletion hidden after caching a read (#1063)', async () => {
+    const prefix = '0xdead'
+    const key = '0xdeadbeef'
+    const parent = new StorageLayer()
+    parent.set(key, '0x01')
+    const child = new StorageLayer(parent)
+    child.set(key, StorageValueKind.Deleted)
+    const grandchild = new StorageLayer(child)
+
+    expect(grandchild.deleted(key)).toBe(true)
+    expect(await grandchild.getKeysPaged(prefix, 10, prefix)).toEqual([])
+
+    const pendingRead = grandchild.get(key, true)
+    expect(grandchild.deleted(key)).toBe(true)
+    await expect(pendingRead).resolves.toBe(StorageValueKind.Deleted)
+
+    expect(grandchild.deleted(key)).toBe(true)
+    expect(await grandchild.getKeysPaged(prefix, 10, prefix)).toEqual([])
+  })
+
+  it('deletes local, cached, and pending values under a prefix', async () => {
+    const prefix = '0xdead'
+    const cachedKey = '0xdeadaa'
+    const pendingKey = '0xdeadab'
+    const localKeys = ['0xdeadba', '0xdeadbb']
+    const parent = new StorageLayer()
+    parent.setAll([
+      [cachedKey, '0x01'],
+      [pendingKey, '0x02'],
+    ])
+    const child = new StorageLayer(parent)
+    child.setAll([
+      [localKeys[0], '0x03'],
+      [localKeys[1], '0x03'],
+    ])
+
+    await child.get(cachedKey, true)
+    const pendingRead = child.get(pendingKey, true)
+    child.set(prefix, StorageValueKind.DeletedPrefix)
+
+    await expect(pendingRead).resolves.toBe('0x02')
+    await expect(child.getMany([cachedKey, pendingKey, ...localKeys], true)).resolves.toEqual([
+      StorageValueKind.Deleted,
+      StorageValueKind.Deleted,
+      StorageValueKind.Deleted,
+      StorageValueKind.Deleted,
+    ])
+    expect(await child.getKeysPaged(prefix, 10, prefix)).toEqual([])
+  })
+
+  it('does not replace local writes with older pending reads', async () => {
+    const getKey = '0xdeadaa'
+    const getManyKey = '0xdeadbb'
+    const parent = new StorageLayer()
+    parent.setAll([
+      [getKey, '0x01'],
+      [getManyKey, '0x01'],
+    ])
+    const child = new StorageLayer(parent)
+
+    const pendingRead = child.get(getKey, true)
+    const pendingReads = child.getMany([getManyKey], true)
+    child.setAll([
+      [getKey, '0x02'],
+      [getManyKey, '0x02'],
+    ])
+
+    await expect(pendingRead).resolves.toBe('0x01')
+    await expect(pendingReads).resolves.toEqual(['0x01'])
+    await expect(child.getMany([getKey, getManyKey], true)).resolves.toEqual(['0x02', '0x02'])
+  })
+
   it('fuzz', async () => {
     const oddPrefix = '0x1111111111111111111111111111111111111111111111111111111111111111'
     const evenPrefix = '0x2222222222222222222222222222222222222222222222222222222222222222'
