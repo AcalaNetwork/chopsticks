@@ -1,6 +1,7 @@
 import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../block.js'
 import type { BuildBlockParams } from '../txpool.js'
+import { ProcessPendingRenewals } from './data-renewal.js'
 import { ParaInherentEnter } from './para-enter.js'
 import { SetBabeRandomness } from './parachain/babe-randomness.js'
 import { SetNimbusAuthorInherent } from './parachain/nimbus-author-inherent.js'
@@ -19,4 +20,5 @@ export const inherentProviders = [
   new SetNimbusAuthorInherent(),
   new SetBabeRandomness(),
   new SetTransactionStorageProof(),
+  new ProcessPendingRenewals(),
 ]
