@@ -145,7 +145,7 @@ __metadata:
     dotenv: "npm:^16.6.1"
     global-agent: "npm:^3.0.0"
     js-yaml: "npm:^4.3.2"
-    jsondiffpatch: "npm:^0.7.3"
+    jsondiffpatch: "npm:^0.7.6"
     lodash: "npm:^4.18.1"
     typescript: "npm:^5.8.3"
     ws: "npm:^8.21.0"
@@ -7231,14 +7231,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsondiffpatch@npm:^0.7.3":
-  version: 0.7.3
-  resolution: "jsondiffpatch@npm:0.7.3"
+"jsondiffpatch@npm:^0.7.6":
+  version: 0.7.6
+  resolution: "jsondiffpatch@npm:0.7.6"
   dependencies:
     "@dmsnell/diff-match-patch": "npm:^1.1.0"
   bin:
     jsondiffpatch: bin/jsondiffpatch.js
-  checksum: 10c0/fae49073e5cacef98a4700bf6c46d1a946549bb526597f57ad52a0ca4ac7f510be256386577ff39a966e227f132fc667bef4c547be7b68a69c2a5e7db9cc2d4f
+  checksum: 10c0/c82ea96bcce309fa6d399ad27d773bcfc8a99c817e78fbd6be5d8149e60f13016a777acca3aa93e073a8bb06eca905fda8f9ea3f846188b0914251a7b3d417a5
   languageName: node
   linkType: hard
 
