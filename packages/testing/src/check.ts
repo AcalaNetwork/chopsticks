@@ -4,6 +4,67 @@ import type { Codec } from '@polkadot/types/types'
 type CodecOrArray = Codec | Codec[]
 
 /**
+ * `XcmpMessageFormat` index of the `ConcatenatedOpaqueVersionedXcm` variant.
+ *
+ * The variant is matched by index, not by name, because older versions of
+ * `@polkadot/types` do not declare it and cannot decode it.
+ */
+const CONCATENATED_OPAQUE_VERSIONED_XCM = 3
+
+/**
+ * Decode one XCMP message.
+ *
+ * A message starts with an `XcmpMessageFormat` byte. In the
+ * `ConcatenatedOpaqueVersionedXcm` format, each XCM that follows has a compact
+ * length prefix. Such a payload is not a single `XcmVersionedXcm`, so it must be
+ * read one item at a time. All other formats keep the previous behaviour.
+ *
+ * @param api - Polkadot API instance
+ * @param data - Message bytes, or their hex string, with the format byte first
+ */
+/**
+ * Convert a hex string to bytes. Storage gives the message as a hex string.
+ * Bytes are also accepted.
+ *
+ * @param data - Hex string or bytes
+ */
+const toBytes = (data: string | Uint8Array): Uint8Array => {
+  if (typeof data !== 'string') {
+    return data
+  }
+
+  const digits = data.startsWith('0x') ? data.slice(2) : data
+  const bytes = new Uint8Array(digits.length / 2)
+
+  for (let index = 0; index < bytes.length; index++) {
+    bytes[index] = Number.parseInt(digits.slice(index * 2, index * 2 + 2), 16)
+  }
+
+  return bytes
+}
+
+const decodeXcmpMessage = (api: ApiPromise, data: string | Uint8Array) => {
+  const bytes = toBytes(data)
+
+  if (bytes[0] !== CONCATENATED_OPAQUE_VERSIONED_XCM) {
+    return api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data).toJSON()
+  }
+
+  const messages: any[] = []
+  let offset = 1
+
+  while (offset < bytes.length) {
+    const length = api.createType('Compact<u32>', bytes.subarray(offset))
+    offset += length.encodedLength
+    const end = offset + length.toNumber()
+    messages.push(api.createType('XcmVersionedXcm', bytes.subarray(offset, end)).toJSON())
+    offset = end
+  }
+
+  return ['ConcatenatedOpaqueVersionedXcm', messages]
+}
+
+/**
  * Processes a Codec or array of Codecs with a given transformation function
  * @param codec - Single Codec or array of Codecs to process
  * @param fn - Transformation function to apply to each Codec
@@ -418,7 +479,7 @@ export const setupCheck = (options: {
   const checkHrmp = ({ api }: Api) =>
     check(api.query.parachainSystem.hrmpOutboundMessages(), 'hrmp').map((value) =>
       (value as any[]).map(({ recipient, data }) => ({
-        data: api.createType('(XcmpMessageFormat, XcmVersionedXcm)', data).toJSON(),
+        data: decodeXcmpMessage(api, data),
         recipient,
       })),
     )
