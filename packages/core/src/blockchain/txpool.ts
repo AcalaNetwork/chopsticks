@@ -1,4 +1,8 @@
 import type { GenericExtrinsic } from '@polkadot/types'
+import { GENERAL_EXTRINSIC, TYPE_MASK } from '@polkadot/types/extrinsic/constants'
+import type { AccountId, Index } from '@polkadot/types/interfaces'
+import type { ITuple } from '@polkadot/types/types'
+import { compactFromU8a } from '@polkadot/util/compact/fromU8a'
 import { hexToU8a } from '@polkadot/util/hex/toU8a'
 import type { HexString } from '@polkadot/util/types'
 import { EventEmitter } from 'eventemitter3'
@@ -46,7 +50,7 @@ export interface BuildBlockParams {
 export class TxPool {
   readonly #chain: Blockchain
 
-  readonly #pool: { extrinsic: HexString; signer: string }[] = []
+  readonly #pool: { extrinsic: HexString; signer?: string }[] = []
   readonly #ump: Record<number, HexString[]> = {}
   readonly #dmp: DownwardMessage[] = []
   readonly #hrmp: Record<number, HorizontalMessage[]> = {}
@@ -112,10 +116,22 @@ export class TxPool {
     this.#maybeBuildBlock()
   }
 
-  async #getSigner(extrinsic: HexString) {
+  async #getSigner(extrinsic: HexString): Promise<string | undefined> {
     const registry = await this.#chain.head.registry
-    const tx = registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic)
-    return tx.signer.toString()
+    const u8a = hexToU8a(extrinsic)
+    const [offset] = compactFromU8a(u8a)
+    if ((u8a[offset] & TYPE_MASK) !== GENERAL_EXTRINSIC) {
+      return registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic).signer.toString()
+    }
+    // A general (v5) extrinsic has no signer field: `signer` throws for it, and polkadot.js cannot always decode one,
+    // since it skips the payload of a transaction extension it does not know (VerifySignature, for one). Its account,
+    // if any, is the one frame_system's CheckNonce tags it with: `provides: [(account, nonce)]`.
+    const validity = await this.#chain.validateExtrinsic(extrinsic)
+    if (!validity.isOk) return undefined
+    const length = registry.createType('AccountId').encodedLength + registry.createType('Index').encodedLength
+    const tags = validity.asOk.provides.filter((tag) => tag.length === length)
+    if (tags.length !== 1) return undefined
+    return registry.createType<ITuple<[AccountId, Index]>>('(AccountId, Index)', tags[0].toU8a(true))[0].toString()
   }
 
   submitUpwardMessages(id: number, ump: HexString[]) {
