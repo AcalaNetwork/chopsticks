@@ -1,15 +1,13 @@
 import type { GenericExtrinsic } from '@polkadot/types'
-import { GENERAL_EXTRINSIC, TYPE_MASK } from '@polkadot/types/extrinsic/constants'
 import type { AccountId, Index } from '@polkadot/types/interfaces'
 import type { ITuple } from '@polkadot/types/types'
-import { compactFromU8a } from '@polkadot/util/compact/fromU8a'
 import { hexToU8a } from '@polkadot/util/hex/toU8a'
 import type { HexString } from '@polkadot/util/types'
 import { EventEmitter } from 'eventemitter3'
 import _ from 'lodash'
 
 import { defaultLogger, truncate } from '../logger.js'
-import { type Deferred, defer } from '../utils/index.js'
+import { type Deferred, defer, isGeneralExtrinsic } from '../utils/index.js'
 import { buildBlock } from './block-builder.js'
 import type { Blockchain } from './index.js'
 import type { InherentProvider } from './inherent/index.js'
@@ -118,14 +116,11 @@ export class TxPool {
 
   async #getSigner(extrinsic: HexString): Promise<string | undefined> {
     const registry = await this.#chain.head.registry
-    const u8a = hexToU8a(extrinsic)
-    const [offset] = compactFromU8a(u8a)
-    if ((u8a[offset] & TYPE_MASK) !== GENERAL_EXTRINSIC) {
+    if (!isGeneralExtrinsic(extrinsic)) {
       return registry.createType<GenericExtrinsic>('GenericExtrinsic', extrinsic).signer.toString()
     }
-    // A general (v5) extrinsic has no signer field: `signer` throws for it, and polkadot.js cannot always decode one,
-    // since it skips the payload of a transaction extension it does not know (VerifySignature, for one). Its account,
-    // if any, is the one frame_system's CheckNonce tags it with: `provides: [(account, nonce)]`.
+    // A general (v5) extrinsic has no signer field, and `signer` throws for it. Its account, if any, is the one
+    // frame_system's CheckNonce tags it with: `provides: [(account, nonce)]`.
     const validity = await this.#chain.validateExtrinsic(extrinsic)
     if (!validity.isOk) return undefined
     const length = registry.createType('AccountId').encodedLength + registry.createType('Index').encodedLength

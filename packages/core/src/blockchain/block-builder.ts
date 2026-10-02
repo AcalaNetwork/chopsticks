@@ -13,7 +13,7 @@ import { compactAddLength, hexToU8a, stringToHex, u8aConcat, u8aToHex } from '@p
 import type { HexString } from '@polkadot/util/types'
 import { blake2AsU8a } from '@polkadot/util-crypto'
 import { defaultLogger, truncate } from '../logger.js'
-import { compactHex, getCurrentSlot } from '../utils/index.js'
+import { compactHex, getCurrentSlot, isGeneralExtrinsic } from '../utils/index.js'
 import type { TaskCallResponse } from '../wasm-executor/index.js'
 import { Block } from './block.js'
 import type { InherentProvider } from './inherent/index.js'
@@ -460,7 +460,12 @@ export const dryRunExtrinsic = async (
     return newBlock.call('BlockBuilder_apply_extrinsic', [generic.toHex()])
   }
 
-  logger.debug({ call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toJSON() }, 'dry_run_extrinsic')
+  logger.debug(
+    isGeneralExtrinsic(extrinsic)
+      ? { extrinsic: truncate(extrinsic) }
+      : { call: registry.createType('GenericExtrinsic', hexToU8a(extrinsic)).toJSON() },
+    'dry_run_extrinsic',
+  )
   return newBlock.call('BlockBuilder_apply_extrinsic', [extrinsic])
 }
 

@@ -1,5 +1,6 @@
 import type { StorageKey } from '@polkadot/types'
-import { type BN, compactStripLength, u8aToHex } from '@polkadot/util'
+import { GENERAL_EXTRINSIC, TYPE_MASK } from '@polkadot/types/extrinsic/constants'
+import { type BN, compactFromU8a, compactStripLength, u8aToHex, u8aToU8a } from '@polkadot/util'
 import { hexAddPrefix, hexStripPrefix } from '@polkadot/util/hex'
 import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../blockchain/block.js'
@@ -43,6 +44,16 @@ export async function fetchKeysToArray(getKeys: GetKeys) {
 
 export const compactHex = (value: Uint8Array): HexString => {
   return u8aToHex(compactStripLength(value)[1])
+}
+
+/**
+ * Whether `extrinsic` is a general (v5) extrinsic, read from its preamble byte. polkadot.js cannot always decode one: it
+ * skips the payload of a transaction extension it does not know, such as VerifySignature.
+ */
+export const isGeneralExtrinsic = (extrinsic: HexString | Uint8Array): boolean => {
+  const u8a = u8aToU8a(extrinsic)
+  const [offset] = compactFromU8a(u8a)
+  return (u8a[offset] & TYPE_MASK) === GENERAL_EXTRINSIC
 }
 
 export const getParaId = async (chain: Blockchain) => {
