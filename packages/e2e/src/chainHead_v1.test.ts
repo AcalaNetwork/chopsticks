@@ -289,7 +289,7 @@ describe('chainHead_v1 rpc', async () => {
 
     expect(deltas?.deleted).toEqual([])
     expect(deltas?.upserted.length).toEqual(1)
-    expect(toHex(deltas?.upserted[0].args[1])).toEqual(callHash)
+    expect(deltas?.upserted[0].args[1]).toEqual(callHash)
 
     // Test deletion
     const timepoint = deltas!.upserted[0].value.when
@@ -311,7 +311,7 @@ describe('chainHead_v1 rpc', async () => {
 
     expect(deltas?.deleted.length).toEqual(1)
     expect(deltas?.upserted.length).toEqual(0)
-    expect(toHex(deltas?.deleted[0].args[1])).toEqual(callHash)
+    expect(deltas?.deleted[0].args[1]).toEqual(callHash)
   })
 })
 
