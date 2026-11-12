@@ -22,7 +22,7 @@ describe('transaction_v1', async () => {
     await new Promise((onSuccess, onError) =>
       testApi.substrateClient._request('transaction_v1_broadcast', [tx.toHex()], { onSuccess, onError }),
     )
-    const hash = await dev.newBlock()
+    const hash = (await testApi.chain.newBlock({ transactions: [tx.toHex()] })).hash
 
     expect(await resultPromise).toMatchObject({
       hash,
