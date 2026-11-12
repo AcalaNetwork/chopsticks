@@ -1,7 +1,6 @@
 import { blake2AsHex } from '@polkadot/util-crypto'
 import type { RuntimeContext } from '@polkadot-api/observable-client'
 import { toHex } from '@polkadot-api/utils'
-import { Binary } from 'polkadot-api'
 
 import { filter, firstValueFrom } from 'rxjs'
 import { describe, expect, it } from 'vitest'
@@ -264,7 +263,7 @@ describe('chainHead_v1 rpc', async () => {
 
     const aliceSigner = getPolkadotSigner(alice, 'Ed25519')
 
-    const callHash = Binary.fromHex(`0x${'00'.repeat(32)}`)
+    const callHash = `0x${'00'.repeat(32)}` as `0x${string}`
     const extrinsic = await testApi.client
       .getUnsafeApi()
       .tx.Multisig.approve_as_multi({
@@ -290,7 +289,7 @@ describe('chainHead_v1 rpc', async () => {
 
     expect(deltas?.deleted).toEqual([])
     expect(deltas?.upserted.length).toEqual(1)
-    expect(toHex(deltas?.upserted[0].args[1])).toEqual(toHex(callHash))
+    expect(toHex(deltas?.upserted[0].args[1])).toEqual(callHash)
 
     // Test deletion
     const timepoint = deltas!.upserted[0].value.when
@@ -312,7 +311,7 @@ describe('chainHead_v1 rpc', async () => {
 
     expect(deltas?.deleted.length).toEqual(1)
     expect(deltas?.upserted.length).toEqual(0)
-    expect(toHex(deltas?.deleted[0].args[1])).toEqual(toHex(callHash))
+    expect(toHex(deltas?.deleted[0].args[1])).toEqual(callHash)
   })
 })
 
