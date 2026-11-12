@@ -1,8 +1,9 @@
 import { ApiPromise } from '@polkadot/api'
 import type { RuntimeContext } from '@polkadot-api/observable-client'
+import { toHex } from '@polkadot-api/utils'
 import { firstValueFrom } from 'rxjs'
 import { describe, expect, it } from 'vitest'
-import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
+import { dev, env, getPolkadotSigner, observe, setupPolkadotApi, testingPairs } from './helper.js'
 
 const testApi = await setupPolkadotApi(env.acalaV15)
 
@@ -12,14 +13,20 @@ describe('transaction_v1', async () => {
   it('sends and executes transactions', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
-    const api = await prepareChainForTx()
+    await prepareChainForTx()
 
     const TRANSFERRED_VALUE = 100n
-    const tx = await api.tx.balances.transfer(bob.address, TRANSFERRED_VALUE).signAsync(alice)
-    const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toU8a()))
+    const tx = await testApi.client
+      .getUnsafeApi()
+      .tx.Balances.transfer_keep_alive({
+        dest: { type: 'Id', value: bob.address },
+        value: TRANSFERRED_VALUE,
+      })
+      .create(getPolkadotSigner(alice, 'Ed25519'))
+    const { nextValue, subscription } = observe(chainHead.trackTx$(tx))
     const resultPromise = nextValue()
     await new Promise((onSuccess, onError) =>
-      testApi.substrateClient._request('transaction_v1_broadcast', [tx.toHex()], { onSuccess, onError }),
+      testApi.substrateClient._request('transaction_v1_broadcast', [toHex(tx)], { onSuccess, onError }),
     )
     const hash = await dev.newBlock()
 
