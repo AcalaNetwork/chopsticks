@@ -168,7 +168,7 @@ describe('chainHead_v1 rpc', async () => {
 
     const result = await firstValueFrom(chainHead.call$(null, 'Core_version', ''))
 
-    expect(result).toMatchSnapshot()
+    expect(toHex(result)).toMatchSnapshot()
 
     const nonExisting = firstValueFrom(chainHead.call$(null, 'bruh', ''))
 
