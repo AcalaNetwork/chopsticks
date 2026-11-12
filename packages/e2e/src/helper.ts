@@ -13,10 +13,9 @@ import type { RegisteredTypes } from '@polkadot/types/types'
 import type { HexString } from '@polkadot/util/types'
 import { getObservableClient } from '@polkadot-api/observable-client'
 import { createClient as createSubstrateClient, type SubstrateClient } from '@polkadot-api/substrate-client'
-import { fromHex, toHex } from '@polkadot-api/utils'
 import { getWsProvider } from '@polkadot-api/ws-provider'
 import { createClient, type PolkadotClient } from 'polkadot-api'
-import { getTxCreatorFromPjs } from 'polkadot-api/pjs-signer'
+import { getTxCreator } from 'polkadot-api/tx-creator'
 import type { Observable } from 'rxjs'
 import { beforeAll, beforeEach, expect, type Mock, vi } from 'vitest'
 import WebSocket from 'ws'
@@ -24,19 +23,9 @@ import WebSocket from 'ws'
 export { setupContext, testingPairs } from '@acala-network/chopsticks-testing'
 
 export const getPolkadotSigner = (
-  pair: { address: string; sign: (data: Uint8Array) => Uint8Array },
+  pair: { publicKey: Uint8Array; sign: (data: Uint8Array) => Uint8Array },
   type: 'Ed25519' | 'Sr25519',
-) => {
-  const signatureType = type === 'Ed25519' ? 0 : 1
-  const sign = (data: string) => toHex(new Uint8Array([signatureType, ...pair.sign(fromHex(data))]))
-
-  return getTxCreatorFromPjs(
-    pair.address,
-    async (payload) => ({ signature: sign(payload.method) }),
-    async (payload) => ({ id: 0, signature: sign(payload.data) }),
-    type.toLowerCase() as 'ed25519' | 'sr25519',
-  )
-}
+) => getTxCreator(pair.publicKey, type, pair.sign)
 
 export type SetupOption = {
   endpoint?: string | string[]
