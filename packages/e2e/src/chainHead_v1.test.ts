@@ -274,7 +274,7 @@ describe('chainHead_v1 rpc', async () => {
           proof_size: 1000n,
           ref_time: 1000n,
         },
-        maybe_timepoint: null,
+        maybe_timepoint: undefined,
       })
       .create(aliceSigner)
 
