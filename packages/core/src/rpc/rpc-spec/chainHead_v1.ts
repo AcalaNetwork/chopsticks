@@ -2,6 +2,7 @@ import type { HexString } from '@polkadot/util/types'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
+import type { RuntimeVersion } from '../../wasm-executor/index.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
 import { afterResponse, type DescendantValuesParams, getDescendantValues } from './storage-common.js'
 
@@ -15,6 +16,48 @@ const following = new Map<
     storageDiffs: Map<HexString, number>
   }
 >()
+
+type RuntimeSpec =
+  | {
+      type: 'valid'
+      spec: {
+        specName: string
+        implName: string
+        specVersion: number
+        implVersion: number
+        transactionVersion: number
+        apis: Record<string, number>
+      }
+    }
+  | {
+      type: 'invalid'
+      error: string
+    }
+
+const runtimeSpec = (runtime: RuntimeVersion): RuntimeSpec => ({
+  type: 'valid',
+  spec: {
+    specName: runtime.specName,
+    implName: runtime.implName,
+    specVersion: runtime.specVersion,
+    implVersion: runtime.implVersion,
+    transactionVersion: runtime.transactionVersion,
+    apis: Object.fromEntries(runtime.apis),
+  },
+})
+
+const invalidRuntimeSpec = (error: unknown): RuntimeSpec => ({
+  type: 'invalid',
+  error: error instanceof Error ? error.message : String(error),
+})
+
+const getRuntimeSpec = async (runtime: Promise<RuntimeVersion>): Promise<RuntimeSpec> => {
+  try {
+    return runtimeSpec(await runtime)
+  } catch (error) {
+    return invalidRuntimeSpec(error)
+  }
+}
 
 /**
  * Start a chainHead follow subscription
@@ -33,14 +76,18 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
   const update = async (block: Block) => {
     logger.trace({ hash: block.hash }, 'chainHead_v1_follow')
 
-    const getNewRuntime = async () => {
-      const [runtime, previousRuntime] = await Promise.all([
-        block.runtimeVersion,
-        block.parentBlock.then((b) => b?.runtimeVersion),
-      ])
-      const hasNewRuntime =
-        runtime.implVersion !== previousRuntime?.implVersion || runtime.specVersion !== previousRuntime.specVersion
-      return hasNewRuntime ? runtime : null
+    const getNewRuntime = async (): Promise<RuntimeSpec | null> => {
+      try {
+        const [runtime, previousRuntime] = await Promise.all([
+          block.runtimeVersion,
+          block.parentBlock.then((b) => b?.runtimeVersion),
+        ])
+        const hasNewRuntime =
+          runtime.implVersion !== previousRuntime?.implVersion || runtime.specVersion !== previousRuntime.specVersion
+        return hasNewRuntime ? runtimeSpec(runtime) : null
+      } catch (error) {
+        return invalidRuntimeSpec(error)
+      }
     }
     const newRuntime = withRuntime ? await getNewRuntime() : null
 
@@ -86,7 +133,7 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
     callback({
       event: 'initialized',
       finalizedBlockHashes: [context.chain.head.hash],
-      finalizedBlockRuntime: withRuntime ? await context.chain.head.runtimeVersion : null,
+      finalizedBlockRuntime: withRuntime ? await getRuntimeSpec(context.chain.head.runtimeVersion) : null,
     })
     callback({
       event: 'bestBlockChanged',
