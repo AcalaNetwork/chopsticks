@@ -207,11 +207,11 @@ describe('chainHead_v1 rpc', async () => {
     const aliceBalanceKey = balancesKeyBuilder.enc(alice.address)
     const bobBalanceKey = balancesKeyBuilder.enc(bob.address)
     const commonPrefix = findCommonPrefix([aliceBalanceKey, bobBalanceKey])
+    const readMerkleValue = (key: string) =>
+      firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)).then(({ value }) => value)
 
     const [aliceMerkleValue, bobMerkleValue, commonMerkleValue] = await Promise.all(
-      [aliceBalanceKey, bobBalanceKey, commonPrefix].map((key) =>
-        firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)),
-      ),
+      [aliceBalanceKey, bobBalanceKey, commonPrefix].map(readMerkleValue),
     )
 
     const extrinsic = await testApi.client
@@ -234,9 +234,7 @@ describe('chainHead_v1 rpc', async () => {
     await finalized
 
     const [newAliceMerkleValue, newBobMerkleValue, newCommonMerkleValue] = await Promise.all(
-      [aliceBalanceKey, bobBalanceKey, commonPrefix].map((key) =>
-        firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)),
-      ),
+      [aliceBalanceKey, bobBalanceKey, commonPrefix].map(readMerkleValue),
     )
 
     // Alice has transfered some funds, their value must change
