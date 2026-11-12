@@ -3,7 +3,7 @@ import type { RuntimeContext } from '@polkadot-api/observable-client'
 import { toHex } from '@polkadot-api/utils'
 import { Binary } from 'polkadot-api'
 
-import { firstValueFrom } from 'rxjs'
+import { filter, firstValueFrom } from 'rxjs'
 import { describe, expect, it } from 'vitest'
 import { dev, env, getPolkadotSigner, observe, setupPolkadotApi, testingPairs } from './helper.js'
 
@@ -190,6 +190,7 @@ describe('chainHead_v1 rpc', async () => {
 
   it('changes the closestDescendantMerkleValue when the storage changes for that key', async () => {
     const chainHead = testApi.observableClient.chainHead$()
+    const initialFinalized = await firstValueFrom(chainHead.finalized$)
     const runtimeCtx = await firstValueFrom(chainHead.getRuntimeContext$(null))
 
     const { alice, bob, charlie } = testingPairs()
@@ -224,9 +225,13 @@ describe('chainHead_v1 rpc', async () => {
       })
       .create(getPolkadotSigner(alice, 'Ed25519'))
 
+    const finalized = firstValueFrom(
+      chainHead.finalized$.pipe(filter(({ number }) => number > initialFinalized.number)),
+    )
     await testApi.chain.newBlock({
       transactions: [toHex(extrinsic) as `0x${string}`],
     })
+    await finalized
 
     const [newAliceMerkleValue, newBobMerkleValue, newCommonMerkleValue] = await Promise.all(
       [aliceBalanceKey, bobBalanceKey, commonPrefix].map((key) =>
