@@ -26,13 +26,17 @@ export { setupContext, testingPairs } from '@acala-network/chopsticks-testing'
 export const getPolkadotSigner = (
   pair: { address: string; sign: (data: Uint8Array) => Uint8Array },
   type: 'Ed25519' | 'Sr25519',
-) =>
-  getTxCreatorFromPjs(
+) => {
+  const signatureType = type === 'Ed25519' ? 0 : 1
+  const sign = (data: string) => toHex(new Uint8Array([signatureType, ...pair.sign(fromHex(data))]))
+
+  return getTxCreatorFromPjs(
     pair.address,
-    async (payload) => ({ signature: toHex(pair.sign(fromHex(payload.method))) }),
-    async (payload) => ({ id: 0, signature: toHex(pair.sign(fromHex(payload.data))) }),
+    async (payload) => ({ signature: sign(payload.method) }),
+    async (payload) => ({ id: 0, signature: sign(payload.data) }),
     type.toLowerCase() as 'ed25519' | 'sr25519',
   )
+}
 
 export type SetupOption = {
   endpoint?: string | string[]

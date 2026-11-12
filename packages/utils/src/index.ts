@@ -310,10 +310,13 @@ export const testingSigners = (keyringType: 'Ed25519' | 'Sr25519' = 'Ed25519') =
   const polkadotSignerBuilder = (path: string, keyringType: 'Ed25519' | 'Sr25519' = 'Ed25519') => {
     const hdkdKeyPair = derive(path)
     const address = new Keyring({ type: keyringType.toLowerCase() as 'ed25519' | 'sr25519' }).addFromUri(path).address
+    const signatureType = keyringType === 'Ed25519' ? 0 : 1
+    const sign = (data: string) => toHex(new Uint8Array([signatureType, ...hdkdKeyPair.sign(fromHex(data))]))
+
     return getTxCreatorFromPjs(
       address,
-      async (payload) => ({ signature: toHex(hdkdKeyPair.sign(fromHex(payload.method))) }),
-      async (payload) => ({ id: 0, signature: toHex(hdkdKeyPair.sign(fromHex(payload.data))) }),
+      async (payload) => ({ signature: sign(payload.method) }),
+      async (payload) => ({ id: 0, signature: sign(payload.data) }),
       keyringType.toLowerCase() as 'ed25519' | 'sr25519',
     )
   }
