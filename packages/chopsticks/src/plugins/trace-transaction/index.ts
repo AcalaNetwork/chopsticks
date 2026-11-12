@@ -8,11 +8,11 @@ import { configSchema, getYargsOptions } from '../../schema/index.js'
 import { fetchEVMTransaction, prepareBlock, traceCalls, traceVM } from './utils.js'
 
 const schema = configSchema.extend({
-  vm: z.boolean({ description: 'Trace VM opcode' }).optional(),
-  'enable-memory': z.boolean({ description: 'Enable memory trace' }).optional(),
-  'disable-stack': z.boolean({ description: 'Disable stack trace' }).optional(),
-  'page-size': z.number({ description: 'Default 50000. Reduce this if you get memory limit error.' }).optional(),
-  output: z.string({ description: 'Output file' }),
+  vm: z.boolean().describe('Trace VM opcode').optional(),
+  'enable-memory': z.boolean().describe('Enable memory trace').optional(),
+  'disable-stack': z.boolean().describe('Disable stack trace').optional(),
+  'page-size': z.number().describe('Default 50000. Reduce this if you get memory limit error.').optional(),
+  output: z.string().describe('Output file'),
 })
 
 export const cli = (y: Argv) => {

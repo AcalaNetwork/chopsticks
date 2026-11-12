@@ -5,12 +5,7 @@ import * as PaymentRPC from './payment.js'
 import * as StateRPC from './state.js'
 import * as SystemRPC from './system.js'
 
-export { ArchiveRPC }
-export { AuthorRPC }
-export { ChainRPC }
-export { PaymentRPC }
-export { StateRPC }
-export { SystemRPC }
+export { ArchiveRPC, AuthorRPC, ChainRPC, PaymentRPC, StateRPC, SystemRPC }
 
 const handlers = {
   ...ArchiveRPC,

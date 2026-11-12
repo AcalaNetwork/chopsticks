@@ -16,7 +16,7 @@ describe('transaction_v1', async () => {
 
     const TRANSFERRED_VALUE = 100n
     const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice)
-    const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toHex()))
+    const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toU8a()))
     const resultPromise = nextValue()
     await new Promise((onSuccess, onError) =>
       testApi.substrateClient._request('transaction_v1_broadcast', [tx.toHex()], { onSuccess, onError }),

@@ -7,6 +7,7 @@ import _ from 'lodash'
 import type { Block } from '../blockchain/block.js'
 import { defaultLogger, truncate } from '../logger.js'
 import { PREFIX_LENGTH, stripChildPrefix } from '../utils/index.js'
+
 export type { JsCallback }
 
 export type RuntimeVersion = {

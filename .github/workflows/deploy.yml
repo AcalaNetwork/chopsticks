@@ -36,15 +36,17 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22.x
-          cache: 'yarn'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
       - name: Build packages
         run: |
-          yarn --immutable
-          yarn check
-          yarn build:web-test
+          bun install --frozen-lockfile
+          bun run check
+          bun run build:web-test
       - name: Generate Docs
         run: |
-          yarn docs:build
+          bun run docs:build
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

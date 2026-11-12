@@ -5,10 +5,10 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "npx vite build",
-		"vite:serve": "npx vite --port 3000 --host",
-		"vite:preview": "npx vite preview --port 3000",
-		"parcel:serve": "npx parcel serve index.html --port 3000",
+		"build": "bunx vite build",
+		"vite:serve": "bunx vite --port 3000 --host",
+		"vite:preview": "bunx vite preview --port 3000",
+		"parcel:serve": "bunx parcel serve index.html --port 3000",
 		"test": "playwright test"
 	},
 	"devDependencies": {
@@ -26,7 +26,7 @@
 		"react": "^19.3.1",
 		"react-dom": "^19.3.1",
 		"stream-browserify": "^3.0.0",
-		"typescript": "^6.0.0"
+		"typescript": "^7.0.2"
 	},
 	"peerDependencies": {
 		"vite": "*",

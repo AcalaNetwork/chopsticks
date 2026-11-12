@@ -3,9 +3,9 @@
 set -e
 
 ## Build CJS
-yarn swc ./pkg -C module.type=commonjs -d dist/cjs --copy-files --strip-leading-paths
+bunx swc ./pkg -C module.type=commonjs -d dist/cjs --copy-files --strip-leading-paths
 ## Build ESM
-yarn swc ./pkg -C module.type=es6 -d dist/esm --copy-files --strip-leading-paths
+bunx swc ./pkg -C module.type=es6 -d dist/esm --copy-files --strip-leading-paths
 
 ## Copy types
 cp pkg/chopsticks_executor.d.ts dist/cjs/index.d.ts

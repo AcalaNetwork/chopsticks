@@ -10,8 +10,8 @@
 	},
 	"scripts": {
 		"clean": "rm -rf pkg dist",
-		"wasm": "yarn clean && wasm-pack build --target web --out-dir pkg && scripts/pack-wasm.cjs",
-		"build": "yarn wasm && ./package.sh"
+		"wasm": "bun run clean && wasm-pack build --target web --out-dir pkg && scripts/pack-wasm.cjs",
+		"build": "bun run wasm && ./package.sh"
 	},
 	"dependencies": {
 		"@polkadot/util": "^14.0.3",

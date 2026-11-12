@@ -10,7 +10,7 @@ export const signFakeWithApi = async (
   addr: string,
   options: SignFakeOptions = {},
 ) => {
-  const nonce = options.nonce ?? (await api.query.system.account(addr)).nonce
+  const nonce = options.nonce ?? ((await api.query.system.account(addr)) as any).nonce
   signFake(tx, addr, {
     nonce,
     genesisHash: api.genesisHash,

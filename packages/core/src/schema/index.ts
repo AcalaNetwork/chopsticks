@@ -8,7 +8,7 @@ export const genesisSchema = z.object({
     tokenDecimals: z.union([z.number(), z.array(z.number())]).optional(),
     tokenSymbol: z.union([z.string(), z.array(z.string())]).optional(),
   }),
-  genesis: z.object({ raw: z.object({ top: z.record(z.string()) }) }),
+  genesis: z.object({ raw: z.object({ top: z.record(z.string(), z.string()) }) }),
 })
 
 export type Genesis = z.infer<typeof genesisSchema>

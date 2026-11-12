@@ -35,11 +35,13 @@ jobs:
       uses: actions/setup-node@v6
       with:
         node-version: 22.x
-        cache: 'yarn'
         registry-url: https://registry.npmjs.org/
-    - run: yarn --immutable
-    - run: yarn check
-    - run: yarn build
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: 1.4.4
+    - run: bun install --frozen-lockfile
+    - run: bun run check
+    - run: bun run build
 
     # version containing a hyphen, publish as beta, i.e: 1.0.0-1
     - run: |
@@ -52,22 +54,22 @@ jobs:
     # Note: OIDC authentication is used automatically via Trusted Publishing
     # No NPM_AUTH_TOKEN needed - npm CLI detects OIDC environment and uses it
     - name: Publish @acala-network/chopsticks-executor
-      run: yarn workspace @acala-network/chopsticks-executor npm publish --access public ${{ env.NPM_TAG }}
+      run: bun publish --filter @acala-network/chopsticks-executor --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-core
-      run: yarn workspace @acala-network/chopsticks-core npm publish --access public ${{ env.NPM_TAG }}
+      run: bun publish --filter @acala-network/chopsticks-core --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-db
-      run: yarn workspace @acala-network/chopsticks-db npm publish --access public ${{ env.NPM_TAG }}
+      run: bun publish --filter @acala-network/chopsticks-db --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks
-      run: yarn workspace @acala-network/chopsticks npm publish --access public ${{ env.NPM_TAG }}
+      run: bun publish --filter @acala-network/chopsticks --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-testing
-      run: yarn workspace @acala-network/chopsticks-testing npm publish --access public ${{ env.NPM_TAG }}
+      run: bun publish --filter @acala-network/chopsticks-testing --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-utils
-      run: yarn workspace @acala-network/chopsticks-utils npm publish --access public ${{ env.NPM_TAG }}
+      run: bun publish --filter @acala-network/chopsticks-utils --access public ${{ env.NPM_TAG }}
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3.7.0

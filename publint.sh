@@ -1,6 +1,6 @@
-npx publint run --strict executor
-npx publint run --strict packages/core
-npx publint run --strict packages/db
-npx publint run --strict packages/chopsticks
-npx publint run --strict packages/testing
-npx publint run --strict packages/utils
+bunx publint run --strict executor
+bunx publint run --strict packages/core
+bunx publint run --strict packages/db
+bunx publint run --strict packages/chopsticks
+bunx publint run --strict packages/testing
+bunx publint run --strict packages/utils

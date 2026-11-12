@@ -15,9 +15,10 @@ import type { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { createTestKeyring, Keyring } from '@polkadot/keyring'
 import type { Codec } from '@polkadot/types/types'
 import type { HexString } from '@polkadot/util/types'
+import { fromHex, toHex } from '@polkadot-api/utils'
 import { ed25519CreateDerive, sr25519CreateDerive } from '@polkadot-labs/hdkd'
 import { DEV_PHRASE, entropyToMiniSecret, mnemonicToEntropy } from '@polkadot-labs/hdkd-helpers'
-import { getPolkadotSigner } from 'polkadot-api/signer'
+import { getTxCreatorFromPjs } from 'polkadot-api/pjs-signer'
 
 const logger = defaultLogger.child({ name: 'utils' })
 
@@ -308,7 +309,13 @@ export const testingSigners = (keyringType: 'Ed25519' | 'Sr25519' = 'Ed25519') =
   // Create a PAPI polkadot signer given a derivation path e.g. "//Alice" or "//Bob".
   const polkadotSignerBuilder = (path: string, keyringType: 'Ed25519' | 'Sr25519' = 'Ed25519') => {
     const hdkdKeyPair = derive(path)
-    return getPolkadotSigner(hdkdKeyPair.publicKey, keyringType, hdkdKeyPair.sign)
+    const address = new Keyring({ type: keyringType.toLowerCase() as 'ed25519' | 'sr25519' }).addFromUri(path).address
+    return getTxCreatorFromPjs(
+      address,
+      async (payload) => ({ signature: toHex(hdkdKeyPair.sign(fromHex(payload.method))) }),
+      async (payload) => ({ id: 0, signature: toHex(hdkdKeyPair.sign(fromHex(payload.data))) }),
+      keyringType.toLowerCase() as 'ed25519' | 'sr25519',
+    )
   }
 
   return {

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test.describe('chopsticks provider', async () => {
+test.describe('chopsticks provider', () => {
   test.beforeEach(async ({ page }) => {
     // Go to the starting url before each test.
     page.on('console', async (msg) => {

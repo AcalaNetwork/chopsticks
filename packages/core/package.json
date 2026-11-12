@@ -9,16 +9,16 @@
 	},
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
-		"build": "yarn clean && ../../package-build.sh",
+		"build": "bun run clean && ../../package-build.sh",
 		"docs:prep": "typedoc",
-		"depcheck": "npx depcheck"
+		"depcheck": "bunx depcheck"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-executor": "workspace:*",
-		"@polkadot/rpc-provider": "^16.4.1",
-		"@polkadot/types": "^16.4.1",
-		"@polkadot/types-codec": "^16.4.1",
-		"@polkadot/types-known": "^16.4.1",
+		"@polkadot/rpc-provider": "^17.0.2",
+		"@polkadot/types": "^17.0.2",
+		"@polkadot/types-codec": "^17.0.2",
+		"@polkadot/types-known": "^17.0.2",
 		"@polkadot/util": "^14.0.3",
 		"@polkadot/util-crypto": "^14.0.3",
 		"comlink": "^4.4.2",
@@ -28,13 +28,13 @@
 		"pino": "^10.4.0",
 		"pino-pretty": "^13.2.0",
 		"rxjs": "^7.8.2",
-		"zod": "^3.25.76"
+		"zod": "^4.6.7"
 	},
 	"devDependencies": {
 		"@swc/cli": "0.8.2",
 		"@swc/core": "^1.16.22",
 		"@types/lodash": "^4.17.27",
-		"typescript": "^6.0.0",
+		"typescript": "^7.0.2",
 		"vitest": "^5.1.0"
 	},
 	"files": [
