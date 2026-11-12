@@ -155,7 +155,8 @@ describe('chainHead_v1 rpc', async () => {
   it('resolves the header for a specific block', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
-    const header = await firstValueFrom((chainHead.header$ as any)(null))
+    const { hash } = await firstValueFrom(chainHead.finalized$)
+    const header = await firstValueFrom(chainHead.header$(hash))
 
     expect(header).toMatchSnapshot()
 
