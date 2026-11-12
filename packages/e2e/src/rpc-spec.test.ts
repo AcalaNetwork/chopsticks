@@ -13,6 +13,7 @@ describe('transaction_v1', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
     const api = await prepareChainForTx()
+    await firstValueFrom(chainHead.finalized$)
 
     const TRANSFERRED_VALUE = 100n
     const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice)
