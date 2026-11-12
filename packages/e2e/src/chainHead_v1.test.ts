@@ -183,7 +183,7 @@ describe('chainHead_v1 rpc', async () => {
     const { hash } = await firstValueFrom(chainHead.finalized$)
     const result = await firstValueFrom(chainHead.body$(hash))
 
-    expect(result).toMatchSnapshot()
+    expect(result.map(toHex)).toMatchSnapshot()
 
     chainHead.unfollow()
   })
