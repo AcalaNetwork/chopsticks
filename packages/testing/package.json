@@ -18,9 +18,9 @@
 		"@polkadot/types": "^16.4.1"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.7.10",
-		"@swc/core": "^1.12.14",
-		"typescript": "^5.8.3"
+		"@swc/cli": "0.8.2",
+		"@swc/core": "^1.16.22",
+		"typescript": "^6.0.0"
 	},
 	"files": [
 		"dist/esm/**",

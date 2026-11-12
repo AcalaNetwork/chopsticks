@@ -16,6 +16,7 @@
 		"resolveJsonModule": true,
 		"forceConsistentCasingInFileNames": true,
 		"baseUrl": ".",
+		"ignoreDeprecations": "6.0",
 		"composite": true,
 		"paths": {
 			"@acala-network/chopsticks": ["packages/chopsticks/src/index.ts"],
