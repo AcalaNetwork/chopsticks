@@ -33,7 +33,7 @@
 		"depcheck": "bun run --workspaces --if-present depcheck"
 	},
 	"engines": {
-		"node": ">=v22"
+		"node": ">=v24"
 	},
 	"lint-staged": {
 		"*.{js,ts}": "biome check --write --no-errors-on-unmatched"
