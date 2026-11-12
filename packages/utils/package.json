@@ -15,7 +15,6 @@
 	"dependencies": {
 		"@acala-network/chopsticks": "workspace:*",
 		"@acala-network/chopsticks-core": "workspace:*",
-		"@polkadot-api/utils": "^0.4.0",
 		"@polkadot-labs/hdkd": "^0.0.32",
 		"@polkadot-labs/hdkd-helpers": "^0.0.34",
 		"@polkadot/api": "^17.0.2",
