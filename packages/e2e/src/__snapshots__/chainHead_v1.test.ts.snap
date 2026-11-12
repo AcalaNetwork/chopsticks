@@ -5,10 +5,11 @@ exports[`chainHead_v1 rpc > reports the chain state 1`] = `
   "finalizedBlockHashes": [
     "0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145",
   ],
+  "hasNewRuntime": false,
   "number": 6800000,
   "parentHash": "0xa4052fe0e02be39765c5c2c565f4f3f14bbead21ef2d58174c77c544b96b7c9d",
-  "runtimeChanges": Set {
-    "0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145",
+  "runtimeChanges": Map {
+    "0x6c74912ce35793b05980f924c3a4cdf1f96c66b2bedd0c7b7378571e60918145" => "0x73eae72ffdee319a99305e7dfecabe0db2eb6b24998997eb7b99cabc412915f2",
   },
   "type": "initialized",
 }
