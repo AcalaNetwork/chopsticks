@@ -16,7 +16,7 @@
 		"@polkadot/api": "^17.0.2",
 		"polkadot-api": "^3.3.0",
 		"rxjs": "^7.8.2",
-		"typescript": "^7.0.2",
+		"typescript": "^6.0.3",
 		"vitest": "^5.1.0"
 	}
 }

@@ -34,7 +34,7 @@
 		"@swc/cli": "0.8.2",
 		"@swc/core": "^1.16.22",
 		"@types/lodash": "^4.17.27",
-		"typescript": "^7.0.2",
+		"typescript": "^6.0.3",
 		"vitest": "^5.1.0"
 	},
 	"files": [

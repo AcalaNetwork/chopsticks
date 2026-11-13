@@ -54,22 +54,22 @@ jobs:
     # Note: OIDC authentication is used automatically via Trusted Publishing
     # No NPM_AUTH_TOKEN needed - npm CLI detects OIDC environment and uses it
     - name: Publish @acala-network/chopsticks-executor
-      run: bun publish --filter @acala-network/chopsticks-executor --access public ${{ env.NPM_TAG }}
+      run: npm publish --workspace @acala-network/chopsticks-executor --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-core
-      run: bun publish --filter @acala-network/chopsticks-core --access public ${{ env.NPM_TAG }}
+      run: npm publish --workspace @acala-network/chopsticks-core --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-db
-      run: bun publish --filter @acala-network/chopsticks-db --access public ${{ env.NPM_TAG }}
+      run: npm publish --workspace @acala-network/chopsticks-db --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks
-      run: bun publish --filter @acala-network/chopsticks --access public ${{ env.NPM_TAG }}
+      run: npm publish --workspace @acala-network/chopsticks --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-testing
-      run: bun publish --filter @acala-network/chopsticks-testing --access public ${{ env.NPM_TAG }}
+      run: npm publish --workspace @acala-network/chopsticks-testing --access public ${{ env.NPM_TAG }}
 
     - name: Publish @acala-network/chopsticks-utils
-      run: bun publish --filter @acala-network/chopsticks-utils --access public ${{ env.NPM_TAG }}
+      run: npm publish --workspace @acala-network/chopsticks-utils --access public ${{ env.NPM_TAG }}
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3.7.0

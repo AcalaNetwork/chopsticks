@@ -45,7 +45,7 @@
 		"@types/node": "^26.6.6",
 		"@types/ws": "^8.18.2",
 		"@types/yargs": "^17.0.35",
-		"typescript": "^7.0.2"
+		"typescript": "^6.0.3"
 	},
 	"files": [
 		"dist/esm/**",

@@ -23,7 +23,7 @@
 	"devDependencies": {
 		"@swc/cli": "0.8.2",
 		"@swc/core": "^1.16.22",
-		"typescript": "^7.0.2"
+		"typescript": "^6.0.3"
 	},
 	"files": [
 		"dist/esm/**",
