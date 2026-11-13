@@ -12,17 +12,11 @@ const schema = z.object({
   block: configSchema.shape.block,
   db: configSchema.shape.db,
   'runtime-log-level': configSchema.shape['runtime-log-level'].default(5),
-  runtime: z.string({
-    description: 'Path to WASM built with feature `try-runtime` enabled',
-  }),
+  runtime: z.string().describe('Path to WASM built with feature `try-runtime` enabled'),
   'import-storage': configSchema.shape['import-storage'],
   checks: z.enum(['None', 'All', 'PreAndPost', 'TryState']),
-  'disable-spec-check': z.boolean({ description: 'Disable spec name/version check' }).optional(),
-  'output-path': z
-    .string({
-      description: 'File path to print output',
-    })
-    .optional(),
+  'disable-spec-check': z.boolean().describe('Disable spec name/version check').optional(),
+  'output-path': z.string().describe('File path to print output').optional(),
 })
 
 export const cli = (y: Argv) => {

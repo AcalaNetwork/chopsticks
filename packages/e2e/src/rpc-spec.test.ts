@@ -9,19 +9,21 @@ const testApi = await setupPolkadotApi(env.acalaV15)
 const { alice, bob } = testingPairs()
 
 describe('transaction_v1', async () => {
-  it('sends and executes transactions', async () => {
+  it('returns an operation id and tracks included transactions', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
     const api = await prepareChainForTx()
+    await firstValueFrom(chainHead.finalized$)
 
     const TRANSFERRED_VALUE = 100n
     const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice)
-    const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toHex()))
+    const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toU8a()))
     const resultPromise = nextValue()
-    await new Promise((onSuccess, onError) =>
+    const operationId = await new Promise<string | null>((onSuccess, onError) =>
       testApi.substrateClient._request('transaction_v1_broadcast', [tx.toHex()], { onSuccess, onError }),
     )
-    const hash = await dev.newBlock()
+    expect(operationId).toEqual(expect.any(String))
+    const hash = (await testApi.chain.newBlock({ transactions: [tx.toHex()] })).hash
 
     expect(await resultPromise).toMatchObject({
       hash,
@@ -34,9 +36,10 @@ describe('transaction_v1', async () => {
       ctx.dynamicBuilder.buildStorage('System', 'Account').keys.enc(addr)
     const resultDecoder = (data: string | null, ctx: RuntimeContext) =>
       data ? ctx.dynamicBuilder.buildStorage('System', 'Account').value.dec(data) : null
-    expect(
-      await firstValueFrom(chainHead.storage$(null, 'value', keyEncoder(bob.address), null, resultDecoder)),
-    ).toMatchObject({
+    const bobAccount = (
+      await firstValueFrom(chainHead.storage$(null, 'value', keyEncoder(bob.address), null, resultDecoder))
+    ).value
+    expect(bobAccount).toMatchObject({
       data: {
         free: INITIAL_ACCOUNT_VALUE + TRANSFERRED_VALUE,
       },

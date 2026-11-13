@@ -14,6 +14,6 @@ export const allHandlers: Handlers = {
     }),
 }
 
-export { substrate, dev }
 export type { Context, Handler, Handlers, SubscriptionManager } from './shared.js'
 export { ResponseError } from './shared.js'
+export { dev, substrate }

@@ -17,12 +17,13 @@ function getAllFiles(dirPath: string) {
 
 describe('Existing configs', async () => {
   const configPaths = getAllFiles(path.join(__dirname, '../../../../configs'))
-  it.each(configPaths.map((p) => ({ name: _.last(p.split('/')), path: p })))('$name config parsing is correct', async ({
-    path,
-  }) => {
-    const config = await fetchConfig(path)
-    expect(() => configSchema.parse(config)).not.toThrow()
-  })
+  it.each(configPaths.map((p) => ({ name: _.last(p.split('/')), path: p })))(
+    '$name config parsing is correct',
+    async ({ path }) => {
+      const config = await fetchConfig(path)
+      expect(() => configSchema.parse(config)).not.toThrow()
+    },
+  )
 })
 
 describe('Parsed options', () => {

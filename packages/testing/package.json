@@ -5,22 +5,22 @@
 	"license": "Apache-2.0",
 	"type": "module",
 	"engines": {
-		"node": ">=v22"
+		"node": ">=v24"
 	},
 	"scripts": {
 		"clean": "rm -rf dist tsconfig.tsbuildinfo",
-		"build": "yarn clean && ../../package-build.sh",
-		"depcheck": "npx depcheck"
+		"build": "bun run clean && ../../package-build.sh",
+		"depcheck": "bunx depcheck"
 	},
 	"dependencies": {
 		"@acala-network/chopsticks-utils": "workspace:*",
-		"@polkadot/api": "^16.4.1",
-		"@polkadot/types": "^16.4.1"
+		"@polkadot/api": "^17.0.2",
+		"@polkadot/types": "^17.0.2"
 	},
 	"devDependencies": {
-		"@swc/cli": "0.7.10",
-		"@swc/core": "^1.12.14",
-		"typescript": "^5.8.3"
+		"@swc/cli": "0.8.2",
+		"@swc/core": "^1.16.22",
+		"typescript": "^7.0.2"
 	},
 	"files": [
 		"dist/esm/**",

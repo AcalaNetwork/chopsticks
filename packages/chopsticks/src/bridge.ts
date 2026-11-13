@@ -268,6 +268,7 @@ export const connectBridgeHubs = async (
     if (generatedNonce <= delivered) return // nothing new to deliver
     const from = delivered + 1n
     const lastInChunk = from + MAX_MESSAGES_PER_PROOF - 1n
+    // biome-ignore lint/complexity/useMathMinMax: Math.min does not accept bigint values.
     const to = lastInChunk < generatedNonce ? lastInChunk : generatedNonce
     await deliverRange(laneHex, from, to, sourceHash, sourceNumber)
     inFlight.set(laneHex, to)

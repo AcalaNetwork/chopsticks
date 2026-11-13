@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { type Blockchain, isUrl, type StorageValues, setStorage } from '@acala-network/chopsticks-core'
 import type { HexString } from '@polkadot/util/types'
 import axios from 'axios'
-import yaml from 'js-yaml'
+import * as yaml from 'js-yaml'
 
 import { defaultLogger } from '../logger.js'
 

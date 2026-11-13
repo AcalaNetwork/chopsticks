@@ -32,16 +32,18 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: 22.x
-        cache: 'yarn'
-    - run: yarn --immutable
-    - run: yarn check
-    - run: yarn build-wasm
-    - run: yarn lint
-    - run: yarn build
-    - run: yarn publint
-    - run: yarn depcheck
-    - run: yarn test
+        node-version: 24.x
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: 1.4.4
+    - run: bun install --frozen-lockfile
+    - run: bun run check
+    - run: bun run build-wasm
+    - run: bun run lint
+    - run: bun run build
+    - run: bun run publint
+    - run: bun run depcheck
+    - run: bun run test
       timeout-minutes: 60
 
   web-test:
@@ -68,14 +70,16 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22.x
-          cache: 'yarn'
-      - run: yarn --immutable
-      - run: yarn build-wasm
+          node-version: 24.x
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run build-wasm
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: bunx playwright install --with-deps
       - name: Run Playwright tests
-        run: yarn workspace web-test run test
+        run: bun run --filter web-test test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -107,10 +111,12 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 22.x
-          cache: 'yarn'
-      - run: yarn --immutable
-      - run: yarn build
+          node-version: 24.x
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run build
       - name: Run Node tests
         run: |
           cd packages/node-test

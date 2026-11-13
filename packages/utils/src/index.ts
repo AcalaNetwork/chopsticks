@@ -17,7 +17,7 @@ import type { Codec } from '@polkadot/types/types'
 import type { HexString } from '@polkadot/util/types'
 import { ed25519CreateDerive, sr25519CreateDerive } from '@polkadot-labs/hdkd'
 import { DEV_PHRASE, entropyToMiniSecret, mnemonicToEntropy } from '@polkadot-labs/hdkd-helpers'
-import { getPolkadotSigner } from 'polkadot-api/signer'
+import { getTxCreator } from 'polkadot-api/tx-creator'
 
 const logger = defaultLogger.child({ name: 'utils' })
 
@@ -308,7 +308,7 @@ export const testingSigners = (keyringType: 'Ed25519' | 'Sr25519' = 'Ed25519') =
   // Create a PAPI polkadot signer given a derivation path e.g. "//Alice" or "//Bob".
   const polkadotSignerBuilder = (path: string, keyringType: 'Ed25519' | 'Sr25519' = 'Ed25519') => {
     const hdkdKeyPair = derive(path)
-    return getPolkadotSigner(hdkdKeyPair.publicKey, keyringType, hdkdKeyPair.sign)
+    return getTxCreator(hdkdKeyPair.publicKey, keyringType, hdkdKeyPair.sign)
   }
 
   return {

@@ -13,12 +13,19 @@ import type { RegisteredTypes } from '@polkadot/types/types'
 import type { HexString } from '@polkadot/util/types'
 import { getObservableClient } from '@polkadot-api/observable-client'
 import { createClient as createSubstrateClient, type SubstrateClient } from '@polkadot-api/substrate-client'
-import { getWsProvider } from '@polkadot-api/ws-provider/node'
+import { getWsProvider } from '@polkadot-api/ws-provider'
 import { createClient, type PolkadotClient } from 'polkadot-api'
+import { getTxCreator } from 'polkadot-api/tx-creator'
 import type { Observable } from 'rxjs'
 import { beforeAll, beforeEach, expect, type Mock, vi } from 'vitest'
+import WebSocket from 'ws'
 
 export { setupContext, testingPairs } from '@acala-network/chopsticks-testing'
+
+export const getPolkadotSigner = (
+  pair: { publicKey: Uint8Array; sign: (data: Uint8Array) => Uint8Array },
+  type: 'Ed25519' | 'Sr25519',
+) => getTxCreator(pair.publicKey, type, pair.sign)
 
 export type SetupOption = {
   endpoint?: string | string[]
@@ -142,7 +149,7 @@ export const setupAll = async ({
     async setupPolkadotApi(): Promise<TestPolkadotApi> {
       const { chain, ws, teardown } = await setup()
 
-      const provider = getWsProvider(ws.endpoint)
+      const provider = getWsProvider(ws.endpoint, { websocketClass: WebSocket as any })
       const client = createClient(provider)
       const substrateClient = createSubstrateClient(provider)
       const observableClient = getObservableClient(substrateClient)
@@ -266,9 +273,9 @@ export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve
 
 const { check, checkHex, checkSystemEvents } = withExpect(expect)
 
-export { defer, check, checkHex, checkSystemEvents }
+export { check, checkHex, checkSystemEvents, defer }
 
-export const observe = <T>(observable$: Observable<T>) => {
+export const observe = <T>(observable$: Observable<T>): any => {
   const next: Mock<(t: T) => void> = vi.fn()
   const error = vi.fn()
   const complete: Mock<() => void> = vi.fn()

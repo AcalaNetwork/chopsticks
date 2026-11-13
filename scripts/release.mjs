@@ -81,7 +81,7 @@ const main = async () => {
 
   // Git operations
   console.log('Committing and pushing changes...')
-  execSync('yarn') // run yarn to update lock file
+  execSync('bun install') // update bun.lock
   execSync('git add .')
   const commitMessage = `chore: release ${newVersion}`
   execSync(`git commit -m "${commitMessage}"`)

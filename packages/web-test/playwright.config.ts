@@ -27,7 +27,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'yarn vite:serve',
+    command: 'bun run vite:serve',
     url: 'http://localhost:3000',
     reuseExistingServer: true,
   },

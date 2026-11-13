@@ -5,31 +5,31 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "npx vite build",
-		"vite:serve": "npx vite --port 3000 --host",
-		"vite:preview": "npx vite preview --port 3000",
-		"parcel:serve": "npx parcel serve index.html --port 3000",
+		"build": "bunx vite build",
+		"vite:serve": "bunx vite --port 3000 --host",
+		"vite:preview": "bunx vite preview --port 3000",
+		"parcel:serve": "bunx parcel serve index.html --port 3000",
 		"test": "playwright test"
 	},
 	"devDependencies": {
 		"@acala-network/chopsticks-core": "workspace:*",
 		"@acala-network/chopsticks-db": "workspace:*",
 		"@emotion/react": "^11.14.0",
-		"@emotion/styled": "^11.14.0",
-		"@mui/material": "^7.1.1",
-		"@playwright/test": "^1.53.0",
-		"@types/react": "^19.1.8",
-		"@types/react-dom": "^19.1.6",
-		"@vitejs/plugin-react": "^5.1.2",
+		"@emotion/styled": "^11.14.1",
+		"@mui/material": "^9.5.0",
+		"@playwright/test": "^1.65.0",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
+		"@vitejs/plugin-react": "^6.3.0",
 		"crypto-browserify": "^3.12.1",
 		"path-browserify": "^1.0.1",
-		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
+		"react": "^19.3.1",
+		"react-dom": "^19.3.1",
 		"stream-browserify": "^3.0.0",
-		"typescript": "^5.8.3"
+		"typescript": "^7.0.2"
 	},
 	"peerDependencies": {
 		"vite": "*",
-		"vite-tsconfig-paths": "6.0.5"
+		"vite-tsconfig-paths": "6.1.1"
 	}
 }

@@ -24,13 +24,18 @@ describe('author rpc', async () => {
     await teardown()
   })
 
+  const waitForFinalized = async (tick: Promise<unknown>, next: () => Promise<unknown>) => {
+    let [result] = (await tick) as [SubmittableResult]
+    while (!result.status.isFinalized) [result] = (await next()) as [SubmittableResult]
+  }
+
   it('works', async () => {
     {
       const { callback, next } = mockCallback()
       const tick = next()
       await api.tx.balances.transfer(bob.address, 100).signAndSend(alice, callback)
       await dev.newBlock()
-      await tick
+      await waitForFinalized(tick, next)
 
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
@@ -45,7 +50,7 @@ describe('author rpc', async () => {
       const tick = next()
       await api.tx.balances.transfer(bob.address, 200).signAndSend(alice, callback)
       await dev.newBlock()
-      await tick
+      await waitForFinalized(tick, next)
 
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()
@@ -60,7 +65,7 @@ describe('author rpc', async () => {
       const tick = next()
       await api.tx.balances.transfer(bob.address, 300).signAndSend(alice, callback)
       await dev.newBlock()
-      await tick
+      await waitForFinalized(tick, next)
 
       expect(callback.mock.calls).toMatchSnapshot()
       callback.mockClear()

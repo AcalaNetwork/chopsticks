@@ -54,9 +54,9 @@ Make sure you have setup Rust environment (>= 1.64).
 - Clone repository with submodules ([smoldot](https://github.com/paritytech/smoldot))
   - `git clone --recurse-submodules https://github.com/AcalaNetwork/chopsticks.git && cd chopsticks`
 - Install deps
-  - `yarn`
+  - `bun install`
 - Build wasm. Please do not use IDE's built-in tools to build wasm.
-  - `yarn build-wasm`
+  - `bun run build-wasm`
 
 ## Run
 

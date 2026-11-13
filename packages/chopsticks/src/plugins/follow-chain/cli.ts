@@ -53,10 +53,10 @@ export const cli = (y: Argv) => {
             const header = registry.createType<Header>('Header', data)
             const wasm = await parent.wasm
 
-            const block = new Block(chain, header.number.toNumber(), header.hash.toHex(), parent)
+            const block = new Block(chain, header.number.toNumber(), header.hash.toHex() as HexString, parent)
             await chain.setHead(block)
 
-            const calls: [string, HexString[]][] = [['Core_initialize_block', [header.toHex()]]]
+            const calls: [string, HexString[]][] = [['Core_initialize_block', [header.toHex() as HexString]]]
 
             for (const extrinsic of await block.extrinsics) {
               calls.push(['BlockBuilder_apply_extrinsic', [extrinsic]])

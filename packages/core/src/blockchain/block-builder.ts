@@ -240,7 +240,7 @@ export const buildBlock = async (
     const meta = await head.meta
     layer = new StorageLayer(head.storage)
     for (const [paraId, upwardMessages] of Object.entries(ump)) {
-      const upwardMessagesU8a = upwardMessages.map((x) => hexToU8a(x))
+      const upwardMessagesU8a = upwardMessages.map((x) => hexToU8a(x as HexString))
       const messagesCount = upwardMessages.length
       const messagesSize = upwardMessagesU8a.map((x) => x.length).reduce((s, i) => s + i, 0)
 
@@ -363,7 +363,7 @@ export const buildBlock = async (
     )
   }
 
-  const finalBlock = new Block(head.chain, newBlock.number, finalHeader.hash.toHex(), head, {
+  const finalBlock = new Block(head.chain, newBlock.number, finalHeader.hash.toHex() as HexString, head, {
     header: finalHeader,
     extrinsics: allExtrinsics,
     storage: head.storage,

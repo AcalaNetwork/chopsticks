@@ -1,11 +1,10 @@
 import { blake2AsHex } from '@polkadot/util-crypto'
 import type { RuntimeContext } from '@polkadot-api/observable-client'
-import { Binary } from 'polkadot-api'
+import { toHex } from '@polkadot-api/utils'
 
-import { getPolkadotSigner } from 'polkadot-api/signer'
-import { firstValueFrom } from 'rxjs'
+import { filter, firstValueFrom } from 'rxjs'
 import { describe, expect, it } from 'vitest'
-import { dev, env, observe, setupPolkadotApi, testingPairs } from './helper.js'
+import { dev, env, getPolkadotSigner, observe, setupPolkadotApi, testingPairs } from './helper.js'
 
 describe('chainHead_v1 rpc', async () => {
   const testApi = await setupPolkadotApi(env.acalaV15)
@@ -53,9 +52,11 @@ describe('chainHead_v1 rpc', async () => {
 
     const keyEncoder = (addr: string) => (ctx: RuntimeContext) =>
       ctx.dynamicBuilder.buildStorage('System', 'Account').keys.enc(addr)
-    const emptyAccount = await firstValueFrom(
-      chainHead.storage$(null, 'value', keyEncoder('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')),
-    )
+    const emptyAccount = (
+      await firstValueFrom(
+        chainHead.storage$(null, 'value', keyEncoder('5F98oWfz2r5rcRVnP9VCndg33DAAsky3iuoBSpaPUbgN9AJn')),
+      )
+    ).value
 
     // An empty value resolves to null
     expect(emptyAccount).toEqual(null)
@@ -63,15 +64,17 @@ describe('chainHead_v1 rpc', async () => {
     // With an existing value it returns the SCALE-encoded value.
     const resultDecoder = (data: string | null, ctx: RuntimeContext) =>
       data ? ctx.dynamicBuilder.buildStorage('System', 'Account').value.dec(data) : null
-    const account = await firstValueFrom(
-      chainHead.storage$(
-        null,
-        'value',
-        keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH'),
-        null,
-        resultDecoder,
-      ),
-    )
+    const account = (
+      await firstValueFrom(
+        chainHead.storage$(
+          null,
+          'value',
+          keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH'),
+          null,
+          resultDecoder,
+        ),
+      )
+    ).value
     expect(account).toMatchSnapshot()
 
     chainHead.unfollow()
@@ -80,11 +83,13 @@ describe('chainHead_v1 rpc', async () => {
   it('resolves partial key storage queries', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
-    const receivedItems = await firstValueFrom(
-      chainHead.storage$(null, 'descendantsValues', (ctx) =>
-        ctx.dynamicBuilder.buildStorage('Tokens', 'TotalIssuance').keys.enc(),
-      ),
-    )
+    const receivedItems = (
+      await firstValueFrom(
+        chainHead.storage$(null, 'descendantsValues', (ctx) =>
+          ctx.dynamicBuilder.buildStorage('Tokens', 'TotalIssuance').keys.enc(),
+        ),
+      )
+    ).value
 
     expect(receivedItems.length).toEqual(26)
 
@@ -94,11 +99,13 @@ describe('chainHead_v1 rpc', async () => {
   it('runs through multiple pages of storage queries', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
-    const receivedItems = await firstValueFrom(
-      chainHead.storage$(null, 'descendantsValues', (ctx) =>
-        ctx.dynamicBuilder.buildStorage('System', 'BlockHash').keys.enc(),
-      ),
-    )
+    const receivedItems = (
+      await firstValueFrom(
+        chainHead.storage$(null, 'descendantsValues', (ctx) =>
+          ctx.dynamicBuilder.buildStorage('System', 'BlockHash').keys.enc(),
+        ),
+      )
+    ).value
 
     expect(receivedItems.length).toEqual(1201)
 
@@ -112,13 +119,17 @@ describe('chainHead_v1 rpc', async () => {
       ctx.dynamicBuilder.buildStorage('System', 'Account').keys.enc(addr)
 
     // With an existing value it returns the SCALE-encoded value.
-    const account = await firstValueFrom(
-      chainHead.storage$(null, 'value', keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH')),
-    )
+    const account = (
+      await firstValueFrom(
+        chainHead.storage$(null, 'value', keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH')),
+      )
+    ).value
     expect(account).not.toBe(null)
-    const hash = await firstValueFrom(
-      chainHead.storage$(null, 'hash', keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH')),
-    )
+    const hash = (
+      await firstValueFrom(
+        chainHead.storage$(null, 'hash', keyEncoder('2636WSLQhSLPAb4rd7qPgCpSKEjAz6FAbHYPAex6phJLNBfH')),
+      )
+    ).value
     expect(hash).toEqual(blake2AsHex(account!))
 
     chainHead.unfollow()
@@ -127,11 +138,13 @@ describe('chainHead_v1 rpc', async () => {
   it('runs through multiple pages of storage hashes', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
-    const receivedItems = await firstValueFrom(
-      chainHead.storage$(null, 'descendantsHashes', (ctx) =>
-        ctx.dynamicBuilder.buildStorage('System', 'BlockHash').keys.enc(),
-      ),
-    )
+    const receivedItems = (
+      await firstValueFrom(
+        chainHead.storage$(null, 'descendantsHashes', (ctx) =>
+          ctx.dynamicBuilder.buildStorage('System', 'BlockHash').keys.enc(),
+        ),
+      )
+    ).value
 
     expect(receivedItems.length).toEqual(1201)
 
@@ -141,7 +154,8 @@ describe('chainHead_v1 rpc', async () => {
   it('resolves the header for a specific block', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
-    const header = await firstValueFrom(chainHead.header$(null))
+    const { hash } = await firstValueFrom(chainHead.finalized$)
+    const header = await firstValueFrom(chainHead.header$(hash))
 
     expect(header).toMatchSnapshot()
 
@@ -153,7 +167,7 @@ describe('chainHead_v1 rpc', async () => {
 
     const result = await firstValueFrom(chainHead.call$(null, 'Core_version', ''))
 
-    expect(result).toMatchSnapshot()
+    expect(toHex(result)).toMatchSnapshot()
 
     const nonExisting = firstValueFrom(chainHead.call$(null, 'bruh', ''))
 
@@ -168,13 +182,14 @@ describe('chainHead_v1 rpc', async () => {
     const { hash } = await firstValueFrom(chainHead.finalized$)
     const result = await firstValueFrom(chainHead.body$(hash))
 
-    expect(result).toMatchSnapshot()
+    expect(result.map(toHex)).toMatchSnapshot()
 
     chainHead.unfollow()
   })
 
   it('changes the closestDescendantMerkleValue when the storage changes for that key', async () => {
     const chainHead = testApi.observableClient.chainHead$()
+    const initialFinalized = await firstValueFrom(chainHead.finalized$)
     const runtimeCtx = await firstValueFrom(chainHead.getRuntimeContext$(null))
 
     const { alice, bob, charlie } = testingPairs()
@@ -191,11 +206,11 @@ describe('chainHead_v1 rpc', async () => {
     const aliceBalanceKey = balancesKeyBuilder.enc(alice.address)
     const bobBalanceKey = balancesKeyBuilder.enc(bob.address)
     const commonPrefix = findCommonPrefix([aliceBalanceKey, bobBalanceKey])
+    const readMerkleValue = (key: string) =>
+      firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)).then(({ value }) => value)
 
     const [aliceMerkleValue, bobMerkleValue, commonMerkleValue] = await Promise.all(
-      [aliceBalanceKey, bobBalanceKey, commonPrefix].map((key) =>
-        firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)),
-      ),
+      [aliceBalanceKey, bobBalanceKey, commonPrefix].map(readMerkleValue),
     )
 
     const extrinsic = await testApi.client
@@ -207,16 +222,18 @@ describe('chainHead_v1 rpc', async () => {
         },
         value: 1_000_000_000n,
       })
-      .sign(getPolkadotSigner(alice.publicKey, 'Ed25519', alice.sign))
+      .create(getPolkadotSigner(alice, 'Ed25519'))
 
+    const finalized = firstValueFrom(
+      chainHead.finalized$.pipe(filter(({ number }) => number > initialFinalized.number)),
+    )
     await testApi.chain.newBlock({
-      transactions: [extrinsic as `0x${string}`],
+      transactions: [toHex(extrinsic) as `0x${string}`],
     })
+    await finalized
 
     const [newAliceMerkleValue, newBobMerkleValue, newCommonMerkleValue] = await Promise.all(
-      [aliceBalanceKey, bobBalanceKey, commonPrefix].map((key) =>
-        firstValueFrom(chainHead.storage$(null, 'closestDescendantMerkleValue', () => key)),
-      ),
+      [aliceBalanceKey, bobBalanceKey, commonPrefix].map(readMerkleValue),
     )
 
     // Alice has transfered some funds, their value must change
@@ -244,9 +261,9 @@ describe('chainHead_v1 rpc', async () => {
       },
     })
 
-    const aliceSigner = getPolkadotSigner(alice.publicKey, 'Ed25519', alice.sign)
+    const aliceSigner = getPolkadotSigner(alice, 'Ed25519')
 
-    const callHash = Binary.fromBytes(new Uint8Array(32))
+    const callHash = `0x${'00'.repeat(32)}` as `0x${string}`
     const extrinsic = await testApi.client
       .getUnsafeApi()
       .tx.Multisig.approve_as_multi({
@@ -259,20 +276,20 @@ describe('chainHead_v1 rpc', async () => {
         },
         maybe_timepoint: undefined,
       })
-      .sign(aliceSigner)
+      .create(aliceSigner)
 
     // Watch out for new entries
     let entries = nextValue()
 
     await testApi.chain.newBlock({
-      transactions: [extrinsic as `0x${string}`],
+      transactions: [toHex(extrinsic) as `0x${string}`],
     })
 
-    let { deltas } = await entries
+    let { deltas } = (await entries) as any
 
     expect(deltas?.deleted).toEqual([])
     expect(deltas?.upserted.length).toEqual(1)
-    expect(deltas?.upserted[0].args[1].asHex()).toEqual(callHash.asHex())
+    expect(deltas?.upserted[0].args[1]).toEqual(callHash)
 
     // Test deletion
     const timepoint = deltas!.upserted[0].value.when
@@ -284,17 +301,17 @@ describe('chainHead_v1 rpc', async () => {
         call_hash: callHash,
         timepoint,
       })
-      .sign(aliceSigner)
+      .create(aliceSigner)
 
     entries = nextValue()
     await testApi.chain.newBlock({
-      transactions: [cancelExtrinsic as `0x${string}`],
+      transactions: [toHex(cancelExtrinsic) as `0x${string}`],
     })
-    deltas = (await entries).deltas
+    deltas = ((await entries) as any).deltas
 
     expect(deltas?.deleted.length).toEqual(1)
     expect(deltas?.upserted.length).toEqual(0)
-    expect(deltas?.deleted[0].args[1].asHex()).toEqual(callHash.asHex())
+    expect(deltas?.deleted[0].args[1]).toEqual(callHash)
   })
 })
 

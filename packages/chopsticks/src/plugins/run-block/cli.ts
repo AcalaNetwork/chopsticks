@@ -11,21 +11,9 @@ import { openHtml } from '../../utils/open-html.js'
 
 const schema = z.object({
   ...configSchema.shape,
-  'output-path': z
-    .string({
-      description: 'File path to print output',
-    })
-    .optional(),
-  html: z
-    .boolean({
-      description: 'Generate html with storage diff',
-    })
-    .optional(),
-  open: z
-    .boolean({
-      description: 'Open generated html',
-    })
-    .optional(),
+  'output-path': z.string().describe('File path to print output').optional(),
+  html: z.boolean().describe('Generate html with storage diff').optional(),
+  open: z.boolean().describe('Open generated html').optional(),
 })
 
 export const cli = (y: Argv) => {
