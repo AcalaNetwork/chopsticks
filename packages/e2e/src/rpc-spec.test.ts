@@ -9,20 +9,21 @@ const testApi = await setupPolkadotApi(env.acalaV15)
 const { alice, bob } = testingPairs()
 
 describe('transaction_v1', async () => {
-  it('sends and executes transactions', async () => {
+  it('returns an operation id and tracks included transactions', async () => {
     const chainHead = testApi.observableClient.chainHead$()
 
     const api = await prepareChainForTx()
     await firstValueFrom(chainHead.finalized$)
 
     const TRANSFERRED_VALUE = 100n
-    const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice, { nonce: 0 })
+    const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice)
     const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toU8a()))
     const resultPromise = nextValue()
-    await new Promise((onSuccess, onError) =>
+    const operationId = await new Promise<string | null>((onSuccess, onError) =>
       testApi.substrateClient._request('transaction_v1_broadcast', [tx.toHex()], { onSuccess, onError }),
     )
-    const hash = (await testApi.chain.newBlock()).hash
+    expect(operationId).toEqual(expect.any(String))
+    const hash = (await testApi.chain.newBlock({ transactions: [tx.toHex()] })).hash
 
     expect(await resultPromise).toMatchObject({
       hash,
