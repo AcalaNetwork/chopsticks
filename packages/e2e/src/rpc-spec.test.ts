@@ -16,7 +16,7 @@ describe('transaction_v1', async () => {
     await firstValueFrom(chainHead.finalized$)
 
     const TRANSFERRED_VALUE = 100n
-    const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice)
+    const tx = await api.tx.balances.transferKeepAlive(bob.address, TRANSFERRED_VALUE).signAsync(alice, { nonce: 0 })
     const { nextValue, subscription } = observe(chainHead.trackTx$(tx.toU8a()))
     const resultPromise = nextValue()
     await new Promise((onSuccess, onError) =>
