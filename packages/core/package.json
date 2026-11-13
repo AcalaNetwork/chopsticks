@@ -1,6 +1,10 @@
 {
 	"name": "@acala-network/chopsticks-core",
 	"version": "1.6.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/AcalaNetwork/chopsticks"
+	},
 	"author": "Acala Developers <hello@acala.network>",
 	"license": "Apache-2.0",
 	"type": "module",
