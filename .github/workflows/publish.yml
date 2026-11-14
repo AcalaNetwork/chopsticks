@@ -53,65 +53,28 @@ jobs:
 
     # Note: OIDC authentication is used automatically via Trusted Publishing
     # No NPM_AUTH_TOKEN needed - npm CLI detects OIDC environment and uses it
-    - name: Publish @acala-network/chopsticks-executor
+    - name: Publish packages
       run: |
-        PACKAGE='@acala-network/chopsticks-executor'
-        VERSION="$(npm pkg get version --workspace "$PACKAGE" | jq -r 'to_entries[0].value')"
-        if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
-          echo "$PACKAGE@$VERSION is already published"
-        else
-          npm publish --workspace "$PACKAGE" --access public ${{ env.NPM_TAG }}
-        fi
+        publish_workspace() {
+          PACKAGE="$1"
+          WORKSPACE="$2"
+          VERSION="$(npm pkg get version --workspace "$PACKAGE" | jq -r 'to_entries[0].value')"
 
-    - name: Publish @acala-network/chopsticks-core
-      run: |
-        PACKAGE='@acala-network/chopsticks-core'
-        VERSION="$(npm pkg get version --workspace "$PACKAGE" | jq -r 'to_entries[0].value')"
-        if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
-          echo "$PACKAGE@$VERSION is already published"
-        else
-          npm publish --workspace "$PACKAGE" --access public ${{ env.NPM_TAG }}
-        fi
+          if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
+            echo "$PACKAGE@$VERSION is already published"
+            return
+          fi
 
-    - name: Publish @acala-network/chopsticks-db
-      run: |
-        PACKAGE='@acala-network/chopsticks-db'
-        VERSION="$(npm pkg get version --workspace "$PACKAGE" | jq -r 'to_entries[0].value')"
-        if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
-          echo "$PACKAGE@$VERSION is already published"
-        else
-          npm publish --workspace "$PACKAGE" --access public ${{ env.NPM_TAG }}
-        fi
+          TARBALL="$(cd "$WORKSPACE" && bun pm pack --quiet --ignore-scripts --destination "$RUNNER_TEMP" | tail -n 1)"
+          npm publish "$TARBALL" --access public $NPM_TAG
+        }
 
-    - name: Publish @acala-network/chopsticks
-      run: |
-        PACKAGE='@acala-network/chopsticks'
-        VERSION="$(npm pkg get version --workspace "$PACKAGE" | jq -r 'to_entries[0].value')"
-        if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
-          echo "$PACKAGE@$VERSION is already published"
-        else
-          npm publish --workspace "$PACKAGE" --access public ${{ env.NPM_TAG }}
-        fi
-
-    - name: Publish @acala-network/chopsticks-testing
-      run: |
-        PACKAGE='@acala-network/chopsticks-testing'
-        VERSION="$(npm pkg get version --workspace "$PACKAGE" | jq -r 'to_entries[0].value')"
-        if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
-          echo "$PACKAGE@$VERSION is already published"
-        else
-          npm publish --workspace "$PACKAGE" --access public ${{ env.NPM_TAG }}
-        fi
-
-    - name: Publish @acala-network/chopsticks-utils
-      run: |
-        PACKAGE='@acala-network/chopsticks-utils'
-        VERSION="$(npm pkg get version --workspace "$PACKAGE" | jq -r 'to_entries[0].value')"
-        if npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1; then
-          echo "$PACKAGE@$VERSION is already published"
-        else
-          npm publish --workspace "$PACKAGE" --access public ${{ env.NPM_TAG }}
-        fi
+        publish_workspace @acala-network/chopsticks-executor executor
+        publish_workspace @acala-network/chopsticks-core packages/core
+        publish_workspace @acala-network/chopsticks-db packages/db
+        publish_workspace @acala-network/chopsticks packages/chopsticks
+        publish_workspace @acala-network/chopsticks-testing packages/testing
+        publish_workspace @acala-network/chopsticks-utils packages/utils
 
     - name: Login to Docker Hub
       uses: docker/login-action@v3.7.0
