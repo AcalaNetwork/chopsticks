@@ -29,7 +29,7 @@
     },
     "executor": {
       "name": "@acala-network/chopsticks-executor",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "dependencies": {
         "@polkadot/util": "^14.0.3",
         "@polkadot/wasm-util": "^7.5.4",
@@ -42,7 +42,7 @@
     },
     "packages/chopsticks": {
       "name": "@acala-network/chopsticks",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "bin": "./chopsticks.cjs",
       "dependencies": {
         "@acala-network/chopsticks-core": "workspace:*",
@@ -80,7 +80,7 @@
     },
     "packages/core": {
       "name": "@acala-network/chopsticks-core",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "dependencies": {
         "@acala-network/chopsticks-executor": "workspace:*",
         "@polkadot/rpc-provider": "^17.0.2",
@@ -108,7 +108,7 @@
     },
     "packages/db": {
       "name": "@acala-network/chopsticks-db",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "dependencies": {
         "@acala-network/chopsticks-core": "workspace:*",
         "@polkadot/util": "^14.0.3",
@@ -146,7 +146,7 @@
     },
     "packages/testing": {
       "name": "@acala-network/chopsticks-testing",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "dependencies": {
         "@acala-network/chopsticks-utils": "workspace:*",
         "@polkadot/api": "^17.0.2",
@@ -160,7 +160,7 @@
     },
     "packages/utils": {
       "name": "@acala-network/chopsticks-utils",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "dependencies": {
         "@acala-network/chopsticks": "workspace:*",
         "@acala-network/chopsticks-core": "workspace:*",
