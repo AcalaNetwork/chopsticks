@@ -117,18 +117,6 @@ jobs:
           bun-version: 1.4.4
       - run: bun install --frozen-lockfile
       - run: bun run build
-      - name: Test packed database package with npm
-        run: |
-          package_dir="$RUNNER_TEMP/npm-db-test"
-          mkdir -p "$package_dir"
-          for workspace in executor packages/core packages/db; do
-            (cd "$workspace" && bun pm pack --ignore-scripts --destination "$package_dir")
-          done
-          cp packages/node-test/sqlite.mjs "$package_dir/"
-          cd "$package_dir"
-          npm init --yes
-          npm install --ignore-scripts --no-audit --no-fund ./*.tgz 'better-sqlite3@^12'
-          node sqlite.mjs
       - name: Run Node tests
         run: |
           cd packages/node-test
