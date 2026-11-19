@@ -3,6 +3,7 @@ import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 
 const logger = defaultLogger.child({ name: 'rpc-storage' })
+const logDeferredError = (err: unknown) => logger.error({ err }, 'Deferred RPC failed')
 
 export async function getDescendantValues(
   block: Block,
@@ -46,11 +47,8 @@ export type DescendantValuesParams = {
   isDescendantHashes?: boolean
 }
 
-export function afterResponse(fn: () => Promise<void>, onError: (error: unknown) => void) {
-  void new Promise((resolve) => setTimeout(resolve, 0))
-    .then(fn)
-    .catch(onError)
-    .catch((err) => logger.error({ err }, 'Failed to report deferred RPC error'))
+export function afterResponse(fn: () => Promise<void>, onError = logDeferredError) {
+  void new Promise((resolve) => setTimeout(resolve, 0)).then(fn).catch(onError).catch(logDeferredError)
 }
 
 export async function settleStorageReads<T>(reads: Promise<T>[]): Promise<T[]> {
