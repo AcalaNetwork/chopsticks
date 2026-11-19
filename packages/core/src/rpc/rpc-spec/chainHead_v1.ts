@@ -13,13 +13,13 @@ import {
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 
-type PendingStorageOperation = { hash: HexString; params: DescendantValuesParams[]; continuing?: boolean }
+type StorageOperation = { hash: HexString; pending: DescendantValuesParams[] | null }
 
 const following = new Map<
   string,
   {
     callback: (data: any) => void
-    pendingDescendantValues: Map<string, PendingStorageOperation>
+    storageOperations: Map<string, StorageOperation>
     storageDiffs: Map<HexString, number>
   }
 >()
@@ -139,7 +139,7 @@ export const chainHead_v1_follow: Handler<[boolean], string> = async (
   }
 
   const callback = subscribe('chainHead_v1_followEvent', id, cleanup)
-  following.set(id, { callback, pendingDescendantValues: new Map(), storageDiffs: new Map() })
+  following.set(id, { callback, storageOperations: new Map(), storageDiffs: new Map() })
 
   const initialize = async () => {
     callback({
@@ -253,6 +253,37 @@ export interface StorageItemRequest {
   type: 'value' | 'hash' | 'closestDescendantMerkleValue' | 'descendantsValues' | 'descendantsHashes'
 }
 
+const getDescendantPage = async (block: Block, params: DescendantValuesParams) => {
+  const { items, next } = await getDescendantValues(block, params)
+  return {
+    items: params.isDescendantHashes
+      ? items.map(({ key, value }) => ({ key, hash: value === undefined ? undefined : blake2AsHex(value) }))
+      : items,
+    next,
+  }
+}
+
+function finishStoragePage(
+  followSubscription: string,
+  operationId: string,
+  hash: HexString,
+  results: (DescendantValuesParams | null)[],
+) {
+  const follower = following.get(followSubscription)
+  if (!follower) return
+
+  const pending = results.filter((result) => result !== null)
+  if (pending.length) {
+    follower.storageOperations.set(operationId, { hash, pending })
+  } else {
+    follower.storageOperations.delete(operationId)
+  }
+  follower.callback({
+    event: pending.length ? 'operationWaitingForContinue' : 'operationStorageDone',
+    operationId,
+  })
+}
+
 /**
  * Query the storage for a given block
  *
@@ -289,30 +320,25 @@ export const chainHead_v1_storage: Handler<
 
     const handleStorageItemRequest = async (sir: StorageItemRequest): Promise<DescendantValuesParams | null> => {
       switch (sir.type) {
-        case 'value': {
-          const value = await block.get(sir.key)
-          if (value) {
-            following.get(followSubscription)?.callback({
-              event: 'operationStorageItems',
-              operationId,
-              items: [{ key: sir.key, value }],
-            })
-          }
-          return null
-        }
+        case 'value':
         case 'hash': {
           const value = await block.get(sir.key)
           if (value) {
             following.get(followSubscription)?.callback({
               event: 'operationStorageItems',
               operationId,
-              items: [{ key: sir.key, hash: blake2AsHex(value) }],
+              items: [sir.type === 'hash' ? { key: sir.key, hash: blake2AsHex(value) } : { key: sir.key, value }],
             })
           }
           return null
         }
-        case 'descendantsValues': {
-          const { items, next } = await getDescendantValues(block, { prefix: sir.key, startKey: '0x' })
+        case 'descendantsValues':
+        case 'descendantsHashes': {
+          const { items, next } = await getDescendantPage(block, {
+            prefix: sir.key,
+            startKey: '0x',
+            isDescendantHashes: sir.type === 'descendantsHashes',
+          })
 
           following.get(followSubscription)?.callback({
             event: 'operationStorageItems',
@@ -321,20 +347,6 @@ export const chainHead_v1_storage: Handler<
           })
 
           return next
-        }
-        case 'descendantsHashes': {
-          const { items, next } = await getDescendantValues(block, { prefix: sir.key, startKey: '0x' })
-
-          following.get(followSubscription)?.callback({
-            event: 'operationStorageItems',
-            operationId,
-            items: items.map(({ key, value }) => ({
-              key,
-              hash: value !== undefined ? blake2AsHex(value) : undefined,
-            })),
-          })
-
-          return next ? { ...next, isDescendantHashes: true } : null
         }
         case 'closestDescendantMerkleValue': {
           const followingSubscription = following.get(followSubscription)
@@ -360,24 +372,8 @@ export const chainHead_v1_storage: Handler<
       }
     }
 
-    const listResult = await settleStorageReads(items.map(handleStorageItemRequest))
-    const pending = listResult.filter((v) => v !== null)
-
-    if (!pending.length) {
-      following.get(followSubscription)?.callback({
-        event: 'operationStorageDone',
-        operationId,
-      })
-    } else {
-      const follower = following.get(followSubscription)
-      if (follower) {
-        follower.pendingDescendantValues.set(operationId, { hash, params: pending })
-        follower.callback({
-          event: 'operationWaitingForContinue',
-          operationId,
-        })
-      }
-    }
+    const results = await settleStorageReads(items.map(handleStorageItemRequest))
+    finishStoragePage(followSubscription, operationId, hash, results)
   }
   afterResponse(readStorage, (error) => reportInaccessible(followSubscription, operationId, error))
 
@@ -434,61 +430,43 @@ export const chainHead_v1_continue: Handler<[string, string], null> = async (
   [followSubscription, operationId],
 ) => {
   const follower = following.get(followSubscription)
-  const pendingOp = follower?.pendingDescendantValues.get(operationId)
-  if (!follower || !pendingOp || pendingOp.continuing) {
+  const operation = follower?.storageOperations.get(operationId)
+  if (!follower || !operation?.pending) {
     throw new ResponseError(-32803, "Operation ID doesn't have anything pending")
   }
-  pendingOp.continuing = true
+  const { hash, pending } = operation
+  // Claim the page while keeping the operation registered for cancellation.
+  operation.pending = null
 
-  const isContinuing = () =>
-    following.get(followSubscription) === follower && follower.pendingDescendantValues.get(operationId) === pendingOp
+  const isCurrentOperation = () => following.get(followSubscription)?.storageOperations.get(operationId) === operation
 
   const readNextPage = async () => {
-    if (!isContinuing()) return
-    const block = await context.chain.getBlock(pendingOp.hash)
-    if (!block) throw new Error(`Block ${pendingOp.hash} not found`)
+    if (!isCurrentOperation()) return
+    const block = await context.chain.getBlock(hash)
+    if (!block) throw new Error(`Block ${hash} not found`)
 
-    const handlePendingOperation = async (params: DescendantValuesParams) => {
-      const { items, next } = await getDescendantValues(block, params)
+    const readPage = async (params: DescendantValuesParams) => {
+      const { items, next } = await getDescendantPage(block, params)
 
-      if (isContinuing()) {
+      if (isCurrentOperation()) {
         follower.callback({
           event: 'operationStorageItems',
           operationId,
-          items: params.isDescendantHashes
-            ? items.map(({ key, value }) => ({
-                key,
-                hash: value !== undefined ? blake2AsHex(value) : value,
-              }))
-            : items,
+          items,
         })
       }
 
       return next
     }
 
-    const listResult = await settleStorageReads(pendingOp.params.map(handlePendingOperation))
-    if (!isContinuing()) return
-
-    const pending = listResult.filter((v) => v !== null)
-
-    if (!pending.length) {
-      follower.pendingDescendantValues.delete(operationId)
-      follower.callback({
-        event: 'operationStorageDone',
-        operationId,
-      })
-    } else {
-      follower.pendingDescendantValues.set(operationId, { hash: pendingOp.hash, params: pending })
-      follower.callback({
-        event: 'operationWaitingForContinue',
-        operationId,
-      })
+    const results = await settleStorageReads(pending.map(readPage))
+    if (isCurrentOperation()) {
+      finishStoragePage(followSubscription, operationId, hash, results)
     }
   }
   afterResponse(readNextPage, (error) => {
-    if (isContinuing()) {
-      follower.pendingDescendantValues.delete(operationId)
+    if (isCurrentOperation()) {
+      follower.storageOperations.delete(operationId)
       reportInaccessible(followSubscription, operationId, error)
     }
   })
@@ -500,7 +478,7 @@ export const chainHead_v1_stopOperation: Handler<[string, HexString], null> = as
   _context,
   [followSubscription, operationId],
 ) => {
-  following.get(followSubscription)?.pendingDescendantValues.delete(operationId)
+  following.get(followSubscription)?.storageOperations.delete(operationId)
 
   return null
 }
