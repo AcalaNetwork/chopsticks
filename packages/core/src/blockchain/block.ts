@@ -109,12 +109,18 @@ export class Block {
 
   get extrinsics(): HexString[] | Promise<HexString[]> {
     if (!this.#extrinsics) {
-      this.#extrinsics = this.#chain.api.getBlock(this.hash).then((b) => {
-        if (!b) {
-          throw new Error(`Block ${this.hash} not found`)
-        }
-        return b.block.extrinsics
-      })
+      this.#extrinsics = this.#chain.api
+        .getBlock(this.hash)
+        .then((b) => {
+          if (!b) {
+            throw new Error(`Block ${this.hash} not found`)
+          }
+          return b.block.extrinsics
+        })
+        .catch((error) => {
+          this.#extrinsics = undefined
+          throw error
+        })
     }
     return this.#extrinsics
   }
