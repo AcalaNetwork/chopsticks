@@ -1,6 +1,15 @@
 import type { HexString } from '@polkadot/util/types'
-import { describe, expect, it, vi } from 'vitest'
-import { chainHead_v1_follow } from './chainHead_v1.js'
+import { assert, describe, expect, it, vi } from 'vitest'
+import { Block } from '../../blockchain/block.js'
+import type { Context } from '../shared.js'
+import {
+  chainHead_v1_body,
+  chainHead_v1_continue,
+  chainHead_v1_follow,
+  chainHead_v1_storage,
+  type StorageItemRequest,
+} from './chainHead_v1.js'
+import { PAGE_SIZE } from './storage-common.js'
 
 const runtime = (overrides: Partial<Record<'implVersion' | 'specVersion', number>> = {}) => ({
   specName: 'test-chain',
@@ -21,6 +30,7 @@ const setup = (headRuntime: Promise<ReturnType<typeof runtime>>) => {
   const callback = vi.fn()
   const context = {
     chain: {
+      getBlock: vi.fn(),
       head: { hash: '0xhead', runtimeVersion: headRuntime },
       headState: {
         subscribeHead: vi.fn((next: (block: any) => Promise<void>) => {
@@ -120,5 +130,118 @@ describe('chainHead_v1_follow runtime events', () => {
       parentBlockHash: undefined,
       newRuntime: { type: 'invalid', error: 'runtime unavailable' },
     })
+  })
+})
+
+describe('chainHead_v1 operation failures', () => {
+  const hash = '0xhead'
+  const key = '0x1234'
+
+  const follow = async () => {
+    const { callback, context, subscriptions } = setup(Promise.resolve(runtime()))
+    const rpcContext = context as unknown as Context
+    const subscription = await chainHead_v1_follow(rpcContext, [false], subscriptions)
+    await vi.waitFor(() =>
+      expect(callback).toHaveBeenCalledWith(expect.objectContaining({ event: 'bestBlockChanged' })),
+    )
+    callback.mockClear()
+    return { callback, getBlock: context.chain.getBlock, rpcContext, subscription, subscriptions }
+  }
+
+  it('finishes a failed storage read and accepts a new read after recovery', async () => {
+    const { callback, getBlock, rpcContext, subscription, subscriptions } = await follow()
+    const otherKey = '0x5678'
+    const pendingRead = Promise.withResolvers<HexString>()
+    const get = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('upstream disconnected'))
+      .mockReturnValueOnce(pendingRead.promise)
+      .mockResolvedValue('0xab')
+    getBlock.mockResolvedValue({ get })
+    const read = (items: StorageItemRequest[]) =>
+      chainHead_v1_storage(rpcContext, [subscription, hash, items, null], subscriptions)
+
+    const { operationId } = await read([
+      { key, type: 'value' },
+      { key: otherKey, type: 'value' },
+    ])
+    expect(callback).not.toHaveBeenCalled()
+    await vi.waitFor(() => expect(get).toHaveBeenCalledTimes(2))
+    pendingRead.resolve('0xcd')
+    await vi.waitFor(() =>
+      expect(callback.mock.calls).toEqual([
+        [{ event: 'operationStorageItems', operationId, items: [{ key: otherKey, value: '0xcd' }] }],
+        [{ event: 'operationInaccessible', operationId }],
+      ]),
+    )
+
+    callback.mockClear()
+    const recovered = await read([{ key, type: 'value' }])
+    await vi.waitFor(() =>
+      expect(callback.mock.calls).toEqual([
+        [{ event: 'operationStorageItems', operationId: recovered.operationId, items: [{ key, value: '0xab' }] }],
+        [{ event: 'operationStorageDone', operationId: recovered.operationId }],
+      ]),
+    )
+  })
+
+  it('clears a failed continuation and rejects concurrent attempts to resume the same page', async () => {
+    const { callback, getBlock, rpcContext, subscription, subscriptions } = await follow()
+    const keys = Array.from({ length: PAGE_SIZE }, (_, i) => `${key}${i.toString(16).padStart(4, '0')}`)
+    const getKeysPaged = vi.fn().mockResolvedValueOnce(keys).mockRejectedValueOnce(new Error('upstream disconnected'))
+    getBlock.mockResolvedValue({
+      getKeysPaged,
+      getMany: vi.fn().mockResolvedValue(keys.map(() => '0xab')),
+    })
+
+    const { operationId } = await chainHead_v1_storage(
+      rpcContext,
+      [subscription, hash, [{ key, type: 'descendantsValues' }], null],
+      subscriptions,
+    )
+    await vi.waitFor(() =>
+      expect(callback).toHaveBeenLastCalledWith({ event: 'operationWaitingForContinue', operationId }),
+    )
+    callback.mockClear()
+
+    const resume = () => chainHead_v1_continue(rpcContext, [subscription, operationId], subscriptions)
+    await expect(resume()).resolves.toBeNull()
+    await expect(resume()).rejects.toMatchObject({ code: -32803 })
+    await vi.waitFor(() =>
+      expect(callback).toHaveBeenCalledExactlyOnceWith({ event: 'operationInaccessible', operationId }),
+    )
+    await expect(resume()).rejects.toMatchObject({ code: -32803 })
+    expect(getKeysPaged).toHaveBeenCalledTimes(2)
+  })
+
+  it('retries an upstream body fetch for the same block after recovery', async () => {
+    const { callback, getBlock, rpcContext, subscription, subscriptions } = await follow()
+    const extrinsics = ['0xab']
+    const fetchBlock = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('upstream disconnected'))
+      .mockResolvedValue({ block: { extrinsics } })
+    const chain = { api: { getBlock: fetchBlock } } as unknown as Context['chain']
+    getBlock.mockResolvedValue(new Block(chain, 1, hash))
+    const readBody = () => chainHead_v1_body(rpcContext, [subscription, hash], subscriptions)
+
+    const started = await readBody()
+    assert(started.result === 'started')
+    await vi.waitFor(() =>
+      expect(callback).toHaveBeenLastCalledWith({
+        event: 'operationInaccessible',
+        operationId: started.operationId,
+      }),
+    )
+
+    const recovered = await readBody()
+    assert(recovered.result === 'started')
+    await vi.waitFor(() =>
+      expect(callback).toHaveBeenLastCalledWith({
+        event: 'operationBodyDone',
+        operationId: recovered.operationId,
+        value: extrinsics,
+      }),
+    )
   })
 })

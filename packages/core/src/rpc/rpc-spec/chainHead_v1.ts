@@ -4,7 +4,12 @@ import type { Block } from '../../blockchain/block.js'
 import { defaultLogger } from '../../logger.js'
 import type { RuntimeVersion } from '../../wasm-executor/index.js'
 import { type Handler, ResponseError, type SubscriptionManager } from '../shared.js'
-import { afterResponse, type DescendantValuesParams, getDescendantValues } from './storage-common.js'
+import {
+  afterResponse,
+  type DescendantValuesParams,
+  getDescendantValues,
+  settleStorageReads,
+} from './storage-common.js'
 
 const logger = defaultLogger.child({ name: 'rpc-chainHead_v1' })
 
@@ -12,7 +17,7 @@ const following = new Map<
   string,
   {
     callback: (data: any) => void
-    pendingDescendantValues: Map<string, { hash: HexString; params: DescendantValuesParams[] }>
+    pendingDescendantValues: Map<string, { hash: HexString; params: DescendantValuesParams[] | null }>
     storageDiffs: Map<HexString, number>
   }
 >()
@@ -182,6 +187,13 @@ type OperationStarted = {
 const operationStarted = (operationId: string): OperationStarted => ({ result: 'started', operationId })
 const randomId = () => Math.random().toString(36).substring(2)
 
+const reportInaccessible = (followSubscription: string, operationId: string, err: unknown) => {
+  logger.debug({ err, operationId }, 'Chain head operation could not retrieve data')
+  const follower = following.get(followSubscription)
+  follower?.pendingDescendantValues.delete(operationId)
+  follower?.callback({ event: 'operationInaccessible', operationId })
+}
+
 /**
  * Perform a runtime call for a block
  *
@@ -196,7 +208,7 @@ export const chainHead_v1_call: Handler<[string, HexString, string, HexString], 
 ) => {
   const operationId = randomId()
 
-  afterResponse(async () => {
+  const execute = async () => {
     const block = await context.chain.getBlock(hash)
 
     if (!block) {
@@ -221,7 +233,8 @@ export const chainHead_v1_call: Handler<[string, HexString, string, HexString], 
         })
       }
     }
-  })
+  }
+  afterResponse(execute, (error) => reportInaccessible(followSubscription, operationId, error))
 
   return operationStarted(operationId)
 }
@@ -255,7 +268,7 @@ export const chainHead_v1_storage: Handler<
 > = async (context, [followSubscription, hash, items, _childTrie]) => {
   const operationId = randomId()
 
-  afterResponse(async () => {
+  const readStorage = async () => {
     const block = await context.chain.getBlock(hash)
     if (!block) {
       following.get(followSubscription)?.callback({
@@ -339,7 +352,7 @@ export const chainHead_v1_storage: Handler<
       }
     }
 
-    const listResult = await Promise.all(items.map(handleStorageItemRequest))
+    const listResult = await settleStorageReads(items.map(handleStorageItemRequest))
     const pending = listResult.filter((v) => v !== null)
 
     if (!pending.length) {
@@ -357,7 +370,8 @@ export const chainHead_v1_storage: Handler<
         })
       }
     }
-  })
+  }
+  afterResponse(readStorage, (error) => reportInaccessible(followSubscription, operationId, error))
 
   return {
     ...operationStarted(operationId),
@@ -387,7 +401,7 @@ export const chainHead_v1_body: Handler<[string, HexString], OperationStarted | 
   }
 
   const operationId = randomId()
-  afterResponse(async () => {
+  const readBody = async () => {
     const body = await block.extrinsics
 
     following.get(followSubscription)?.callback({
@@ -395,7 +409,8 @@ export const chainHead_v1_body: Handler<[string, HexString], OperationStarted | 
       operationId,
       value: body,
     })
-  })
+  }
+  afterResponse(readBody, (error) => reportInaccessible(followSubscription, operationId, error))
 
   return operationStarted(operationId)
 }
@@ -406,23 +421,29 @@ export const chainHead_v1_body: Handler<[string, HexString], OperationStarted | 
  * @param context
  * @param params - [`followSubscription`, `operationId`]
  */
-export const chainHead_v1_continue: Handler<[string, HexString], null> = async (
+export const chainHead_v1_continue: Handler<[string, string], null> = async (
   context,
   [followSubscription, operationId],
 ) => {
   const follower = following.get(followSubscription)
   const pendingOp = follower?.pendingDescendantValues.get(operationId)
-  if (!pendingOp || !follower) {
+  if (!follower || !pendingOp?.params) {
     throw new ResponseError(-32803, "Operation ID doesn't have anything pending")
   }
-  const block = await context.chain.getBlock(pendingOp.hash)
-  if (!block) {
-    throw new ResponseError(-32801, 'Block not found')
-  }
+  const { params } = pendingOp
+  // Claim the page while keeping the operation registered for cancellation.
+  pendingOp.params = null
+  const isCurrentOperation = () =>
+    following.get(followSubscription)?.pendingDescendantValues.get(operationId) === pendingOp
 
-  afterResponse(async () => {
+  const readNextPage = async () => {
+    if (!isCurrentOperation()) return
+    const block = await context.chain.getBlock(pendingOp.hash)
+    if (!block) throw new Error(`Block ${pendingOp.hash} not found`)
+
     const handlePendingOperation = async (params: DescendantValuesParams) => {
       const { items, next } = await getDescendantValues(block, params)
+      if (!isCurrentOperation()) return next
 
       follower.callback({
         event: 'operationStorageItems',
@@ -438,7 +459,8 @@ export const chainHead_v1_continue: Handler<[string, HexString], null> = async (
       return next
     }
 
-    const listResult = await Promise.all(pendingOp.params.map(handlePendingOperation))
+    const listResult = await settleStorageReads(params.map(handlePendingOperation))
+    if (!isCurrentOperation()) return
     const pending = listResult.filter((v) => v !== null)
 
     if (!pending.length) {
@@ -454,6 +476,9 @@ export const chainHead_v1_continue: Handler<[string, HexString], null> = async (
         operationId,
       })
     }
+  }
+  afterResponse(readNextPage, (error) => {
+    if (isCurrentOperation()) reportInaccessible(followSubscription, operationId, error)
   })
 
   return null

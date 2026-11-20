@@ -5,8 +5,12 @@ import { randomId } from '../../blockchain/head-state.js'
 import { type Handler, ResponseError } from '../shared.js'
 import { archive_unstable_body, archive_unstable_call } from '../substrate/archive.js'
 import type { StorageItemRequest } from './chainHead_v1.js'
-import type { DescendantValuesParams } from './storage-common.js'
-import { afterResponse, getDescendantValues } from './storage-common.js'
+import {
+  afterResponse,
+  type DescendantValuesParams,
+  getDescendantValues,
+  settleStorageReads,
+} from './storage-common.js'
 
 /**
  * Retrieve the body of a specific block
@@ -131,7 +135,7 @@ const storageOperations = new Map<
 export const archive_v1_storage: Handler<[HexString, StorageItemRequest[], HexString | null], string> = async (
   context,
   [hash, items, _childTrie],
-  { subscribe },
+  { subscribe, unsubscribe },
 ) => {
   const operationId = randomId()
 
@@ -143,16 +147,9 @@ export const archive_v1_storage: Handler<[HexString, StorageItemRequest[], HexSt
     storageDiffs: new Map(),
   })
 
-  afterResponse(async () => {
+  const readStorage = async () => {
     const block = await context.chain.getBlock(hash)
-    if (!block) {
-      storageOperations.get(operationId)?.callback({
-        event: 'storageError',
-        operationId,
-        error: 'Block not found',
-      })
-      return
-    }
+    if (!block) throw new Error('Block not found')
 
     const handleStorageItemRequest = async (sir: StorageItemRequest): Promise<DescendantValuesParams | null> => {
       switch (sir.type) {
@@ -252,11 +249,22 @@ export const archive_v1_storage: Handler<[HexString, StorageItemRequest[], HexSt
       }
     }
 
-    await Promise.all(items.map(handleStorageItemRequest))
+    await settleStorageReads(items.map(handleStorageItemRequest))
 
     storageOperations.get(operationId)?.callback({
       event: 'storageDone',
     })
+  }
+  afterResponse(readStorage, (error) => {
+    try {
+      storageOperations.get(operationId)?.callback({
+        event: 'storageError',
+        operationId,
+        error: error instanceof Error ? error.message : String(error),
+      })
+    } finally {
+      unsubscribe(operationId)
+    }
   })
 
   return operationId

@@ -1,5 +1,9 @@
 import type { HexString } from '@polkadot/util/types'
 import type { Block } from '../../blockchain/block.js'
+import { defaultLogger } from '../../logger.js'
+
+const logger = defaultLogger.child({ name: 'rpc-storage' })
+const logDeferredError = (err: unknown) => logger.error({ err }, 'Deferred RPC failed')
 
 export async function getDescendantValues(
   block: Block,
@@ -43,7 +47,15 @@ export type DescendantValuesParams = {
   isDescendantHashes?: boolean
 }
 
-export async function afterResponse(fn: () => void) {
-  await new Promise((resolve) => setTimeout(resolve, 0))
-  fn()
+export function afterResponse(fn: () => Promise<void>, onError = logDeferredError) {
+  void new Promise((resolve) => setTimeout(resolve, 0)).then(fn).catch(onError).catch(logDeferredError)
+}
+
+export async function settleStorageReads<T>(reads: Promise<T>[]): Promise<T[]> {
+  // Let reads that are already running finish emitting items before sending a terminal event.
+  const results = await Promise.allSettled(reads)
+  return results.map((result) => {
+    if (result.status === 'rejected') throw result.reason
+    return result.value
+  })
 }
