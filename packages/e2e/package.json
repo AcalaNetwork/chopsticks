@@ -17,6 +17,6 @@
 		"polkadot-api": "^3.3.0",
 		"rxjs": "^7.8.2",
 		"typescript": "^6.0.3",
-		"vitest": "^5.1.0"
+		"vitest": "^5.1.1"
 	}
 }
